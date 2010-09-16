@@ -49,7 +49,7 @@ public:
     }
     TUChar *GetSndPiece(TUInt32 &len)
     {
-        len = (TUInt32)(m_pHeader) - (TUInt32)(m_pMemPool);
+        len = (TUInt32)((m_pHeader) - (m_pMemPool));
         return m_pMemPool;
     }
     CPipe(TUInt32 pipeSize,TInt32& result)
@@ -163,7 +163,9 @@ public:
     {
         m_pRear = m_pMemPool;
         m_pHeader = m_pMemPool;
+        #ifdef _DEBUG
         m_msgRecvd = 0;
+        #endif
     }
 public:
 
