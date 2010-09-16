@@ -296,6 +296,20 @@ TInt32 CConnection::Disconnect()
     return SUCCESS;
 }
 
+CConPair *CConnection::GetConnectionInfo()
+{
+    return &m_key;
+}
+TInt32 CConnection::NeedNoDelay(const char chOpt) 
+{
+    return DisableNagle(chOpt);
+}
+
+EnConnectionState CConnection::GetConnctionState()
+{
+    return (EnConnectionState)m_connectionState;
+}
+
 void CConnection::CloseConnection()
 {
     //TInt32 ret = SUCCESS;

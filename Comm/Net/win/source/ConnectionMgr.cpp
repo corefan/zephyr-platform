@@ -216,4 +216,35 @@ TInt32 CConnectionMgr::Listen(TChar *pIp,TUInt16 port,TUInt16 maxConnection,void
     return (TInt32)p;
 }
 
+TInt32 CConnectionMgr::StopListening(TInt32 listeningIdx)
+{
+    CListener *pListener = m_pListeners;
+    CListener *pLast=NULL;
+    while(pListener)
+    {
+        if (pListener == ((CListener *)listeningIdx))
+        {
+            if(pLast)
+            {
+                pLast->AttachToList(pListener->GetNext());
+                delete pListener;
+                return SUCCESS;
+            }
+            else
+            {
+                m_pListeners = pListener->GetNext();
+                delete pListener;
+                return SUCCESS;
+            }
+        }
+        else
+        {
+            pLast = pListener;
+            pListener = pListener->GetNext();
+        }
+    }
+    return OUT_OF_RANGE;
+}
+
+
 }

@@ -69,9 +69,7 @@ public:
 
     virtual TInt32 StopListening(TInt32 listeningIdx);
 
-    //设置默认parserFactory,如果没有，则收到任何消息，不管长度，立即上报.
-    virtual TInt32 SetDefaultParserFactory(void *pIfDefualtParserFactory);
-    virtual TInt32 SetDefaultCryptorFactory(void *pIfCryptorFactory);
+
     //if chOpt = 1,disable the Nagle algrithom.
     //else enable it , it is enableed by default.
     //In general this is unnecessary.

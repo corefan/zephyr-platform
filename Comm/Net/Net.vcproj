@@ -196,6 +196,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\win\source\NetApi.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\win\source\NetTask.cpp"
 				>
 			</File>
