@@ -40,7 +40,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="include;..\..\System\ExceptionParser\include;..\..\System\TaskMgr\include;..\..\Public\include;..\..\Public\Interface\App\include;..\..\Public\Interface\Platform\include;..\..\System\include;..\..\System\Logger\include"
+				AdditionalIncludeDirectories="include;../../System/ExceptionParser/include;../../System/TaskMgr/include;../../Public/include;../../Public/Interface/App/include;../../Public/Interface/Platform/include;../../System/include;../../System/Logger/include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -117,7 +117,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="include;..\..\System\ExceptionParser\include;..\..\System\TaskMgr\include;..\..\Public\include;..\..\Public\Interface\App\include;..\..\Public\Interface\Platform\include;..\..\System\include;..\..\System\Logger\include"
+				AdditionalIncludeDirectories="include;../../System/ExceptionParser/include;../../System/TaskMgr/include;../../Public/include;../../Public/Interface/App/include;../../Public/Interface/Platform/include;../../System/include;../../System/Logger/include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
