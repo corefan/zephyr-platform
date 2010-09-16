@@ -21,6 +21,7 @@ int main()
     cin>>remoteIp;
     pNetTester->OnInit();
     
+    
     pTaskMgr->AddTask(pNetTester);
     pTaskMgr->StartWorking(4);
     CExceptionParser parser;
