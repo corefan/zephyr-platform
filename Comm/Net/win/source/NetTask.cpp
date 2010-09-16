@@ -1,21 +1,67 @@
 #include "NetTask.h"
 #include "WinBase.h"
+#include "ConnectionMgr.h"
 
 namespace Zephyr
 {
 
+CNetTask::CNetTask()
+{
+    m_pConnectionPool = NULL;         
 
+    m_pEventQueues = NULL;
 
-TInt32 CNetTask::Init(TInt32 maxNrOfConnection,CConnection *pConnections,void *completionPort)
+    m_connectionAborted = 0;
+
+#ifdef _DEBUG
+    m_startTime = 0;
+    m_runCnt = 0;
+    m_averageTime = 0;
+#endif
+    m_buffSize = 0;
+    m_pBuff = NULL;
+    
+}
+CNetTask::~CNetTask()
+{
+    Final();   
+}
+
+void  CNetTask::Final()
+{
+    if (m_pBuff)
+    {
+        delete m_pBuff;
+        m_pBuff = NULL;
+    }
+    m_pConnectionPool = NULL;
+    m_pEventQueues = NULL;
+}
+
+TInt32 CNetTask::Init(HANDLE completionPort,CConnectionPool *pPool,CNetEventQueues *pQueues,TInt32 maxMsgLen)
 {
     m_completionPort = completionPort;
-    m_pConnections = pConnections;
-    m_maxConnectionNr = maxNrOfConnection;
+    m_pConnectionPool = pPool;
+    m_pEventQueues = pQueues;
+
 #ifdef _DEBUG
     m_startTime = timeGetTime();
     m_runCnt = 0;
     m_averageTime = 0;
 #endif
+    try
+    {
+        m_pBuff = new TUChar[maxMsgLen];
+    }
+    catch (...)
+    {
+        
+    }
+    if(!m_pBuff)
+    {
+        return OUT_OF_MEM;
+    }
+    m_buffSize = maxMsgLen;
 	//closesocket( s );
 	return SUCCESS;
 }
@@ -31,11 +77,7 @@ TInt32 CNetTask::Run(const TInt32 threadId,const TInt32 runCnt)
 {
 #ifdef _DEBUG
     TUInt32 timeNow = timeGetTime();
-    m_runCnt ++;
-    if (!m_runCnt)
-    {
-        m_runCnt = 1;
-    }
+
     m_averageTime = (timeNow - m_startTime)/m_runCnt;
 #endif
     TInt32 usedCnt = 0;
@@ -52,10 +94,29 @@ TInt32 CNetTask::Run(const TInt32 threadId,const TInt32 runCnt)
     //        
     //    }
     //}
-    for (int i = 0;i<m_maxConnectionNr;i++)
+    TInt32 ret = 0;
+    TIOEvent *pEvent = m_pEventQueues->GetAppEvent();
+    
+    while(pEvent)
     {
-        usedCnt += m_pConnections[i].Routine();
+        TIOEvent event = *pEvent;
+        m_pEventQueues->ConfirmHandleAppEvent(pEvent);
+        //应该有主动断链信息.
+        //= m_pConnections[pEvent->m_connectionIdx].Routine();
+        CConnection *pConnection = m_pConnectionPool->GetConectionByIdx(event.m_connectionIdx);
+        
+        if (pConnection)
+        {
+            ret += pConnection->NetRoutine();
+            //需要通知释放连接.
+            ++usedCnt;
+        }
+        
+        pEvent = m_pEventQueues->GetAppEvent();
     }
+#ifdef _DEBUG
+    m_runCnt += usedCnt;
+#endif
 
     while (runCnt > usedCnt)
     {
@@ -74,7 +135,7 @@ TInt32 CNetTask::Run(const TInt32 threadId,const TInt32 runCnt)
         {
 			DWORD dwIOError = GetLastError();
 			
-			if(dwIOError != WAIT_TIMEOUT) // It was not an Time out event we wait for ever (INFINITE) 
+			if(dwIOError != WAIT_TIMEOUT) 
 			{	
 				//TRACE(_T("GetQueuedCompletionStatus errorCode: %i, %s\n"),WSAGetLastError(),pThis->ErrorCode2Text(dwIOError));			
 				// if we have a pointer & This is not an shut down.. 
@@ -95,7 +156,7 @@ TInt32 CNetTask::Run(const TInt32 threadId,const TInt32 runCnt)
 						    CIocpOverlappedDataHeader *pHeader = CONTAINING_RECORD(lpOverlapped, CIocpOverlappedDataHeader, m_ol);
 						    if (pConnection == pHeader->m_pConnection)
 						    {
-						        OnDisconnected(pConnection);
+						        pConnection->OnNetDisconnected();
 						    }
 						    else
 						    {
@@ -187,18 +248,6 @@ TInt32 CNetTask::End(TInt32 threadId)
 //    }*/
 //    return SUCCESS;
 //}
-
-
-TInt32 CNetTask::OnDisconnected(CConnection *pConnection)
-{
-    pConnection->Disconnect();
-    m_connectionAborted ++;
-    return SUCCESS;
-    //return AddNetEvent(pConnection,NET_CONNECTION_BROKEN);
-}
-
-
-
 
 TInt32 CNetTask::ProcessIOMessage(CIocpOverlappedDataHeader *pHeader,TUInt32 ioSize)
 {
