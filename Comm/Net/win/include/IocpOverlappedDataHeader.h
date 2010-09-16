@@ -24,9 +24,9 @@ enum EnOperation
 {
     overlapped_not_in_using              = 0x00,
     overlapped_try_reading               = 0x01,
-    overlapped_try_reading_with_zero_mem = 0x02,    //没buff,就发空read下去，保持监听，或者没有
-    overlapped_try_writing_with_zero_mem = 0x03,
-    overlapped_try_writing               = 0x04,
+    overlapped_try_writing               = 0x02,
+    overlapped_try_reading_with_zero_mem = (0x04 | 0x01),    //没buff,就发空read下去，保持监听，或者没有
+    overlapped_try_writing_with_zero_mem = (0x04 | 0x02),    //没buff,就发空write下去，保持监听，
 };
 
 class CConnection;

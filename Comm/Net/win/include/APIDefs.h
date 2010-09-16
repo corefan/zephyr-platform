@@ -14,7 +14,7 @@ namespace Zephyr
 {
 
 typedef void *HANDLE;
-typedef long SOCKET;
+//typedef long SOCKET;
 
 }
  

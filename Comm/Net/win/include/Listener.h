@@ -14,8 +14,13 @@
 #define __ZEPHYR_LISTENER_H__
 
 #include "TypeDef.h"
+#include "IfNetData.h"
 #include "SysMacros.h"
-#include "winsock2.h"
+#include "ConnectionPool.h"
+#include "IfNetApp.h"
+#include "IfCryptorFactory.h"
+#include "IfParserFactory.h"
+//#include "winsock2.h"
 
 namespace Zephyr
 {
@@ -27,19 +32,23 @@ private:
     TUInt16     m_listeningPort;
     TUInt16     m_maxAcceptNr;
     SOCKET      m_listeningSocket;
-    void        *m_pAppData;
     CListener   *m_pNext;
+    IfListenerCallBack  *m_pListenerCallBack;
+    
+    CConnectionPool *m_pConnectionPool;
+    IfCryptorFactory *m_pCryptorFactory;
+    IfParserFactory  *m_pParserFactory;
 public:
     CListener();
     ~CListener();
-    TInt32 Init(TUInt32 myIp,TUInt16 listeningPort,TUInt16 maxAcceptNr,void *pAppData);
-    
+    TInt32 Init(TUInt32 myIp,TUInt16 listeningPort,TUInt16 maxAcceptNr,IfListenerCallBack *pListenerCallBack,CConnectionPool *pConnectionPool,IfParserFactory *pParserFactory,IfCryptorFactory *pCryptorFactory);
+    void   Final()
+    {
+        return;
+    }
+    TInt32 Run(TInt32 cnt);
     SOCKET Accept();
     TInt32 HasNewConnection();
-    void *GetAppData()
-    {
-        return m_pAppData;
-    }
     void AttachToList(CListener *pLast)
     {
         m_pNext =  pLast;

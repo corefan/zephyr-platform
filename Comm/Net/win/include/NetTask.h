@@ -14,27 +14,21 @@
 //#include "TplMap.h"
 #include "IfTask.h"
 #include "Connection.h"
-
+#include "ConnectionPool.h"
 namespace Zephyr
 {
 
 
 
 
+class CConnectionMgr;
 
-struct CNetEvent
-{
-    TUInt16      m_key;
-    TUInt16      m_seqNum;
-    TUInt16      m_isUsed;
-    TUInt16      m_eventType;
-};
-
-
+//只负责收发消息，发现网络断开，通知一下，其它都不做
+//如果网络断开后，则后续所有操作失败。
 class CNetTask : public IfTask
 {
 protected:
-    void*  m_completionPort;
+    HANDLE  m_completionPort;
     //TplMap<CConnection,TUInt32>                 m_connectionPool;
     //TplNode<CNetEvent,TUInt16>           *m_pWorkerEventPool[NR_OF_QUEUE_IN_TASK];
 
@@ -44,21 +38,25 @@ protected:
     //TplNode<CNetEvent,TUInt16> *m_pAppEvent[NR_OF_QUEUE_IN_TASK];
     
     
-    TUInt32                                     m_maxConnectionNr;
-    CConnection                                 *m_pConnections;
-
+    CConnectionPool*     m_pConnectionPool;         
     
-    volatile  TUInt32                           m_connectionAborted;
+    CNetEventQueues*     m_pEventQueues;
+    
+    volatile  TUInt32    m_connectionAborted;
+
 #ifdef _DEBUG
     TUInt32                                     m_startTime;
     TUInt32                                     m_runCnt;
     TUInt32                                     m_averageTime;
 #endif
-
+    TUInt32                                     m_buffSize;
+    TUChar*                                     m_pBuff;
 public:
-    TInt32         Init(TInt32 maxNrOfConnection,CConnection *pConnections,void *completionPort);
-
-    void* GetCompletionPort()
+    CNetTask();
+    ~CNetTask();
+    TInt32         Init(HANDLE completionPort,CConnectionPool *pPool,CNetEventQueues *pQueues,TInt32 maxMsgLen);
+    void           Final();
+    HANDLE GetCompletionPort()
     {
         return m_completionPort;
     }
@@ -76,8 +74,6 @@ private:
 
     //put the connection in to app
     //TInt32 OnAppSend(TplNode<CNetEvent,TUInt16>* pConnection);
-
-    TInt32 OnDisconnected(CConnection *pConnection);
     
     //inline TInt32 AddNetEvent(CConnection *pConnection,TUInt16 eventType);
     TInt32 ProcessIOMessage(CIocpOverlappedDataHeader *pHeader,TUInt32 ioSize);

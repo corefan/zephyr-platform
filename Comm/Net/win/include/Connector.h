@@ -17,7 +17,10 @@
 #include "TypeDef.h"
 #include "SysMacros.h"
 #include "Connection.h"
+#include "ConnectionPool.h"
 #include "IfNetApp.h"
+#include "IfCryptorFactory.h"
+#include "IfParserFactory.h"
 #include <winsock2.h>
 
 namespace Zephyr
@@ -46,15 +49,25 @@ private:
     CConnection     *m_pList;
     TInt32          m_connected;
     TInt32          m_failed;
-    IfNetApp        *m_pIfNetApp;
+    //IfNetApp        *m_pIfNetApp;
     HANDLE          m_hCompletionPort;
+    
+    CConnectionPool *m_pConnectionPool;
+    
+    IfCryptorFactory *m_pCryptorFactory;
+    
+    IfParserFactory  *m_pParserFactory;
     //CConnectionMgr  *m_pConnectionMgr;
 public:
-    TInt32 Init(TInt32 maxPendingConnections,IfNetApp *pIfNetApp,HANDLE completionPort);
+    TInt32 Init(TInt32 maxPendingConnections,HANDLE completionPort,CConnectionPool *m_pConnectionPool,IfParserFactory *pParserFactory,IfCryptorFactory *pCryptorFactory);
+    //TInt32 Connect(TChar *pRemoteIp,TChar *pMyIp,TUInt16 remotePort,TUInt16 myPort,void *pAppCallBack);
+    TInt32 Connect(CConPair *pPair,IfConnectionCallBack *pAppCallBack);
+    
     TInt32 Run(const TUInt32 runCnt);
-    TInt32 Connect(CConnection *pConnection);
-    TInt32 StopConnecting(CConnection *pConnection);
-private:
+    
+    //TInt32 Connect(CConnection *pConnection);
+    //TInt32 StopConnecting(CConnection *pConnection);
+
     TBool  IsListFull()
     {
         if (m_maxPendingConnection < m_pendingConnections)
@@ -63,7 +76,10 @@ private:
         }
         return TRUE;
     }
+private:
     void AddToPendingList(CConnection *pConnection);
+    
+    void OnConnectionEstablish(CConnection *pConnection);
 };
 
 }
