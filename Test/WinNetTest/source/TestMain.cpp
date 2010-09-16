@@ -7,6 +7,7 @@
 #include "ExceptionParser.h"
 #include <iostream>
 #include "WinNetTester.h"
+#include "Config\include\SettingFile.h"
 using namespace Zephyr;
 using namespace std;
 int main()
@@ -14,13 +15,20 @@ int main()
     IfTaskMgr *pTaskMgr = CreateTaskMgr();
     
     CWinNetTester *pNetTester = new CWinNetTester(pTaskMgr);
-    cout<<"How many msg do U want send first?";
-    int sendMsg;
-    cin>>sendMsg;
-    char remoteIp[28];
-    cin>>remoteIp;
+    CSettingFile setting;
+    if(!setting.LoadFromFile("Setting.ini"))
+    {
+        return -1;
+    }
     pNetTester->OnInit();
-    
+    const char *pMyIp = setting.GetString("MAIN","myIp");
+    const char *pRemoteIp = setting.GetString("MAIN","remoteIp");
+    unsigned short myPort = setting.GetInteger("MAIN","myPort",12437);
+    unsigned short remotePort = setting.GetInteger("MAIN","remotePort",12436);
+    int passiveConnectionNr = setting.GetInteger("MAIN","passiveConnectionNr",64);
+    int maxConnectionNr = setting.GetInteger("MAIN","maxConnectionNr",128);
+    int initSendMgs = setting.GetInteger("MAIN","initSendMgs",10);
+    pNetTester->Init(pMyIp,pRemoteIp,myPort,remotePort,passiveConnectionNr,maxConnectionNr,initSendMgs);
     
     pTaskMgr->AddTask(pNetTester);
     pTaskMgr->StartWorking(4);

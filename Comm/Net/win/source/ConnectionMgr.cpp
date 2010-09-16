@@ -108,7 +108,7 @@ void  CConnectionMgr::Final()
     m_pCryptorFactory = NULL;
 }
 
-TInt32 CConnectionMgr::Connect(TChar *pRemoteIp,TChar *pMyIp,TUInt16 remotePort,TUInt16 myPort,void *pAppData)
+TInt32 CConnectionMgr::Connect(const TChar *pRemoteIp,const TChar *pMyIp,TUInt16 remotePort,TUInt16 myPort,void *pAppData)
 {
     if (m_connector.IsListFull())
     {
@@ -192,7 +192,7 @@ TInt32 CConnectionMgr::Run(TUInt32 runCnt)
 //    }
 //}
 
-TInt32 CConnectionMgr::Listen(TChar *pIp,TUInt16 port,TUInt16 maxConnection,void *pIfCallBack)
+TInt32 CConnectionMgr::Listen(const TChar *pIp,TUInt16 port,TUInt16 maxConnection,void *pIfCallBack)
 {
     CListener *p = new CListener();
     if (NULL == p)

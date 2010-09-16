@@ -24,6 +24,7 @@ public:
     ~CWinNetTester();
     TInt32 OnInit();
     TInt32 OnFianl();
+    TInt32 Init(const char *pMyIp,const char *pRemoteIp,unsigned short myPort,unsigned short remotePort,int passiveConnectionNr,int maxConnectionNr,int initSendMsg);
     virtual TInt32 Begin(TInt32 threadId)
     {
         return SUCCESS;

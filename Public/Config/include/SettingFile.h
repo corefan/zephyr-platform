@@ -126,7 +126,7 @@ public:
 	{
 		const char * p = GetSettingString( pszSection, pszItemName );
 		if( p == NULL )return DefValue;
-		return atoi64(p);
+		return _atoi64(p);
 	}
 	double GetDouble(const char * pszSection, const char * pszItemName, double DefValue = 0 )
 	{

@@ -60,12 +60,12 @@ class IfNet
 {
 public:
     //主动连接
-    virtual TInt32 Connect(TChar *pRemoteIp,TChar *pMyIp,TUInt16 remotePort,TUInt16 myPort,void *pAppCallBack) = 0;
+    virtual TInt32 Connect(const TChar *pRemoteIp,const TChar *pMyIp,TUInt16 remotePort,TUInt16 myPort,void *pAppCallBack) = 0;
     //virtual TInt32 Connect(TUInt32 remoteIp,TUInt32 myIp,TUInt16 remotePort,TUInt16 myPort,void *pAppCallBack) = 0;
         //sendRemainMsg 是否发送剩余的消息
     
     //监听
-    virtual TInt32 Listen(TChar *pIp,TUInt16 port,TUInt16 maxConnection,void *pIfCallBack) = 0;
+    virtual TInt32 Listen(const TChar *pIp,TUInt16 port,TUInt16 maxConnection,void *pIfCallBack) = 0;
     
     virtual TInt32 StopListening(TInt32 listeningIdx) = 0;
     

@@ -22,6 +22,34 @@ TInt32 CWinNetTester::OnInit()
     return SUCCESS;
 }
 
+TInt32 CWinNetTester::Init(const char *pMyIp,const char *pRemoteIp,unsigned short myPort,unsigned short remotePort,int passiveConnectionNr,int connectionNr,int initSendMsg)
+{
+    int ret = m_pNet->Listen(pMyIp,myPort,connectionNr,&m_ConnectionPool);
+    if (SUCCESS > ret)
+    {
+        return ret;
+    }
+    for (int i=0;i<passiveConnectionNr;++i)
+    {
+        CAppConnection *pConnection = m_ConnectionPool.GetConnection();
+        bool tryAgain = true;
+        while(tryAgain)
+        {
+            int ret = m_pNet->Connect(pRemoteIp,pMyIp,remotePort,myPort,pConnection);
+            if (SUCCESS > ret)
+            {
+                Sleep(15);
+            }
+            else
+            {
+                tryAgain = false;
+            }
+        }
+    }
+    return SUCCESS;
+}
+
+
 TInt32 CWinNetTester::OnFianl()
 {
     return SUCCESS;
