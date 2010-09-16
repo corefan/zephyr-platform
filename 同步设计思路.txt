@@ -1,6 +1,22 @@
 把同步放到Gateway,由Gateway来广播，Gateway保存每个客户端的角色所在的地址，并放到对应的地图列表中。
 Gateway每收到一条同步消息，立即查找其地图，并查找其周围的客户端，然后广播。
 好处是广播和GS无关，GS和地图无关，需要设计一个地图服务器，广播周围角色的进出情况。
+同时有这个地图服务器计算每个人需要广播的Gateway的列表.
+即同时在GW和MapServer上保持两个地图列表.广播单位为2屏，按4格计算。这样每步走动只会引起4个消息。
+在MapServer按一屏为一个session进行计算.
+每个服务器都记录一张地图每一个屏对应的session所在地的列表。
+如果挂了，则失去所管区域的地图进出控制
+//尽量把同一地图Session放在一台服务器上.
+MapMagagerServer
+地图管理器，保存所有地图session的地址和在线人数，同时根据人数进行MapSession迁移控制.
+如果挂了，则失去MapSession迁移控制
+//MapSession的迁移算法
+//现在远端创建一个MapSession,创建成功后，把本地图的所有信息一起发过去Init,然后转发之后收到的
+//的每一条请求.同时，对每一个CharServer（CharServer上保持一个所有地图session的Map表,要10M内存？相当于MapMangerServer数据的一个镜像）发送session迁移通知
+//在所有CharServer确认后(即以后不会再从该CharServer收到消息)，释放这个session.
+//迁移完成
+
+
 每个GW只能接入2000人，性能应该可以，最差情况下，就是每个都广播，那就是2000*n条.
 100 * 50 = 5K * 2k = 100M
 按距离进行广播，先播近的，远的就扔掉不播放。
@@ -9,3 +25,72 @@ NPC向GW注册关心的角色，以一个NPCService为注册单位。NPC控制NPCCharactor.NPCServic
 每一个NPCService控制一个地图上的所有NPCCharactor。
 
 同步角色基本数据。
+
+关于NPC，按一个服务器来注册，
+限制每个地图1万人，这样的话，每个npc只要记录200人/组队对他的伤害
+每个人记录对他有仇恨的NPC列表,然后成对的增删。每个人最多有100个仇视他的NPC.
+struct THitRecord
+{
+	TUInt32 m_nType:4; //阵营/种族/帮派/战队/组队/兄弟/夫妻/个人
+	TUInt32 m_nId:28; //服务器内部ID.
+	TUInt32 m_nRecord;
+	TUInt32 m_nLastAttackTime; 12
+};
+TplNode<THitRecord*> 20
+
+
+
+28
+
+10K * 4K = 40M;
+
+普通怪16个； 6000个 48000  //150K * 46 = 6900k = 6.9m
+精英 32个； 1000个 16000
+领袖 64个； 200个  6400
+Boss 128个； 50个   3200
+地图Boss 256个 4个 512
+世界级Boss 512个 1 256
+唯一Boss 1024个
+
+50k怪
+//20K个实际量
+5k 
+
+class CCharater
+{
+	void OnHpChanged(int hp);
+	void OnMpChanged(int hp);
+};
+
+容器为对象确定东西.通过接口
+对象通知容器事件,可以注册64个事件，按bit保存
+
+地图，分级，最高级为一个同步范围。
+65536 * 65536 格
+4个格子
+人数\ 2 * 2 指针
+class CGrid
+{
+	TUInt16 m_sCharNr;
+	TUInt16 m_sHierachy;
+	void*   m_pLowGrid[2][2];
+};
+32 16 8 4 2 
+5个 40K 200K * 20 = 4M
+
+设计思路：
+不要有下级回调上级功能的设定，只能有平级之间的调用，
+如果一个功能有多个下级模块涉及到，则这个功能应该写在统一管辖着多个下级模块的上级模块内.
+如：CConectionMgr，提供ConnectionPool\Listener\Connector\EventQueue四个模块，这三个模块不需要CConectionMgr,Listener只要ConnectionPool就够了
+
+
+再比如设计人物角色时：
+ItemMgr只要管理物品增删，数据库存储就够了
+物品的作用，由于可能涉及到整个人物的各个属性，可以作为CChar的成员，或者写一个单独的模块来处理。
+这个模块的入参事Item \ CChar
+
+Char　也分为多个子模块，如Itembag\equipment\Attr\pos\fightingAttr,
+
+一个对外暴露的接口，内部就不该再使用？
+不然的话，外部很难知道内部是否已经调用过这个借口.
+
