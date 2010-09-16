@@ -27,7 +27,7 @@ public:
     //几个工作线程
 	virtual TInt32 StartWorking(TInt32 nrOfWorkersNeeded) = 0;
     //增加一个工作，最好在startworking前调用
-    virtual TInt32 AddTask(IfTask *pTask,EnTaskPriority priority) = 0;
+    virtual TInt32 AddTask(IfTask *pTask,EnTaskPriority priority = normal_task) = 0;
     //减去一个工作，最好在startworking前调用
     virtual TInt32 ReleaseTask(IfTask *pTask) = 0;
     //停止工作
