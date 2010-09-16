@@ -87,6 +87,7 @@ TInt32 CConnectionMgr::Init(TUInt32 maxConnectionNum,IfTaskMgr *pTaskMgr,IfParse
     }
     m_pParserFactory = pParserFactory;
     m_pCryptorFactory = pIfCryptorfactory;
+    //pTaskMgr->AddTask(this);
     return SUCCESS;
 }
 

@@ -27,8 +27,8 @@ int main()
     unsigned short remotePort = setting.GetInteger("MAIN","remotePort",12436);
     int passiveConnectionNr = setting.GetInteger("MAIN","passiveConnectionNr",64);
     int maxConnectionNr = setting.GetInteger("MAIN","maxConnectionNr",128);
-    int initSendMgs = setting.GetInteger("MAIN","initSendMgs",10);
-    pNetTester->Init(pMyIp,pRemoteIp,myPort,remotePort,passiveConnectionNr,maxConnectionNr,initSendMgs);
+    int initSendMsg = setting.GetInteger("MAIN","initSendMsg",10);
+    pNetTester->Init(pMyIp,pRemoteIp,myPort,remotePort,passiveConnectionNr,maxConnectionNr,initSendMsg);
     
     pTaskMgr->AddTask(pNetTester);
     pTaskMgr->StartWorking(4);
