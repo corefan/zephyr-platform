@@ -160,6 +160,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\win\include\ConnectionPool.h"
+				>
+			</File>
+			<File
 				RelativePath=".\win\include\Connector.h"
 				>
 			</File>
@@ -169,6 +173,14 @@
 			</File>
 			<File
 				RelativePath=".\win\include\Listener.h"
+				>
+			</File>
+			<File
+				RelativePath=".\win\include\NetApi.h"
+				>
+			</File>
+			<File
+				RelativePath=".\win\include\NetEventQueue.h"
 				>
 			</File>
 			<File

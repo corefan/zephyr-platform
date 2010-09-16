@@ -45,7 +45,7 @@ public:
         }
         for (TUInt32 i=0;i<nrOfMaxConnection;i++)
         {
-            m_pConnectionPool[i].AttachToHead(m_pFree);
+            m_pConnectionPool[i].Attach(m_pFree);
             m_pConnectionPool[i].OnInit();
             int ret = m_pConnectionPool[i].OnCreate(i,buffSize);
             if (ret < SUCCESS)
@@ -76,7 +76,7 @@ public:
         pConnection->OnFinal();
         //不负责从原队列里删除，交给使用者.
         //pConnection->Detach();
-        pConnection->AttachToHead(m_pFree);
+        pConnection->Attach(m_pFree);
         m_pFree = pConnection;
     }
 

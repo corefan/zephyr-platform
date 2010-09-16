@@ -267,7 +267,7 @@ TInt32 CConnector::Connect(CConPair *pPair,IfConnectionCallBack *pAppCallBack)
 void CConnector::AddToPendingList(CConnection *pConnection)
 {
     m_pendingConnections ++;
-    pConnection->AttachToHead(m_pList);
+    pConnection->Attach(m_pList);
     m_pList = pConnection;
     pConnection->OnTryConnecting();
 }

@@ -275,7 +275,7 @@ public:
     TInt32 NetRoutine();
     
     
-    void AttachToHead(CConnection *pConnection)
+    void Attach(CConnection *pConnection)
     {
         m_pPrev = NULL;
         if (pConnection)
