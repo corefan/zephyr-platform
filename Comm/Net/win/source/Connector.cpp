@@ -1,10 +1,11 @@
 #include "Connector.h"
 #include "ConnectionMgr.h"
 #include "winsock2.h"
-
+#include "SysMacros.h"
 namespace Zephyr
 {
-TInt32 CConnector::Init(TInt32 maxPendingConnections,IfNetApp *pIfNetApp,HANDLE completionPort)
+
+TInt32 CConnector::Init(TInt32 maxPendingConnections,HANDLE completionPort,CConnectionPool *pConnectionPool,IfParserFactory *pParserFactory,IfCryptorFactory *pCryptorFactory)
 {
     m_pendingConnections = 0;
     m_connected          = 0;
@@ -14,8 +15,10 @@ TInt32 CConnector::Init(TInt32 maxPendingConnections,IfNetApp *pIfNetApp,HANDLE 
         return OUT_OF_RANGE;
     }
     m_pList = NULL;
-    m_pIfNetApp = pIfNetApp;
     m_hCompletionPort = completionPort;
+    m_pParserFactory  = pParserFactory;
+    m_pCryptorFactory = pCryptorFactory;
+    m_pConnectionPool = pConnectionPool;
     return SUCCESS;
 }
 
@@ -72,9 +75,9 @@ TInt32 CConnector::Run(const TUInt32 runCnt)
                     TUInt32 state = 0;
                     SOCKET sock = pCheck->GetSocket();
                     CConnection *pNext = pCheck->GetNext();
+                    
                     if (FD_ISSET(sock,&wset))
                     {
-                        
                         nfds --;
                         state = connection_is_established;
                     }
@@ -87,35 +90,45 @@ TInt32 CConnector::Run(const TUInt32 runCnt)
                     {
                     case connection_is_established:
                         {
-                            TInt32 result = m_pIfNetApp->OnConnected(pCheck->GetConnectionIdx(),pCheck->GetAppData());
-                            if (SUCCESS != result)
-                            {
-                                pCheck->Disconnect();
-                            }
+                            m_pendingConnections --;
+                            m_connected ++;
                             if (pCheck == m_pList)
                             {
                                 m_pList = pCheck->GetNext();
                             }
+                            //先解开连接
                             pCheck->Detach();
-                            m_pendingConnections --;
-                            m_connected ++;
+                            
                             HANDLE h = CreateIoCompletionPort((HANDLE) sock, m_hCompletionPort, (ULONG_PTR)(pCheck), 0);
+                            TInt32 result;
                             if (h != m_hCompletionPort)
                             {
-                                pCheck->Disconnect();
+                                result = FAIL;
                             }
-                            pCheck->ConnectionIsEstablished();
+                            else
+                            {
+                                TInt32 result = pCheck->OnConnected();
+                            }
+                            if (SUCCESS > result)
+                            {
+                                pCheck->CloseConnection();
+                                pCheck->OnDisconnected();
+                                m_pConnectionPool->ReleaseConnection(pCheck);
+                            }
+                            //pCheck->ConnectionIsEstablished();
                             usedCnt ++;
                         }
                         break;
                     case connection_is_aborted:
                         {
-                            TInt32 result = m_pIfNetApp->OnNetError(pCheck->GetConnectionIdx(),pCheck->GetAppData());
                             if (pCheck == m_pList)
                             {
                                 m_pList = pCheck->GetNext();
                             }
                             pCheck->Detach();
+                            pCheck->CloseConnection();
+                            pCheck->OnDisconnected();
+                            m_pConnectionPool->ReleaseConnection(pCheck);
                             m_pendingConnections --;
                             m_failed ++;
                             usedCnt ++;
@@ -138,59 +151,104 @@ TInt32 CConnector::Run(const TUInt32 runCnt)
     
 	return usedCnt;
 }
-    
 
-TInt32 CConnector::Connect(CConnection *pConnection)
+TInt32 CConnector::Connect(CConPair *pPair,IfConnectionCallBack *pAppCallBack)
 {
-    if (IsListFull())
+    CConnection *pNew = m_pConnectionPool->GetConnection();
+    if(!pNew)
     {
         return OUT_OF_MEM;
     }
-    SOCKET socket = NULL;
+    
+    SOCKET socket = SOCKET_ERROR;
+    
     if((socket=WSASocket(AF_INET, SOCK_STREAM, IPPROTO_IP, NULL, 0, WSA_FLAG_OVERLAPPED))==-1)
     {
+        //m_socket = NULL;
         return OUT_OF_MEM;
     }
-    pConnection->SetSocket(socket);
-    if (pConnection->SetSocketOptions() != SUCCESS)
-    {
-        closesocket(socket);
-        return FAIL;
-    }
+    
+//     if (SetSocketOptions() != SUCCESS)
+//     {
+//         closesocket(socket);
+//         return FAIL;
+//     }
     SOCKADDR_IN remoteAdd;
     SecureZeroMemory(&remoteAdd,sizeof(sockaddr));
-    
-    
+
     SOCKADDR_IN myAdd;
     SecureZeroMemory(&myAdd,sizeof(SOCKADDR_IN));
-    myAdd.sin_port = htons(pConnection->GetConPair()->GetMyPort());
+    myAdd.sin_port = htons(pPair->GetMyPort());
 
-	// Fill in the rest of the address structure
-	myAdd.sin_family = AF_INET;
-	myAdd.sin_addr.s_addr = pConnection->GetConPair()->GetMyIp();
+    // Fill in the rest of the address structure
+    myAdd.sin_family = AF_INET;
+    myAdd.sin_addr.s_addr = pPair->GetMyIp();
 
-	// bind our name to the socket
-	int ret = bind(socket, 
-		(LPSOCKADDR)&myAdd, 
-		sizeof(struct sockaddr));
+    // bind our name to the socket
+    TInt32 ret = bind(socket, 
+        (LPSOCKADDR)&myAdd, 
+        sizeof(struct sockaddr));
     if(ret   ==   SOCKET_ERROR)   
     {   
         closesocket(socket);   
         return FAIL;
     }
-    
+
     remoteAdd.sin_family=AF_INET;
-    remoteAdd.sin_addr.s_addr = pConnection->GetConPair()->GetRemoteIp();
-    remoteAdd.sin_port = htons(((short)pConnection->GetConPair()->GetRemotePort()));
+    remoteAdd.sin_addr.s_addr = pPair->GetRemoteIp();
+    remoteAdd.sin_port = htons(pPair->GetRemotePort());
+    
+    //没有指定本地IP和本地port,给补上
+    if ((0 == pPair->GetMyPort()) || (INADDR_ANY == pPair->GetMyIp()))
+    {
+        sockaddr_in myAdd;
+        int     myNameLen = sizeof(sockaddr_in);
+        ret = getsockname(socket,(sockaddr *)&myAdd,&myNameLen);;
+        if (ret == SOCKET_ERROR)
+        {
+            return (-((TInt32)WSAGetLastError()));
+        }
+        pPair->Init(pPair->GetRemoteIp(),myAdd.sin_addr.s_addr,pPair->GetRemotePort(),ntohs(myAdd.sin_port));
+    }
+    
+    IfParser *pParser;
+    TUInt32 connectionIdx = pNew->GetConnectionIdx();
+    if (m_pParserFactory)
+    {
+        pParser = m_pParserFactory->GetParser(pPair,connectionIdx);
+    }
+    else
+    {
+        pParser = NULL;
+    }
+    IfCryptor* pCryptor;
+    if (m_pCryptorFactory)
+    {
+        pCryptor = m_pCryptorFactory->GetCryptor(pPair,connectionIdx);
+    }
+    else
+    {
+        pCryptor = NULL;
+    }
+    
+    ret = pNew->Init(socket,pPair,pAppCallBack,pParser,pCryptor);
+    
+    if(ret   ==   SOCKET_ERROR)   
+    {   
+        closesocket(socket);
+        m_pConnectionPool->ReleaseConnection(pNew);
+        return FAIL;
+    }
     
     ret = connect(socket,(struct sockaddr *)&remoteAdd,sizeof(sockaddr));
+    
     if(ret == SOCKET_ERROR)
     {
         int error = WSAGetLastError();
         if (WSAEWOULDBLOCK == error)
         {
-            AddToPendingList(pConnection);
-            return SUCCESS;
+            AddToPendingList(pNew);
+            return WSAEWOULDBLOCK;
         }
         else
         {
@@ -199,36 +257,26 @@ TInt32 CConnector::Connect(CConnection *pConnection)
     }
     else
     {
-        //?
+        //直接成功了？
+        OnConnectionEstablish(pNew);
         return ret;
     }
 }
 
 
-
-TInt32 CConnector::StopConnecting(CConnection *pConnection)
-{
-    
-    if (pConnection->GetConnectionState() == connection_is_trying)
-    {
-        if (m_pList == pConnection)
-        {
-            m_pList = pConnection->GetNext();
-            pConnection->Detach();
-        }
-        m_pendingConnections --;
-        pConnection->SetConnectionState(connection_is_not_in_use);
-        return SUCCESS;
-    }
-    return ITEM_NOT_FOUND_IN_LIST;
-}
 void CConnector::AddToPendingList(CConnection *pConnection)
 {
     m_pendingConnections ++;
     pConnection->AttachToHead(m_pList);
     m_pList = pConnection;
-    pConnection->SetConnectionState(connection_is_trying);
+    pConnection->OnTryConnecting();
 }
+
+void CConnector::OnConnectionEstablish(CConnection *pConnection)
+{
+    pConnection->OnConnected();
+}
+
 
 }
 
