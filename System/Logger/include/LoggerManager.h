@@ -43,8 +43,8 @@ public:
             {
                 return sm_pInstance->Init();
             }
-            
         }
+        return SUCCESS;
     }
 public:
     TInt32 Init();
