@@ -40,7 +40,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories=".\;..\System\TaskMgr\include;.\include;.\Interface\Platform\include;..\System\include"
+				AdditionalIncludeDirectories=".\;..\System\TaskMgr\include;.\include;.\Interface\Platform\include;..\System\include;.\Interface\App\include;..\Comm\Net\win\include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -103,8 +103,6 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				Optimization="0"
-				AdditionalIncludeDirectories=".\;..\System\TaskMgr\include;.\include;.\Interface\Platform\include;..\System\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
@@ -156,6 +154,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\include\NetCenter.h"
+				>
+			</File>
+			<File
 				RelativePath=".\include\Pipe.h"
 				>
 			</File>
@@ -175,6 +177,10 @@
 		<Filter
 			Name="source"
 			>
+			<File
+				RelativePath=".\source\NetCenter.cpp"
+				>
+			</File>
 			<File
 				RelativePath=".\source\Pipe.cpp"
 				>
@@ -198,6 +204,10 @@
 						>
 					</File>
 					<File
+						RelativePath=".\Interface\Platform\include\IfNetData.h"
+						>
+					</File>
+					<File
 						RelativePath=".\Interface\platform\include\IfTask.h"
 						>
 					</File>
@@ -214,6 +224,14 @@
 					Name="include"
 					>
 					<File
+						RelativePath=".\Interface\App\include\IfCryptor.h"
+						>
+					</File>
+					<File
+						RelativePath=".\Interface\App\include\IfCryptorFactory.h"
+						>
+					</File>
+					<File
 						RelativePath=".\Interface\App\include\IfNetApp.h"
 						>
 					</File>
@@ -226,18 +244,6 @@
 						>
 					</File>
 				</Filter>
-			</Filter>
-		</Filter>
-		<Filter
-			Name="TPL"
-			>
-			<Filter
-				Name="include"
-				>
-				<File
-					RelativePath=".\TPL\include\tplmap.h"
-					>
-				</File>
 			</Filter>
 		</Filter>
 	</Files>
