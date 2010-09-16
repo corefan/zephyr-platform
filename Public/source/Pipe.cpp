@@ -216,6 +216,22 @@ TInt32 CPipe::GetFreeLen()
     return result;
 }
 
+TInt32 CPipe::GetAvailFreeLen()
+{
+    TInt32 len;
+    TUChar *pRear = (TUChar *)(m_pRear);
+    TUChar *pHeader = (TUChar *)(m_pHeader);
+    if (pRear > pHeader)
+    {
+        len = (pRear - pHeader);
+    }
+    else
+    {
+        len = (m_pMemPool + m_memPoolSize - pHeader);
+    }
+    return len;
+}
+
 TInt32 CPipe::WriteData(TUChar *pSrc,TUInt32 len)
 {
     TInt32 freeLen = GetFreeLen();
@@ -273,6 +289,62 @@ TInt32 CPipe::WriteData(TUChar *pSrc,TUInt32 len)
 	}
     return len;
 }
+
+//¶ÁÊý¾Ýµ½pData
+TInt32 CPipe::ReadData(TUChar *pTo,TUInt32 len)
+{
+    TUInt32 dataLen = GetDataLen();
+    if (len > dataLen)
+    {
+        return OUT_OF_RANGE;
+    }
+    TUChar *pRear = (TUChar *)(m_pRear);
+    TUChar *pHeader = (TUChar *)(m_pHeader);
+    
+#ifdef _DEBUG
+    bool needRecycle = false;
+#endif
+    if (pRear < pHeader)
+    {
+        dataLen = (pHeader - pRear);
+    }
+    else
+    {
+#ifdef _DEBUG
+        needRecycle = true;
+#endif
+        dataLen = (m_pMemPool + m_memPoolSize - pRear);
+    }
+    
+    if (dataLen > len)
+    {
+        memcpy(pTo,pRear,len);
+        pRear += len;
+        if (pRear == (m_pMemPool + m_memPoolSize))
+        {
+            m_pRear = m_pMemPool;
+        }
+        else
+        {
+            m_pRear = pRear;
+        }
+    }
+    else
+    {
+#ifdef _DEBUG
+        if (!needRecycle)
+        {
+            return FAIL;
+        }
+#endif
+        memcpy(pTo,pRear,dataLen);
+        TInt32 remainLen = len - dataLen;
+        memcpy((pTo+dataLen),m_pMemPool,remainLen);
+        m_pRear =  m_pMemPool + remainLen;
+    }
+    return len;
+}
+
 
 }
 
