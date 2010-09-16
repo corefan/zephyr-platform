@@ -24,12 +24,13 @@ namespace Zephyr
 class IfTaskMgr
 {
 public:
+    //几个工作线程
 	virtual TInt32 StartWorking(TInt32 nrOfWorkersNeeded) = 0;
-    
+    //增加一个工作，最好在startworking前调用
     virtual TInt32 AddTask(IfTask *pTask,EnTaskPriority priority) = 0;
-
+    //减去一个工作，最好在startworking前调用
     virtual TInt32 ReleaseTask(IfTask *pTask) = 0;
-
+    //停止工作
 	virtual TInt32 StopWorking() = 0;
 };
 
