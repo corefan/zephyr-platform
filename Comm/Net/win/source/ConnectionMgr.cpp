@@ -7,34 +7,31 @@ namespace Zephyr
 {
 
 
-CConnectionMgr::CConnectionMgr(IfNetApp *pApp,IfTaskMgr *pTaskMgr)
+CConnectionMgr::CConnectionMgr()
 {
-    m_pApp = pApp;
-    m_pTaskMgr = pTaskMgr;
-    m_lastRunTo = 0;
+
+    m_pCryptorFactory = NULL;
+    m_pListeners      = NULL;
+    //m_lastRunTo = 0;
     
 }
 
-TInt32 CConnectionMgr::Init(TUInt32 maxConnectionNum,TUInt32 buffSize)
+CConnectionMgr::~CConnectionMgr()
 {
-    m_pConnectionPool = new CConnection[maxConnectionNum];
-    if (!m_pConnectionPool)
+    //Final();
+}
+
+TInt32 CConnectionMgr::Init(TUInt32 maxConnectionNum,IfTaskMgr *pTaskMgr,IfParserFactory* pParserFactory,IfCryptorFactory *pIfCryptorfactory,TUInt32 buffSize)
+{
+    m_conncectionPool.Init(maxConnectionNum,buffSize);
+    
+    NEW(m_pBuff,TUChar,buffSize);
+    if (!m_pBuff)
     {
         return OUT_OF_MEM;
     }
-    m_pFree = NULL;
-    m_pUsed = NULL;
-    for (TUInt32 i=0;i<maxConnectionNum;i++)
-    {
-        m_pConnectionPool[i].AttachToHead(m_pFree);
-        m_pConnectionPool[i].OnInit();
-        int ret = m_pConnectionPool[i].OnCreate(i,buffSize);
-        if (ret < SUCCESS)
-        {
-            return ret;
-        }
-        m_pFree = (m_pConnectionPool + i);
-    }
+    m_buffSize = buffSize;
+    
     m_pListeners = NULL;
     WSADATA wsaData;
     int result = WSAStartup(MAKEWORD(2,2), &wsaData);	
@@ -43,7 +40,6 @@ TInt32 CConnectionMgr::Init(TUInt32 maxConnectionNum,TUInt32 buffSize)
         int errCode = GetLastError();
         return -errCode;
     }
-    m_maxConnectionNum = maxConnectionNum;
 
     SOCKET s;	
 
@@ -76,261 +72,148 @@ TInt32 CConnectionMgr::Init(TUInt32 maxConnectionNum,TUInt32 buffSize)
 
     for (TUInt32 i=0;i<NR_OF_NET_WORKER;i++)
     {
-        m_netWorkers[i].Init(m_maxConnectionNum,m_pConnectionPool,m_hCompletionPort);
-        int ret = m_pTaskMgr->AddTask((m_netWorkers+i),normal_task);
+        m_netWorker.Init(m_hCompletionPort,&m_conncectionPool,&m_netEventQueues,buffSize);
+        int ret = pTaskMgr->AddTask(&m_netWorker,normal_task);
         if (ret < SUCCESS)
         {
             return ret;
         }
     }
     
-    int ret = m_connector.Init(128,m_pApp,m_hCompletionPort);
+    int ret = m_connector.Init(128,m_hCompletionPort,&m_conncectionPool,m_pParserFactory,m_pCryptorFactory);
     if (ret < SUCCESS)
     {
         return ret;
     }
+    m_pParserFactory = pParserFactory;
+    m_pCryptorFactory = pIfCryptorfactory;
     return SUCCESS;
 }
 
-CConPair *CConnectionMgr::GetConnectionInfo(TUInt32 connectionIdx)
+void  CConnectionMgr::Final()
 {
-    if (connectionIdx < m_maxConnectionNum)
+    m_netWorker.Final();
+    while (m_pListeners)
     {
-        if (TRUE != m_pConnectionPool[connectionIdx].IsConnected())
-        {
-            return NULL;
-        }
-        return m_pConnectionPool[connectionIdx].GetConPair();
+        CListener *pNext = m_pListeners->GetNext();
+        m_pListeners->Final();
+        delete m_pListeners;
+        m_pListeners = pNext;
     }
-    return NULL;
-}
-
-
-
-TInt32 CConnectionMgr::SendMsg(TInt32 toConnectionIdx,TUChar *pMsg,TUInt32 msgLen)
-{
-    if (toConnectionIdx < m_maxConnectionNum)
-    {
-        if (TRUE != m_pConnectionPool[toConnectionIdx].IsConnected())
-        {
-            return CONNECTION_NOT_ESTABLISHED;
-        }
-        return m_pConnectionPool[toConnectionIdx].AppSend(pMsg, msgLen);
-    }
-    return OUT_OF_RANGE;
+    
+    
+    delete m_pParserFactory;
+    m_pParserFactory  = NULL;
+    delete m_pCryptorFactory;
+    m_pCryptorFactory = NULL;
 }
 
 TInt32 CConnectionMgr::Connect(TChar *pRemoteIp,TChar *pMyIp,TUInt16 remotePort,TUInt16 myPort,void *pAppData)
 {
+    if (m_connector.IsListFull())
+    {
+        return IF_NET_ERROR_CODE_TOO_MANY_PENDING_CONNECTIONGS;
+    }
     TUInt32 remoteIp = inet_addr(pRemoteIp);
     TUInt32 myIp = inet_addr(pMyIp);
-    return Connect(remoteIp,myIp,remotePort, myPort,  pAppData);
+    CConPair pair;
+    pair.Init(remoteIp,myIp,remotePort,myPort);
+    return m_connector.Connect(&pair,(IfConnectionCallBack*)pAppData);
 }
 
-TInt32 CConnectionMgr::Connect(TUInt32 remoteIp,TUInt32 myIp,TUInt16 remotePort,TUInt16 myPort,void *pAppData)
-{
-    CConPair pari;
-    CConnection *pNew = GetConnection();
-    if(!pNew)
-    {
-        return OUT_OF_MEM;
-    }
-    TInt32 result = pNew->OnInit();
-    result = pNew->Init(remoteIp,myIp,remotePort,myPort,connection_is_postive,pAppData,this);
-    if (result != SUCCESS)
-    {
-        pNew->OnFinal();
-        ReleaseConnection(pNew);
-        return result;
-    }
-    result = m_connector.Connect(pNew);
-    if (result != SUCCESS)
-    {
-        pNew->OnFinal();
-        ReleaseConnection(pNew);
-        return result;
-    }
-    return SUCCESS;
-}
 
 TInt32 CConnectionMgr::Run(TUInt32 runCnt)
 {
     TInt32 usedCnt = 0;
     CListener *pList = m_pListeners;
+    
     while (pList)
     {
-        TInt32 hasConnection = pList->HasNewConnection();
-        for (TInt32 i=0;i<hasConnection;i++)
+        usedCnt += pList->Run(runCnt-usedCnt);
+        if (usedCnt > runCnt)
         {
-            SOCKET sock = pList->Accept();
-            if (SOCKET_ERROR == sock)
-            {
-                continue;
-            }
-            else
-            {
-                CConnection *p = GetConnection();
-                if (!p)
-                {
-                    //directly close it.
-                    LINGER lingerStruct;
-                    lingerStruct.l_onoff = 1;
-                    lingerStruct.l_linger = 1;
-                    //use api's orignal types
-                    setsockopt(sock, SOL_SOCKET, SO_LINGER,
-                              (char *)&lingerStruct, sizeof(lingerStruct));
-
-                    closesocket(sock);
-                    break;
-                }
-                
-                p->SetSocketOnAccept(sock,this);
-                
-                HANDLE h = CreateIoCompletionPort((HANDLE) sock, m_hCompletionPort, (ULONG_PTR)(p), 0);
-                if (h != m_hCompletionPort)
-                {
-                    p->Disconnect();
-                }
-                p->OnConnected();
-                
-                TInt32 ret = m_pApp->OnConnected(p->GetConnectionIdx(), pList->GetAppData());
-                if (ret < SUCCESS)
-                {
-                    p->Disconnect();
-                   
-                    ReleaseConnection(p);
-                }
-                
-            }
+            return usedCnt;
         }
         pList = pList->GetNext();
     }
-    if (usedCnt >= runCnt)
-    {
-        return usedCnt;
-    }
     usedCnt += m_connector.Run((runCnt-usedCnt));
-    TUInt32 i=0;
-    TUInt32 idx = m_lastRunTo;
-    for (;i<m_maxConnectionNum;i++)
+    TIOEvent *pEvent = m_netEventQueues.GetNetEvent();
+    TIOEvent event = *pEvent;
+    m_netEventQueues.ConfirmHandleNetEvent(pEvent);
+    CConnection *pConnection = m_conncectionPool.GetConectionByIdx(pEvent->m_connectionIdx);
+    if (pConnection)
     {
-        TUInt32 connEvent = m_pConnectionPool[idx].GetEvent();
-        if (connEvent != event_connection_nothing)
+        //由应用层调用，如果返回-1，则表示需要释放连接,把链接close,并且放回connectionPool
+        TInt32 ret = pConnection->AppRoutine(m_pBuff,m_buffSize);
+        if (ret < SUCCESS)
         {
-            usedCnt ++;
-            switch(connEvent)
-            {
-            case event_connection_broken:
-                {
-                    m_pApp->OnDissconneted(idx,m_pConnectionPool[idx].GetAppData());
-                    ReleaseConnection(m_pConnectionPool + idx);
-                    break;
-                }
-            case event_connection_has_new_data:
-                {
-                    m_pConnectionPool[idx].Callback(m_pApp);
-                    //m_pApp->OnRecv()
-                }
-                break;
-            }
-            if (usedCnt > runCnt)
-            {
-                break;
-            }
+            //pConnection->CloseConnection();
+            m_conncectionPool.ReleaseConnection(pConnection);
         }
-        idx = (idx + 1)%m_maxConnectionNum;
-        //usedCnt += m_pConnectionPool[i].Routine();
     }
-    m_lastRunTo = (m_lastRunTo + i)%m_maxConnectionNum;
     return usedCnt;
 }
-TInt32 CConnectionMgr::Disconnect(TUInt32 connectionIdx)
-{
-    if (connectionIdx > m_maxConnectionNum)
-    {
-        return OUT_OF_RANGE;
-    }
-    switch (m_pConnectionPool[connectionIdx].GetConnectionState())
-    {
-        
-        case connection_is_not_in_use:
-        {
-            return CONNECTION_NOT_ESTABLISHED;
-        }
-        break;
-        case connection_is_trying:
-        {
-            m_pConnectionPool[connectionIdx].Disconnect();
-            return SUCCESS;
-        }
-        break;
-        case connection_is_established:
-        {
-            m_pConnectionPool[connectionIdx].Disconnect();
-            return SUCCESS;
-        }
-        break;
-        case connection_is_broken:
-        {
-            return SUCCESS;
-        }
-        break;
-        default:
-        {
-            return CONNECTION_IN_WRONG_STATE;
-        }
-    }
-}
-TInt32 CConnectionMgr::SetAppData(TUInt32 connectionIdx,void *pAppData)
-{
-    if (connectionIdx < m_maxConnectionNum)
-    {
-        m_pConnectionPool[connectionIdx].SetAppData(pAppData);
-        return SUCCESS;
-    }
-    return OUT_OF_RANGE;
-}
-TInt32 CConnectionMgr::Listen(TUInt32 ip,TUInt16 port,TUInt16 maxConnection,void *pAppData)
+//
+//TInt32 CConnectionMgr::Disconnect(TUInt32 connectionIdx)
+//{
+//    if (connectionIdx > m_maxConnectionNum)
+//    {
+//        return OUT_OF_RANGE;
+//    }
+//    switch (m_pConnectionPool[connectionIdx].GetConnectionState())
+//    {
+//        
+//        case connection_is_not_in_use:
+//        {
+//            return CONNECTION_NOT_ESTABLISHED;
+//        }
+//        break;
+//        case connection_is_trying:
+//        {
+//            m_pConnectionPool[connectionIdx].Disconnect();
+//            return SUCCESS;
+//        }
+//        break;
+//        case connection_is_established:
+//        {
+//            m_pConnectionPool[connectionIdx].Disconnect();
+//            return SUCCESS;
+//        }
+//        break;
+//        case connection_is_broken:
+//        {
+//            return SUCCESS;
+//        }
+//        break;
+//        default:
+//        {
+//            return CONNECTION_IN_WRONG_STATE;
+//        }
+//    }
+//}
+
+TInt32 CConnectionMgr::Listen(TChar *pIp,TUInt16 port,TUInt16 maxConnection,void *pIfCallBack)
 {
     CListener *p = new CListener();
     if (NULL == p)
     {
         return OUT_OF_RANGE;
     }
-    p->Init(ip, port, maxConnection,pAppData);
+    TUInt32 myIp = 0;
+    if (pIp != NULL)
+    {
+        myIp = inet_addr(pIp);
+    }
+    TInt32 ret = p->Init(myIp, port, maxConnection,(IfListenerCallBack*)pIfCallBack,&m_conncectionPool,m_pParserFactory,m_pCryptorFactory);
+    if (SUCCESS > ret)
+    {
+        p->Final();
+        delete p;
+        return ret;
+    }
     p->AttachToList(m_pListeners);
     m_pListeners = p;
-    return NULL;
-}
-
-
-CConnection *CConnectionMgr::GetConnection()
-{
-    CConnection *pResult = NULL;
-    if (m_pFree)
-    {
-        pResult = m_pFree;
-        m_pFree = m_pFree->GetNext();
-        pResult->Detach();
-        pResult->OnInit();
-    }
-    return pResult;
-}
-void CConnectionMgr::ReleaseConnection(CConnection *pConnection)
-{
-    pConnection->OnFinal();
-    pConnection->AttachToHead(m_pFree);
-    m_pFree = pConnection;
-}
-
-TInt32 CConnectionMgr::AddNetEvent(TIOEvent &events)
-{
-    return m_netEvents.WriteData((TUChar*)&events,sizeof(TIOEvent));
-}
-
-TInt32 CConnectionMgr::AddAppEvent(TIOEvent &event)
-{
-    return m_appEvents.WriteData((TUChar*)&event,sizeof(TIOEvent));
+    return (TInt32)p;
 }
 
 }
