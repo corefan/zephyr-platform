@@ -24,9 +24,13 @@
 #define _WIN32_WINNT 0x0501 // pretend it's at least Windows XP or Win2003
 #endif
 
-
+#ifndef FALSE
 #define FALSE 0
+#endif
+
+#ifndef TRUE
 #define TRUE  1
+#endif
 
 
 #define INIT_INT32_VALUE (-2147483648)
@@ -134,7 +138,7 @@ const unsigned int REPLY_MSG			= 0x10000000;
 
 #define MAX_IOCP_PACKET_DATA_LENGTH 1400
 
-#define SELECT_TIME_OUT (10)
+#define SELECT_TIME_OUT (2)
 
 #define NR_OF_QUEUE_IN_TASK (3)
 
@@ -165,6 +169,26 @@ const unsigned int REPLY_MSG			= 0x10000000;
     } \
 } \
 
+#define NEW(POINTER,TYPE,MEM_SIZE) \
+try \
+{ \
+    POINTER = new TYPE[MEM_SIZE]; \
+} \
+catch(...) \
+{ \
+} \
+
+#define DELETE(POINTER) \
+{ \
+    delete POINTER; \
+    POINTER = NULL; \
+}
+
+#define DELETEARRAY(ARRAYPOINTER) \
+{ \
+    delete [] POINTER; \
+    POINTER = NULL; \
+} \
 
 #ifdef WIN32
     #define FMT_I64 "%I64"

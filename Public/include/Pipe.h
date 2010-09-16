@@ -148,6 +148,8 @@ public:
     TUInt32 GetDataLen();
 
     TInt32 GetFreeLen();
+    
+    TInt32 GetAvailFreeLen();
 
     TBool IsInPipe(TUChar *pBuffer)
     {
@@ -166,6 +168,8 @@ public:
 public:
 
     TInt32 WriteData(TUChar *pDest,TUInt32 len);
+   
+    TInt32 ReadData(TUChar *pTo,TUInt32 len);
 };
 
 }
