@@ -182,7 +182,7 @@ TUInt32 CPipe::GetDataLen()
 	TUChar *pRear   = (TUChar*)m_pRear;
     if ((pHeader >= pRear))
     {
-        return (pHeader - pRear);
+        return (TUInt32)(pHeader - pRear);
     }
     return (m_memPoolSize - (pRear - pHeader));
 }
