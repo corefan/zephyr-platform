@@ -385,7 +385,7 @@ void CLogger::WriteLog(const TUInt32 logId,const TUInt32 lvl,const TChar *_pForm
 
 
     TInt32 strLen = sprintf(pBuff,"[%d][%02d-%02d %02d-%02d-%02d]",
-        logId,(m_timeNow+1).tm_mon,m_timeNow.tm_mday,m_timeNow.tm_hour,m_timeNow.tm_min,m_timeNow.tm_sec); 
+        logId,(m_timeNow.tm_mon+1),m_timeNow.tm_mday,m_timeNow.tm_hour,m_timeNow.tm_min,m_timeNow.tm_sec); 
 
     TInt32 strLen2 = _vsnprintf((pBuff+strLen),MAX_LOGGER_CONTENTS_LENGTH,_pFormat,ValueList);
 
