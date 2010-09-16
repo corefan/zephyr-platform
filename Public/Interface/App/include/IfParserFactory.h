@@ -15,13 +15,16 @@
 
 #include "TypeDef.h"
 #include "IfParser.h"
+#include "IfNetData.h"
 namespace Zephyr
 {
 
 class IfParserFactory
 {
 public:
-    virtual IfParser *GetParser(TUInt32 myIp,TUInt32 remoteIp,TUInt16 myPort,TUInt16 remotePort,TUInt32 connectionIdx) = 0;
+    virtual ~IfParserFactory() = 0;
+    //根据CConPair来创建一个解包器，注意，这个方法是由应用层的线程来调用的，即在IfNet::Run中被回调;
+    virtual IfParser *GetParser(CConPair *pPair,TUInt32 connectionIdx) = 0;
     virtual void ReleaseParser(IfParser *pParser) = 0;
 };
 
