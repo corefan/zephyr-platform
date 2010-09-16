@@ -1,5 +1,3 @@
-#ifndef _S_MAP_TEMPLATE_H_
-#define _S_MAP_TEMPLATE_H_
 /*************************************************
   Copyright (C), 1988-1999, Zephyr Platform
   File name:      tplMap.h
@@ -14,6 +12,9 @@
       And for the most important thing: U can read and debug it!
   History:
 *************************************************/
+#ifndef _S_MAP_TEMPLATE_H_
+#define _S_MAP_TEMPLATE_H_
+
 
 #include "SysMacros.h"
 #include "TypeDef.h"
