@@ -1,4 +1,5 @@
 #include "Listener.h"
+#include "NetApi.h"
 
 namespace Zephyr
 {
@@ -9,7 +10,8 @@ CListener::CListener()
     m_listeningPort = 0;
     m_maxAcceptNr = 0;
     m_listeningSocket = SOCKET_ERROR;
-    m_pAppData = NULL;
+    m_pListenerCallBack = NULL;
+    m_pConnectionPool   = NULL;
 }
 CListener::~CListener()
 {
@@ -19,12 +21,11 @@ CListener::~CListener()
     }
     
 }
-TInt32 CListener::Init(TUInt32 myIp,TUInt16 listeningPort,TUInt16 maxAcceptNr,void *pAppData)
+TInt32 CListener::Init(TUInt32 myIp,TUInt16 listeningPort,TUInt16 maxAcceptNr,IfListenerCallBack *pListenerCallBack,CConnectionPool *pConnectionPool,IfParserFactory *pParserFactory,IfCryptorFactory *pCryptorFactory)
 {
     m_myIp = myIp;
     m_listeningPort = listeningPort;
-    m_maxAcceptNr   = maxAcceptNr;
-    m_pAppData      = pAppData;
+
     m_pNext         = NULL;
     
     m_listeningSocket = WSASocket(AF_INET, SOCK_STREAM, IPPROTO_IP, NULL, 0, WSA_FLAG_OVERLAPPED);
@@ -35,37 +36,12 @@ TInt32 CListener::Init(TUInt32 myIp,TUInt16 listeningPort,TUInt16 maxAcceptNr,vo
         return -errCode;
     }
 
-    LINGER lingerStruct;
-    lingerStruct.l_onoff = 1;
-    lingerStruct.l_linger = 1;
-    //use api's orignal types
-    int ret = setsockopt(m_listeningSocket, SOL_SOCKET, SO_LINGER,
-              (char *)&lingerStruct, sizeof(lingerStruct));
-    if (ret == SOCKET_ERROR)
+    TInt32 ret = SetSocketOptions(m_listeningSocket);
+    if (SUCCESS > ret)
     {
         closesocket(m_listeningSocket);
-        return FAIL;
+        return ret;
     }
-   /* 
-    * TCP_NODELAY	 BOOL=TRUE Disables the "nagle algorithm for send coalescing" which delays
-    * short packets in the hope that the application will send more data and allow
-    * it to combine them into a single one to improve network efficiency.
-    */
-    const char chOpt = 1;
-    ret = setsockopt(m_listeningSocket, IPPROTO_TCP, TCP_NODELAY, &chOpt, sizeof(char));
-    if (ret == SOCKET_ERROR)
-    {
-        closesocket(m_listeningSocket);
-        return FAIL;
-    }
-    unsigned long argp   =   1;   
-    ret   =   ioctlsocket(m_listeningSocket,FIONBIO,(unsigned   long*)&argp);
-    if(ret   ==   SOCKET_ERROR)   
-    {   
-        closesocket(m_listeningSocket);
-	    return   FAIL;
-    }
-    
     
     SOCKADDR_IN myAdd;
     SecureZeroMemory(&myAdd,sizeof(SOCKADDR_IN));
@@ -91,8 +67,61 @@ TInt32 CListener::Init(TUInt32 myIp,TUInt16 listeningPort,TUInt16 maxAcceptNr,vo
 		closesocket(m_listeningSocket);
 		return FALSE;
 	}
+    m_maxAcceptNr            = maxAcceptNr;
+    m_pListenerCallBack      = pListenerCallBack;
+    m_pConnectionPool        = pConnectionPool;
+    m_pParserFactory         = pParserFactory;
+    m_pCryptorFactory        = pCryptorFactory;
 	return SUCCESS;
     
+}
+
+TInt32 CListener::Run(TInt32 cnt)
+{
+    TInt32 usedCnt = HasNewConnection();
+    SOCKET acceptedSocket = SOCKET_ERROR;
+    int nLen = sizeof(SOCKADDR_IN);
+    for (int i =0;i<usedCnt;++i)
+    {
+        acceptedSocket = WSAAccept(m_listeningSocket,
+            NULL,
+            &nLen,0,0);
+        if (SOCKET_ERROR != acceptedSocket)
+        {
+//             TInt32 ret = SetSocketOptions(acceptedSocket);
+//             if (SUCCESS > ret)
+//             {
+//                 closesocket(ret);
+//                 continue;
+//             }
+            CConnection *pNew = m_pConnectionPool->GetConnection();
+            CConPair pair;
+            GetConnPair(acceptedSocket,pair);
+            IfConnectionCallBack *pAppCallBack = m_pListenerCallBack->OnNewConnection(&pair);
+            if (!pAppCallBack)
+            {
+                closesocket(acceptedSocket);
+                continue;
+            }
+            IfParser  *pParser  = m_pParserFactory->GetParser(&pair,pNew->GetConnectionIdx());
+            IfCryptor *pCryptor = m_pCryptorFactory->GetCryptor(&pair,pNew->GetConnectionIdx());
+            TInt32 ret = pNew->Init(acceptedSocket,&pair,pAppCallBack,pParser,pCryptor);
+            if (SUCCESS > ret)
+            {
+                pNew->CloseConnection();
+                m_pConnectionPool->ReleaseConnection(pNew);
+                continue;
+            }
+            ret = pNew->OnConnected();
+            if (SUCCESS > ret)
+            {
+                pNew->CloseConnection();
+                m_pConnectionPool->ReleaseConnection(pNew);
+                continue;
+            }
+        }
+    }
+    return usedCnt;
 }
     
 SOCKET CListener::Accept()
