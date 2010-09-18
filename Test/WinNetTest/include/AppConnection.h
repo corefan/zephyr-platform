@@ -15,6 +15,11 @@ private:
     CAppConnection* m_pNext;
     static int      sm_averageMsgLen;
 public:
+    CAppConnection();
+    void SetPassvieSendNr(int nr)
+    {
+        m_passiveSendNr = nr;
+    }
     TInt32 OnInit();
     TInt32 OnFinal();
     void Attach(CAppConnection *pNext)

@@ -130,7 +130,10 @@ public:
     TInt32  Init();
     void    Final();
     TInt32 OnInit();
-
+    void SetEventQueue(CNetEventQueues *pEventQueue)
+    {
+        m_pEventQueues = pEventQueue;
+    }
 //     TUInt32 GetEvent()
 //     {
 //         if (m_connectionState == connection_is_not_in_use)
@@ -241,7 +244,7 @@ public:
         return FALSE;
     }
     
-    TInt32 SetSocketOptions();
+    //TInt32 SetSocketOptions();
     
     TInt32 OnFinal();
     

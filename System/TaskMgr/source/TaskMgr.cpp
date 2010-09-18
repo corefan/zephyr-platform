@@ -77,7 +77,10 @@ void CTaskWorkers::Loop()
         }
         if (bIsAllTaskDone)
         {
-            Sleep(m_threadSleepGap + MIN_SYSTEM_SLEEP_TIME);
+            if(m_threadIdx)
+            {
+                Sleep(m_threadSleepGap + MIN_SYSTEM_SLEEP_TIME);
+            }
         }
     }
     m_pTaskInfo = NULL;

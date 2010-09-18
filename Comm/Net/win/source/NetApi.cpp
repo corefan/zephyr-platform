@@ -25,7 +25,15 @@ TInt32 SetSocketOptions(SOCKET socket)
     // If argp = 0, blocking is enabled; 
     // If argp != 0, non-blocking mode is enabled.
 
-    unsigned long argp   =   1;   
+    unsigned long argp   =   1;
+    
+    ret = setsockopt(socket, SOL_SOCKET, SO_REUSEADDR, (char*)&argp, sizeof(argp));
+    if (ret == SOCKET_ERROR)
+    {
+        int errcode = WSAGetLastError();
+        return -errcode;
+    }
+    
     ret   =   ioctlsocket(socket,FIONBIO,(unsigned   long*)&argp);
     if(ret   ==   SOCKET_ERROR)   
     {   

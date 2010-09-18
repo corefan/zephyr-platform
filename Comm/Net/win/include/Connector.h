@@ -59,6 +59,8 @@ private:
     IfParserFactory  *m_pParserFactory;
     //CConnectionMgr  *m_pConnectionMgr;
 public:
+    CConnector();
+    ~CConnector();
     TInt32 Init(TInt32 maxPendingConnections,HANDLE completionPort,CConnectionPool *m_pConnectionPool,IfParserFactory *pParserFactory,IfCryptorFactory *pCryptorFactory);
     //TInt32 Connect(TChar *pRemoteIp,TChar *pMyIp,TUInt16 remotePort,TUInt16 myPort,void *pAppCallBack);
     TInt32 Connect(CConPair *pPair,IfConnectionCallBack *pAppCallBack);
@@ -70,11 +72,11 @@ public:
 
     TBool  IsListFull()
     {
-        if (m_maxPendingConnection < m_pendingConnections)
+        if (m_maxPendingConnection <= m_pendingConnections)
         {
-            return FALSE;
+            return TRUE;
         }
-        return TRUE;
+        return FALSE;
     }
 private:
     void AddToPendingList(CConnection *pConnection);

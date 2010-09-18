@@ -6,6 +6,17 @@ using namespace Zephyr;
 
 int CAppConnection::sm_averageMsgLen = 0;
 
+CAppConnection::CAppConnection()
+{
+    m_pIfConnection = NULL;
+    m_msgRecved = 0;
+    m_msgSend = 0;
+    m_passiveSendNr = 0;
+    m_pNext = NULL;
+}
+
+
+
 TInt32 CAppConnection::OnInit()
 {
     m_msgRecved = 0;
@@ -32,14 +43,23 @@ TInt32 CAppConnection::Run()
     {
         len -= m_msgSend;
     }
-    if (m_pIfConnection)
+    else
+    {
+        return 0;
+    }
+    if (len <= 0)
+    {
+        return 0;
+    }
+    
+    if (m_pIfConnection && sm_averageMsgLen)
     {
         static int buff[32*1024];
-        int sendLen = (rand() % sm_averageMsgLen);
-        sendLen <<= 1;
-        sendLen &= 0xFFFFFFFC;
+        int sendLen = 100;
+//         sendLen <<= 1;
+//         sendLen &= 0xFFFFFFFC;
         
-        for (int i=0;i<sendLen;i+=4)
+        for (int i=0;i<(sendLen>>2);++i)
         {
             buff[i] = sendLen+i;
         }
@@ -56,6 +76,9 @@ TInt32 CAppConnection::Run()
 
 TInt32 CAppConnection::OnRecv(TUChar *pMsg, TUInt32 msgLen)
 {
+    #ifdef __PRINT_DEBUG_INFO__
+    printf("[CAppConnection::OnRecv]");
+    #endif
     TUInt32 *pLen = (TUInt32*)pMsg;
     if (*pLen != msgLen)
     {
@@ -63,13 +86,14 @@ TInt32 CAppConnection::OnRecv(TUChar *pMsg, TUInt32 msgLen)
         return msgLen;
     }
     TUInt32 begin = *pLen;
-    for (int i=0;i<msgLen;i+=sizeof(TUInt32))
+    for (int i=0;i<(msgLen>>2);++i)
     {
         if (*pLen != (begin + i))
         {
             printf("Wrong Size!");
             return msgLen;
         }
+        ++pLen;
     }
     m_msgRecved += msgLen;
     Run();
@@ -83,6 +107,7 @@ TInt32 CAppConnection::OnRecv(TUChar *pMsg, TUInt32 msgLen)
     //IfConnection *pIfConnection在连接实际建立的时候再传给应用层。
 TInt32 CAppConnection::OnConnected(IfConnection *pIfConnection,IfParser *pParser,IfCryptor *pCryptor)
 {
+    printf("[CAppConnection::OnConnected]");
     m_pIfConnection = pIfConnection;
     return SUCCESS;
 }
@@ -90,6 +115,7 @@ TInt32 CAppConnection::OnConnected(IfConnection *pIfConnection,IfParser *pParser
     //任何socket异常都会自动关闭网络连接
 TInt32 CAppConnection::OnDissconneted(TInt32 erroCode)
 {
+    printf("[CAppConnection::OnDissconneted]");
     m_pIfConnection = NULL;
     return SUCCESS;
 }

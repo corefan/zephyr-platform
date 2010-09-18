@@ -21,8 +21,9 @@ CListener::~CListener()
     }
     
 }
-TInt32 CListener::Init(TUInt32 myIp,TUInt16 listeningPort,TUInt16 maxAcceptNr,IfListenerCallBack *pListenerCallBack,CConnectionPool *pConnectionPool,IfParserFactory *pParserFactory,IfCryptorFactory *pCryptorFactory)
+TInt32 CListener::Init(HANDLE completionPort,TUInt32 myIp,TUInt16 listeningPort,TUInt16 maxAcceptNr,IfListenerCallBack *pListenerCallBack,CConnectionPool *pConnectionPool,IfParserFactory *pParserFactory,IfCryptorFactory *pCryptorFactory)
 {
+    m_compeltionPort = completionPort;
     m_myIp = myIp;
     m_listeningPort = listeningPort;
 
@@ -94,7 +95,20 @@ TInt32 CListener::Run(TInt32 cnt)
 //                 closesocket(ret);
 //                 continue;
 //             }
+            TInt32 result = SetSocketOptions(acceptedSocket);
+            if (SUCCESS > result)
+            {
+                closesocket(acceptedSocket);
+                continue;
+            }
+            
+            
             CConnection *pNew = m_pConnectionPool->GetConnection();
+            if (!pNew)
+            {
+                closesocket(acceptedSocket);
+                return usedCnt;
+            }
             CConPair pair;
             GetConnPair(acceptedSocket,pair);
             IfConnectionCallBack *pAppCallBack = m_pListenerCallBack->OnNewConnection(&pair);
@@ -103,8 +117,24 @@ TInt32 CListener::Run(TInt32 cnt)
                 closesocket(acceptedSocket);
                 continue;
             }
-            IfParser  *pParser  = m_pParserFactory->GetParser(&pair,pNew->GetConnectionIdx());
-            IfCryptor *pCryptor = m_pCryptorFactory->GetCryptor(&pair,pNew->GetConnectionIdx());
+            IfParser  *pParser;
+            if (m_pParserFactory)
+            {
+                pParser = m_pParserFactory->GetParser(&pair,pNew->GetConnectionIdx());
+            }
+            else
+            {
+                pParser = NULL;
+            }
+            IfCryptor *pCryptor;
+            if (m_pCryptorFactory)
+            {
+                 pCryptor = m_pCryptorFactory->GetCryptor(&pair,pNew->GetConnectionIdx());
+            }
+            else
+            {
+                pCryptor = NULL;
+            }
             TInt32 ret = pNew->Init(acceptedSocket,&pair,pAppCallBack,pParser,pCryptor);
             if (SUCCESS > ret)
             {
@@ -112,6 +142,16 @@ TInt32 CListener::Run(TInt32 cnt)
                 m_pConnectionPool->ReleaseConnection(pNew);
                 continue;
             }
+            HANDLE h = CreateIoCompletionPort((HANDLE) acceptedSocket, m_compeltionPort, (ULONG_PTR)(pNew), 0);
+
+            if (h != m_compeltionPort)
+            {
+                closesocket(acceptedSocket);
+                pNew->OnDisconnected();
+                m_pConnectionPool->ReleaseConnection(pNew);
+                continue;
+            }
+            
             ret = pNew->OnConnected();
             if (SUCCESS > ret)
             {

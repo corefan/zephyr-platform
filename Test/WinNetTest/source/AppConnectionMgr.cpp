@@ -11,12 +11,14 @@ TInt32  CAppConnectionMgr::Init(TInt32 maxConnectionNr)
     {
         return OUT_OF_MEM;
     }
+    m_pFree = NULL;
     for (int i=0;i<maxConnectionNr;++i)
     {
         m_pConnectionPool[i].Attach(m_pFree);
         m_pFree = m_pConnectionPool + i;
     }
     m_pUsed = NULL;
+    m_connectionNr = maxConnectionNr;
     return SUCCESS;
 }
 CAppConnection *CAppConnectionMgr::GetConnection()
@@ -33,4 +35,6 @@ CAppConnection *CAppConnectionMgr::GetConnection()
 void CAppConnectionMgr::ReleaseConnection(CAppConnection *pConnection)
 {
     pConnection->OnFinal();
+    pConnection->Attach(m_pFree);
+    m_pFree = pConnection;
 }

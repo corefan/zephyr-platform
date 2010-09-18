@@ -23,7 +23,17 @@ CConnectionMgr::~CConnectionMgr()
 
 TInt32 CConnectionMgr::Init(TUInt32 maxConnectionNum,IfTaskMgr *pTaskMgr,IfParserFactory* pParserFactory,IfCryptorFactory *pIfCryptorfactory,TUInt32 buffSize)
 {
-    m_conncectionPool.Init(maxConnectionNum,buffSize);
+    int result = m_conncectionPool.Init(maxConnectionNum,buffSize);
+    
+    if (SUCCESS > result)
+    {
+        return result;
+    }
+    
+    for (int i = 0;i<maxConnectionNum;++i)
+    {
+        m_conncectionPool.GetConectionByIdx(i)->SetEventQueue(&m_netEventQueues);
+    }
     
     NEW(m_pBuff,TUChar,buffSize);
     if (!m_pBuff)
@@ -34,7 +44,7 @@ TInt32 CConnectionMgr::Init(TUInt32 maxConnectionNum,IfTaskMgr *pTaskMgr,IfParse
     
     m_pListeners = NULL;
     WSADATA wsaData;
-    int result = WSAStartup(MAKEWORD(2,2), &wsaData);	
+    result = WSAStartup(MAKEWORD(2,2), &wsaData);	
     if (result != SUCCESS)
     {
         int errCode = GetLastError();
@@ -73,22 +83,23 @@ TInt32 CConnectionMgr::Init(TUInt32 maxConnectionNum,IfTaskMgr *pTaskMgr,IfParse
     for (TUInt32 i=0;i<NR_OF_NET_WORKER;i++)
     {
         m_netWorker.Init(m_hCompletionPort,&m_conncectionPool,&m_netEventQueues,buffSize);
-        int ret = pTaskMgr->AddTask(&m_netWorker,normal_task);
-        if (ret < SUCCESS)
+        result = pTaskMgr->AddTask(&m_netWorker,normal_task);
+        if (result < SUCCESS)
         {
-            return ret;
+            return result;
         }
     }
     
-    int ret = m_connector.Init(128,m_hCompletionPort,&m_conncectionPool,m_pParserFactory,m_pCryptorFactory);
-    if (ret < SUCCESS)
+    result = m_connector.Init(128,m_hCompletionPort,&m_conncectionPool,pParserFactory,pIfCryptorfactory);
+    if (result < SUCCESS)
     {
-        return ret;
+        return result;
     }
     m_pParserFactory = pParserFactory;
     m_pCryptorFactory = pIfCryptorfactory;
-    //pTaskMgr->AddTask(this);
-    return SUCCESS;
+    
+    result = m_netEventQueues.Init(maxConnectionNum);
+    return result;
 }
 
 void  CConnectionMgr::Final()
@@ -139,18 +150,29 @@ TInt32 CConnectionMgr::Run(TUInt32 runCnt)
     }
     usedCnt += m_connector.Run((runCnt-usedCnt));
     TIOEvent *pEvent = m_netEventQueues.GetNetEvent();
-    TIOEvent event = *pEvent;
-    m_netEventQueues.ConfirmHandleNetEvent(pEvent);
-    CConnection *pConnection = m_conncectionPool.GetConectionByIdx(pEvent->m_connectionIdx);
-    if (pConnection)
+    
+    while(pEvent)
     {
-        //由应用层调用，如果返回-1，则表示需要释放连接,把链接close,并且放回connectionPool
-        TInt32 ret = pConnection->AppRoutine(m_pBuff,m_buffSize);
-        if (ret < SUCCESS)
+        TIOEvent event = *pEvent;
+        m_netEventQueues.ConfirmHandleNetEvent(pEvent);
+        CConnection *pConnection = m_conncectionPool.GetConectionByIdx(pEvent->m_connectionIdx);
+        if (pConnection)
         {
-            //pConnection->CloseConnection();
-            m_conncectionPool.ReleaseConnection(pConnection);
+            //由应用层调用，如果返回-1，则表示需要释放连接,把链接close,并且放回connectionPool
+            TInt32 ret = pConnection->AppRoutine(m_pBuff,m_buffSize);
+            pConnection->OnAppRecved();
+            if (ret < SUCCESS)
+            {
+                //pConnection->CloseConnection();
+                m_conncectionPool.ReleaseConnection(pConnection);
+            }
         }
+        ++ usedCnt;
+        if(usedCnt > runCnt)
+        {
+            break;
+        } 
+        pEvent = m_netEventQueues.GetNetEvent();
     }
     return usedCnt;
 }
@@ -205,7 +227,7 @@ TInt32 CConnectionMgr::Listen(const TChar *pIp,TUInt16 port,TUInt16 maxConnectio
     {
         myIp = inet_addr(pIp);
     }
-    TInt32 ret = p->Init(myIp, port, maxConnection,(IfListenerCallBack*)pIfCallBack,&m_conncectionPool,m_pParserFactory,m_pCryptorFactory);
+    TInt32 ret = p->Init(m_hCompletionPort,myIp, port, maxConnection,(IfListenerCallBack*)pIfCallBack,&m_conncectionPool,m_pParserFactory,m_pCryptorFactory);
     if (SUCCESS > ret)
     {
         p->Final();

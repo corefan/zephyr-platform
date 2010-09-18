@@ -1,7 +1,7 @@
 #include "Connection.h"
 #include "ConnectionMgr.h"
 #include "SysMacros.h"
-
+#include "NetApi.h"
 namespace Zephyr
 {
 
@@ -13,7 +13,7 @@ TInt32  CConnection::SendMsg(TUChar *pData,TUInt32 dataLen)
     //先写数据
     TInt32 result = m_outPipe.WriteData(pData, dataLen);
     //再写event
-    if (SUCCESS == result)
+    if (SUCCESS < result)
     {
         OnAppSend();
     }
@@ -51,10 +51,12 @@ TInt32 CConnection::OnRecv(CIocpOverlappedDataHeader *pHeader,TUInt32 ioSize)
         OnNetRecv();
         #ifdef _DEBUG
         m_msgRecv += ioSize;
-        if (SUCCESS != result)
-        {
-            return result;
-        }
+//         if (SUCCESS > result)
+//         {
+//             CloseConnection();
+//             m_connectionState = connection_is_broken;
+//             return result;
+//         }
         #endif
 #ifdef _DEBUG
         //TInt32 usedSize = m_inPipe.GetDataLen();
@@ -347,6 +349,16 @@ TInt32 CConnection::OnInit()
     m_netDisconnect = 0;
     m_appDisconnect = 0;
     m_connectionType = 0;
+
+    m_appSeqNum = 0;
+
+    m_netConfirmNum = 0;
+
+
+    m_netSeqNum = 0;
+
+    m_appConfirmNum = 0;
+
     return SUCCESS;
 }
 
@@ -356,6 +368,9 @@ TInt32 CConnection::OnFinal()
     m_netDisconnect = 0;
     m_appDisconnect = 0;
     m_connectionType = 0;
+    m_pAppCallBack = NULL;
+    m_pIfCryptor = NULL;
+    m_pIfParser  = NULL;
     return SUCCESS;
 }
 
@@ -371,7 +386,7 @@ TInt32 CConnection::SetSocketOnAccept(SOCKET sock,CConnectionMgr *pMgr)
 TInt32 CConnection::Init(SOCKET socket,CConPair *pPair,void *pAppCallBack,void *pParser,void* pCryptor/* =NULL */)
 {
     m_socket = socket;
-    TInt32 ret = SetSocketOptions();
+    TInt32 ret = SetSocketOptions(m_socket);
     if (SUCCESS > ret)
     {
         return ret;
@@ -393,41 +408,42 @@ TInt32 CConnection::Init(SOCKET socket,CConPair *pPair,void *pAppCallBack,void *
     m_pAppCallBack = (IfConnectionCallBack*)pAppCallBack;
     m_pIfParser    = (IfParser*)pParser; 
     m_pIfCryptor   = (IfCryptor*)pCryptor;
-    
-}
 
-TInt32 CConnection::SetSocketOptions()
-{
-    LINGER lingerStruct;
-    lingerStruct.l_onoff = 0;
-    lingerStruct.l_linger = 0;
-    //generally close the socket,and do not block the app.
-    //use api's orignal types
-    int ret = setsockopt(m_socket, SOL_SOCKET, SO_LINGER,
-              (char *)&lingerStruct, sizeof(lingerStruct));
-    if (ret == SOCKET_ERROR)
-    {
-        int errcode = WSAGetLastError();
-        return -errcode;
-    }
-
-    //-------------------------
-    // Set the socket I/O mode: In this case FIONBIO
-    // enables or disables the blocking mode for the 
-    // socket based on the numerical value of iMode.
-    // If argp = 0, blocking is enabled; 
-    // If argp != 0, non-blocking mode is enabled.
-
-    unsigned long argp   =   1;   
-    ret   =   ioctlsocket(m_socket,FIONBIO,(unsigned   long*)&argp);
-    if(ret   ==   SOCKET_ERROR)   
-    {   
-        int errcode = WSAGetLastError();
-        return -errcode;
-    }
-    
     return SUCCESS;
 }
+
+// TInt32 CConnection::SetSocketOptions()
+// {
+//     LINGER lingerStruct;
+//     lingerStruct.l_onoff = 0;
+//     lingerStruct.l_linger = 0;
+//     //generally close the socket,and do not block the app.
+//     //use api's orignal types
+//     int ret = setsockopt(m_socket, SOL_SOCKET, SO_LINGER,
+//               (char *)&lingerStruct, sizeof(lingerStruct));
+//     if (ret == SOCKET_ERROR)
+//     {
+//         int errcode = WSAGetLastError();
+//         return -errcode;
+//     }
+// 
+//     //-------------------------
+//     // Set the socket I/O mode: In this case FIONBIO
+//     // enables or disables the blocking mode for the 
+//     // socket based on the numerical value of iMode.
+//     // If argp = 0, blocking is enabled; 
+//     // If argp != 0, non-blocking mode is enabled.
+// 
+//     unsigned long argp   =   1;   
+//     ret   =   ioctlsocket(m_socket,FIONBIO,(unsigned   long*)&argp);
+//     if(ret   ==   SOCKET_ERROR)   
+//     {   
+//         int errcode = WSAGetLastError();
+//         return -errcode;
+//     }
+//     
+//     return SUCCESS;
+// }
 
 //由应用层调用，如果返回-1，则表示需要释放连接,把链接close,并且放回connectionPool
 TInt32 CConnection::AppRoutine(TUChar *pBuff,TUInt32 buffLen)
@@ -488,26 +504,27 @@ TInt32 CConnection::AppRoutine(TUChar *pBuff,TUInt32 buffLen)
                     //保存需要的长度.
                 dataLen = m_pIfParser->OnRecv(pHeader,dataLen);
 
-                if (dataLen < len)
+                if (dataLen > len)
+                {
+                    break;
+                }
+                else
                 {
                     TUInt32 needLen = dataLen;
                     pHeader = m_inPipe.GetData(needLen);
                     if (needLen < dataLen)
                     {
                         m_inPipe.ReadData(pBuff,dataLen);
+                        m_pAppCallBack->OnRecv(pBuff,dataLen);
                     }
                     else
                     {
                         if (m_pAppCallBack)
                         {
-                            m_pAppCallBack->OnRecv(pBuff,dataLen);
+                            m_pAppCallBack->OnRecv(pHeader,dataLen);
                         }
                         m_inPipe.ReturnMsgBuff(pHeader,dataLen);
                     }
-                }
-                else
-                {
-                    break;
                 }
                
             }
@@ -591,12 +608,26 @@ void CConnection::CheckAppDisconnected()
 TInt32 CConnection::OnConnected()
 {
     //CIocpOverlappedDataHeader *pData = PrepareToRead();
+    #ifdef __PRINT_DEBUG_INFO__
+    printf("[CConnection::OnConnected] idx = %d \n",m_connectionIdx);
+    #endif
     TInt32 ret = m_pAppCallBack->OnConnected(this,m_pIfParser,m_pIfCryptor);
+    
     if (SUCCESS != ret)
     {
         //CloseConnection();
         m_appDisconnect = 1;
         return ret;
+    }
+    if (m_pIfParser)
+    {
+        m_minHeaderLength = m_pIfParser->GetMinHeaderLength();
+        m_maxHeaderLength = m_pIfParser->GetMaxHeaderLength();
+    }
+    else
+    {
+        m_minHeaderLength = 0;
+        m_maxHeaderLength = 0;
     }
     CIocpOverlappedDataHeader *pData = PrepareToRead();
     
@@ -643,12 +674,19 @@ TInt32 CConnection::OnConnected()
                     m_connectionState = connection_is_using;
                     return SUCCESS;
                 }
+                else
+                {
+                    return (-m_errorCode);
+                }
                 //CloseConnect();
                 //OnNetDisconnected();
                 //connection broken;
-                
             }
-            return (-m_errorCode);
+            else
+            {
+                m_connectionState = connection_is_using;
+                return SUCCESS;
+            }
         }
         else
         {
@@ -664,15 +702,23 @@ TInt32 CConnection::OnConnected()
 
 TInt32 CConnection::OnDisconnected()
 {
+    #ifdef __PRINT_DEBUG_INFO__
+    printf("[CConnection::OnDisconnected] idx = %d \n",m_connectionIdx);
+    #endif
     if (m_pAppCallBack)
     {
-        return m_pAppCallBack->OnDissconneted(m_errorCode);
+        IfConnectionCallBack *p = m_pAppCallBack;
+        m_pAppCallBack = NULL;
+        return p->OnDissconneted(m_errorCode);
     }
     return SUCCESS;
 }
 //应用层发数据了
 void CConnection::OnAppSend()
 {
+    #ifdef __PRINT_DEBUG_INFO__
+    printf("[CConnection::OnAppSend] idx = %d m_appSeqNum =%d m_netConfirmNum = %d \n",m_connectionIdx,m_appSeqNum,m_netConfirmNum);
+    #endif
     if (m_appSeqNum == m_netConfirmNum)
     {
         ++ m_appSeqNum;
@@ -687,6 +733,9 @@ void CConnection::OnAppSend()
 //由应用层线程调用
 void CConnection::OnAppDisconnected()
 {
+    #ifdef __PRINT_DEBUG_INFO__   
+    printf("[CConnection::OnAppDisconnected] idx = %d m_appSeqNum =%d m_netConfirmNum = %d \n",m_connectionIdx,m_appSeqNum,m_netSeqNum);
+    #endif
     m_appDisconnect = 1;
     if (m_appSeqNum == m_netConfirmNum)
     {
@@ -701,11 +750,17 @@ void CConnection::OnAppDisconnected()
 //网络层发送了数据
 void CConnection::OnNetSent()
 {
+    #ifdef __PRINT_DEBUG_INFO__
+    printf("[CConnection::OnNetSent] idx = %d m_appSeqNum =%d m_netConfirmNum = %d \n",m_connectionIdx,m_appSeqNum,m_netConfirmNum);
+    #endif
     ++m_netConfirmNum;
 }
 //网络层收到了数据
 void CConnection::OnNetRecv()
 {
+    #ifdef __PRINT_DEBUG_INFO__
+    printf("[CConnection::OnNetRecv] idx = %d m_netSeqNum =%d m_appConfirmNum = %d \n",m_connectionIdx,m_netSeqNum,m_appConfirmNum);
+    #endif
     if (m_netSeqNum == m_appConfirmNum)
     {
         ++m_netSeqNum;
@@ -719,20 +774,30 @@ void CConnection::OnNetRecv()
 //应用层收取了网络层的书
 void CConnection::OnAppRecved()
 {
+    #ifdef __PRINT_DEBUG_INFO__
+    printf("[CConnection::OnAppRecved] idx = %d m_netSeqNum =%d m_appConfirmNum = %d \n",m_connectionIdx,m_netSeqNum,m_appConfirmNum);
+    #endif
     ++m_appConfirmNum;
 }
 //连接中断
 void CConnection::OnNetDisconnected()
 {
-    m_netDisconnect = 1;
-    if (m_netSeqNum == m_appConfirmNum)
+    #ifdef __PRINT_DEBUG_INFO__
+    printf("[CConnection::OnNetDisconnected] idx = %d m_netSeqNum =%d m_appConfirmNum = %d \n",m_connectionIdx,m_netSeqNum,m_appConfirmNum);
+    #endif
+    if (connection_is_using == m_connectionState)
     {
-        ++m_netSeqNum;
-        TIOEvent event;
-        event.m_seqNum           = m_netSeqNum;
-        event.m_connectionIdx    = m_connectionIdx;
-        event.m_connectionEvents = event_connection_is_broken;
-        m_pEventQueues->AddNetEvent(event);
+        m_netDisconnect = 1;
+        m_connectionState = connection_is_broken;
+        if (m_netSeqNum == m_appConfirmNum)
+        {
+            ++m_netSeqNum;
+            TIOEvent event;
+            event.m_seqNum           = m_netSeqNum;
+            event.m_connectionIdx    = m_connectionIdx;
+            event.m_connectionEvents = event_connection_is_broken;
+            m_pEventQueues->AddNetEvent(event);
+        }
     }
 }
 

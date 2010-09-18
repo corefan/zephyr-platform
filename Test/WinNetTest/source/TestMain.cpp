@@ -28,13 +28,14 @@ int main()
     int passiveConnectionNr = setting.GetInteger("MAIN","passiveConnectionNr",64);
     int maxConnectionNr = setting.GetInteger("MAIN","maxConnectionNr",128);
     int initSendMsg = setting.GetInteger("MAIN","initSendMsg",10);
+    int averageMsglen = setting.GetInteger("MAIN","averageMsglen",150);
     pNetTester->Init(pMyIp,pRemoteIp,myPort,remotePort,passiveConnectionNr,maxConnectionNr,initSendMsg);
-    
+    CAppConnection::SetAverageMsgLen(averageMsglen);
     pTaskMgr->AddTask(pNetTester);
-    pTaskMgr->StartWorking(4);
+    pTaskMgr->StartWorking(8);
     CExceptionParser parser;
     char stop = 'n';
-    while(('y' != stop) || ('Y' != stop))
+    while(('y' != stop) && ('Y' != stop))
     {
         cout<<"Do U wanna stop?"<<endl;
         cin>>stop;

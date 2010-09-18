@@ -28,6 +28,7 @@ public:
         return m_pConnectionPool + idx;
     }
     void ReleaseConnection(CAppConnection *pConnection);
+    void AddToUsedList(CAppConnection *pItem);
 };
 
 #endif

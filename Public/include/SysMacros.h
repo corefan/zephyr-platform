@@ -138,7 +138,7 @@ const unsigned int REPLY_MSG			= 0x10000000;
 
 #define MAX_IOCP_PACKET_DATA_LENGTH 1400
 
-#define SELECT_TIME_OUT (2)
+#define SELECT_TIME_OUT (1)
 
 #define NR_OF_QUEUE_IN_TASK (3)
 

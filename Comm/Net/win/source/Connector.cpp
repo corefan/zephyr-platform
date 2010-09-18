@@ -5,9 +5,32 @@
 namespace Zephyr
 {
 
+
+CConnector::CConnector()
+{
+    m_pendingConnections        = 0;
+    m_maxPendingConnection      = 0;
+    m_pList                     = 0;
+    m_connected                 = 0;
+    m_failed                    = 0;
+    //IfNetApp        *m_pIfNetApp;
+    m_hCompletionPort           = NULL;
+
+    m_pConnectionPool           = NULL;;
+
+    m_pCryptorFactory           = NULL;;
+
+    m_pParserFactory            = NULL;
+}
+
+CConnector::~CConnector()
+{
+
+}
+
 TInt32 CConnector::Init(TInt32 maxPendingConnections,HANDLE completionPort,CConnectionPool *pConnectionPool,IfParserFactory *pParserFactory,IfCryptorFactory *pCryptorFactory)
 {
-    m_pendingConnections = 0;
+    m_maxPendingConnection = maxPendingConnections;
     m_connected          = 0;
     m_failed             = 0;
     if (maxPendingConnections > FD_SETSIZE*3)
@@ -107,7 +130,7 @@ TInt32 CConnector::Run(const TUInt32 runCnt)
                             }
                             else
                             {
-                                TInt32 result = pCheck->OnConnected();
+                                result = pCheck->OnConnected();
                             }
                             if (SUCCESS > result)
                             {

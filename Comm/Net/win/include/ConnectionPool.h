@@ -56,6 +56,7 @@ public:
             }
             m_pFree = (m_pConnectionPool + i);
         }
+        m_maxConnectionNum = nrOfMaxConnection;
         return SUCCESS;
     }
     CConnection*        GetConnection()

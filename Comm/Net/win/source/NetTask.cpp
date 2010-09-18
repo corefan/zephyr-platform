@@ -77,8 +77,11 @@ TInt32 CNetTask::Run(const TInt32 threadId,const TInt32 runCnt)
 {
 #ifdef _DEBUG
     TUInt32 timeNow = timeGetTime();
-
-    m_averageTime = (timeNow - m_startTime)/m_runCnt;
+    if(m_runCnt)
+    {
+        m_averageTime = (timeNow - m_startTime)/m_runCnt;
+    }
+   
 #endif
     TInt32 usedCnt = 0;
     //TUInt32 gap = 0;
@@ -101,6 +104,7 @@ TInt32 CNetTask::Run(const TInt32 threadId,const TInt32 runCnt)
     {
         TIOEvent event = *pEvent;
         m_pEventQueues->ConfirmHandleAppEvent(pEvent);
+        
         //应该有主动断链信息.
         //= m_pConnections[pEvent->m_connectionIdx].Routine();
         CConnection *pConnection = m_pConnectionPool->GetConectionByIdx(event.m_connectionIdx);
@@ -108,6 +112,7 @@ TInt32 CNetTask::Run(const TInt32 threadId,const TInt32 runCnt)
         if (pConnection)
         {
             ret += pConnection->NetRoutine();
+            pConnection->OnNetSent();
             //需要通知释放连接.
             ++usedCnt;
         }
@@ -118,17 +123,19 @@ TInt32 CNetTask::Run(const TInt32 threadId,const TInt32 runCnt)
     m_runCnt += usedCnt;
 #endif
 
+    int waitTime=SELECT_TIME_OUT;
     while (runCnt > usedCnt)
     {
 		DWORD dwIoSize;
 		CConnection* pConnection;
 		LPOVERLAPPED lpOverlapped;
 		
+		
         BOOL bIORet = GetQueuedCompletionStatus(
 				m_completionPort,
 				&dwIoSize,
 				(LPDWORD) &pConnection,
-				&lpOverlapped, SELECT_TIME_OUT);
+				&lpOverlapped, waitTime);
 
 			// If Something whent wrong..
         if (!bIORet)  
@@ -182,7 +189,8 @@ TInt32 CNetTask::Run(const TInt32 threadId,const TInt32 runCnt)
                 return usedCnt;
             }
         }
-
+        //只等一次，因为如果成功后，可能应用层会需要处理消息，开始发送消息。
+        waitTime = 0;
 
         if(bIORet && lpOverlapped && pConnection) 
         {

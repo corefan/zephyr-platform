@@ -42,6 +42,7 @@ public:
                 return NOT_INITIALIZED;
             }
             memcpy(pMsg,&event,sizeof(TIOEvent));
+            m_pipe.ConfirmAddMsg(pMsg,sizeof(TIOEvent));
             return SUCCESS;
         }
         return OUT_OF_MEM;
@@ -74,11 +75,12 @@ public:
     TInt32      Init(TInt32 maxEventNr)
     {
         TInt32 rtn = m_netQueue.Init(maxEventNr);
-        if (SUCCESS < rtn)
+        if (SUCCESS > rtn)
         {
             //这儿就不管内存分配失败后的处理了，应该都成功的.失败了就把程序关了
-            return m_appQueue.Init(maxEventNr);
+            return rtn;
         }
+        return m_appQueue.Init(maxEventNr);
     }
     TInt32      AddNetEvent(TIOEvent &event)
     {
