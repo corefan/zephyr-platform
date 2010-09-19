@@ -39,7 +39,8 @@ public:
  #endif
 	}
     ~CDoid()
-    {
+    {
+
     }
 
 	bool operator==(const CDoid& doid)

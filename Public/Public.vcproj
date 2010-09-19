@@ -148,6 +148,10 @@
 			Name="include"
 			>
 			<File
+				RelativePath=".\include\CommCenter.h"
+				>
+			</File>
+			<File
 				RelativePath=".\include\Doid.h"
 				>
 			</File>
@@ -180,6 +184,10 @@
 			Name="source"
 			>
 			<File
+				RelativePath=".\include\CommCenter.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\source\NetCenter.cpp"
 				>
 			</File>
@@ -201,6 +209,10 @@
 				<Filter
 					Name="include"
 					>
+					<File
+						RelativePath=".\Interface\Platform\include\IfCommunicator.h"
+						>
+					</File>
 					<File
 						RelativePath=".\Interface\platform\include\IfNet.h"
 						>
