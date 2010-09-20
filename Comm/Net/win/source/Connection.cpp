@@ -312,6 +312,15 @@ EnConnectionState CConnection::GetConnctionState()
     return (EnConnectionState)m_connectionState;
 }
 
+
+CConnection::CConnection()
+{
+    m_pAppCallBack = NULL;
+    m_pIfParser = NULL;
+    m_pIfCryptor = NULL;
+    m_pEventQueues = NULL;
+}
+
 void CConnection::CloseConnection()
 {
     //TInt32 ret = SUCCESS;
@@ -358,7 +367,7 @@ TInt32 CConnection::OnInit()
     m_netSeqNum = 0;
 
     m_appConfirmNum = 0;
-
+    
     return SUCCESS;
 }
 

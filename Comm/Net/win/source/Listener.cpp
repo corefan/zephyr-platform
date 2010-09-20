@@ -21,7 +21,7 @@ CListener::~CListener()
     }
     
 }
-TInt32 CListener::Init(HANDLE completionPort,TUInt32 myIp,TUInt16 listeningPort,TUInt16 maxAcceptNr,IfListenerCallBack *pListenerCallBack,CConnectionPool *pConnectionPool,IfParserFactory *pParserFactory,IfCryptorFactory *pCryptorFactory)
+TInt32 CListener::Init(HANDLE completionPort,TUInt32 myIp,TUInt16 listeningPort,TUInt16 maxAcceptNr,IfListenerCallBack *pListenerCallBack,ItemClassPool<CConnection> *pConnectionPool,IfParserFactory *pParserFactory,IfCryptorFactory *pCryptorFactory)
 {
     m_compeltionPort = completionPort;
     m_myIp = myIp;

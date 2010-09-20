@@ -201,4 +201,44 @@ catch(...) \
 #endif
 
 
+#define DECLARE_CLASS_LIST(LISTCLASS) \
+protected:\
+struct T##LISTCLASS##LIST \
+{ \
+    LISTCLASS* m_pPrev; \
+    LISTCLASS* m_pNext; \
+    T##LISTCLASS##LIST() \
+    { \
+        m_pPrev = NULL; \
+        m_pNext = NULL; \
+    } \
+};\
+T##LISTCLASS##LIST m_##LISTCLASS##List; \
+public:\
+LISTCLASS *GetNext()\
+{\
+return m_##LISTCLASS##List.m_pPrev;\
+}\
+void Detach() \
+{ \
+    if(m_##LISTCLASS##List.m_pPrev)\
+    {\
+        m_##LISTCLASS##List.m_pPrev->m_##LISTCLASS##List.m_pNext = m_##LISTCLASS##List.m_pNext;\
+    }\
+    if(m_##LISTCLASS##List.m_pNext)\
+    {\
+        m_##LISTCLASS##List.m_pNext->m_##LISTCLASS##List.m_pPrev = m_##LISTCLASS##List.m_pPrev;\
+    }\
+    m_##LISTCLASS##List.m_pPrev = NULL;\
+    m_##LISTCLASS##List.m_pPrev = NULL;\
+}\
+void Attach(LISTCLASS* pConnection)\
+{\
+if (pConnection)\
+{\
+    pConnection->m_##LISTCLASS##List.m_pPrev = this;\
+}\
+    m_##LISTCLASS##List.m_pNext = pConnection;\
+}\
+
 #endif 

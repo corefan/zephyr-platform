@@ -38,7 +38,7 @@ protected:
     //TplNode<CNetEvent,TUInt16> *m_pAppEvent[NR_OF_QUEUE_IN_TASK];
     
     
-    CConnectionPool*     m_pConnectionPool;         
+    ItemClassPool<CConnection>*     m_pConnectionPool;         
     
     CNetEventQueues*     m_pEventQueues;
     
@@ -54,7 +54,7 @@ protected:
 public:
     CNetTask();
     ~CNetTask();
-    TInt32         Init(HANDLE completionPort,CConnectionPool *pPool,CNetEventQueues *pQueues,TInt32 maxMsgLen);
+    TInt32         Init(HANDLE completionPort,ItemClassPool<CConnection> *pPool,CNetEventQueues *pQueues,TInt32 maxMsgLen);
     void           Final();
     HANDLE GetCompletionPort()
     {

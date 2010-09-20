@@ -164,7 +164,7 @@ TUChar *CPipe::Peek(TUChar *pBuffer,TUInt32 len)
         buffLen = m_pMemPool + m_memPoolSize - m_pRear;
         if (buffLen >= len)
         {
-            memcpy(pBuffer,(const void*)(m_pRear),len);
+            //memcpy(pBuffer,(const void*)(m_pRear),len);
             return (TUChar*)(m_pRear);
         }
         else

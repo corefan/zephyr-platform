@@ -1,6 +1,6 @@
 #ifndef __ZEPHYR_SYSTEM_LOGGER_IF_LOGGER_H__
 #define __ZEPHYR_SYSTEM_LOGGER_IF_LOGGER_H__
-
+#include "stdarg.h"
 namespace Zephyr
 {
 #define DEFAULT_CACHED_LOG_LENGTH (1024 * 1024)

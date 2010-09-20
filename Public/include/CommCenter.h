@@ -6,7 +6,7 @@
 
 namespace Zephyr
 {
-IfCommunicatorMgr *CreateCommMgr(IfTaskMgr *pTaskMgr,IfLoggerManager *pLoggerMgr);
+IfCommunicatorMgr *CreateCommMgr(TUInt32 nrOfAppWorkerNeeded,IfTaskMgr *pTaskMgr,IfLoggerManager *pLoggerMgr,TChar *pConfigName=NULL);
 }
 
 

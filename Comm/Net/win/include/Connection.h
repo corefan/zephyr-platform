@@ -18,8 +18,8 @@
 
 
 
- #ifndef __ZEPHYR_CONNECTION_H__
- #define __ZEPHYR_CONNECTION_H__
+ #ifndef __ZEPHYR_COMM_NET_CONNECTION_H__
+ #define __ZEPHYR_COMM_NET_CONNECTION_H__
 
 #include "TypeDef.h"
 
@@ -106,8 +106,6 @@ private:
     CIocpOverlappedDataHeader   m_readDataHeader;
     CIocpOverlappedDataHeader   m_writeDataHeader;
     #endif
-    CConnection                 *m_pNext;
-    CConnection                 *m_pPrev;
     //应用层发送序列号
     volatile TUInt32            m_appSeqNum;
     //网络层确认序列号
@@ -117,7 +115,7 @@ private:
     volatile TUInt32            m_netSeqNum;
     //应用层确认序列号
     volatile TUInt32            m_appConfirmNum;
-    
+    DECLARE_CLASS_LIST(CConnection)
 public:
     virtual TInt32 SendMsg(TUChar *pMsg,TUInt32 msgLen);
     //应用层调用这个完毕后，网络层会在尝试发送完所有消息后关闭连接，并且丢弃所有收到的消息.
@@ -127,6 +125,7 @@ public:
     virtual TInt32 GetPendingDataLen();
     virtual EnConnectionState GetConnctionState();
 public:
+    CConnection();
     TInt32  Init();
     void    Final();
     TInt32 OnInit();
@@ -278,32 +277,6 @@ public:
     TInt32 NetRoutine();
     
     
-    void Attach(CConnection *pConnection)
-    {
-        m_pPrev = NULL;
-        if (pConnection)
-        {
-            pConnection->m_pPrev = this;
-        }
-        m_pNext = pConnection;
-    }
-    void Detach()
-    {
-        if (m_pPrev)
-        {
-            m_pPrev->m_pNext = m_pNext;
-        }
-        if (m_pNext)
-        {
-            m_pNext->m_pPrev = m_pPrev;
-        }
-        m_pNext = NULL;
-        m_pPrev = NULL;
-    }
-    CConnection *GetNext()
-    {
-        return m_pNext;
-    }
 public:
     TInt32 DisableNagle(const char chOpt);
     

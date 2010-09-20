@@ -52,7 +52,7 @@ private:
     //IfNetApp        *m_pIfNetApp;
     HANDLE          m_hCompletionPort;
     
-    CConnectionPool *m_pConnectionPool;
+    ItemClassPool<CConnection> *m_pConnectionPool;
     
     IfCryptorFactory *m_pCryptorFactory;
     
@@ -61,7 +61,7 @@ private:
 public:
     CConnector();
     ~CConnector();
-    TInt32 Init(TInt32 maxPendingConnections,HANDLE completionPort,CConnectionPool *m_pConnectionPool,IfParserFactory *pParserFactory,IfCryptorFactory *pCryptorFactory);
+    TInt32 Init(TInt32 maxPendingConnections,HANDLE completionPort,ItemClassPool<CConnection> *m_pConnectionPool,IfParserFactory *pParserFactory,IfCryptorFactory *pCryptorFactory);
     //TInt32 Connect(TChar *pRemoteIp,TChar *pMyIp,TUInt16 remotePort,TUInt16 myPort,void *pAppCallBack);
     TInt32 Connect(CConPair *pPair,IfConnectionCallBack *pAppCallBack);
     

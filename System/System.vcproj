@@ -163,6 +163,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\include\ProducerAndConsumer.h"
+				>
+			</File>
+			<File
 				RelativePath=".\include\SysInc.h"
 				>
 			</File>

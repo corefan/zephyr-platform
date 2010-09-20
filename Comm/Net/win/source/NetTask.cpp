@@ -38,7 +38,7 @@ void  CNetTask::Final()
     m_pEventQueues = NULL;
 }
 
-TInt32 CNetTask::Init(HANDLE completionPort,CConnectionPool *pPool,CNetEventQueues *pQueues,TInt32 maxMsgLen)
+TInt32 CNetTask::Init(HANDLE completionPort,ItemClassPool<CConnection> *pPool,CNetEventQueues *pQueues,TInt32 maxMsgLen)
 {
     m_completionPort = completionPort;
     m_pConnectionPool = pPool;

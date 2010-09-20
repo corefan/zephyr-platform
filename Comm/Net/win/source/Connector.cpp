@@ -28,7 +28,7 @@ CConnector::~CConnector()
 
 }
 
-TInt32 CConnector::Init(TInt32 maxPendingConnections,HANDLE completionPort,CConnectionPool *pConnectionPool,IfParserFactory *pParserFactory,IfCryptorFactory *pCryptorFactory)
+TInt32 CConnector::Init(TInt32 maxPendingConnections,HANDLE completionPort,ItemClassPool<CConnection> *pConnectionPool,IfParserFactory *pParserFactory,IfCryptorFactory *pCryptorFactory)
 {
     m_maxPendingConnection = maxPendingConnections;
     m_connected          = 0;

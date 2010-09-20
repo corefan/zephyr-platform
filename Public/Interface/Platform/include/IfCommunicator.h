@@ -12,24 +12,25 @@ class IfCommunicator
 public:
 
     //add a new idx , that indicate the pipe to use!
-    virtual CMessageHeader *GetMsg(unsigned short needRetMsgBuff = 1) = 0;
+    virtual CMessageHeader *GetMsg(TUInt32 needRetMsgBuff = 1);
 
-    virtual void ReturnMsgBuff(CMessageHeader *pMsg) = 0;
+    virtual void ReturnMsgBuff(CMessageHeader *pMsg);
 
-    virtual CMessageHeader *PrepareMsg(TInt32 bodyLength,TUInt32 methodId,CDoid srcId,CDoid* destDoid,TInt32 destDoidNum) = 0;
+    virtual CMessageHeader *PrepareMsg(TInt32 bodyLength,TUInt32 methodId,CDoid srcId,CDoid* destDoid,TInt32 destDoidNum);
 
     //virtual int SendMsg(SCTDMessageHeader *,bool bNeedCopy = false) = 0;
     //do not need the para bNeedCopy any more, I will check it!
-    virtual int SendMsg(CMessageHeader *pMsg) = 0;
+    virtual TInt32 SendMsg(CMessageHeader *pMsg);
 
     //application should not call this !!! called by work thread only! or else some events would lost!
-    virtual CConnectionEvent *GetConnectionEvent() = 0;
-
+    virtual CConnectionEvent *GetConnectionEvent();
+    
     //maybe I could expose less header files
 };
 
 class IfCommunicatorMgr
 {
+public:
     virtual IfCommunicator* GetCommunicator(TInt32 srvId) = 0;
 };
 

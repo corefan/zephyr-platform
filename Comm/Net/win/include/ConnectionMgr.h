@@ -43,7 +43,7 @@ protected:
     CConnector          m_connector;
     //Ò»¸öworker
     CNetTask            m_netWorker;
-    CConnectionPool     m_conncectionPool;
+    ItemClassPool<CConnection>     m_conncectionPool;
     
     IfParserFactory*    m_pParserFactory;
     IfCryptorFactory*   m_pCryptorFactory;

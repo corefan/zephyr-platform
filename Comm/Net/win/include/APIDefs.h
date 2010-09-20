@@ -1,3 +1,5 @@
+#ifndef __ZEPHYR_COMM_NET_API_DEFS_H__
+#define __ZEPHYR_COMM_NET_API_DEFS_H__
 /*-------------------------------------------------------------
  Copyright (C)| 
  File: APIDefs.h
@@ -17,4 +19,6 @@ typedef void *HANDLE;
 //typedef long SOCKET;
 
 }
+
+#endif
  
