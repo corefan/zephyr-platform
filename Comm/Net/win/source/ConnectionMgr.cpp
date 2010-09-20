@@ -120,7 +120,7 @@ void  CConnectionMgr::Final()
     m_pCryptorFactory = NULL;
 }
 
-TInt32 CConnectionMgr::Connect(const TChar *pRemoteIp,const TChar *pMyIp,TUInt16 remotePort,TUInt16 myPort,void *pAppData)
+TInt32 CConnectionMgr::Connect(const TChar *pRemoteIp,const TChar *pMyIp,TUInt16 remotePort,TUInt16 myPort,void *pAppCallBack)
 {
     if (m_connector.IsListFull())
     {
@@ -130,9 +130,15 @@ TInt32 CConnectionMgr::Connect(const TChar *pRemoteIp,const TChar *pMyIp,TUInt16
     TUInt32 myIp = inet_addr(pMyIp);
     CConPair pair;
     pair.Init(remoteIp,myIp,remotePort,myPort);
-    return m_connector.Connect(&pair,(IfConnectionCallBack*)pAppData);
+    return m_connector.Connect(&pair,(IfConnectionCallBack*)pAppCallBack);
 }
 
+TInt32 CConnectionMgr::Connect(const TUInt32 remoteIp,const TUInt32 myIp,TUInt16 remotePort,TUInt16 myPort,void *pAppCallBack)
+{
+    CConPair pair;
+    pair.Init(remoteIp,myIp,remotePort,myPort);
+    return m_connector.Connect(&pair,(IfConnectionCallBack*)pAppCallBack);
+}
 
 TInt32 CConnectionMgr::Run(TUInt32 runCnt)
 {

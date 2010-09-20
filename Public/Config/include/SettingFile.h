@@ -16,6 +16,7 @@
 #include <stdlib.h>
 #include <string>
 
+typedef long long LONGLONG;
 inline void TrimStr(std::string& str,char TrimChar)
 {
 	int Start=0,End=-1;

@@ -4,6 +4,8 @@
 #include "IfCommunicator.h"
 #include "Communicator.h"
 #include "CommMacrosAndConsts.h"
+#include "IfNet.h"
+#include "IpMaps.h"
 
 namespace Zephyr
 {
@@ -13,12 +15,12 @@ class CCommMgr : public IfCommunicatorMgr
 {
 private:
     TUInt32       m_nrOfComm;
-    CCommunicator *m_pCommunicators;0
+    CCommunicator *m_pCommunicators;
     CIpMap        m_ipMaps;
     TUInt32       m_lastCheckTime;
     IfNet         *m_pNet;
 public:
-    TInt32 Init(TChar *pConfigName=szDefaultLoggerName);
+    TInt32 Init(const TChar *pConfigName=szDefaultLoggerName);
     virtual IfCommunicator *RegisterWorker(TUInt16 srvId); 
 };
 

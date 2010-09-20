@@ -64,7 +64,8 @@ public:
     virtual TInt32 Connect(const TChar *pRemoteIp,const TChar *pMyIp,TUInt16 remotePort,TUInt16 myPort,void *pAppCallBack);
     //virtual TInt32 Connect(TUInt32 remoteIp,TUInt32 myIp,TUInt16 remotePort,TUInt16 myPort,void *pAppCallBack) = 0;
 
-
+    virtual TInt32 Connect(const TUInt32 remoteIp,const TUInt32 myIp,TUInt16 remotePort,TUInt16 myPort,void *pAppCallBack);
+    
     virtual TInt32 Listen(const TChar *pIp,TUInt16 port,TUInt16 maxConnection,void *pIfCallBack);
 
     virtual TInt32 StopListening(TInt32 listeningIdx);

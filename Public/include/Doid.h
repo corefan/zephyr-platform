@@ -5,7 +5,7 @@
  Date: 2010-3-2 10:31:50
  Version: 
  Description:  分布式对象地址
- Others: 
+ Others: virtualIp = 0用来作为中心节点，负责节点间通信\命名服务器\管理服务器.
  Function List: 
  Histroy: 
  -------------------------------------------------------------*/

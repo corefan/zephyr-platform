@@ -17,44 +17,56 @@
 #include "Doid.h"
 namespace Zephyr
 {
+
+struct TVirtualIp
+{
+    TUInt32 m_realIp;
+    TUInt16 m_bindPort;
+    TUInt16 m_listenPort;
+};
+
 class CIpMap
 {
 private:
     TUInt16              m_nrOfNodes;
     TUInt16              m_nrOfVirtualIp;
-    TUInt16              m_myNodeId;
+    TUInt16              m_localNodeId;
     TUInt16              m_localVirtualIp;
-    CCommConnection      *m_pLocalConnections;
+    TVirtualIp           *m_pVirtualIps;
+    //CCommConnection      *m_pLocalConnections;
 public:
     CIpMap();
-    void Init(CCommConnection *pConnections,TUInt16 nrOfNode,TUInt16 nrOfVirtual,TUInt16 myNodeId,TUInt16 localVirtualIp);
+    TInt32 Init(const TChar *pConfigName);
     TBool IsLocal(CDoid *pDoId)
     {
-        if((pDoId->m_nodeId == m_myNodeId) && (pDoId->m_virtualIp == m_localVirtualIp))
+        if((pDoId->m_nodeId == m_localNodeId) && (pDoId->m_virtualIp == m_localVirtualIp))
         {
             return TRUE;
         }
         return FALSE;
     }
-    CCommConnection *GetConnection(CDoid *pDoid)
-    {
-        //只检查nodeId,和srvId
-        if((pDoid->m_nodeId == m_myNodeId))
-        {
-            if ((pDoid->m_virtualIp != m_localVirtualIp))
-            {
-                if (pDoid->m_virtualIp < m_nrOfVirtualIp)
-                {
-                    return (m_pLocalConnections + pDoid->m_virtualIp);
-                }
-            }
-        }
-        else
-        {
-            return m_pLocalConnections;
-        }
-        return NULL;
-    }
+//     CCommConnection *GetConnection(CDoid *pDoid)
+//     {
+//         //只检查nodeId,和srvId
+//         if((pDoid->m_nodeId == m_localNodeId))
+//         {
+//             if ((pDoid->m_virtualIp != m_localVirtualIp))
+//             {
+//                 if (pDoid->m_virtualIp < m_nrOfVirtualIp)
+//                 {
+//                     //return (m_pLocalConnections + pDoid->m_virtualIp);
+//                 }
+//             }
+//         }
+//         else
+//         {
+//             if (pDoid->m_nodeId < m_nrOfNodes)
+//             {
+//                 return m_pLocalConnections;
+//             }
+//         }
+//         return NULL;
+//     }
 };
 }
 #endif

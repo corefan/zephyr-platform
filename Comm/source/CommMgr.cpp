@@ -1,11 +1,17 @@
 #include "CommMgr.h"
 #include "SettingFile.h"
-TInt32 CCommMgr::Init(TChar *pConfigName/* =szDefaultLoggerName */)
+namespace Zephyr
 {
 
+
+TInt32 CCommMgr::Init(const TChar *pConfigName/* =szDefaultLoggerName */)
+{
+    return SUCCESS;
 }
 
-IfCommunicator* RegisterWorker(TInt32 srvId)
+IfCommunicator *CCommMgr::RegisterWorker(TUInt16 srvId)
 {
-    
+    return NULL;
+}
+
 }

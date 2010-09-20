@@ -32,8 +32,8 @@ enum EnConnectEvent
 
 struct CConnectionEvent
 {
-    TUInt16      m_vip;
-    TUInt16      m_event;
+    unsigned int m_vip;
+    unsigned int m_event;
     void         *m_pData;
 };
 
