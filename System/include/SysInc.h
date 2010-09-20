@@ -30,15 +30,14 @@
 // linux include
 #else
 #include <pthread.h>
-#include <netdb.h>
-#include "LinuxFunc.h"
+
 
 #define NOERROR 0
 #define E_FAIL  0x80005
 #define SOCKET_ERROR -1
 typedef struct hostent HOSTENT;
 typedef struct in_addr IN_ADDR;
-#define SDGP_DLL_API
+
 
 #define I64_FMT "%I64d"
 
