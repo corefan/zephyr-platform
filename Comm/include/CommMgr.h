@@ -13,13 +13,13 @@ class CCommMgr : public IfCommunicatorMgr
 {
 private:
     TUInt32       m_nrOfComm;
-    CCommunicator *m_pCommunicators;
+    CCommunicator *m_pCommunicators;0
     CIpMap        m_ipMaps;
     TUInt32       m_lastCheckTime;
     IfNet         *m_pNet;
 public:
     TInt32 Init(TChar *pConfigName=szDefaultLoggerName);
-    virtual IfCommunicator* GetCommunicator(TInt32 srvId);
+    virtual IfCommunicator *RegisterWorker(TUInt16 srvId); 
 };
 
 }

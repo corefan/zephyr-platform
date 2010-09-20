@@ -23,7 +23,7 @@ public:
     virtual TInt32 SendMsg(CMessageHeader *pMsg);
 
     //application should not call this !!! called by work thread only! or else some events would lost!
-    virtual CConnectionEvent *GetConnectionEvent();
+    virtual CConnectionEvent GetConnectionEvent(TInt32& result) = 0;
     
     //maybe I could expose less header files
 };
@@ -31,7 +31,7 @@ public:
 class IfCommunicatorMgr
 {
 public:
-    virtual IfCommunicator* GetCommunicator(TInt32 srvId) = 0;
+    virtual IfCommunicator *RegisterWorker(TUInt16 srvId) = 0;
 };
 
 }
