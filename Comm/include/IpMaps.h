@@ -27,7 +27,8 @@ struct TVirtualIp
 
 class CIpMap
 {
-private:
+public:
+    //²»Ð´
     TUInt16              m_nrOfNodes;
     TUInt16              m_nrOfVirtualIp;
     TUInt16              m_localNodeId;

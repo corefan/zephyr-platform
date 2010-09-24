@@ -33,7 +33,7 @@ int main()
     CAppConnection::SetAverageMsgLen(averageMsglen);
     pTaskMgr->AddTask(pNetTester);
     pTaskMgr->StartWorking(8);
-    CExceptionParser parser;
+    //CExceptionParser parser;
     char stop = 'n';
     while(('y' != stop) && ('Y' != stop))
     {

@@ -1,6 +1,7 @@
 #include "AppConnection.h"
 #include "stdio.h"
 #include "stdlib.h"
+#include <windows.h>
 using namespace Zephyr;
 
 
@@ -13,6 +14,7 @@ CAppConnection::CAppConnection()
     m_msgSend = 0;
     m_passiveSendNr = 0;
     m_pNext = NULL;
+    m_actived = 0;
 }
 
 
@@ -24,6 +26,9 @@ TInt32 CAppConnection::OnInit()
     m_passiveSendNr = 0;
     m_pIfConnection = NULL;
     m_pNext = NULL;
+    m_actived = 1;
+    m_connectedTime = 0;
+    m_lastLogTime = timeGetTime();
     return SUCCESS;
 }
 TInt32 CAppConnection::OnFinal()
@@ -32,13 +37,49 @@ TInt32 CAppConnection::OnFinal()
 //     m_msgSend = 0;
 //     m_passiveSendNr = 0;
 //     m_pIfConnection = NULL;
+    m_actived = 0;
     return SUCCESS;
 }
 
 
 TInt32 CAppConnection::Run()
 {
+    if (!m_actived)
+    {
+        return 0;
+    }
+    unsigned int timeNow = timeGetTime();
+    m_connectedTime += (timeNow - m_lastLogTime);
+    m_lastLogTime = timeNow;
     long long len = m_msgRecved + m_passiveSendNr;
+    if (m_connectedTime > 10000)
+    {
+        m_connectedTime = 0;
+        switch(m_actived)
+        {
+            case 1:
+            {
+                return 0;
+            }
+            case 2:
+            {
+                if (m_pIfConnection)
+                {
+                    m_pIfConnection->Disconnect();
+                    m_pIfConnection = NULL;
+                    m_actived = 3;
+                    return 0;
+                }
+            }
+            case 3:
+            {
+                m_actived = 1;
+                OnInit();
+                m_passiveSendNr = 100;
+                return -5;
+            }
+        }
+    }
     if (len > m_msgSend)
     {
         len -= m_msgSend;
@@ -109,6 +150,7 @@ TInt32 CAppConnection::OnConnected(IfConnection *pIfConnection,IfParser *pParser
 {
     printf("[CAppConnection::OnConnected]");
     m_pIfConnection = pIfConnection;
+    m_actived = 2;
     return SUCCESS;
 }
 
@@ -116,6 +158,7 @@ TInt32 CAppConnection::OnConnected(IfConnection *pIfConnection,IfParser *pParser
 TInt32 CAppConnection::OnDissconneted(TInt32 erroCode)
 {
     printf("[CAppConnection::OnDissconneted]");
+    m_actived = 3;
     m_pIfConnection = NULL;
     return SUCCESS;
 }

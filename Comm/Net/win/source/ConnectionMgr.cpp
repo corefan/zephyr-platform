@@ -33,6 +33,7 @@ TInt32 CConnectionMgr::Init(TUInt32 maxConnectionNum,IfTaskMgr *pTaskMgr,IfParse
     for (int i = 0;i<maxConnectionNum;++i)
     {
         m_conncectionPool.GetConectionByIdx(i)->SetEventQueue(&m_netEventQueues);
+        m_conncectionPool.GetConectionByIdx(i)->OnCreate(i,buffSize);
     }
     
     NEW(m_pBuff,TUChar,buffSize);
@@ -122,6 +123,10 @@ void  CConnectionMgr::Final()
 
 TInt32 CConnectionMgr::Connect(const TChar *pRemoteIp,const TChar *pMyIp,TUInt16 remotePort,TUInt16 myPort,void *pAppCallBack)
 {
+    if (!pAppCallBack)
+    {
+        return NULL_POINTER;
+    }
     if (m_connector.IsListFull())
     {
         return IF_NET_ERROR_CODE_TOO_MANY_PENDING_CONNECTIONGS;
@@ -135,6 +140,10 @@ TInt32 CConnectionMgr::Connect(const TChar *pRemoteIp,const TChar *pMyIp,TUInt16
 
 TInt32 CConnectionMgr::Connect(const TUInt32 remoteIp,const TUInt32 myIp,TUInt16 remotePort,TUInt16 myPort,void *pAppCallBack)
 {
+    if (!pAppCallBack)
+    {
+        return NULL_POINTER;
+    }
     CConPair pair;
     pair.Init(remoteIp,myIp,remotePort,myPort);
     return m_connector.Connect(&pair,(IfConnectionCallBack*)pAppCallBack);

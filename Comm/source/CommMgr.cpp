@@ -6,6 +6,12 @@ namespace Zephyr
 
 TInt32 CCommMgr::Init(const TChar *pConfigName/* =szDefaultLoggerName */)
 {
+    TInt32 ret = m_ipMaps.Init(pConfigName);
+    if (SUCCESS > ret)
+    {
+        return ret;
+    }
+    
     return SUCCESS;
 }
 

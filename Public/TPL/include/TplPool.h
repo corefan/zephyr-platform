@@ -49,12 +49,12 @@ public:
         }
         m_pFreeHeader =m_pConnectionPool;
         m_pFreeRear = (m_pConnectionPool);
-        m_pFreeHeader->OnInit();
+        m_pFreeHeader->Init();
         for (TUInt32 i=1;i<nrOfMaxConnection;i++)
         {
             m_pFreeRear->Attach((m_pConnectionPool+i));
             m_pFreeRear = (m_pConnectionPool+i);
-            m_pFreeRear->OnInit();
+            m_pFreeRear->Init();
             int ret = m_pFreeRear->OnCreate(i,buffSize);
             if (ret < SUCCESS)
             {
@@ -78,7 +78,14 @@ public:
                 m_pFreeRear = NULL;
             }
             pResult->Detach();
-            m_pUsed->Attach(pResult);
+            if (m_pUsed)
+            {
+                m_pUsed->Attach(pResult);
+            }
+            else
+            {
+                m_pUsed = pResult;
+            }
             pResult->OnInit();
         }
         return pResult;

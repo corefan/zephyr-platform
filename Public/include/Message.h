@@ -43,33 +43,47 @@ struct CConnectionEvent
 
 enum EnByteOrder
 {
-    little_endian         = 0x04000000,
-    big_endian            = 0x00000000,
-};
-
-enum EnTransportPriority
-{
-    send_priority_mask    = 0xC0000000,
-	send_immediately      = 0x00000000,
-	send_accumulately     = 0x40000000,
-	send_every_twice      = 0x80000000,
-	//add more maybe
+    little_endian         = 0,
+    big_endian            = 1,
 };
 
 class CMessageHeader
 {
 private:
-    //the first 1 bit indicate if this msg is actived,
-    //the 2nd  bit indicate the byte-orders of this msg.
-    //the following 8 bits indicate how many dest doid does this header has;
-    //the rest 22 bits stored the length of this msg body
-    TUInt32 m_msgInfo;
+    //the 1st  bit indicate the byte-orders of this msg.
+    //the following 7 bits indicate how many dest doid does this header has;
+    //the rest 24 bits stored the length of this msg body
+    //TUInt64 m_msgInfo;
+    union
+    {
+        struct 
+        {
+            TUInt32    m_msgLength:24;
+            TUInt32    m_nrOfDestDoid:7;
+            TUInt32    m_byteOrder:1;
+            
+            //最多16M,放在前面，在小端机上，就不用位移了.
+            
+            //服务8个bit, 接口6,方法 12比特
+            TUInt32    m_methodId:24;
+            //the 2 bits indicated transport priority, (default yes,that means we will retry the sending.)
+            TUInt32    m_priority:2;
+            //the 2nd bit indicate whether if we should report the exceptions (Default yes)
+            TUInt32    m_reportExcep:1;
+            //the 3rd bits indicated if it is marked to be traced. Reserved.
+            TUInt32    m_needTrace:1;
+            //the 4th bits indicated if it needs synchronization,that means the skeleton will hang up.  Reserved.
+            TUInt32    m_needSyn:1;
+            // no use.
+            TUInt32    m_reserved:1;
+            //the 5th bits indicated if it is a system call and it should not be reported to the application.
+            //1 for net layer,heartbeat, 2 for system calls,like for time synchronization. service heartbeat. service managerment and so on.
+            TUInt32    m_systemCall:1;
+            TUInt32    m_reply:1;
+        };
+        TUInt64 m_data;
+    } m_msgInfo;
 
-	//the first 2 bits indicated transport priority.
-	//
-	//the 3rd bits indicated if it is marked to be traced. Reserved.
-	//the 4th bits indicated if it needs synchronization.  Reserved.
-	TUInt32  m_methodId;             //method Id
     CDoid m_srcDoid;           //the source obj id
     CDoid m_destDoid;          //the destination obj id(may have a lot, max 256)
     TUInt16 m_timeStamp;
@@ -78,37 +92,7 @@ private:
 
 
 public:
-    enum EnIsActived
-    {
-        is_acitved_mask       = 0x80000000,
-    };
-
-    enum EnByteOrder
-    {
-        byte_order_mask       = 0x40000000,
-    };
-
-    enum EnNrOfDestDoid
-	{
-	    num_of_dest_doid_mask = 0x3FC00000,
-	};
-
-    enum EnMessageLength
-	{
-	    message_length_mask   = 0x003FFFFF,
-
-	};
-
-
-	enum EnMethodID
-	{
-	    method_id_mask        = 0x3FFFFFFF,
-	};
-
-public:
-    //initialize the message header
-
-    //get the buffer to write or read .
+   
     inline TUChar *GetBuffer()
     {
         return (TUChar*)((TUChar*)this + sizeof (CMessageHeader));
@@ -116,39 +100,29 @@ public:
 
     inline TUInt32 GetLength()
     {
-        return (m_msgInfo & message_length_mask);
+        return m_msgInfo.m_msgLength;
     }
 
-    inline void SetPriority(EnTransportPriority pri)
+    inline void SetPriority(TUInt32 prioity)
     {
-        //BEGIN MODIDY s0032 03-16-2009
-        //m_methodId = m_methodId & 0x0FFFFFFF;
-
-        m_methodId = m_methodId & method_id_mask;
-        //END MODIDY s0032 03-16-2009
-        m_methodId = m_methodId | pri;
+        m_msgInfo.m_priority = prioity;
     }
-    inline EnTransportPriority GetPriority()
+    inline TUInt32 GetPriority()
     {
-        return static_cast<EnTransportPriority>(m_methodId & send_priority_mask);
+        return m_msgInfo.m_priority;
     }
 
 	inline TUInt32 GetDestDoidNum()
     {
-        TUInt32 num = m_msgInfo & num_of_dest_doid_mask;
-        return (num>>22);
+        return m_msgInfo.m_nrOfDestDoid;
     }
     inline TInt32 SetDestDoidNum(TUInt32 num)
     {
-        if (num <=0)
+        if (num > 127)
         {
-            return FAIL;
+            return OUT_OF_RANGE;
         }
-        num = num<<22;
-        num = (num & num_of_dest_doid_mask);
-        m_msgInfo = m_msgInfo & 0xC03FFFFF;
-        m_msgInfo = m_msgInfo | num;
-        return SUCCESS;
+        m_msgInfo.m_nrOfDestDoid = num;
     }
     inline CDoid  *GetDestDoidByIdx(TUInt32 idx = 0)
     {
@@ -158,28 +132,32 @@ public:
         }
         else
         {
-            return (CDoid  *) ((TUChar*)this + sizeof(CMessageHeader) + GetBodyLength() + sizeof(CDoid) * (idx - 1));
+            //不检查了
+            //if (idx < m_msgInfo.m_nrOfDestDoid)
+            {
+                return (CDoid  *) ((TUChar*)this + sizeof(CMessageHeader) + GetBodyLength() + sizeof(CDoid) * (idx - 1));
+            }
         }
     }
     inline CDoid *GetMultiDestDoids()
     {
-        if (GetDestDoidNum() > 1)
+        if (m_msgInfo.m_nrOfDestDoid > 1)
         {
             return (CDoid  *) ((char*)this + sizeof(CMessageHeader) + GetBodyLength());
         }
         return NULL;
     }
     //get the byte order of the following data.
-    inline EnByteOrder GetByteOrders()
+    inline TUInt32 GetByteOrders()
     {
-        return static_cast<EnByteOrder>(m_msgInfo & byte_order_mask);
+        return m_msgInfo.m_byteOrder;
     }
 
     inline TUInt32 GetBodyLength()
     {
-        return ((m_msgInfo & message_length_mask)
+        return (m_msgInfo.m_msgLength
                 - sizeof(CMessageHeader)
-                - sizeof(CDoid) * (GetDestDoidNum() - 1));
+                - sizeof(CDoid) * (m_msgInfo.m_nrOfDestDoid - 1));
     }
     //client only need know these things above.
 
@@ -190,7 +168,7 @@ public:
 
     inline TUInt32 GetMethodId()
     {
-        return (m_methodId & method_id_mask);
+        return (m_msgInfo.m_methodId);
     }
 
 	inline void SetTimeStamp(TUInt16 timeStamp)
@@ -201,56 +179,38 @@ public:
 	{
 		return m_timeStamp;
 	}
-    inline void PrepareToSend()
+    inline void PrepareToSend(TUChar checkCode1,TUChar checkCode2)
     {
         TUChar* pBuffer = (TUChar*)this;
-		m_checkSum[0] = 'S';
-		m_checkSum[1] = 'Z';
-        for(int i =0;i<(sizeof(CMessageHeader)-2);i+=2)
+		m_checkSum[0] = checkCode1;
+		m_checkSum[1] = checkCode2;
+		int len = (sizeof(CMessageHeader)-2);
+        for(int i =0;i<len;i+=2)
         {
             m_checkSum[0] = m_checkSum[0] ^ pBuffer[i];
             m_checkSum[1] = m_checkSum[1] ^ pBuffer[i+1];
         }
     }
+    
     TInt32 Init(TUInt32 bodyLength,TUInt32 methodId,CDoid srcId,CDoid* pDestDoids,TUInt32 destDoidNum);
 
-
-    inline TUInt32 RemarkHead(TUInt32 destDoidIdx)
+    void Compack4Client(TUChar *pBuff)
     {
         
-        TUInt32 destDoidNr = GetDestDoidNum();
-        if (destDoidNr == 1)
-        {
-            return m_msgInfo;
-        }
-        TUInt32 origInfo  = m_msgInfo;
-        if (destDoidIdx > destDoidNr)
-        {
-            return m_msgInfo;
-        }
-
-
-        TUInt32 len = GetLength();
-        TUInt32 sendLen = len - sizeof(CDoid) * (destDoidNr - 1);
-        
-        SetDestDoidNum(1);
-
-        m_msgInfo &= ~(CMessageHeader::message_length_mask);
-        m_msgInfo |= (unsigned int)sendLen;
-        if (destDoidIdx)
-        {
-            m_destDoid = *(GetDestDoidByIdx(destDoidIdx));
-        }
-                            
-        return origInfo;
     }
-    
-    void RetreatHead(TUInt32 origInfo)
+    TInt32 GetCompackedLen()
     {
-        m_msgInfo = origInfo;
+        //6bytes for compacked header
+        return GetBodyLength() + 6;
+    }
+    //使用
+    inline TUInt32 RemarkHead(CDoid *pDoid,TUChar checkCode1,TUChar checkCode2)
+    {
+        m_destDoid = *pDoid;
+        m_msgInfo.m_nrOfDestDoid = 1;
+        PrepareToSend(checkCode1,checkCode2);
     }
     
-	TInt32 SetBodyLength(TUInt32 bodyLength);
 //private:
     //can be called by the communicator only. these are internal info;
     //no use now
@@ -262,53 +222,17 @@ public:
     //no use now
     //int IsSliced();
 
-
-
-    //Core use only. may be it's not necessary.
-    inline void Active()
-    {
-        m_msgInfo = m_msgInfo | is_acitved_mask;
-        //than turn m_msgInfo into net byte order
-        /*
-                 int netOrderInfo = htonl(m_msgInfo);
-                if (netOrderInfo == m_msgInfo)
-                {
-                    m_msgInfo = m_msgInfo | EnByteOrder;
-                    netOrderInfo = htonl(m_msgInfo);
-                }
-                m_msgInfo = netOrderInfo;
-        */
-    }
-
-    inline void PreProcOnNetMsg()
-    {
-        //m_msgInfo = htonl(m_msgInfo);
-    }
-
-    inline void Deactive()
-    {
-        m_msgInfo = m_msgInfo & 0x7FFFFFFF;
-    }
-    TBool IsActived()
-    {
-        if (((m_msgInfo & is_acitved_mask)))
-        {
-            return TRUE;
-        }
-        return FALSE;
-    }
 private:
 	//to make sure you could only create the message by msgPool.
 	CMessageHeader()
 	{
-	    m_msgInfo = 0;
-        m_methodId = 0;
-
+	    m_msgInfo.m_data = 0;
 	};
     //set to limit the "=" operation.
 	CMessageHeader &operator=(CMessageHeader& msg){};
 
 };
+
 
 
 //make sure len > sizeof(SCTDMessageHeader)

@@ -7,24 +7,20 @@ namespace Zephyr
 
 TInt32 CMessageHeader::Init(TUInt32 bodyLength,TUInt32 methodId,CDoid srcId,CDoid* pDestDoids,TUInt32 destDoidNum)
 {
-    if ((destDoidNum > 255) || (NULL == pDestDoids) || (bodyLength < 0) || (methodId > 0x3FFFFFFF))
+    if ((destDoidNum > 127) || (NULL == pDestDoids) || (bodyLength < 0) || (methodId > 0x3FFFFFFF))
     {
         return INPUT_PARA_ERROR;
     }
     m_msgInfo = 0;
     TUInt32 length = sizeof(CMessageHeader) + sizeof(CDoid) * (destDoidNum -1);
-    m_msgInfo = length + bodyLength;
-	m_msgInfo = m_msgInfo | (destDoidNum<<22);
-    m_methodId = methodId;
-    m_srcDoid = srcId;
-    for (TUInt32 i=0;i<destDoidNum;i++)
+    m_msgInfo.m_msgLength = length;
+    m_msgInfo.m_methodId  = methodId;
+    m_srcDoid   = srcId;
+    m_destDoid  = *pDestDoids;
+    if (destDoidNum > 1)
     {
-        CDoid *pDoid = GetDestDoidByIdx(i);
-        *pDoid = *(pDestDoids + i);
+         memcpy((void*)GetMultiDestDoids(),(void*)(pDestDoids+1),(sizeof(CDoid)*destDoidNum-1));
     }
-    m_checkSum[0] = 'S';
-    m_checkSum[1] = 'Z';
-
     /* do it when actived this message!
     for(int i =0;i<(sizeof(SCTDMessageHeader)-2);i+=2)
     {
@@ -47,10 +43,9 @@ TInt32 CMessageHeader::SetBodyLength(TUInt32 bodyLength)
 	}
 	else
 	{
-		CDoid  *pOldDest = GetDestDoidByIdx(1);
-		m_msgInfo = sizeof(CMessageHeader) + sizeof(CDoid) * (destDoidNum -1) + bodyLength;
-		m_msgInfo = m_msgInfo | (destDoidNum<<22);
-
+		CDoid  *pOldDest = GetMultiDestDoids();
+		m_msgInfo.m_msgLength = sizeof(CMessageHeader) + sizeof(CDoid) * (destDoidNum -1) + bodyLength;
+		
 		CDoid  *pNewDest = GetDestDoidByIdx(1);
 		if (destDoidNum > 1)
 		{

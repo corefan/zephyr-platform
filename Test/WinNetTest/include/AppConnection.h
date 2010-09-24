@@ -14,7 +14,14 @@ private:
     int             m_passiveSendNr;
     CAppConnection* m_pNext;
     static int      sm_averageMsgLen;
+    unsigned int    m_connectedTime;
+    unsigned int    m_lastLogTime;
+    unsigned int    m_actived;
 public:
+    void OnTryConnection()
+    {
+        m_actived = 1;
+    }
     CAppConnection();
     void SetPassvieSendNr(int nr)
     {

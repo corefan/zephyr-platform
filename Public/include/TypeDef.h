@@ -18,7 +18,9 @@
 namespace Zephyr
 {
 typedef char TChar;
+typedef char TInt8;
 typedef unsigned char TUChar;
+typedef unsigned char TUInt8;
 typedef short TInt16;
 typedef unsigned short TUInt16;
 typedef  long TInt32;

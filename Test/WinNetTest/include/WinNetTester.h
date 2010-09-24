@@ -19,6 +19,10 @@ public:
     CAppConnectionMgr  m_ConnectionPool;
     CTestParserFactory  m_parserFactory;
     unsigned long       m_lastRunTime;
+    char                m_myIp[32];
+    char                m_remoteIp[32];
+    unsigned short      m_myPort;
+    unsigned short      m_remotePort;
 public:
     CWinNetTester(IfTaskMgr *pTaskMgr);
     ~CWinNetTester();
