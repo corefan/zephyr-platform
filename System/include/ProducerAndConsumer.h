@@ -1,13 +1,25 @@
+/*-------------------------------------------------------------
+ Copyright (C)| 
+ File: ProducerAndConsumer.h
+ Author: Zephyr Shannon
+ Date: 2010-3-2 10:31:50
+ Version: 
+ Description:  生产消费者模型，
+ Others: 注意，那个Linux还没尝试编译过.
+ Function List: 
+ Histroy: 
+ -------------------------------------------------------------*/
 #ifndef __ZEPHYR_SYSTEM_PRODUCER_AND_CONSUMER_H__
 #define __ZEPHYR_SYSTEM_PRODUCER_AND_CONSUMER_H__
-#include "Typedef.h"
-
 #ifdef _WIN32
-
+#include "Windows.h"
 #else
 #include <pthread.h>
 #include <stdint.h>
 #endif
+#include "Typedef.h"
+
+
 
 namespace Zephyr
 {
@@ -15,30 +27,24 @@ namespace Zephyr
 class CProduerAndConsumer
 {
 private:
-    TUInt64 m_produced;
-    TUInt64 m_consumered;
-    TUInt64 m_depositoryCapacity;
-    TUInt64 m_produceRequired;
-    TUInt64 m_consumerRequired;
-private:
-    #ifndef _WIN32
+    //为0，然后锁，再读一下试试，如果有则返回，没有就等待,
+    volatile TUInt32 m_seq;
+    volatile TUInt32 m_confirmed;
+    #ifdef _WIN32
     HANDLE  m_cond;
-    #else //Linux
-    pthread_cond_t m_cond;
+    #else   //Linux
+    pthread_mutex_t m_mutex;
+    pthread_cond_t  m_cond;
     #endif
 public:
-    CProduerAndConsumer(TUInt64 depositoryCapacity);
+    CProduerAndConsumer();
     //申请仓库空间
-    TBool RequirDepositeProduct(TUInt32 productNr,TUInt32 timeout=15);
-    //放完货了
-    void ConfirmAddProduct(TUInt32 productNr);
+    TBool    OnProduced();
     //申请收货
-    TUInt32 RequireFetchProduct(TUInt32 timeout=15);
+    //只有遍历所有生产者后才会锁.
+    TInt32 RequireFetchProduct(TUInt32 timeout=15);
     //不需要申请收获
-    void OnConsumered(TUInt32 productionNr);
-private:
-    TInt32 CreateEvent();
-    void SetEvent();
+
 };
 
 }
