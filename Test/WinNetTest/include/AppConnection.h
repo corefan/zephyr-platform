@@ -5,10 +5,13 @@
 #include "IfNet.h"
 
 using namespace Zephyr;
+
+class CAppConnectionMgr;
 class CAppConnection : public IfConnectionCallBack
 {
 private:
     IfConnection*   m_pIfConnection;
+    CAppConnectionMgr   *m_pConnectionMgr;
     long long       m_msgRecved;
     long long       m_msgSend;
     int             m_passiveSendNr;
@@ -17,7 +20,12 @@ private:
     unsigned int    m_connectedTime;
     unsigned int    m_lastLogTime;
     unsigned int    m_actived;
+    unsigned int    m_unconnectedTime;
 public:
+    void SetMgr(CAppConnectionMgr *pMgr)
+    {
+        m_pConnectionMgr = pMgr;
+    }
     void OnTryConnection()
     {
         m_actived = 1;

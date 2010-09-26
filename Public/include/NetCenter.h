@@ -7,7 +7,7 @@
 #include "IfNet.h"
 namespace Zephyr
 {
-IfNet *CreateNet(IfTaskMgr *pTaskMgr,IfParserFactory *pParserFactory,IfCryptorFactory *pCryptorFactory=NULL,TInt32 maxConnectionNr = 64,TUInt32 buffSize = (256*1024));
+IfNet *CreateNet(IfTaskMgr *pTaskMgr,IfParserFactory *pParserFactory,IfCryptorFactory *pCryptorFactory=NULL,TInt32 maxConnectionNr = 20,TUInt32 buffSize = (256*1024));
 };
 
 #endif;

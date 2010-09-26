@@ -103,7 +103,7 @@ TInt32 CListener::Run(TInt32 cnt)
             }
             
             
-            CConnection *pNew = m_pConnectionPool->GetConnection();
+            CConnection *pNew = m_pConnectionPool->GetItem();
             if (!pNew)
             {
                 closesocket(acceptedSocket);
@@ -139,7 +139,7 @@ TInt32 CListener::Run(TInt32 cnt)
             if (SUCCESS > ret)
             {
                 pNew->CloseConnection();
-                m_pConnectionPool->ReleaseConnection(pNew);
+                m_pConnectionPool->ReleaseItem(pNew);
                 continue;
             }
             HANDLE h = CreateIoCompletionPort((HANDLE) acceptedSocket, m_compeltionPort, (ULONG_PTR)(pNew), 0);
@@ -148,7 +148,7 @@ TInt32 CListener::Run(TInt32 cnt)
             {
                 closesocket(acceptedSocket);
                 pNew->OnDisconnected();
-                m_pConnectionPool->ReleaseConnection(pNew);
+                m_pConnectionPool->ReleaseItem(pNew);
                 continue;
             }
             
@@ -156,7 +156,7 @@ TInt32 CListener::Run(TInt32 cnt)
             if (SUCCESS > ret)
             {
                 pNew->CloseConnection();
-                m_pConnectionPool->ReleaseConnection(pNew);
+                m_pConnectionPool->ReleaseItem(pNew);
                 continue;
             }
         }

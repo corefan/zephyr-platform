@@ -11,64 +11,64 @@ template <class ITEM_CLASS>
 class ItemClassPool 
 {
 private:
-    TUInt32             m_maxConnectionNum;
-    TUInt32             m_freeConnectionNum;
-    ITEM_CLASS          *m_pConnectionPool;
+    TUInt32             m_maxItemNum;
+    TUInt32             m_freeItemNum;
+    ITEM_CLASS          *m_pItemPool;
     ITEM_CLASS          *m_pFreeHeader;
     ITEM_CLASS          *m_pFreeRear;
     ITEM_CLASS          *m_pUsed;
 public:
     ItemClassPool()
     {
-        m_maxConnectionNum = 0;
-        m_freeConnectionNum = 0;       
-        m_pConnectionPool = NULL;
+        m_maxItemNum = 0;
+        m_freeItemNum = 0;       
+        m_pItemPool = NULL;
         m_pFreeHeader = NULL;
         m_pFreeRear   = NULL;
         m_pUsed = NULL;
     }
     ~ItemClassPool()
     {
-        if (m_pConnectionPool)
+        if (m_pItemPool)
         {
-            delete [] m_pConnectionPool;
+            delete [] m_pItemPool;
         }
     }
-    TInt32              Init(TInt32 nrOfMaxConnection,TInt32 buffSize)
+    TInt32              Init(TInt32 nrOfMaxItem,TInt32 buffSize)
     {
         try
         {
-            m_pConnectionPool = new ITEM_CLASS[nrOfMaxConnection];
+            m_pItemPool = new ITEM_CLASS[nrOfMaxItem];
         }
         catch (...)
         {
         }
-        if (!m_pConnectionPool)
+        if (!m_pItemPool)
         {
             return OUT_OF_MEM;
         }
-        m_pFreeHeader =m_pConnectionPool;
-        m_pFreeRear = (m_pConnectionPool);
+        m_pFreeHeader =m_pItemPool;
+        m_pFreeRear = (m_pItemPool);
         m_pFreeHeader->Init();
-        for (TUInt32 i=1;i<nrOfMaxConnection;i++)
+        for (TUInt32 i=1;i<nrOfMaxItem;i++)
         {
-            m_pFreeRear->Attach((m_pConnectionPool+i));
-            m_pFreeRear = (m_pConnectionPool+i);
+            m_pFreeRear->Attach((m_pItemPool+i));
+            m_pFreeRear = (m_pItemPool+i);
             m_pFreeRear->Init();
             int ret = m_pFreeRear->OnCreate(i,buffSize);
             if (ret < SUCCESS)
             {
-                delete [] m_pConnectionPool;
-                m_pConnectionPool = NULL;
+                delete [] m_pItemPool;
+                m_pItemPool = NULL;
                 return ret;
             }
         }
-        m_maxConnectionNum = nrOfMaxConnection;
+        m_maxItemNum = nrOfMaxItem;
         return SUCCESS;
     }
-    CConnection*        GetConnection()
+    ITEM_CLASS*        GetItem()
     {
-        CConnection *pResult = NULL;
+        ITEM_CLASS *pResult = NULL;
         if (m_pFreeHeader)
         {
             pResult = m_pFreeHeader;
@@ -90,29 +90,29 @@ public:
         }
         return pResult;
     }
-    void                ReleaseConnection(CConnection *pConnection)
+    void                ReleaseItem(ITEM_CLASS *pItem)
     {
         //从used列表里删除
-        pConnection->OnFinal();
+        pItem->OnFinal();
         //不负责从原队列里删除，交给使用者.
-        pConnection->Detach();
+        pItem->Detach();
         if(m_pFreeRear)
         {
-            m_pFreeRear->Attach(pConnection);
-            m_pFreeRear = pConnection;
+            m_pFreeRear->Attach(pItem);
+            m_pFreeRear = pItem;
         }
         else
         {
-            m_pFreeHeader = pConnection;
-            m_pFreeRear   = pConnection;
+            m_pFreeHeader = pItem;
+            m_pFreeRear   = pItem;
         }
-        //pConnection->Attach(m_pFree);
+        //pItem->Attach(m_pFree);
     }
-    CConnection*        GetConectionByIdx(TUInt32 idx)
+    ITEM_CLASS*        GetConectionByIdx(TUInt32 idx)
     {
-        if (idx < m_maxConnectionNum)
+        if (idx < m_maxItemNum)
         {
-            return m_pConnectionPool + idx;
+            return m_pItemPool + idx;
         }
         return NULL;
     }

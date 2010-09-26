@@ -22,6 +22,7 @@
 #include "IfCryptorFactory.h"
 #include "IfParserFactory.h"
 #include <winsock2.h>
+#include "TplMap.h"
 
 namespace Zephyr
 {
@@ -39,6 +40,14 @@ public:
     }
 };
 
+class CConnectingList
+{
+public:
+    SOCKET m_key;
+    CConnection* m_pConnection;
+    TInt32  m_tryTimes;
+};
+
 class CConnectionMgr;
 
 class CConnector
@@ -46,7 +55,7 @@ class CConnector
 private:
     TInt16          m_pendingConnections;
     TInt16          m_maxPendingConnection;
-    CConnection     *m_pList;
+    TplMap<CConnectingList,SOCKET>  m_pendingSocket;
     TInt32          m_connected;
     TInt32          m_failed;
     //IfNetApp        *m_pIfNetApp;
@@ -79,9 +88,11 @@ public:
         return FALSE;
     }
 private:
-    void AddToPendingList(CConnection *pConnection);
+    TInt32 AddToPendingList(CConnection *pConnection);
     
     void OnConnectionEstablish(CConnection *pConnection);
+    
+    void OnDisconnected(CConnection *pConnection);
 };
 
 }

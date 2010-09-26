@@ -163,6 +163,7 @@ TInt32 CNetTask::Run(const TInt32 threadId,const TInt32 runCnt)
 						    CIocpOverlappedDataHeader *pHeader = CONTAINING_RECORD(lpOverlapped, CIocpOverlappedDataHeader, m_ol);
 						    if (pConnection == pHeader->m_pConnection)
 						    {
+						        pConnection->CloseConnection();
 						        pConnection->OnNetDisconnected();
 						    }
 						    else

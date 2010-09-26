@@ -16,7 +16,16 @@
 
 namespace Zephyr
 {
-    ItemClassPool<CCommConnection>;
+class CComConnectionPool : public IfListenerCallBack
+{
+private:
+    ItemClassPool<CCommConnection> m_pool;
+public:
+    virtual IfConnectionCallBack *OnNewConnection(CConPair *pPair);
+    CCommConnection *GetConnection();
+    void ReleaseConnection(CCommConnection *pConnection);
+};
+    
 }
 
 

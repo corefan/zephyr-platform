@@ -2,6 +2,9 @@
 #include "stdio.h"
 #include "stdlib.h"
 #include <windows.h>
+#include "AppConnectionMgr.h"
+#include <iostream> 
+#include <time.h> 
 using namespace Zephyr;
 
 
@@ -29,6 +32,8 @@ TInt32 CAppConnection::OnInit()
     m_actived = 1;
     m_connectedTime = 0;
     m_lastLogTime = timeGetTime();
+    srand(time(NULL));
+    m_unconnectedTime = (rand()%5000) + 5000;
     return SUCCESS;
 }
 TInt32 CAppConnection::OnFinal()
@@ -48,38 +53,48 @@ TInt32 CAppConnection::Run()
     {
         return 0;
     }
-    unsigned int timeNow = timeGetTime();
-    m_connectedTime += (timeNow - m_lastLogTime);
-    m_lastLogTime = timeNow;
-    long long len = m_msgRecved + m_passiveSendNr;
-    if (m_connectedTime > 10000)
+    if (m_passiveSendNr)
     {
-        m_connectedTime = 0;
-        switch(m_actived)
+        unsigned int timeNow = timeGetTime();
+        m_connectedTime += (timeNow - m_lastLogTime);
+        m_lastLogTime = timeNow;
+        
+        if (m_connectedTime > m_unconnectedTime)
         {
+            m_connectedTime = 0;
+            switch(m_actived)
+            {
             case 1:
-            {
-                return 0;
-            }
-            case 2:
-            {
-                if (m_pIfConnection)
                 {
-                    m_pIfConnection->Disconnect();
-                    m_pIfConnection = NULL;
-                    m_actived = 3;
-                    return 0;
+                    //return 0;
                 }
-            }
+                break;
+            case 2:
+                {
+                    if (m_pIfConnection)
+                    {
+                        m_pIfConnection->Disconnect();
+                        m_msgRecved = 0;
+                        m_msgSend = 0;
+                        printf("[CAppConnection::Run]App disconnected!");
+                        m_pIfConnection = NULL;
+                        m_actived = 3;
+                        return 0;
+                    }
+                }
+                break;
             case 3:
-            {
-                m_actived = 1;
-                OnInit();
-                m_passiveSendNr = 100;
-                return -5;
+                {
+                    m_actived = 1;
+                    OnInit();
+                    m_passiveSendNr = 100;
+                    return -5;
+                }
+                break;
             }
         }
     }
+    long long len = m_msgRecved + m_passiveSendNr;
     if (len > m_msgSend)
     {
         len -= m_msgSend;
@@ -148,17 +163,28 @@ TInt32 CAppConnection::OnRecv(TUChar *pMsg, TUInt32 msgLen)
     //IfConnection *pIfConnection在连接实际建立的时候再传给应用层。
 TInt32 CAppConnection::OnConnected(IfConnection *pIfConnection,IfParser *pParser,IfCryptor *pCryptor)
 {
+//#ifdef __PRINT_DEBUG_INFO__
     printf("[CAppConnection::OnConnected]");
+//#endif
     m_pIfConnection = pIfConnection;
     m_actived = 2;
+    m_msgRecved = 0;
+    m_msgSend = 0;
     return SUCCESS;
 }
 
     //任何socket异常都会自动关闭网络连接
 TInt32 CAppConnection::OnDissconneted(TInt32 erroCode)
 {
+//#ifdef __PRINT_DEBUG_INFO__
     printf("[CAppConnection::OnDissconneted]");
-    m_actived = 3;
+//#endif
+    if (!m_passiveSendNr)
+    {
+        m_pConnectionMgr->ReleaseConnection(this);
+        m_actived = 3;
+    }
+    
     m_pIfConnection = NULL;
     return SUCCESS;
 }

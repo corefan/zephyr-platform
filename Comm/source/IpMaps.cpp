@@ -4,6 +4,7 @@
 #endif
 #include "stdio.h"
 #include "SettingFile.h"
+#include "SysMacros.h"
 namespace Zephyr
 {
 
@@ -27,6 +28,7 @@ TInt32 CIpMap::Init(const TChar *pConfigName)
     m_nrOfVirtualIp = settingFile.GetInteger("MAIN","nrOfVirtualIp");
     m_localNodeId    = settingFile.GetInteger("MAIN","localNodeId");
     m_localVirtualIp = settingFile.GetInteger("MAIN","localVirtualIp");
+    
     if (m_nrOfNodes > 0)
     {
         NEW(m_pVirtualIps,TVirtualIp,(m_nrOfVirtualIp+1));

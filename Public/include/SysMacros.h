@@ -221,7 +221,7 @@ T##LISTCLASS##LIST m_##LISTCLASS##List; \
 public:\
 LISTCLASS *GetNext()\
 {\
-return m_##LISTCLASS##List.m_pPrev;\
+return m_##LISTCLASS##List.m_pNext;\
 }\
 void Detach() \
 { \
@@ -233,7 +233,7 @@ void Detach() \
     {\
         m_##LISTCLASS##List.m_pNext->m_##LISTCLASS##List.m_pPrev = m_##LISTCLASS##List.m_pPrev;\
     }\
-    m_##LISTCLASS##List.m_pPrev = NULL;\
+    m_##LISTCLASS##List.m_pNext = NULL;\
     m_##LISTCLASS##List.m_pPrev = NULL;\
 }\
 void Attach(LISTCLASS* pConnection)\

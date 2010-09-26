@@ -179,7 +179,7 @@ TInt32 CConnectionMgr::Run(TUInt32 runCnt)
             if (ret < SUCCESS)
             {
                 //pConnection->CloseConnection();
-                m_conncectionPool.ReleaseConnection(pConnection);
+                m_conncectionPool.ReleaseItem(pConnection);
             }
         }
         ++ usedCnt;
@@ -260,7 +260,7 @@ TInt32 CConnectionMgr::StopListening(TInt32 listeningIdx)
     CListener *pLast=NULL;
     while(pListener)
     {
-        if (pListener == ((CListener *)listeningIdx))
+        if ((TInt32)pListener == (listeningIdx))
         {
             if(pLast)
             {

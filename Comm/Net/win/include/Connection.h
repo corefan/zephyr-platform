@@ -126,7 +126,10 @@ public:
     virtual EnConnectionState GetConnctionState();
 public:
     CConnection();
-    TInt32  Init();
+    TInt32  Init()
+    {
+        return SUCCESS;
+    }
     void    Final();
     TInt32 OnInit();
     void SetEventQueue(CNetEventQueues *pEventQueue)

@@ -37,6 +37,7 @@ public:
 
     TplNode<CItem,CKey>*    m_pLeftNode;
     TplNode<CItem,CKey>*    m_pRightNode;
+    TplNode<CItem,CKey>*    m_pParent;
 public:
     void     CheckTree()
     {
@@ -154,6 +155,7 @@ public:
                     m_isActive = 1;
                     m_pLeftNode = NULL;
                     m_pRightNode = NULL;
+                    m_pParent    = NULL;
                 }
     void        UnInit()
                 {
@@ -161,6 +163,7 @@ public:
                     m_isActive = 0;
                     m_pLeftNode = NULL;
                     m_pRightNode = NULL;
+                    m_pParent    = NULL;
                 }
     bool        IsActived()
                 {
@@ -291,6 +294,36 @@ public:
                     }
                 }
 private:
+    bool IsLeftChild()
+    {
+        if (m_pParent)
+        {
+            if (m_pParent->m_pLeftNode == this)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+    bool IsRoot()
+    {
+        if (m_pParent)
+        {
+            return false;
+        }
+        return true;
+    }
+    bool IsRightChild()
+    {
+        if (m_pParent)
+        {
+            if (m_pParent->m_pRightNode == this)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
     TInt32        CheckNode()
     {
         TInt32 totalNode = 0;
@@ -298,14 +331,14 @@ private:
         {
             if(m_pLeftNode->FindNode(CItem::m_key))
             {
-                cout<<"check tree failed, find self in the m_pLeftNode"<<endl;
+                printf("check tree failed, find self in the m_pLeftNode \n");
                 TInt32 count = 0;
                 Print(1,count);
                 return FAIL;
             }
             if (!(CItem::m_key > m_pLeftNode->m_key))
             {
-                cout<<"check tree failed, left node key is not smaller than root!"<<endl;
+                printf("check tree failed, left node key is not smaller than root!\n");
                 TInt32 count = 0;
                 Print(1,count);
                 return FAIL;
@@ -316,14 +349,14 @@ private:
         {
             if (m_pRightNode->FindNode(CItem::m_key))
             {
-                cout<<"check tree failed, find self in the m_pRightNode"<<endl;
+                printf("check tree failed, find self in the m_pRightNode \n");
                 TInt32 count = 0;
                 Print(1,count);
                 return FAIL;
             }
             if (!(CItem::m_key < m_pRightNode->m_key))
             {
-                cout<<"check tree failed, right node key is not bigger than root!"<<endl;
+                printf("check tree failed, right node key is not bigger than root!\n");
                 TInt32 count = 0;
                 Print(1,count);
                 return FAIL;
@@ -332,10 +365,34 @@ private:
         }
         if (totalNode != (GetTreeSize()-1))
         {
-            cout<<"check tree failed, tree size incorrect!"<<endl;
+            printf("check tree failed, tree size incorrect!\n");
             TInt32 count = 0;
             Print(1,count);
             return FAIL;
+        }
+        if (m_pParent)
+        {
+            if (m_pParent->m_key == m_key)
+            {
+                printf("Check tree failed ,parent's key is the same to this!\n");
+                return FAIL;
+            }
+            if (m_pParent->m_key > m_key)
+            {
+                if (m_pParent->m_pLeftNode != this)
+                {
+                    printf("check tree failed ,the tree parent is incorrect!\n");
+                    return FAIL;
+                }
+            }
+            else
+            {
+                if (m_pParent->m_pRightNode != this)
+                {
+                    printf("check tree failed, the tree parent is incorrect!\n");
+                    return FAIL;
+                }
+            }
         }
         return SUCCESS;
     }
@@ -358,19 +415,30 @@ public:
                                 return this;
                             }
 
-
+    TplNode<CItem,CKey>* GetRoot()
+                            {
+                                if (m_pParent)
+                                {
+                                    return m_pParent->GetRoot();
+                                }
+                                return this;
+                            }
 
 public:
     class Iterator
     {
     private:
         TplNode<CItem,CKey>* m_pNow;
-		TplNode<CItem,CKey>* m_pRoot;
+		//TplNode<CItem,CKey>* m_pRoot;
     public:
         Iterator()
         {
             m_pNow = NULL;
-            m_pRoot = NULL;
+            //m_pRoot = NULL;
+        }
+        Iterator(TplNode<CItem,CKey>* pNow)
+        {
+            m_pNow = pNow;
         }
         TInt32 Init(TplNode<CItem,CKey>* pNow)
         {
@@ -378,13 +446,69 @@ public:
             {
                 return NULL_POINTER;
             }
-            m_pRoot = pNow;
-			m_pNow = m_pRoot->GetSmallest();
+            //m_pRoot = pNow;
+			m_pNow = pNow;
             return SUCCESS;
         }
-        void        operator ++()
+        //前缀++，没有后缀++
+        Iterator &operator ++()
         {
-            m_pNow = m_pRoot->GetNextSmallFirst(m_pNow);
+            //m_pNow = m_pRoot->GetNextSmallFirst(m_pNow);
+            TplNode<CItem,CKey>* pTmp = m_pNow;
+            TplNode<CItem,CKey>* pLast = NULL;
+            m_pNow = NULL;
+            while (pTmp)
+            {
+                if ((pTmp->m_pRightNode) && (pTmp->m_pRightNode != pLast))
+                {
+                    m_pNow = pTmp->m_pRightNode->GetSmallest();
+                    return *this;
+                }
+                else
+                {
+                    if (pTmp->IsLeftChild())
+                    {
+                        m_pNow = pTmp->m_pParent;
+                        return *this;
+                    }
+                    else
+                    {
+                        pLast = pTmp;
+                        pTmp = pTmp->m_pParent;
+                    }
+                }
+            }
+            m_pNow = NULL;
+            return *this;
+        }
+        Iterator &operator --()
+        {
+            TplNode<CItem,CKey>* pTmp = m_pNow;
+            TplNode<CItem,CKey>* pLast = NULL;
+            m_pNow = NULL;
+            while (pTmp)
+            {
+                if ((pTmp->m_pLeftNode) && (pTmp->m_pLeftNode != pLast))
+                {
+                    m_pNow = pTmp->m_pLeftNode->GetBigest();
+                    return *this;
+                }
+                else
+                {
+                    if (pTmp->IsRightChild())
+                    {
+                        m_pNow = pTmp->m_pParent;
+                        return *this;
+                    }
+                    else
+                    {
+                        pLast = pTmp;
+                        pTmp = pTmp->m_pParent;
+                    }
+                }
+            }
+            m_pNow = NULL;
+            return *this;
         }
         CItem*      operator ->()
         {
@@ -398,17 +522,21 @@ public:
             }
             return false;
         }
-		CItem* GetItem()
+		TplNode<CItem,CKey>* GetItem()
 		{
 			return m_pNow;
 		}
 		TInt32 Size()
 		{
-		    if (m_pRoot)
+		    if (m_pNow)
 		    {
-		        return (m_pRoot->GetTreeSize());
+		        return (m_pNow->GetRoot()->GetTreeSize());
 		    }
 		    return 0;
+		}
+		bool IsNull()
+		{
+		    return (m_pNow == NULL); 
 		}
     };
 
@@ -519,16 +647,28 @@ TplNode<CItem,CKey> *TplNode<CItem,CKey>::AddNode(TplNode *pNode)
             {
                 //sth wrong!! this should never happened!
                 m_pLeftNode = pNode;
+                pNode->m_pParent = this;
                 AddLeftNodeNum();
                 #ifdef _NEED_TREE_CHECK
                 CheckNode();
                 #endif
                 return this;
             }
+            //重新修整树
             TplNode<CItem,CKey>* pNewRoot = m_pLeftNode;
             m_pLeftNode    = m_pLeftNode->m_pRightNode;
             pNewRoot->m_pRightNode = this;
             m_nodeSize = 0;
+            
+            //修整m_pParent
+            pNewRoot->m_pParent = m_pParent;
+            this->m_pParent = pNewRoot;
+            if (m_pLeftNode)
+            {
+                m_pLeftNode->m_pParent = this;
+            }
+            //修整结束
+            
             if(m_pLeftNode)
             {
                 m_nodeSize += m_pLeftNode->GetTreeSize();
@@ -546,6 +686,8 @@ TplNode<CItem,CKey> *TplNode<CItem,CKey>::AddNode(TplNode *pNode)
             {
                 pNewRoot->m_nodeSize += pNewRoot->m_pRightNode->GetTreeSize();
             }
+            //结束
+            
             if (pNewRoot)
             {
                 if (pNewRoot->m_key > pNode->m_key)
@@ -556,6 +698,7 @@ TplNode<CItem,CKey> *TplNode<CItem,CKey>::AddNode(TplNode *pNode)
                     }
                     else
                     {
+                        pNode->m_pParent = pNewRoot;
                         pNewRoot->m_pLeftNode = pNode;
                     }
                     pNewRoot->AddLeftNodeNum();
@@ -648,6 +791,7 @@ TplNode<CItem,CKey> *TplNode<CItem,CKey>::AddNode(TplNode *pNode)
             else
             {
             //END ADD 01-04-2009 S0032 TDS00034
+                pNode->m_pParent = this;
                 m_pLeftNode = pNode;
             }
             AddLeftNodeNum();
@@ -671,11 +815,21 @@ TplNode<CItem,CKey> *TplNode<CItem,CKey>::AddNode(TplNode *pNode)
 #endif
             return this;
         }
-
+        //重新修正树
         TplNode<CItem,CKey>* pNewRoot = m_pRightNode;
         m_pRightNode    = m_pRightNode->m_pLeftNode;
         pNewRoot->m_pLeftNode = this;
         m_nodeSize = 0;
+        
+        //修整m_pParent
+        pNewRoot->m_pParent = m_pParent;
+        this->m_pParent = pNewRoot;
+        if (m_pRightNode)
+        {
+            m_pRightNode->m_pParent = this;
+        }
+        //修整结束
+        
         if(m_pLeftNode)
         {
             m_nodeSize += m_pLeftNode->GetTreeSize();
@@ -708,6 +862,7 @@ TplNode<CItem,CKey> *TplNode<CItem,CKey>::AddNode(TplNode *pNode)
                 }
                 else
                 {
+                    pNode->m_pParent = pNewRoot;
                     pNewRoot->m_pRightNode = pNode;
                 }
                 pNewRoot->AddRightNodeNum();
@@ -788,8 +943,8 @@ TplNode<CItem,CKey> *TplNode<CItem,CKey>::AddNode(TplNode *pNode)
         else
         {
         //END ADD 01-04-2009 S0032 TDS00035
+            pNode->m_pParent = this;
             m_pRightNode = pNode;
-
         }
         AddRightNodeNum();
 #ifdef _NEED_TREE_CHECK
@@ -816,6 +971,7 @@ TplNode<CItem,CKey> *TplNode<CItem,CKey>::ReleaseNode(CKey& key)
         if (NULL == m_pLeftNode)
         {
             TplNode<CItem,CKey> *pResult = m_pRightNode;
+            m_pRightNode->m_pParent = m_pParent;
             //this cann't be null;
             UnInit();
             #ifdef _NEED_TREE_CHECK
@@ -826,6 +982,7 @@ TplNode<CItem,CKey> *TplNode<CItem,CKey>::ReleaseNode(CKey& key)
         if (NULL == m_pRightNode)
         {
             TplNode<CItem,CKey> *pResult = m_pLeftNode;
+            m_pLeftNode->m_pParent = m_pParent;
             UnInit();
             #ifdef _NEED_TREE_CHECK
             pResult->CheckTree();
@@ -863,8 +1020,17 @@ TplNode<CItem,CKey> *TplNode<CItem,CKey>::ReleaseNode(CKey& key)
             DelLeftNodeNum();
         }
         pNewRoot->m_nodeSize = m_nodeSize;
+        pNewRoot->m_pParent = m_pParent;
         pNewRoot->m_pLeftNode  = m_pLeftNode;
         pNewRoot->m_pRightNode = m_pRightNode;
+        if (m_pLeftNode)
+        {
+            m_pLeftNode->m_pParent = m_pParent;
+        }
+        if (m_pRightNode)
+        {
+            m_pRightNode->m_pParent = m_pParent;
+        }
         UnInit();
         #ifdef _NEED_TREE_CHECK
         pNewRoot->CheckTree();
@@ -943,11 +1109,20 @@ TplNode<CItem,CKey> *TplNode<CItem,CKey>::ReleaseNode(CKey& key)
             {
                 return this;
             }
-
+            //重整树
             TplNode<CItem,CKey>* pNewRoot = m_pRightNode;
             m_pRightNode    = m_pRightNode->m_pLeftNode;
             pNewRoot->m_pLeftNode = this;
             m_nodeSize = 0;
+            
+            //重整m_pParent
+            pNewRoot->m_pParent = m_pParent;
+            this->m_pParent = pNewRoot;
+            if (m_pRightNode)
+            {
+                m_pRightNode->m_pParent = this;
+            }
+            
             if(m_pLeftNode)
             {
                 m_nodeSize += m_pLeftNode->GetTreeSize();
@@ -994,7 +1169,6 @@ TplNode<CItem,CKey> *TplNode<CItem,CKey>::ReleaseNode(CKey& key)
         //minus a left node equals to add a right node
         if (NeedRearrange(left_node))
         {
-
             if (NULL == m_pLeftNode)
             {
                 //sth wrong!! this should never happened!
@@ -1005,10 +1179,19 @@ TplNode<CItem,CKey> *TplNode<CItem,CKey>::ReleaseNode(CKey& key)
                 #endif
                 return this;
             }
+            //重整树
             TplNode<CItem,CKey>* pNewRoot = m_pLeftNode;
             m_pLeftNode    = m_pLeftNode->m_pRightNode;
             pNewRoot->m_pRightNode = this;
             m_nodeSize = 0;
+            //重整m_pParent
+            pNewRoot->m_pParent = m_pParent;
+            this->m_pParent = pNewRoot;
+            if (m_pLeftNode)
+            {
+                m_pLeftNode->m_pParent = this;
+            }
+            
             if(m_pLeftNode)
             {
                 m_nodeSize += m_pLeftNode->GetTreeSize();
@@ -1114,7 +1297,26 @@ public:
     friend class Iterator;
 private:
 public:
-    typedef TInt32 (CItem::*STD_PFMSG)(TInt32); 
+    typedef TInt32 (CItem::*STD_PFMSG)(TInt32);
+    //Begin是有效的
+    TplNode<CItem,CKey> *Begin()
+    {
+        if (m_pTree)
+        {
+             return m_pTree->GetSmallest();
+        }
+        return NULL;
+    }
+    //end也是有效的
+    TplNode<CItem,CKey> *End()
+    {
+        if (m_pTree)
+        {
+            return m_pTree->GetBigest();
+        }
+        return NULL;
+    }
+    
     void RunOnTree(STD_PFMSG ptr,TInt32 arg)
     {
 		if (m_pTree)

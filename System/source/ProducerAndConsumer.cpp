@@ -18,6 +18,11 @@ CProduerAndConsumer::CProduerAndConsumer()
 //申请仓库空间
 TBool    CProduerAndConsumer::OnProduced()
 {
+    if (m_seq != m_confirmed)
+    {
+        ++m_seq;
+        return TRUE;
+    }
 #ifdef _WIN32
     ++m_seq;
     return SetEvent(m_cond);
@@ -38,13 +43,15 @@ TInt32 CProduerAndConsumer::RequireFetchProduct(TUInt32 timeout)
     if (seq > con)
     {
         TUInt32 product = seq - con;
-        ++m_confirmed;
+        //一次取清所有产品
+        m_confirmed = seq;
         return product;
     }
     else if(seq < con)
     {
         TUInt32 product = (((TUInt32)0xFFFFFFFF) - con) + seq;
-        ++m_confirmed;
+        //一次取清所有产品
+        m_confirmed = seq;
         return product;
     }
     else
@@ -57,6 +64,7 @@ TInt32 CProduerAndConsumer::RequireFetchProduct(TUInt32 timeout)
         }
         if (WAIT_OBJECT_0 == ret)
         {
+            m_confirmed = m_seq;
             return SUCCESS;
         }
     #else

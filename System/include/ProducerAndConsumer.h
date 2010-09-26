@@ -5,8 +5,8 @@
  Date: 2010-3-2 10:31:50
  Version: 
  Description:  生产消费者模型，
- Others: 注意，那个Linux还没尝试编译过.
- Function List: 
+ Others: 注意，那个Linux还没尝试编译过.只能有一个消费者，一个生产者.
+ Function List: 尽量不使用内核操作。同时，尽量让消费者无阻塞.因为消费者处于高层
  Histroy: 
  -------------------------------------------------------------*/
 #ifndef __ZEPHYR_SYSTEM_PRODUCER_AND_CONSUMER_H__

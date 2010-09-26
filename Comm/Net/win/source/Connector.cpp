@@ -10,7 +10,6 @@ CConnector::CConnector()
 {
     m_pendingConnections        = 0;
     m_maxPendingConnection      = 0;
-    m_pList                     = 0;
     m_connected                 = 0;
     m_failed                    = 0;
     //IfNetApp        *m_pIfNetApp;
@@ -37,7 +36,7 @@ TInt32 CConnector::Init(TInt32 maxPendingConnections,HANDLE completionPort,ItemC
     {
         return OUT_OF_RANGE;
     }
-    m_pList = NULL;
+    m_pendingSocket.Init(maxPendingConnections);
     m_hCompletionPort = completionPort;
     m_pParserFactory  = pParserFactory;
     m_pCryptorFactory = pCryptorFactory;
@@ -48,36 +47,44 @@ TInt32 CConnector::Init(TInt32 maxPendingConnections,HANDLE completionPort,ItemC
 TInt32 CConnector::Run(const TUInt32 runCnt)
 {
     int usedCnt = 0;
-    if (!m_pList)
+    if (!m_pendingSocket.GetSize())
     {
         return SUCCESS;
     }
     fd_set wset,exceptSet;
     FD_ZERO(&wset);
     FD_ZERO(&exceptSet);
-    CConnection *pList = m_pList;
-    int nfds = 0;
-    while ((pList) && (usedCnt < runCnt))
+    
+    TplNode<CConnectingList,SOCKET>::Iterator it(m_pendingSocket.GetRoot());
+    
+    while ((usedCnt < runCnt) && (!it.IsNull()))
     {
-        CConnection *pCheckBegin = pList;
-        CConnection *pCheckEnd  = NULL;
-        while (pList)
+        //TplMap<CConnectingList,SOCKET>::Iterator it(m_pendingSocket.GetRoot());
+        //if ()
+        while (!it.IsNull())
         {
-            FD_SET(pList->GetSocket(),&wset);
-            pCheckEnd = pList;
-            pList = pList->GetNext();
-            nfds ++;
-            if (nfds >= FD_SETSIZE)
+            (it->m_tryTimes++);
+            if (it->m_tryTimes > 100)
+            {
+                OnDisconnected(it->m_pConnection);
+                CConnectingList *pList = it.GetItem();
+                ++it;
+                m_pendingSocket.ReleaseItem(pList);
+                continue;
+            }
+            wset.fd_array[wset.fd_count] = it->m_pConnection->GetSocket();
+            ++wset.fd_count;
+            ++it;
+            if (wset.fd_count >= FD_SETSIZE)
             {
                 break;
             }
         }
-        
         exceptSet = wset;
         struct timeval tm;
         tm.tv_sec=0;
         tm.tv_usec=0;
-        nfds = select(nfds, NULL,&wset,&exceptSet,&tm);
+        int nfds = select(wset.fd_count,NULL,&wset,&exceptSet,&tm);
         //TInt32 usedCnt = 0;
         switch (nfds) 
         {
@@ -90,83 +97,33 @@ TInt32 CConnector::Run(const TUInt32 runCnt)
             break;
         default:
             {
-                CConnection *pCheck = pCheckBegin;
-                usedCnt += nfds;
-                //pList = m_pList;
-                while ((nfds))
+                for(int i=0;i<wset.fd_count;++i)
                 {
-                    TUInt32 state = 0;
-                    SOCKET sock = pCheck->GetSocket();
-                    CConnection *pNext = pCheck->GetNext();
-                    
-                    if (FD_ISSET(sock,&wset))
+                    CConnectingList *pCItem = m_pendingSocket.GetItemByKey(wset.fd_array+i);
+                    if (pCItem)
                     {
-                        nfds --;
-                        state = connection_is_established;
+                        OnConnectionEstablish(pCItem->m_pConnection);
+                        m_pendingSocket.ReleaseItem(pCItem);
                     }
-                    if (FD_ISSET(sock,&exceptSet))
+                    else
                     {
-                        nfds --;
-                        state = connection_is_aborted;
+                        //?
+                        printf("[CConnector::Run] Find unexisted socket!");
                     }
-                    switch  (state)
+                }
+                for(int i=0;i<exceptSet.fd_count;++i)
+                {
+                    CConnectingList *pCItem = m_pendingSocket.GetItemByKey(exceptSet.fd_array+i);
+                    if (pCItem)
                     {
-                    case connection_is_established:
-                        {
-                            m_pendingConnections --;
-                            m_connected ++;
-                            if (pCheck == m_pList)
-                            {
-                                m_pList = pCheck->GetNext();
-                            }
-                            //先解开连接
-                            pCheck->Detach();
-                            
-                            HANDLE h = CreateIoCompletionPort((HANDLE) sock, m_hCompletionPort, (ULONG_PTR)(pCheck), 0);
-                            TInt32 result;
-                            if (h != m_hCompletionPort)
-                            {
-                                result = FAIL;
-                            }
-                            else
-                            {
-                                result = pCheck->OnConnected();
-                            }
-                            if (SUCCESS > result)
-                            {
-                                pCheck->CloseConnection();
-                                pCheck->OnDisconnected();
-                                m_pConnectionPool->ReleaseConnection(pCheck);
-                            }
-                            //pCheck->ConnectionIsEstablished();
-                            usedCnt ++;
-                        }
-                        break;
-                    case connection_is_aborted:
-                        {
-                            if (pCheck == m_pList)
-                            {
-                                m_pList = pCheck->GetNext();
-                            }
-                            pCheck->Detach();
-                            pCheck->CloseConnection();
-                            pCheck->OnDisconnected();
-                            m_pConnectionPool->ReleaseConnection(pCheck);
-                            m_pendingConnections --;
-                            m_failed ++;
-                            usedCnt ++;
-                        }
-                        break;
-                    default:
-                        {
-                            //do nothing!
-                        }
+                        OnDisconnected(pCItem->m_pConnection);
+                        m_pendingSocket.ReleaseItem(pCItem);
                     }
-                    if (pCheck == pCheckEnd)
+                    else
                     {
-                        break;
+                        //?
+                        printf("[CConnector::Run] Find unexisted socket!");
                     }
-                    pCheck = pNext;
                 }
             }
         }
@@ -177,7 +134,7 @@ TInt32 CConnector::Run(const TUInt32 runCnt)
 
 TInt32 CConnector::Connect(CConPair *pPair,IfConnectionCallBack *pAppCallBack)
 {
-    CConnection *pNew = m_pConnectionPool->GetConnection();
+    CConnection *pNew = m_pConnectionPool->GetItem();
     if(!pNew)
     {
         return OUT_OF_MEM;
@@ -185,9 +142,10 @@ TInt32 CConnector::Connect(CConPair *pPair,IfConnectionCallBack *pAppCallBack)
     
     SOCKET socket = SOCKET_ERROR;
     
-    if((socket=WSASocket(AF_INET, SOCK_STREAM, IPPROTO_IP, NULL, 0, WSA_FLAG_OVERLAPPED))==-1)
-    {
+   if((socket=WSASocket(AF_INET, SOCK_STREAM, IPPROTO_IP, NULL, 0, WSA_FLAG_OVERLAPPED))==-1)
+   {
         //m_socket = NULL;
+        m_pConnectionPool->ReleaseItem(pNew);
         return OUT_OF_MEM;
     }
     
@@ -213,7 +171,8 @@ TInt32 CConnector::Connect(CConPair *pPair,IfConnectionCallBack *pAppCallBack)
         sizeof(struct sockaddr));
     if(ret   ==   SOCKET_ERROR)   
     {   
-        closesocket(socket);   
+        closesocket(socket);
+        m_pConnectionPool->ReleaseItem(pNew);
         return FAIL;
     }
 
@@ -229,6 +188,7 @@ TInt32 CConnector::Connect(CConPair *pPair,IfConnectionCallBack *pAppCallBack)
         ret = getsockname(socket,(sockaddr *)&myAdd,&myNameLen);;
         if (ret == SOCKET_ERROR)
         {
+            m_pConnectionPool->ReleaseItem(pNew);
             return (-((TInt32)WSAGetLastError()));
         }
         pPair->Init(pPair->GetRemoteIp(),myAdd.sin_addr.s_addr,pPair->GetRemotePort(),ntohs(myAdd.sin_port));
@@ -259,7 +219,7 @@ TInt32 CConnector::Connect(CConPair *pPair,IfConnectionCallBack *pAppCallBack)
     if(ret   ==   SOCKET_ERROR)   
     {   
         closesocket(socket);
-        m_pConnectionPool->ReleaseConnection(pNew);
+        m_pConnectionPool->ReleaseItem(pNew);
         return FAIL;
     }
     
@@ -270,11 +230,17 @@ TInt32 CConnector::Connect(CConPair *pPair,IfConnectionCallBack *pAppCallBack)
         int error = WSAGetLastError();
         if (WSAEWOULDBLOCK == error)
         {
-            AddToPendingList(pNew);
+            TInt32 ret = AddToPendingList(pNew);
+            if (SUCCESS > ret)
+            {
+                m_pConnectionPool->ReleaseItem(pNew);
+                return ret;
+            }
             return WSAEWOULDBLOCK;
         }
         else
         {
+            m_pConnectionPool->ReleaseItem(pNew);
             return (-ret);
         }
     }
@@ -287,19 +253,55 @@ TInt32 CConnector::Connect(CConPair *pPair,IfConnectionCallBack *pAppCallBack)
 }
 
 
-void CConnector::AddToPendingList(CConnection *pConnection)
+TInt32 CConnector::AddToPendingList(CConnection *pConnection)
 {
-    m_pendingConnections ++;
-    pConnection->Attach(m_pList);
-    m_pList = pConnection;
+    TInt32 result = SUCCESS;
+    SOCKET socket = pConnection->GetSocket();
+    CConnectingList *pList = m_pendingSocket.GetItem(result,&socket);
+    if (pList && (result == SUCCESS))
+    {
+        pList->m_key = pConnection->GetSocket();
+        pList->m_pConnection = pConnection;
+        pList->m_tryTimes = 0;
+        //m_pendingSocket.AddInTree(pList)
+    }
+    else
+    {
+        return result;
+    }
     pConnection->OnTryConnecting();
+    return SUCCESS;
 }
 
 void CConnector::OnConnectionEstablish(CConnection *pConnection)
 {
+    HANDLE h = CreateIoCompletionPort((HANDLE) pConnection->GetSocket(), m_hCompletionPort, (ULONG_PTR)(pConnection), 0);
+    TInt32 result;
+    if (h != m_hCompletionPort)
+    {
+        result = FAIL;
+    }
+    else
+    {
+        result = pConnection->OnConnected();
+    }
+    if (SUCCESS > result)
+    {
+        OnDisconnected(pConnection);
+//         pConnection->CloseConnection();
+//         pConnection->OnDisconnected();
+//         m_pConnectionPool->ReleaseConnection(pConnection);
+        return ;
+    }
     pConnection->OnConnected();
 }
 
+void CConnector::OnDisconnected(CConnection *pConnection)
+{
+    pConnection->CloseConnection();
+    pConnection->OnDisconnected();
+    m_pConnectionPool->ReleaseItem(pConnection);
+}
 
 }
 

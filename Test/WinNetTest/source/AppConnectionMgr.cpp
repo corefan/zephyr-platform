@@ -15,6 +15,7 @@ TInt32  CAppConnectionMgr::Init(TInt32 maxConnectionNr)
     for (int i=0;i<maxConnectionNr;++i)
     {
         m_pConnectionPool[i].Attach(m_pFree);
+        m_pConnectionPool[i].SetMgr(this);
         m_pFree = m_pConnectionPool + i;
     }
     m_pUsed = NULL;

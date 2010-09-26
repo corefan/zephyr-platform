@@ -18,11 +18,15 @@
 namespace Zephyr
 {
 
-struct TVirtualIp
+union TVirtualIp
 {
-    TUInt32 m_realIp;
-    TUInt16 m_bindPort;
-    TUInt16 m_listenPort;
+    struct
+    {
+        TUInt32     m_realIp;
+        TUInt16     m_bindPort;
+        TUInt16     m_listenPort;
+    };
+    TUInt64 m_key;
 };
 
 class CIpMap
@@ -34,6 +38,7 @@ public:
     TUInt16              m_localNodeId;
     TUInt16              m_localVirtualIp;
     TVirtualIp           *m_pVirtualIps;
+    TUInt32              m_nrOfConnectType;
     //CCommConnection      *m_pLocalConnections;
 public:
     CIpMap();

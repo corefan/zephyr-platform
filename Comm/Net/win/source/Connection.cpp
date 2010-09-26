@@ -9,6 +9,10 @@ namespace Zephyr
 
 TInt32  CConnection::SendMsg(TUChar *pData,TUInt32 dataLen)
 {
+    if (!m_pAppCallBack)
+    {
+        return NULL_POINTER;
+    }
     //the net has consume the previews evnet! 
     //先写数据
     TInt32 result = m_outPipe.WriteData(pData, dataLen);
@@ -40,6 +44,7 @@ TInt32 CConnection::OnRecv(CIocpOverlappedDataHeader *pHeader,TUInt32 ioSize)
         if (0 == ioSize) // connection is droped!
         {
             m_errorCode = CONNECTION_DATA_INCORRECT;
+            CloseConnection();
             OnNetDisconnected();
             return 1;
         }
@@ -287,10 +292,17 @@ TInt32 CConnection::Disconnect()
         }
         break;
         case connection_is_established:
+        case connection_is_using:
         case connection_is_broken:
         case connection_is_aborted:
         {
             m_pAppCallBack = NULL;
+            TIOEvent event;
+            event.m_connectionEvents = event_connection_is_aborted;
+            event.m_connectionIdx    = m_connectionIdx;
+            event.m_seqNum           = m_appSeqNum;
+            ++m_appSeqNum;
+            m_pEventQueues->AddAppEvent(event);
             m_appDisconnect = 1;
         }
         break;
@@ -469,7 +481,7 @@ TInt32 CConnection::AppRoutine(TUChar *pBuff,TUInt32 buffLen)
                 m_inPipe.ReturnMsgBuff(pData,len);
                 len = m_inPipe.GetDataLen();
             }
-            return -1;
+            return SUCCESS;
         }
         TUInt32 len = m_inPipe.GetDataLen();
         TUChar *pHeader(NULL);
@@ -551,6 +563,9 @@ TInt32 CConnection::AppRoutine(TUChar *pBuff,TUInt32 buffLen)
     }
     else if (connection_is_aborted == m_connectionState)
     {
+        #ifdef _DEBUG
+        printf("[CConnection::AppRoutine] net is disconnected!");
+        #endif
         return -1;
     }
     else if (connection_is_broken == m_connectionState)
@@ -558,9 +573,13 @@ TInt32 CConnection::AppRoutine(TUChar *pBuff,TUInt32 buffLen)
         if (m_pAppCallBack)
         {
             m_pAppCallBack->OnDissconneted(m_errorCode);
-            return -1;
         }
+#ifdef _DEBUG
+        printf("[CConnection::AppRoutine] net is disconnected!");
+#endif
+        return -1;
     }
+    return SUCCESS;;
 }
 //由NetTask掉也难怪，如果返回-1，
 TInt32 CConnection::NetRoutine()
@@ -588,7 +607,9 @@ TInt32 CConnection::NetRoutine()
             {
                 if (WSAGetLastError() != WSA_IO_PENDING)
                 {
-                    Disconnect();
+                    /*Disconnect();*/
+                    CloseConnection();
+                    OnNetDisconnected();
                     return 1;
                     //connection broken;
                 }
@@ -607,9 +628,9 @@ void CConnection::CheckAppDisconnected()
 {
     if (m_appDisconnect)
     {
-        m_connectionState = connection_is_aborted;
-        //关闭连接
         CloseConnection();
+        OnNetDisconnected();
+        m_connectionState = connection_is_aborted;
     }
 }
 
