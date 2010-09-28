@@ -408,6 +408,12 @@ public:
 
     TplNode<CItem,CKey>* GetSmallest()
                             {
+                            //#ifdef _DEBUG
+                                if (this == m_pLeftNode)
+                                {
+                                    return NULL;
+                                }
+                            //#endif
                                 if (m_pLeftNode)
                                 {
                                     return m_pLeftNode->GetSmallest();
@@ -456,7 +462,7 @@ public:
             //m_pNow = m_pRoot->GetNextSmallFirst(m_pNow);
             TplNode<CItem,CKey>* pTmp = m_pNow;
             TplNode<CItem,CKey>* pLast = NULL;
-            m_pNow = NULL;
+            //m_pNow = NULL;
             while (pTmp)
             {
                 if ((pTmp->m_pRightNode) && (pTmp->m_pRightNode != pLast))
@@ -621,6 +627,12 @@ TplNode<CItem,CKey> *TplNode<CItem,CKey>::FindNode(CKey& key)
 template<class CItem,class CKey>
 TplNode<CItem,CKey> *TplNode<CItem,CKey>::AddNode(TplNode *pNode)
 {
+//#ifdef _DEBUG
+    if (this == pNode)
+    {
+        return this;
+    }
+//#endif
 #ifdef _DEBUG
     if (NULL == pNode)
     {
@@ -1025,11 +1037,11 @@ TplNode<CItem,CKey> *TplNode<CItem,CKey>::ReleaseNode(CKey& key)
         pNewRoot->m_pRightNode = m_pRightNode;
         if (m_pLeftNode)
         {
-            m_pLeftNode->m_pParent = m_pParent;
+            m_pLeftNode->m_pParent = pNewRoot;
         }
         if (m_pRightNode)
         {
-            m_pRightNode->m_pParent = m_pParent;
+            m_pRightNode->m_pParent = pNewRoot;
         }
         UnInit();
         #ifdef _NEED_TREE_CHECK
@@ -1501,6 +1513,10 @@ TInt32 TplMap<CItem,CKey>::ReleaseItem(CItem * pItem)
             //m_pTree->ReleaseNode(pNew->m_key);
             m_pTree = m_pTree->ReleaseNode(pNew->m_key);
             //END ADD 01-04-2009 S0032 TDS00035
+        }
+        else
+        {
+            return NOT_BELONG_TO_THIS_CAPSULA;
         }
     }
     //force upper casting, because we know it's ok.

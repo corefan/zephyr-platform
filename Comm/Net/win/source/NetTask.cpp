@@ -104,15 +104,15 @@ TInt32 CNetTask::Run(const TInt32 threadId,const TInt32 runCnt)
     {
         TIOEvent event = *pEvent;
         m_pEventQueues->ConfirmHandleAppEvent(pEvent);
-        
         //应该有主动断链信息.
         //= m_pConnections[pEvent->m_connectionIdx].Routine();
         CConnection *pConnection = m_pConnectionPool->GetConectionByIdx(event.m_connectionIdx);
         
         if (pConnection)
         {
-            ret += pConnection->NetRoutine();
+            //先确认收了
             pConnection->OnNetSent();
+            ret += pConnection->NetRoutine();
             //需要通知释放连接.
             ++usedCnt;
         }

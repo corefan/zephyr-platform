@@ -163,6 +163,14 @@ public:
         }
         return FALSE;
     }
+    TBool IsActived()
+    {
+        if (m_connectionState == connection_is_not_in_use)
+        {
+            return false;
+        }
+        return true;
+    }
    
 
     

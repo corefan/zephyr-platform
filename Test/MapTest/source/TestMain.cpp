@@ -33,6 +33,7 @@ int main()
 //     pTaskMgr->StopWorking();
 //     ReleaseTaskMgr(pTaskMgr);
     CMapTest **ppMap = new CMapTest *[NUM_OF_TEST_TIME];
+    unsigned int *pRandNr = new unsigned int[NUM_OF_TEST_TIME];
     TplMap<CMapTest,unsigned int> map;
     map.Init(NUM_OF_TEST_TIME+2);
     int testTimes = 0;
@@ -64,6 +65,7 @@ int main()
                 pMap = map.GetItem(result,&ran);
                 if (pMap)
                 {
+                    pRandNr[num] = ran;
                     ++num;
                 }
                 else
@@ -105,8 +107,21 @@ int main()
                 --num;
             }
             ++it;
-            map.ReleaseItem(ppMap[(num)]);
+            //map.ReleaseItem(ppMap[(num)]);
             //map.CheckTree();
+        }
+        for (int i =0;i<NUM_OF_TEST_TIME;++i)
+        {
+            CMapTest *p = map.GetItemByKey(pRandNr + i);
+            if (!p)
+            {
+                printf("Can not find rand nr %u",pRandNr[i]);
+            }
+            else
+            {
+                map.ReleaseItem(p);
+                map.CheckTree();
+            }
         }
         if (0 != num)
         {

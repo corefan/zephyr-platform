@@ -64,6 +64,7 @@ public:
             }
         }
         m_maxItemNum = nrOfMaxItem;
+        m_freeItemNum = nrOfMaxItem;
         return SUCCESS;
     }
     ITEM_CLASS*        GetItem()
@@ -78,23 +79,26 @@ public:
                 m_pFreeRear = NULL;
             }
             pResult->Detach();
-            if (m_pUsed)
-            {
-                m_pUsed->Attach(pResult);
-            }
-            else
-            {
-                m_pUsed = pResult;
-            }
+            pResult->Attach(m_pUsed);
+            m_pUsed = pResult;
             pResult->OnInit();
+            --m_freeItemNum;
         }
         return pResult;
     }
     void                ReleaseItem(ITEM_CLASS *pItem)
     {
         //从used列表里删除
+        if (!pItem->IsActived())
+        {
+            return;
+        }
         pItem->OnFinal();
         //不负责从原队列里删除，交给使用者.
+        if (m_pUsed == pItem)
+        {
+            m_pUsed = pItem->GetNext();
+        }
         pItem->Detach();
         if(m_pFreeRear)
         {
@@ -106,6 +110,7 @@ public:
             m_pFreeHeader = pItem;
             m_pFreeRear   = pItem;
         }
+        ++m_freeItemNum;
         //pItem->Attach(m_pFree);
     }
     ITEM_CLASS*        GetConectionByIdx(TUInt32 idx)

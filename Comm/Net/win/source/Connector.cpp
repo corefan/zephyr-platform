@@ -61,17 +61,19 @@ TInt32 CConnector::Run(const TUInt32 runCnt)
     {
         //TplMap<CConnectingList,SOCKET>::Iterator it(m_pendingSocket.GetRoot());
         //if ()
+        //FD_ZERO(&wset);
+        FD_ZERO(&wset);
         while (!it.IsNull())
         {
             (it->m_tryTimes++);
-            if (it->m_tryTimes > 100)
-            {
-                OnDisconnected(it->m_pConnection);
-                CConnectingList *pList = it.GetItem();
-                ++it;
-                m_pendingSocket.ReleaseItem(pList);
-                continue;
-            }
+//             if (it->m_tryTimes > 100)
+//             {
+//                 OnDisconnected(it->m_pConnection);
+//                 CConnectingList *pList = it.GetItem();
+//                 ++it;
+//                 m_pendingSocket.ReleaseItem(pList);
+//                 continue;
+//             }
             wset.fd_array[wset.fd_count] = it->m_pConnection->GetSocket();
             ++wset.fd_count;
             ++it;
@@ -80,6 +82,11 @@ TInt32 CConnector::Run(const TUInt32 runCnt)
                 break;
             }
         }
+        if (!it.IsNull())
+        {
+            printf("Too much socket?!");
+        }
+        usedCnt += wset.fd_count;
         exceptSet = wset;
         struct timeval tm;
         tm.tv_sec=0;
@@ -117,7 +124,11 @@ TInt32 CConnector::Run(const TUInt32 runCnt)
                     if (pCItem)
                     {
                         OnDisconnected(pCItem->m_pConnection);
-                        m_pendingSocket.ReleaseItem(pCItem);
+                        int ret = m_pendingSocket.ReleaseItem(pCItem);
+                        if (ret < SUCCESS)
+                        {
+                            continue;
+                        }
                     }
                     else
                     {

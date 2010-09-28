@@ -173,9 +173,12 @@ TInt32 CConnectionMgr::Run(TUInt32 runCnt)
         CConnection *pConnection = m_conncectionPool.GetConectionByIdx(pEvent->m_connectionIdx);
         if (pConnection)
         {
-            //由应用层调用，如果返回-1，则表示需要释放连接,把链接close,并且放回connectionPool
-            TInt32 ret = pConnection->AppRoutine(m_pBuff,m_buffSize);
+            //先确认处理了消息，这样网络层如果有新事件，也会发事件通知.
             pConnection->OnAppRecved();
+            //由应用层调用，如果返回-1，则表示需要释放连接,把链接closeb ,并且放回connectionPool
+            TInt32 ret = pConnection->AppRoutine(m_pBuff,m_buffSize);
+            //不能先处理，再确认，因为，可能在处理完了，即上句执行完了，网络层又有了新事件，就会丢失.
+            //pConnection->OnAppRecved();
             if (ret < SUCCESS)
             {
                 //pConnection->CloseConnection();

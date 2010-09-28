@@ -33,7 +33,7 @@ TInt32 CAppConnection::OnInit()
     m_connectedTime = 0;
     m_lastLogTime = timeGetTime();
     srand(time(NULL));
-    m_unconnectedTime = (rand()%5000) + 5000;
+    m_unconnectedTime = (rand()%10000);
     return SUCCESS;
 }
 TInt32 CAppConnection::OnFinal()
@@ -59,9 +59,10 @@ TInt32 CAppConnection::Run()
         m_connectedTime += (timeNow - m_lastLogTime);
         m_lastLogTime = timeNow;
         
-        if (m_connectedTime > m_unconnectedTime)
+        if (m_connectedTime > (m_unconnectedTime + 5000))
         {
             m_connectedTime = 0;
+            m_unconnectedTime= 0;
             switch(m_actived)
             {
             case 1:
@@ -76,7 +77,7 @@ TInt32 CAppConnection::Run()
                         m_pIfConnection->Disconnect();
                         m_msgRecved = 0;
                         m_msgSend = 0;
-                        printf("[CAppConnection::Run]App disconnected!");
+                        //printf("[CAppConnection::Run]App disconnected!");
                         m_pIfConnection = NULL;
                         m_actived = 3;
                         return 0;
@@ -164,7 +165,7 @@ TInt32 CAppConnection::OnRecv(TUChar *pMsg, TUInt32 msgLen)
 TInt32 CAppConnection::OnConnected(IfConnection *pIfConnection,IfParser *pParser,IfCryptor *pCryptor)
 {
 //#ifdef __PRINT_DEBUG_INFO__
-    printf("[CAppConnection::OnConnected]");
+    //printf("[CAppConnection::OnConnected]");
 //#endif
     m_pIfConnection = pIfConnection;
     m_actived = 2;
@@ -177,7 +178,7 @@ TInt32 CAppConnection::OnConnected(IfConnection *pIfConnection,IfParser *pParser
 TInt32 CAppConnection::OnDissconneted(TInt32 erroCode)
 {
 //#ifdef __PRINT_DEBUG_INFO__
-    printf("[CAppConnection::OnDissconneted]");
+    //printf("[CAppConnection::OnDissconneted]");
 //#endif
     if (!m_passiveSendNr)
     {

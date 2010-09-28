@@ -297,13 +297,14 @@ TInt32 CConnection::Disconnect()
         case connection_is_aborted:
         {
             m_pAppCallBack = NULL;
-            TIOEvent event;
-            event.m_connectionEvents = event_connection_is_aborted;
-            event.m_connectionIdx    = m_connectionIdx;
-            event.m_seqNum           = m_appSeqNum;
-            ++m_appSeqNum;
-            m_pEventQueues->AddAppEvent(event);
+//             TIOEvent event;
+//             event.m_connectionEvents = event_connection_is_aborted;
+//             event.m_connectionIdx    = m_connectionIdx;
+//             event.m_seqNum           = m_appSeqNum;
+//             ++m_appSeqNum;
+//             m_pEventQueues->AddAppEvent(event);
             m_appDisconnect = 1;
+            OnAppDisconnected();
         }
         break;
     }
@@ -360,7 +361,7 @@ TInt32 CConnection::OnInit()
     m_inPipe.Reset();
     m_outPipe.Reset();
     m_errorCode = 0;
-    m_connectionState = connection_is_not_in_use;
+    m_connectionState = connection_is_trying;
     m_readDataHeader.Init(this,m_seqNum);
     m_writeDataHeader.Init(this,m_seqNum);
     #ifdef _DEBUG
@@ -564,7 +565,7 @@ TInt32 CConnection::AppRoutine(TUChar *pBuff,TUInt32 buffLen)
     else if (connection_is_aborted == m_connectionState)
     {
         #ifdef _DEBUG
-        printf("[CConnection::AppRoutine] net is disconnected!");
+        //printf("[CConnection::AppRoutine] net is disconnected!");
         #endif
         return -1;
     }
@@ -575,7 +576,7 @@ TInt32 CConnection::AppRoutine(TUChar *pBuff,TUInt32 buffLen)
             m_pAppCallBack->OnDissconneted(m_errorCode);
         }
 #ifdef _DEBUG
-        printf("[CConnection::AppRoutine] net is disconnected!");
+        //printf("[CConnection::AppRoutine] net is disconnected!");
 #endif
         return -1;
     }

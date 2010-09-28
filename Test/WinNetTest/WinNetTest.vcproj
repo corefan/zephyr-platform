@@ -119,7 +119,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="include;../../System/ExceptionParser/include;../../System/TaskMgr/include;../../Public/include;../../Public/Interface/App/include;../../Public/Interface/Platform/include;../../System/include;../../System/Logger/include;../../Public"
-				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
+				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;_TEST_MAP"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
