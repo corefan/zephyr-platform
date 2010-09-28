@@ -399,6 +399,12 @@ private:
 public:
     TplNode<CItem,CKey>* GetBigest()
                             {
+                            #ifdef _DEBUG
+                                if (this == m_pRightNode)
+                                {
+                                    return NULL;
+                                }
+                            #endif
                                 if (m_pRightNode)
                                 {
                                     return m_pRightNode->GetBigest();
@@ -408,12 +414,12 @@ public:
 
     TplNode<CItem,CKey>* GetSmallest()
                             {
-                            //#ifdef _DEBUG
+                            #ifdef _DEBUG
                                 if (this == m_pLeftNode)
                                 {
                                     return NULL;
                                 }
-                            //#endif
+                            #endif
                                 if (m_pLeftNode)
                                 {
                                     return m_pLeftNode->GetSmallest();
