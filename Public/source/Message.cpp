@@ -1,25 +1,31 @@
 #include "Message.h"
 #include "sysMacros.h"
 #include <string.h>
-
+#include "Tpl/include/tplmap.h"
 namespace Zephyr
 {
+struct TDoidSort
+{
+    CDoid m_key;
+};
 
 TInt32 CMessageHeader::Init(TUInt32 bodyLength,TUInt32 methodId,CDoid srcId,CDoid* pDestDoids,TUInt32 destDoidNum)
 {
-    if ((destDoidNum > 127) || (NULL == pDestDoids) || (bodyLength < 0) || (methodId > 0x3FFFFFFF))
+    if ((destDoidNum > 63) || (NULL == pDestDoids) || (bodyLength < 0) || (methodId > 0x3FFFF))
     {
         return INPUT_PARA_ERROR;
     }
     m_msgInfo = 0;
-    TUInt32 length = sizeof(CMessageHeader) + sizeof(CDoid) * (destDoidNum -1);
-    m_msgInfo.m_msgLength = length;
+    //TUInt32 length = sizeof(CMessageHeader) + sizeof(CDoid) * (destDoidNum -1);
+    m_msgInfo.m_msgBodyLength = bodyLength;
     m_msgInfo.m_methodId  = methodId;
     m_srcDoid   = srcId;
     m_destDoid  = *pDestDoids;
     if (destDoidNum > 1)
-    {
-         memcpy((void*)GetMultiDestDoids(),(void*)(pDestDoids+1),(sizeof(CDoid)*destDoidNum-1));
+    {	
+		// π”√map≈≈–Ú
+        TplNode<>
+        memcpy((void*)GetBroadcastDoids(),(void*)(pDestDoids+1),(sizeof(CDoid)*(destDoidNum-1)));
     }
     /* do it when actived this message!
     for(int i =0;i<(sizeof(SCTDMessageHeader)-2);i+=2)

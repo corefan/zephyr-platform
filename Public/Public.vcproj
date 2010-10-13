@@ -188,6 +188,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\source\Doid.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\source\NetCenter.cpp"
 				>
 			</File>

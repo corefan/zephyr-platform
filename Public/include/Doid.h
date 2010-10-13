@@ -44,24 +44,31 @@ public:
 
     }
 
-	bool operator==(const CDoid& doid)
+	inline bool operator==(const CDoid& rvalue) const 
 	{
-        //Temporary
-		return ((m_objId == doid.m_objId)&&(m_srvId == doid.m_srvId)&&(m_virtualIp == doid.m_virtualIp)&&(m_nodeId == doid.m_nodeId));
+        return (*((const TUInt64 *)this) == *((const TUInt64 *)(&rvalue)));
+		//return ((m_objId == rvalue.m_objId)&&(m_srvId == rvalue.m_srvId)&&(m_virtualIp == rvalue.m_virtualIp)&&(m_nodeId == rvalue.m_nodeId));
 	}
-
-	TUInt64 ToTUIn64()
+    inline bool operator>(const CDoid &rvalue) const
+    {
+        return (*((const TUInt64 *)this) > *((const TUInt64 *)(&rvalue))); 
+    }
+    inline bool operator < (const CDoid &rvalue) const
+    {
+        return (*((const TUInt64 *)this) < *((const TUInt64 *)(&rvalue)));  
+    }
+	inline TUInt64 ToTUIn64() const
 	{
 		return *((TUInt64 *)this);
 	}
 
-    CDoid &operator=(TUInt64& nNewValue)
+    inline CDoid &operator=(TUInt64& nNewValue)
 	{
 		*((TUInt64 *)this) = nNewValue;
         return *this;
 	}
     //Buff need 32 bytes!
-	void ToStr(TUChar *pBuff);
+	void ToStr(TChar *pBuff);
 };
 
 

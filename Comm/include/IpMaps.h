@@ -25,6 +25,7 @@ union TVirtualIp
         TUInt32     m_realIp;
         TUInt16     m_bindPort;
         TUInt16     m_listenPort;
+        TUInt32     m_srvType;
     };
     TUInt64 m_key;
 };

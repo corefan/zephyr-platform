@@ -165,7 +165,7 @@ int main()
 //             map.CheckTree();
 //         }
         ++testTimes;
-        if (0 == (testTimes%100))
+        //if (0 == (testTimes%100))
         {
             printf("Test %d times",testTimes);
         }
