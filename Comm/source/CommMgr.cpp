@@ -106,6 +106,47 @@ TInt32 CCommMgr::Init(IfTaskMgr *pTaskMgr,const TChar *pConfigName/* =szDefaultL
             break;
         }
     }
+
+    //读取配置，看有几个Service, 需要启动几个工作Service.
+    CSettingFile settingFile;
+    TInt32 nrOfComm = 2;
+    TInt32 inPipeSize = 512*1024;
+    TInt32 outPipeSize = 512*1024;
+    TInt32 maxMsgSize = 256*1024;
+    if (!settingFile.Load("commSetting.ini"))
+    {
+
+    }
+    else
+    {
+        nrOfComm = settingFile.GetInteger("MAIN","nrOfComm",nrOfComm);
+        inPipeSize = settingFile.GetInteger("MAIN","inPipeSize",inPipeSize);
+        outPipeSize = settingFile.GetInteger("MAIN","outPipeSize",outPipeSize);
+    }
+
+    
+    m_nrOfComm = nrOfComm;
+    NEW(m_pCommunicators,CCommunicator,nrOfComm);
+    if (!m_pCommunicators)
+    {
+#ifdef _DEBUG
+        printf("Allocate mem 4 m_pCommunicators Failed!");
+#endif
+        //OnFinal();
+        return OUT_OF_MEM;
+    }
+    
+    for (int i=0;i<nrOfComm;++i)
+    {
+        int ret = m_pCommunicators[i].Init(inPipeSize,outPipeSize,maxMsgSize);
+        if (ret < SUCCESS)
+        {
+#ifdef _DEBUG
+            printf("Can not init Communicator %d",i);
+#endif
+            return ret;
+        }
+    }
     //再看是否需要主动连接外node.
     return SUCCESS;
 }
@@ -113,6 +154,14 @@ TInt32 CCommMgr::Init(IfTaskMgr *pTaskMgr,const TChar *pConfigName/* =szDefaultL
 IfCommunicator *CCommMgr::RegisterWorker(TUInt16 srvId)
 {
     return NULL;
+}
+
+TInt32 CCommMgr::Run(const TInt32 threadId,const TInt32 runCnt)
+{
+    int usedCnt = 0;
+    //先调整时间
+    //再收消息，底层buff小
+    //再转发消息
 }
 
 }

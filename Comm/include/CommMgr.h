@@ -13,8 +13,16 @@
 namespace Zephyr
 {
 
+enum EnCommOpr
+{
+    en_comm_id              = 0,
+    en_comm_read_net_msg,
+    en_comm_send_net_msg,
+    en_comm_read_net_msg_blocked,
+    en_comm_send_net_msg_blocked,
+};
 
-class CCommMgr : public IfCommunicatorMgr
+class CCommMgr : public IfCommunicatorMgr, public IfTask
 {
 private:
     TUInt32             m_nrOfComm;
@@ -25,10 +33,33 @@ private:
     ItemClassPool<CCommConnection> m_connectionPool;
     CMsgParserFactory   *m_pParserFactory;
     CCommConnection     **m_ppConnections;
+
+    EnCommOpr           m_enLastOpr;
+    TUInt16             m_nNetBlockedOnIp;
+    TUInt16             m_nAppBlockedOnSrv;
+    TUInt32             m_netBlockTime;
+    TUInt32             m_nAppBlockTime;
 public:
     //taskMgr由ServerContainer生成.
     TInt32 Init(IfTaskMgr *pTaskMgr,const TChar *pConfigName=szDefaultLoggerName);
-    virtual IfCommunicator *RegisterWorker(TUInt16 srvId); 
+    virtual IfCommunicator *RegisterWorker(TUInt16 srvId);
+
+    virtual TInt32 Begin(TInt32 threadId)
+    {
+        return SUCCESS;
+    }
+    virtual TInt32 Run(const TInt32 threadId,const TInt32 runCnt);
+    virtual TInt32 End(TInt32 threadId)
+    {
+        return SUCCESS;
+    }
+private:
+    //返回值为是否需要丢弃消息
+    TBool OnNetBlocked(TUInt16 vip);
+    TBool OnAppBlocked(TUInt16 vip);
+
+    void NetBlockEnd();
+    void AppBlockEnd();
 };
 
 }
