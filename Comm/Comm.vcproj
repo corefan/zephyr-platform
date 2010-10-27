@@ -160,6 +160,14 @@
 				RelativePath=".\source\IpMaps.cpp"
 				>
 			</File>
+			<File
+				RelativePath=".\source\MsgParser.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\source\MsgParserFactory.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="include"
@@ -188,6 +196,14 @@
 			</File>
 			<File
 				RelativePath=".\include\IpMaps.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\MsgParser.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\MsgParserFactory.h"
 				>
 			</File>
 		</Filter>

@@ -23,15 +23,17 @@ class CCommConnection : public IfConnectionCallBack
 {
 private:
     IfConnection*   m_pIfConnection;
+    TUInt32         m_usedTime;
     //#ifdef _DEBUG
     TUInt64         m_msgRecved;
     TUInt64         m_msgSend;
+
     //#endif
      DECLARE_CLASS_LIST (CCommConnection)
 public:
     CCommConnection();
     ~CCommConnection();
-    
+    TBool IsActived();
     TInt32 OnInit();
     TInt32 OnFinal();
 

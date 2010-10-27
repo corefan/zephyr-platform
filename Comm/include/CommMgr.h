@@ -7,6 +7,9 @@
 #include "IfNet.h"
 #include "IpMaps.h"
 #include "TplPool.h"
+#include "..\Public\Interface\Platform\include\IfTaskMgr.h"
+#include "include\CommConnection.h"
+#include "include\MsgParserFactory.h"
 namespace Zephyr
 {
 
@@ -20,8 +23,11 @@ private:
     TUInt32             m_lastCheckTime;
     IfNet               *m_pNet;
     ItemClassPool<CCommConnection> m_connectionPool;
+    CMsgParserFactory   *m_pParserFactory;
+    CCommConnection     **m_ppConnections;
 public:
-    TInt32 Init(const TChar *pConfigName=szDefaultLoggerName);
+    //taskMgr”…ServerContainer…˙≥….
+    TInt32 Init(IfTaskMgr *pTaskMgr,const TChar *pConfigName=szDefaultLoggerName);
     virtual IfCommunicator *RegisterWorker(TUInt16 srvId); 
 };
 

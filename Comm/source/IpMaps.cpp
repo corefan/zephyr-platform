@@ -37,7 +37,7 @@ TInt32 CIpMap::Init(const TChar *pConfigName)
             return OUT_OF_MEM;
         }
     }
-    for (int i=0;i<m_localVirtualIp;++i)
+    for (int i=0;i<m_nrOfVirtualIp;++i)
     {
         char buff[64];
         sprintf(buff,"VIP%d",i);
@@ -57,6 +57,37 @@ TInt32 CIpMap::Init(const TChar *pConfigName)
             return NULL_POINTER;
         }
     }
+    if (m_nrOfNodes > 1)
+    {
+        m_pRoutes = new TUInt32[m_nrOfNodes];
+        for (int i=0;i<m_nrOfNodes;++i)
+        {
+            char buff[64];
+            sprintf(buff,"NODE%d",i);
+            m_pRoutes[i] = settingFile.GetInteger(buff,"nodeGatewayVirtualIp");
+            if (m_pRoutes[i] == m_localVirtualIp)
+            {
+                m_redirectIdx = m_nrOfVirtualIp + 1;
+                const char *pIp = settingFile.GetString(buff,"ip");
+                if (pIp)
+                {
+                    m_connectedNodeInfo.m_realIp = atoi(pIp);
+                }
+                else
+                {
+                    return NULL_POINTER;
+                }
+                m_connectedNodeInfo.m_bindPort = settingFile.GetInteger(buff,"bindPort",0);
+                m_connectedNodeInfo.m_listenPort = settingFile.GetInteger(buff,"listenPort",0);
+            }
+        }
+    }
+    else
+    {
+        m_pRoutes = NULL;
+        m_redirectIdx = -1;
+    }
+    
     return SUCCESS;
 }
 

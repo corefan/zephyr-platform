@@ -25,10 +25,11 @@ union TVirtualIp
         TUInt32     m_realIp;
         TUInt16     m_bindPort;
         TUInt16     m_listenPort;
-        TUInt32     m_srvType;
+        //TUInt32     m_srvType;
     };
     TUInt64 m_key;
 };
+
 
 class CIpMap
 {
@@ -39,7 +40,13 @@ public:
     TUInt16              m_localNodeId;
     TUInt16              m_localVirtualIp;
     TVirtualIp           *m_pVirtualIps;
-    TUInt32              m_nrOfConnectType;
+    //转发路由表
+    TUInt32              *m_pRoutes;
+
+    //保存该平台所连接的其他节点的信息
+    TInt32               m_connectedNode;
+    TUInt32              m_redirectIdx;
+    TVirtualIp           m_connectedNodeInfo;
     //CCommConnection      *m_pLocalConnections;
 public:
     CIpMap();
@@ -51,6 +58,41 @@ public:
             return TRUE;
         }
         return FALSE;
+    }
+
+    TInt32 RouteTo(CDoid *pDoId)
+    {
+        if (pDoId->m_nodeId < m_nrOfNodes)
+        {
+            if (pDoId->m_nodeId == m_connectedNode)
+            {
+                return m_redirectIdx;
+            }
+            //return m_pRoutes[pDoId->m_nodeId];
+        }
+        //直接丢弃.
+        return -1;
+    }
+    
+    TInt32 GetConnectionIdx(CDoid *pDoId)
+    {
+        if((pDoId->m_nodeId == m_localNodeId))
+        {
+            if (pDoId->m_virtualIp < m_nrOfVirtualIp)
+            {
+                return pDoId->m_virtualIp;
+            }
+            return -1;
+        }
+        if (pDoId->m_nodeId < m_nrOfNodes)
+        {
+            if (pDoId->m_nodeId == m_connectedNode)
+            {
+                return m_redirectIdx;
+            }
+            return m_pRoutes[pDoId->m_nodeId];
+        }
+        return -1;
     }
 //     CCommConnection *GetConnection(CDoid *pDoid)
 //     {
