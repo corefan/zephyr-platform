@@ -162,6 +162,7 @@ TInt32 CCommMgr::Run(const TInt32 threadId,const TInt32 runCnt)
     //先调整时间
     //再收消息，底层buff小
     //再转发消息
+    return usedCnt;
 }
 
 }

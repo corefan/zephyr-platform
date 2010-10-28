@@ -37,6 +37,7 @@ public:
     {
         OnInit();
         m_ip = ip;
+        return SUCCESS;
     }
     void OnFinal()
     {
