@@ -27,6 +27,7 @@
 #include "IfParser.h"
 #include "Connector.h"
 #include "NetEventQueue.h"
+#include "..\..\System\include\ProducerAndConsumer.h"
 #include <stdio.h>
 namespace Zephyr
 {
@@ -49,6 +50,7 @@ protected:
     IfCryptorFactory*   m_pCryptorFactory;
     
     CNetEventQueues     m_netEventQueues;
+    IfTask              *m_pUser;
 //         
 //         //TUInt32           m_lastRunTo;
 //         //ÍøÂç²ãÊÂ¼þ
@@ -81,7 +83,7 @@ public:
     CConnectionMgr();
     ~CConnectionMgr();
 
-    TInt32 Init(TUInt32 maxConnectionNum,IfTaskMgr *pTaskMgr,IfParserFactory* pParserFactory,IfCryptorFactory *pIfCryptorfactory = NULL,TUInt32 buffSize = 256*1024);
+    TInt32 Init(TUInt32 maxConnectionNum,IfTaskMgr *pTaskMgr,IfTask *pUser,IfParserFactory* pParserFactory,IfCryptorFactory *pIfCryptorfactory = NULL,TUInt32 buffSize = 256*1024);
     void   Final();
     
 };

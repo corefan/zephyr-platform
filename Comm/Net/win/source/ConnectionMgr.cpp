@@ -21,10 +21,10 @@ CConnectionMgr::~CConnectionMgr()
     //Final();
 }
 
-TInt32 CConnectionMgr::Init(TUInt32 maxConnectionNum,IfTaskMgr *pTaskMgr,IfParserFactory* pParserFactory,IfCryptorFactory *pIfCryptorfactory,TUInt32 buffSize)
+TInt32 CConnectionMgr::Init(TUInt32 maxConnectionNum,IfTaskMgr *pTaskMgr,IfTask *pUser,IfParserFactory* pParserFactory,IfCryptorFactory *pIfCryptorfactory,TUInt32 buffSize)
 {
     int result = m_conncectionPool.Init(maxConnectionNum,buffSize);
-    
+    m_pUser = pUser;
     if (SUCCESS > result)
     {
         return result;
@@ -99,7 +99,7 @@ TInt32 CConnectionMgr::Init(TUInt32 maxConnectionNum,IfTaskMgr *pTaskMgr,IfParse
     m_pParserFactory = pParserFactory;
     m_pCryptorFactory = pIfCryptorfactory;
     
-    result = m_netEventQueues.Init(maxConnectionNum);
+    result = m_netEventQueues.Init(maxConnectionNum,m_pUser);
     return result;
 }
 

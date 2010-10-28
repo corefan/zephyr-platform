@@ -6,6 +6,7 @@
 #include "TypeDef.h"
 #include "SysMacros.h"
 #include "Pipe.h"
+#include "IfTask.h"
 #include "stdio.h"
 
 
@@ -71,9 +72,11 @@ class CNetEventQueues
 private:
     CIoEventQueue m_netQueue;
     CIoEventQueue m_appQueue;
+    IfTask        *m_pApp;
 public:
-    TInt32      Init(TInt32 maxEventNr)
+    TInt32      Init(TInt32 maxEventNr,IfTask *pIfTask)
     {
+        m_pApp = pIfTask;
         TInt32 rtn = m_netQueue.Init(maxEventNr);
         if (SUCCESS > rtn)
         {
@@ -84,6 +87,10 @@ public:
     }
     TInt32      AddNetEvent(TIOEvent &event)
     {
+        if (m_pApp)
+        {
+            m_pApp->OnNewEvent();
+        }
         return m_netQueue.AddEvent(event);
     }
     TIOEvent    *GetNetEvent()

@@ -24,17 +24,17 @@
 namespace Zephyr
 {
 
+
 class CProduerAndConsumer
 {
 private:
-    //为0，然后锁，再读一下试试，如果有则返回，没有就等待,
-    volatile TUInt32 m_seq;
-    volatile TUInt32 m_confirmed;
+
     #ifdef _WIN32
     HANDLE  m_cond;
     #else   //Linux
+    TUInt32 m_productsNr;
     pthread_mutex_t m_mutex;
-    pthread_cond_t  m_cond;
+    pthread_cond_t  m_cond;k
     #endif
 public:
     CProduerAndConsumer();

@@ -16,7 +16,7 @@
 
  
 #include "TypeDef.h"
-
+#include "SysMacros.h"
 namespace Zephyr
 {
     
@@ -29,10 +29,21 @@ enum EnTaskPriority
 
 class IfTask
 {
+private:
+    void *m_pData;
 public:
     virtual TInt32 Begin(TInt32 threadId) = 0;
     virtual TInt32 Run(const TInt32 threadId,const TInt32 runCnt) = 0;
     virtual TInt32 End(TInt32 threadId)    = 0;
+    virtual ~IfTask();
+public:
+    IfTask()
+    {
+        m_pData = NULL;
+    }
+    void    Init4Event();
+    TInt32  Wait4Event(TInt32 timeout=15);
+    void    OnNewEvent();
 };
 
 }
