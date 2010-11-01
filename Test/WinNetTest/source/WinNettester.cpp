@@ -68,7 +68,16 @@ TInt32 CWinNetTester::Run(const TInt32 threadId,const TInt32 runCnt)
     int usedCnt = m_pNet->Run(runCnt);
     if (!usedCnt)
     {
-        Wait4Event();
+        //使用了反而速度降慢了？
+        int waitRtl = Wait4Event();
+        if (TIME_OUT != waitRtl)
+        {
+            usedCnt = m_pNet->Run(runCnt);
+            if (0 == usedCnt)
+            {
+                //printf("Wrong!");
+            }
+        }
         //printf("no work to do!");
     }
     unsigned long timeNow = timeGetTime();
@@ -81,7 +90,6 @@ TInt32 CWinNetTester::Run(const TInt32 threadId,const TInt32 runCnt)
             CAppConnection *pConn = m_ConnectionPool.GetConnectionByIdx(i);
             if (pConn)
             {
-                
                 int ret =  pConn->Run();
                 if (SUCCESS < ret)
                 {

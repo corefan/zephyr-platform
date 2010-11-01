@@ -32,7 +32,7 @@ int main()
     pNetTester->Init(pMyIp,pRemoteIp,myPort,remotePort,passiveConnectionNr,maxConnectionNr,initSendMsg);
     CAppConnection::SetAverageMsgLen(averageMsglen);
     pTaskMgr->AddTask(pNetTester);
-    pTaskMgr->StartWorking(8);
+    pTaskMgr->StartWorking(4);
     //CExceptionParser parser;
     char stop = 'n';
     while(('y' != stop) && ('Y' != stop))
