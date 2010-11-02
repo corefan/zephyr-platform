@@ -24,6 +24,10 @@ TInt32  CConnection::SendMsg(TUChar *pData,TUInt32 dataLen)
     return result;
 }
 
+TUInt32 CConnection::GetFreeBuffLength()
+{
+    return m_outPipe.GetFreeLen();
+}
 //TUChar *Peek(TUChar *pData,TUInt32 needLength);
 TInt32 CConnection::OnRecv(CIocpOverlappedDataHeader *pHeader,TUInt32 ioSize)
 {
@@ -801,6 +805,7 @@ void CConnection::OnNetRecv()
         event.m_connectionEvents = event_connection_has_new_data_to_read;
         m_pEventQueues->AddNetEvent(event);
     }
+    m_pEventQueues->AwakeApp();
 }
 //应用层收取了网络层的书
 void CConnection::OnAppRecved()

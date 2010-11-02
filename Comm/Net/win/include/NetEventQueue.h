@@ -87,12 +87,15 @@ public:
     }
     TInt32      AddNetEvent(TIOEvent &event)
     {
-        TInt32 rtn = m_netQueue.AddEvent(event);
-        if (m_pApp)
+        //TInt32 rtn = 
+        return m_netQueue.AddEvent(event);;
+    }
+    void AwakeApp()
+    {
+        if(m_pApp)
         {
             m_pApp->OnNewEvent();
         }
-        return rtn;
     }
     TIOEvent    *GetNetEvent()
     {

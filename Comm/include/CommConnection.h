@@ -66,6 +66,15 @@ public:
 
     //调用这个后，就可以将IfConnectionCallBack释放.Net不会继续回调该接口.
     TInt32 Disconnect();    
+
+    TUInt32 GetFreeBuffLength()
+    {
+        if (m_pIfConnection)
+        {
+            return m_pIfConnection->GetFreeBuffLength();
+        }
+        return 0;
+    }
 };
 
 }

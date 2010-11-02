@@ -119,6 +119,7 @@ private:
 public:
     virtual TInt32 SendMsg(TUChar *pMsg,TUInt32 msgLen);
     //应用层调用这个完毕后，网络层会在尝试发送完所有消息后关闭连接，并且丢弃所有收到的消息.
+    virtual TUInt32 GetFreeBuffLength();
     virtual TInt32 Disconnect();
     virtual CConPair *GetConnectionInfo();
     virtual TInt32 NeedNoDelay(const char chOpt) ;

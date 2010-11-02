@@ -43,7 +43,19 @@ public:
     {
 
     }
-
+    TBool IsInOneIp(CDoid &another)
+    {
+        if (m_nodeId != another.m_nodeId)
+        {
+            return FALSE;
+        }
+        if (m_virtualIp != another.m_virtualIp)
+        {
+            return FALSE;
+        }
+        return TRUE;
+    }
+    
 	inline bool operator==(const CDoid& rvalue) const 
 	{
         return (*((const TUInt64 *)this) == *((const TUInt64 *)(&rvalue)));

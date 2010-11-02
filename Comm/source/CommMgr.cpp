@@ -122,8 +122,16 @@ TInt32 CCommMgr::Init(IfTaskMgr *pTaskMgr,const TChar *pConfigName/* =szDefaultL
         nrOfComm = settingFile.GetInteger("MAIN","nrOfComm",nrOfComm);
         inPipeSize = settingFile.GetInteger("MAIN","inPipeSize",inPipeSize);
         outPipeSize = settingFile.GetInteger("MAIN","outPipeSize",outPipeSize);
+        maxMsgSize = settingFile.GetInteger("MAIN","maxMsgSize",maxMsgSize);
     }
-
+    NEW(m_pBuff,TUChar,maxMsgSize);
+    if (!m_pBuff)
+    {
+#ifdef _DEBUG
+        printf("Can not allocated memory for m_pBuff");
+#endif
+        return OUT_OF_MEM;
+    }
     
     m_nrOfComm = nrOfComm;
     NEW(m_pCommunicators,CCommunicator,nrOfComm);
@@ -153,16 +161,178 @@ TInt32 CCommMgr::Init(IfTaskMgr *pTaskMgr,const TChar *pConfigName/* =szDefaultL
 
 IfCommunicator *CCommMgr::RegisterWorker(TUInt16 srvId)
 {
-    return NULL;
+    int idx = srvId % m_nrOfComm;
+    return m_pCommunicators + idx;
 }
 
 TInt32 CCommMgr::Run(const TInt32 threadId,const TInt32 runCnt)
 {
     int usedCnt = 0;
     //先调整时间
+    m_timeSystem.Update();
+    
     //再收消息，底层buff小
+    usedCnt += m_pNet->Run(runCnt);
     //再转发消息
+    for (int i = 0;i<m_nrOfComm;++i)
+    {
+ //       usedCnt += DistributeSrvMsg(i);
+        CMessageHeader *pMsg = m_pCommunicators[i].GetAppMsg(m_pBuff);
+        if(CheckNetState(pMsg))
+        {
+            SendAppMsg(pMsg);
+            if (m_pBuff != (TUChar *)pMsg)
+            {
+                 m_pCommunicators[i].AppMsgSent(pMsg);   
+            }
+        }
+    }
     return usedCnt;
+}
+
+TBool CCommMgr::CheckNetState(CMessageHeader *pMsg)
+{
+    //计算需要发给几个ip,首先node不同
+    int nrOfDest = pMsg->GetBroadcastDoidNr();
+    //有广播
+    if (nrOfDest)
+    { 
+        CDoid *pDoid = pMsg->GetDestDoidByIdx();
+        int idx = m_ipMaps.GetConnectionIdx(pDoid);
+        m_ipMaps.GetConnectionIdx(pDoid);
+        int nrToSend = 1;
+        int i = 1;
+        while(i <= nrOfDest)
+        {
+            CDoid *pNext = pMsg->GetDestDoidByIdx(i);
+            if (pDoid->IsInOneIp(*pNext))
+            {
+                ++i;
+                ++nrToSend;
+            }
+            else
+            {
+                //不同了
+                TUInt32 needLen = pMsg->GetBodyLength() + sizeof(CMessageHeader) + (sizeof(CDoid) * (nrToSend));
+                //小于0，则丢弃.
+                if (idx > 0)
+                {
+                    //connection没连上，那就不管了.
+                    if (m_ppConnections[idx])
+                    {
+                        if (m_ppConnections[idx]->GetFreeBuffLength() < needLen)
+                        {
+                            return FALSE;
+                        }
+                    }
+                }
+                pDoid = pNext;
+                idx = m_ipMaps.GetConnectionIdx(pDoid);
+                nrToSend = 1;
+                ++i;
+            }
+        }
+
+        TUInt32 needLen = pMsg->GetBodyLength() + (sizeof(CMessageHeader) + sizeof(CDoid) * (nrToSend));
+        //小于0，则丢弃.
+        if (idx > 0)
+        {
+            //connection没连上，那就不管了.
+            if (m_ppConnections[idx])
+            {
+                if (m_ppConnections[idx]->GetFreeBuffLength() < needLen)
+                {
+                    return FALSE;
+                }
+            }
+        }
+    }
+    else //没有广播
+    {
+        int idx = m_ipMaps.GetConnectionIdx(pMsg->GetDestDoidByIdx());
+        if (idx >= 0)
+        {
+            TUInt32 freeLen = m_ppConnections[idx]->GetFreeBuffLength();
+            if (pMsg->GetLength() <= freeLen)
+            {
+                return TRUE;
+            }
+        }
+        return FALSE;
+    }
+}
+
+
+void CCommMgr::SendAppMsg(CMessageHeader *pMsg)
+{
+    //计算需要发给几个ip,首先node不同
+    int nrOfDest = pMsg->GetBroadcastDoidNr();
+    //有广播
+    if (nrOfDest)
+    { 
+        CDoid *pDoid = pMsg->GetDestDoidByIdx();
+        int idx = m_ipMaps.GetConnectionIdx(pDoid);
+        m_ipMaps.GetConnectionIdx(pDoid);
+        int from = 0;
+        int i = 1;
+        while(i <= nrOfDest)
+        {
+            CDoid *pNext = pMsg->GetDestDoidByIdx(i);
+            if (pDoid->IsInOneIp(*pNext))
+            {
+                ++i;
+            }
+            else
+            {
+                //不同了
+               /* TUInt32 needLen = pMsg->GetBodyLength() + (sizeof(CMessageHeader) * (nrToSend));*/
+                //小于0，则丢弃.
+                pMsg->ReInitMsg4Send(from,(i-1));
+                if (idx > 0)
+                {
+                    //connection没连上，那就不管了.
+                    if (m_ppConnections[idx])
+                    {
+                        m_ppConnections[idx]->SendMsg((TUChar*)pMsg,pMsg->GetLength());
+                    }
+                }
+                else
+                {
+                    //发送失败
+                }
+                pDoid = pNext;
+                idx = m_ipMaps.GetConnectionIdx(pDoid);
+                from = i;
+                ++i;
+            }
+        }
+        
+        
+        if (idx > 0)
+        {
+            //connection没连上，那就不管了.
+            pMsg->ReInitMsg4Send(from,nrOfDest);
+            if (m_ppConnections[idx])
+            {
+                m_ppConnections[idx]->SendMsg((TUChar*)pMsg,pMsg->GetLength());
+            }
+            else//发送失败
+            {
+
+            }
+        }
+        pMsg->SetBroadcastDoid(nrOfDest);
+    }
+    else //没有广播
+    {
+        int idx = m_ipMaps.GetConnectionIdx(pMsg->GetDestDoidByIdx());
+        if (idx >= 0)
+        {
+            m_ppConnections[idx]->SendMsg((TUChar*)pMsg,pMsg->GetLength());
+        }
+        //return FALSE;
+    }
+
 }
 
 }

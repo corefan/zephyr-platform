@@ -2,6 +2,9 @@
 #include "sysMacros.h"
 #include <string.h>
 #include "Tpl/include/tplmap.h"
+#include <algo.h>
+
+
 namespace Zephyr
 {
 struct TDoidSort
@@ -19,14 +22,14 @@ TInt32 CMessageHeader::Init(TUInt32 bodyLength,TUInt32 methodId,CDoid srcId,CDoi
     //TUInt32 length = sizeof(CMessageHeader) + sizeof(CDoid) * (destDoidNum -1);
     m_msgInfo.m_msgBodyLength = bodyLength;
     m_msgInfo.m_methodId  = methodId;
-    m_srcDoid   = srcId;
-    m_destDoid  = *pDestDoids;
+    m_srcDoid   = srcId;k
+    
     if (destDoidNum > 1)
     {	
-		//使用map排序
-        TplNode<>
+        sort(pDestDoids,pDestDoids+destDoidNum);
         memcpy((void*)GetBroadcastDoids(),(void*)(pDestDoids+1),(sizeof(CDoid)*(destDoidNum-1)));
     }
+    m_destDoid  = *pDestDoids;
     /* do it when actived this message!
     for(int i =0;i<(sizeof(SCTDMessageHeader)-2);i+=2)
     {
@@ -59,7 +62,23 @@ TInt32 CMessageHeader::SetBodyLength(TUInt32 bodyLength)
 		}
 		return SUCCESS;
 	}
-
+}
+//不检查有效性，有调用者负责
+void CMessageHeader::ReInitMsg4Send(TInt32 fromDest,TInt32 to)
+{
+    if (0 != fromDest)
+    {
+        memcpy(&m_destDoid,GetDestDoidByIdx(fromDest),sizeof(CMessageHeader));
+    }
+    else
+    {
+        return ;
+    }
+    ++fromDest;
+    if(to > fromDest)
+    {
+        memmove(((TUChar*)this + sizeof(CMessageHeader) + GetBodyLength()),GetDestDoidByIdx(fromDest),sizeof(CMessageHeader)*(to-fromDest));
+    }
 }
 
 }

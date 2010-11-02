@@ -8,6 +8,8 @@
 namespace Zephyr
 {
 
+class CCommMgr;
+
 class CCommunicator : public IfCommunicator
 {
 protected:
@@ -36,6 +38,45 @@ public:
 
     //application should not call this !!! called by work thread only! or else some events would lost!
     virtual CConnectionEvent GetConnectionEvent(TInt32& result);
+
+    virtual TUInt32 GetTime();
+protected:
+    //供commMgr使用.
+    CMessageHeader *GetAppMsg(TUChar *pBuff)
+    {
+        //if (m_)
+        TUInt32 dataLen = m_outPipe.GetDataLen();
+        if (dataLen > 0)
+        {
+            CMessageHeader *pMsg = (CMessageHeader*)m_outPipe.Peek(pBuff,sizeof(CMessageHeader));
+            if (pMsg->GetLength() > dataLen)
+            {
+                return NULL;
+            }
+            TUInt32 len = pMsg->GetLength();
+            dataLen = len;
+            //这个其实肯定有
+            TUChar *pData = m_outPipe.GetData(len);
+            
+            if (dataLen > len)
+            {
+                m_outPipe.ReadData(pBuff,dataLen);
+                pMsg = (CMessageHeader *)pBuff;
+            }
+            else
+            {
+                pMsg = (CMessageHeader*)pData;
+            }
+            return pMsg;
+        }
+        return NULL;
+    }
+    void AppMsgSent(CMessageHeader *pMsg)
+    {
+        m_outPipe.ReturnMsgBuff((TUChar*)pMsg,pMsg->GetLength());
+    }
+
+friend class CCommMgr;
 };
 
 }

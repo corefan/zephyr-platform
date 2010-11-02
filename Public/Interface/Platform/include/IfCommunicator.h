@@ -24,7 +24,8 @@ public:
 
     //application should not call this !!! called by work thread only! or else some events would lost!
     virtual CConnectionEvent GetConnectionEvent(TInt32& result) = 0;
-    
+
+    virtual TUInt32 GetTime() = 0;
     //maybe I could expose less header files
 };
 

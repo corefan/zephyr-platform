@@ -10,6 +10,7 @@
 #include "..\Public\Interface\Platform\include\IfTaskMgr.h"
 #include "include\CommConnection.h"
 #include "include\MsgParserFactory.h"
+#include "include\TimeSystem.h"
 namespace Zephyr
 {
 
@@ -39,6 +40,9 @@ private:
     TUInt16             m_nAppBlockedOnSrv;
     TUInt32             m_netBlockTime;
     TUInt32             m_nAppBlockTime;
+
+    CTimeSystem         m_timeSystem;
+    TUChar              *m_pBuff;
 public:
     //taskMgr由ServerContainer生成.
     TInt32 Init(IfTaskMgr *pTaskMgr,const TChar *pConfigName=szDefaultLoggerName);
@@ -54,12 +58,18 @@ public:
         return SUCCESS;
     }
 private:
-    //返回值为是否需要丢弃消息
-    TBool OnNetBlocked(TUInt16 vip);
-    TBool OnAppBlocked(TUInt16 vip);
+    //返回值为是否需要丢弃消息,网络层阻塞了
 
-    void NetBlockEnd();
-    void AppBlockEnd();
+    //返回值为是否需要丢弃消息,应用层阻塞了
+
+
+    TBool IsAppStillBlocked();
+    TBool IsNetStillBlocked();
+
+    TBool CheckNetState(CMessageHeader *pMsg);
+    void SendAppMsg(CMessageHeader *pMsg);
+
+    //TInt32 DistributeSrvMsg(TInt32 idx);
 };
 
 }

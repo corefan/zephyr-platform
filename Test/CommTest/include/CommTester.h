@@ -8,8 +8,12 @@
 #include "IfLoggerMgr.h"
 #include "ExceptionParser.h"
 using namespace Zephyr;
-class CXXXTester : public IfTask
+
+class CCommTester : public IfTask
 {
+protected:
+    IfCommunicatorMgr *m_pCommMgr;
+    IfCommunicator    *m_pComms[24];
 public:
     virtual TInt32 Begin(TInt32 threadId)
     {

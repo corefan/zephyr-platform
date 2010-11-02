@@ -108,7 +108,7 @@ public:
 	{
 		return m_msgInfo.m_msgBodyLength;
 	}
-   
+
     inline TUChar *GetBody()
     {
         return (TUChar*)((TUChar*)this + sizeof (CMessageHeader));
@@ -116,7 +116,7 @@ public:
 	//获得整个消息的长度
     inline TUInt32 GetLength()
     {
-        return  m_msgInfo.m_msgBodyLength + sizeof(CMessageHeader) * (m_msgInfo.m_nrOfBroadcastDoid + 1);
+        return  m_msgInfo.m_msgBodyLength + sizeof(CMessageHeader) + (m_msgInfo.m_nrOfBroadcastDoid) * sizeof(CDoid);
     }
 
     inline void SetPriority(TUInt32 prioity)
@@ -210,6 +210,9 @@ public:
         //6bytes for compacked header
         return GetBodyLength() + sizeof(m_msgInfo);
     }
+    //只能从0开始从生成消息头，并且递增
+    //该函数将[fromDest,to)的广播地址复制到[0,(to-fromDest))地址
+    void ReInitMsg4Send(TInt32 fromDest,TInt32 to);
     //使用
 //     inline TUInt32 RemarkHead(CDoid *pDoid,TUChar checkCode1,TUChar checkCode2)
 //     {

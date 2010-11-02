@@ -42,6 +42,8 @@ public:
     //发送消息，注意发送返回0只是消息成功放入缓存，并不一定最终发送成功
     virtual TInt32 SendMsg(TUChar *pMsg,TUInt32 msgLen) = 0;
 
+    virtual TUInt32 GetFreeBuffLength() = 0;
+
     //获取连接信息
     virtual CConPair *GetConnectionInfo() = 0 ;
     //设置是否需要Negla算法
