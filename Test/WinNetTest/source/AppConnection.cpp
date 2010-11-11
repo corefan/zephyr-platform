@@ -112,7 +112,7 @@ TInt32 CAppConnection::Run()
     if (m_pIfConnection && sm_averageMsgLen)
     {
         static int buff[32*1024];
-        int sendLen = m_passiveSendNr;
+        int sendLen = 1000;
 //         sendLen <<= 1;
 //         sendLen &= 0xFFFFFFFC;
         
