@@ -1,14 +1,12 @@
 #include "WinNetTester.h"
 #include "Mmsystem.h"
-CWinNetTester::CWinNetTester(IfTaskMgr *pTaskMgr)
+CWinNetTester::CWinNetTester(IfTaskMgr *pTaskMgr,int maxConnectionNr)
 {
-    
-    m_pNet = CreateNet(pTaskMgr,this,&m_parserFactory);
+    m_pNet = CreateNet(pTaskMgr,this,&m_parserFactory,NULL,maxConnectionNr);
     if(!m_pNet)
     {
         return;
     }
-    
 }
 
 CWinNetTester::~CWinNetTester()
@@ -54,6 +52,11 @@ TInt32 CWinNetTester::Init(const char *pMyIp,const char *pRemoteIp,unsigned shor
                 tryAgain = false;
             }
         }
+        if (39 == (i %40))
+        {
+            Sleep(15);
+            m_pNet->Run(128);
+        }
     }
     return SUCCESS;
 }
@@ -70,8 +73,8 @@ TInt32 CWinNetTester::Run(const TInt32 threadId,const TInt32 runCnt)
     if (!usedCnt)
     {
         //使用了反而速度降慢了？
-        int waitRtl = Wait4Event();
-        if (TIME_OUT != waitRtl)
+//         int waitRtl; = Wait4Event();
+//         if (TIME_OUT != waitRtl)
         {
             usedCnt = m_pNet->Run(runCnt);
             if (0 == usedCnt)

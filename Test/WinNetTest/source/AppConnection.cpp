@@ -88,7 +88,7 @@ TInt32 CAppConnection::Run()
                 {
                     m_actived = 1;
                     OnInit();
-                    m_passiveSendNr = 1000;
+                    m_passiveSendNr = 100;
                     return -5;
                 }
                 break;
@@ -112,7 +112,7 @@ TInt32 CAppConnection::Run()
     if (m_pIfConnection && sm_averageMsgLen)
     {
         static int buff[32*1024];
-        int sendLen = 1000;
+        int sendLen = 100;
 //         sendLen <<= 1;
 //         sendLen &= 0xFFFFFFFC;
         
@@ -199,7 +199,6 @@ TInt32 CAppConnection::SendMsg(TUChar *pMsg,TUInt32 msgLen)
          return m_pIfConnection->SendMsg(pMsg,msgLen);
     }
     return NOT_INITIALIZED;
-   
 }
 
     //获取连接信息

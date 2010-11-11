@@ -14,13 +14,13 @@ int main()
 {
     IfTaskMgr *pTaskMgr = CreateTaskMgr();
     
-    CWinNetTester *pNetTester = new CWinNetTester(pTaskMgr);
+    
     CSettingFile setting;
     if(!setting.LoadFromFile("Setting.ini"))
     {
         return -1;
     }
-    pNetTester->OnInit();
+    
     const char *pMyIp = setting.GetString("MAIN","myIp");
     const char *pRemoteIp = setting.GetString("MAIN","remoteIp");
     unsigned short myPort = setting.GetInteger("MAIN","myPort",12437);
@@ -29,7 +29,9 @@ int main()
     int maxConnectionNr = setting.GetInteger("MAIN","maxConnectionNr",128);
     int initSendMsg = setting.GetInteger("MAIN","initSendMsg",10);
     int averageMsglen = setting.GetInteger("MAIN","averageMsglen",150);
+    CWinNetTester *pNetTester = new CWinNetTester(pTaskMgr,maxConnectionNr);
     pNetTester->Init(pMyIp,pRemoteIp,myPort,remotePort,passiveConnectionNr,maxConnectionNr,initSendMsg);
+    pNetTester->OnInit();
     CAppConnection::SetAverageMsgLen(averageMsglen);
     pTaskMgr->AddTask(pNetTester);
     pTaskMgr->StartWorking(4);
