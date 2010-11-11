@@ -24,7 +24,7 @@ public:
     unsigned short      m_myPort;
     unsigned short      m_remotePort;
 public:
-    CWinNetTester(IfTaskMgr *pTaskMgr);
+    CWinNetTester(IfTaskMgr *pTaskMgr,int maxConnectionNr);
     ~CWinNetTester();
     TInt32 OnInit();
     TInt32 OnFianl();
