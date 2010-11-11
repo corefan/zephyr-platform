@@ -7,14 +7,19 @@
 #include "SysMacros.h"
 #include "IfLoggerMgr.h"
 #include "ExceptionParser.h"
+#include "IfCommunicator.h"
+
 using namespace Zephyr;
 
+//√ø√Î
 class CCommTester : public IfTask
 {
 protected:
     IfCommunicatorMgr *m_pCommMgr;
     IfCommunicator    *m_pComms[24];
+    int                m_nrOfComm;
 public:
+    int Init(IfCommunicatorMgr *pMgr,int nrOfComm);
     virtual TInt32 Begin(TInt32 threadId)
     {
         return SUCCESS;

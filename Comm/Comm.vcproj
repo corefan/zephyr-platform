@@ -44,7 +44,7 @@
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
-				RuntimeLibrary="3"
+				RuntimeLibrary="1"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="true"
@@ -149,6 +149,14 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath=".\source\CommConnection.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\source\CommLogger.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\source\CommMgr.cpp"
 				>
 			</File>
@@ -183,6 +191,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\include\CommLogger.h"
+				>
+			</File>
+			<File
 				RelativePath=".\include\CommMacrosAndConsts.h"
 				>
 			</File>
@@ -204,6 +216,10 @@
 			</File>
 			<File
 				RelativePath=".\include\MsgParserFactory.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\TimeSystem.h"
 				>
 			</File>
 		</Filter>

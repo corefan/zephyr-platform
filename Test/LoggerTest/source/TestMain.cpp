@@ -28,10 +28,16 @@ int main()
     {
         char name[32];
         sprintf(name,"Test%d""%d",i,i);
-        IfLogger *pLogger = pLoggerMgr->AddLogger(name,i,log_run);
+        ret = pLoggerMgr->AddLogger(name,i,log_run);
+        if (ret < SUCCESS)
+        {
+            printf("Add Logger failed with error code %d",ret);
+            return ret;
+        }
+        IfLogger *pLogger = pLoggerMgr->GetLogger(ret);
         pTester[i].SetLogger(pLogger);
         pTaskMgr->AddTask(pTester+i,normal_task);
-    }
+    } 
     CExceptionParser::GetInstance()->AddFinalizer(CLoggerManager::Instance()->GetLogFinalizer());
     pTaskMgr->AddTask(pLoggerMgr,normal_task);
     

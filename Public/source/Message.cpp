@@ -2,15 +2,12 @@
 #include "sysMacros.h"
 #include <string.h>
 #include "Tpl/include/tplmap.h"
-#include <algo.h>
+#include <algorithm>
+
 
 
 namespace Zephyr
 {
-struct TDoidSort
-{
-    CDoid m_key;
-};
 
 TInt32 CMessageHeader::Init(TUInt32 bodyLength,TUInt32 methodId,CDoid srcId,CDoid* pDestDoids,TUInt32 destDoidNum)
 {
@@ -18,11 +15,11 @@ TInt32 CMessageHeader::Init(TUInt32 bodyLength,TUInt32 methodId,CDoid srcId,CDoi
     {
         return INPUT_PARA_ERROR;
     }
-    m_msgInfo = 0;
+    m_msgInfo.m_data = 0;
     //TUInt32 length = sizeof(CMessageHeader) + sizeof(CDoid) * (destDoidNum -1);
     m_msgInfo.m_msgBodyLength = bodyLength;
     m_msgInfo.m_methodId  = methodId;
-    m_srcDoid   = srcId;k
+    m_srcDoid   = srcId;
     
     if (destDoidNum > 1)
     {	
@@ -41,24 +38,24 @@ TInt32 CMessageHeader::Init(TUInt32 bodyLength,TUInt32 methodId,CDoid srcId,CDoi
 }
 
 
-TInt32 CMessageHeader::SetBodyLength(TUInt32 bodyLength)
+TInt32 CMessageHeader::ResetBodyLength(TUInt32 bodyLength)
 {
-	TUInt32 destDoidNum = GetDestDoidNum();
-	TUInt32 OldBodyLength = GetBodyLength();
+	TUInt32 destDoidNum = m_msgInfo.m_nrOfBroadcastDoid;
+	TUInt32 OldBodyLength = m_msgInfo.m_msgBodyLength;
 	
 	if(bodyLength>OldBodyLength)
 	{
-	    return FAIL;
+	    return OUT_OF_RANGE;
 	}
 	else
 	{
-		CDoid  *pOldDest = GetMultiDestDoids();
-		m_msgInfo.m_msgLength = sizeof(CMessageHeader) + sizeof(CDoid) * (destDoidNum -1) + bodyLength;
+		CDoid  *pOldDest = GetDestDoidByIdx(1);
+		m_msgInfo.m_msgBodyLength = bodyLength;
 		
 		CDoid  *pNewDest = GetDestDoidByIdx(1);
 		if (destDoidNum > 1)
 		{
-			memmove(pNewDest,pOldDest,(sizeof(CDoid)*(destDoidNum-1)));
+			memmove(pNewDest,pOldDest,(sizeof(CDoid)*(destDoidNum)));
 		}
 		return SUCCESS;
 	}

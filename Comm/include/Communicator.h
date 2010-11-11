@@ -4,7 +4,7 @@
 #include "TypeDef.h"
 #include "IfCommunicator.h"
 #include "Pipe.h"
-
+#include "TimeSystem.h"
 namespace Zephyr
 {
 
@@ -18,10 +18,11 @@ protected:
     TUChar* m_pBuff;
     TUInt32 m_buffSize;
     CPipe   m_eventPool;
+    CTimeSystem *m_pTimeSys;
 public:
     CCommunicator();
     ~CCommunicator();
-    TInt32 Init(TUInt32 inPipeSize,TUInt32 outPipeSize,TUInt32 maxMessageSize);
+    TInt32 Init(CTimeSystem *pTimeSystem,TUInt32 inPipeSize,TUInt32 outPipeSize,TUInt32 maxMessageSize);
     TInt32 InitEventPool(TUInt32 maxEventNr);
 public:
 

@@ -4,6 +4,7 @@
 #include "IfFinalizer.h"
 #include "IfTask.h"
 #include "IfLoggerMgr.h"
+#include "Lock.h"
 namespace Zephyr
 {
 
@@ -20,6 +21,7 @@ protected:
 protected:
     //
     CLogger *m_pLogger[MAX_LOGGER_NUM];
+    CLock    m_cLock;
 public:
     
     static CLoggerManager *Instance()
@@ -53,7 +55,7 @@ public:
     {
         return this;
     }
-    virtual IfLogger *AddLogger(const TChar *pName,TUInt32 loggerIdx,TUInt32 logLvlWriteFileMask = 0xFFFFFFFF,TUInt32 logLvlPrintScreenMask = 0,TUInt32 cacheLen = DEFAULT_CACHED_LOG_LENGTH);
+    virtual TInt32 AddLogger(const TChar *pName,TInt32 loggerIdx,TUInt32 logLvlWriteFileMask = 0xFFFFFFFF,TUInt32 logLvlPrintScreenMask = 0,TUInt32 cacheLen = DEFAULT_CACHED_LOG_LENGTH);
     virtual void ReleaseLogger(IfLogger *pLogger);
 
     virtual void WriteLog(const TUInt32 loggerIdx,const TUInt32 logId,const TUInt32 logLvl,const TChar *__pFormat,...);

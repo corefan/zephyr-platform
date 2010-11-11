@@ -40,7 +40,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="./;../System/TaskMgr/include;./include;./Interface/Platform/include;../System/include;./Interface/App/include;../Comm/Net/win/include;./TPL/include"
+				AdditionalIncludeDirectories="./;../System/TaskMgr/include;./include;./Interface/Platform/include;../System/include;./Interface/App/include;../Comm/Net/win/include;./TPL/include;../System/Logger/include;../Comm/include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -156,6 +156,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\include\LogCenter.h"
+				>
+			</File>
+			<File
 				RelativePath=".\include\Message.h"
 				>
 			</File>
@@ -192,6 +196,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\source\LogCenter.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\source\Message.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\source\NetCenter.cpp"
 				>
 			</File>
@@ -215,6 +227,14 @@
 					>
 					<File
 						RelativePath=".\Interface\Platform\include\IfCommunicator.h"
+						>
+					</File>
+					<File
+						RelativePath=".\Interface\Platform\include\IfLogger.h"
+						>
+					</File>
+					<File
+						RelativePath=".\Interface\Platform\include\IfLoggerMgr.h"
 						>
 					</File>
 					<File

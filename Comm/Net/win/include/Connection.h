@@ -53,6 +53,7 @@ enum EnConnectionEvent
     event_connection_has_new_data_to_send       ,
     event_connection_has_new_data_to_read       ,
     event_connection_is_broken                  ,
+    event_connection_app_handled                ,
     event_connection_is_aborted                 ,
 };
 
@@ -86,6 +87,8 @@ private:
     volatile TUChar             m_appDisconnect;
     volatile TUChar             m_connectionType;
 
+    volatile TUInt32            m_nNetBlocked;
+
     CPipe                       m_inPipe;
     CPipe                       m_outPipe;
     
@@ -114,7 +117,7 @@ private:
     //网络层发送序列号
     volatile TUInt32            m_netSeqNum;
     //应用层确认序列号
-    volatile TUInt32            m_appConfirmNum;
+    volatile TUInt32            m_appConfirmNum; 
     DECLARE_CLASS_LIST(CConnection)
 public:
     virtual TInt32 SendMsg(TUChar *pMsg,TUInt32 msgLen);
@@ -179,6 +182,10 @@ public:
     {
         return m_connectionState;
     }
+    void SetConnectionType(EnConncectionType t)
+    {
+        m_connectionType = t;
+    }
     TInt32 GetConnectionType()
     {
         return m_connectionType;
@@ -222,6 +229,9 @@ public:
     //应用层收取了网络层的数据，由应用层线程调用
     void OnAppRecved();
     
+    void OnAppHandled();
+
+    void OnNetContinue();
     
     //网络层发送了数据，由网络层线程调用
     void OnNetSent();

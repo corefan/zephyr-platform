@@ -6,7 +6,7 @@ namespace Zephyr
 {
 
 
-TInt32 CCommMgr::Init(IfTaskMgr *pTaskMgr,const TChar *pConfigName/* =szDefaultLoggerName */)
+TInt32 CCommMgr::Init(IfTaskMgr *pTaskMgr,IfLoggerManager *pIfLogMgr,const TChar *pConfigName/* =szDefaultLoggerName */)
 {
     //初始化网络底层
     
@@ -146,7 +146,7 @@ TInt32 CCommMgr::Init(IfTaskMgr *pTaskMgr,const TChar *pConfigName/* =szDefaultL
     
     for (int i=0;i<nrOfComm;++i)
     {
-        int ret = m_pCommunicators[i].Init(inPipeSize,outPipeSize,maxMsgSize);
+        int ret = m_pCommunicators[i].Init(&m_timeSystem,inPipeSize,outPipeSize,maxMsgSize);
         if (ret < SUCCESS)
         {
 #ifdef _DEBUG
@@ -156,6 +156,13 @@ TInt32 CCommMgr::Init(IfTaskMgr *pTaskMgr,const TChar *pConfigName/* =szDefaultL
         }
     }
     //再看是否需要主动连接外node.
+    m_pLoggerMgr = pIfLogMgr;
+    ret = m_pLoggerMgr->AddLogger("CommLogger",-1);
+    if (ret < SUCCESS)
+    {
+        return ret;
+    }
+    m_pLogger = m_pLoggerMgr->GetLogger(ret);
     return SUCCESS;
 }
 
@@ -170,7 +177,6 @@ TInt32 CCommMgr::Run(const TInt32 threadId,const TInt32 runCnt)
     int usedCnt = 0;
     //先调整时间
     m_timeSystem.Update();
-    
     //再收消息，底层buff小
     usedCnt += m_pNet->Run(runCnt);
     //再转发消息

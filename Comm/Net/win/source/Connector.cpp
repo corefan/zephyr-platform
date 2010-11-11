@@ -226,7 +226,7 @@ TInt32 CConnector::Connect(CConPair *pPair,IfConnectionCallBack *pAppCallBack)
     }
     
     ret = pNew->Init(socket,pPair,pAppCallBack,pParser,pCryptor);
-    
+    pNew->SetConnectionType(connection_is_passive);
     if(ret   ==   SOCKET_ERROR)   
     {   
         closesocket(socket);

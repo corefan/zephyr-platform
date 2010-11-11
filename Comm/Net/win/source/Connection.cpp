@@ -269,7 +269,7 @@ CIocpOverlappedDataHeader *CConnection::PrepareToRead()
             }
             #endif
         }
-        else
+        else //不可能发生.
         {
             m_readDataHeader.m_wsaBuff.buf = (char*)(&m_errorCode);
             m_readDataHeader.m_wsaBuff.len = 0;
@@ -375,6 +375,8 @@ TInt32 CConnection::OnInit()
     m_netDisconnect = 0;
     m_appDisconnect = 0;
     m_connectionType = 0;
+    
+    m_nNetBlocked= 0;
 
     m_appSeqNum = 0;
 
@@ -796,6 +798,11 @@ void CConnection::OnNetRecv()
     #ifdef __PRINT_DEBUG_INFO__
     printf("[CConnection::OnNetRecv] idx = %d m_netSeqNum =%d m_appConfirmNum = %d \n",m_connectionIdx,m_netSeqNum,m_appConfirmNum);
     #endif
+    //判定是否被App阻塞
+    if (0 == m_inPipe.GetFreeLen())
+    {
+        m_nNetBlocked = 1;
+    }
     if (m_netSeqNum == m_appConfirmNum)
     {
         ++m_netSeqNum;
@@ -815,6 +822,97 @@ void CConnection::OnAppRecved()
     #endif
     ++m_appConfirmNum;
 }
+
+void CConnection::OnAppHandled()
+{
+#ifdef __PRINT_DEBUG_INFO__
+    printf("[CConnection::OnAppHandled] idx = %d m_netSeqNum =%d m_appConfirmNum = %d \n",m_connectionIdx,m_netSeqNum,m_appConfirmNum);
+#endif
+    if (m_nNetBlocked)
+    {
+        TIOEvent event;
+        event.m_seqNum           = m_netSeqNum;
+        event.m_connectionIdx    = m_connectionIdx;
+        event.m_connectionEvents = event_connection_app_handled;
+        if (m_pEventQueues->AddNetEvent(event) >= SUCCESS)
+        {
+            m_nNetBlocked = 0;
+        }
+    }
+}
+
+
+void CConnection::OnNetContinue()
+{
+#ifdef __PRINT_DEBUG_INFO__
+    printf("[CConnection::OnNetContinue] idx = %d m_netSeqNum =%d m_appConfirmNum = %d \n",m_connectionIdx,m_netSeqNum,m_appConfirmNum);
+#endif
+    CIocpOverlappedDataHeader *pData = PrepareToRead();
+    //if (m_rLock.TryLock())
+    //{
+    //    
+    //    //m_connectionState = connection_is_using;
+    //    m_rLock.Unlock();
+    //}
+    ULONG ulFlags = 0;
+    if (pData)
+    {
+
+        DWORD dwIoSize=0;
+        UINT nRetVal = WSARecv(m_socket,
+            &pData->m_wsaBuff,
+            1,
+            &dwIoSize, 
+            &ulFlags,
+            &pData->m_ol,
+            NULL);
+
+        if (nRetVal == SOCKET_ERROR)
+        {
+            m_errorCode = WSAGetLastError();
+            if (m_errorCode != WSA_IO_PENDING)
+            {
+                if (m_errorCode == WSAENOBUFS)
+                {
+                    //Send a zero byte read.
+                    //pData->m_wsaBuff.len = 0;
+                    pData->PrepZeroByteRead();
+                    UINT nRetVal = WSARecv(m_socket,
+                        &pData->m_wsaBuff,
+                        1,
+                        &dwIoSize, 
+                        &ulFlags,
+                        &pData->m_ol,
+                        NULL);
+                    if (nRetVal == SOCKET_ERROR)
+                    {
+                        m_errorCode = WSAGetLastError();
+                        if (m_errorCode != WSA_IO_PENDING)
+                        {
+                            CloseConnection();
+                            OnNetDisconnected();
+                        }
+                    }
+                    return ;
+                }
+                CloseConnection();
+                OnNetDisconnected();
+                //connection broken;
+                return ;
+            }
+        }
+    }
+    else
+    {
+        //
+        if (m_readDataHeader.m_operation != overlapped_try_reading)
+        {
+            CloseConnection();
+            OnNetDisconnected();
+        }
+    }
+}
+
 //连接中断
 void CConnection::OnNetDisconnected()
 {

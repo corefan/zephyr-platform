@@ -8,9 +8,10 @@
 #include "IpMaps.h"
 #include "TplPool.h"
 #include "..\Public\Interface\Platform\include\IfTaskMgr.h"
-#include "include\CommConnection.h"
-#include "include\MsgParserFactory.h"
-#include "include\TimeSystem.h"
+#include "CommConnection.h"
+#include "MsgParserFactory.h"
+#include "TimeSystem.h"
+#include "IfLoggerMgr.h"
 namespace Zephyr
 {
 
@@ -43,9 +44,12 @@ private:
 
     CTimeSystem         m_timeSystem;
     TUChar              *m_pBuff;
+    IfLoggerManager     *m_pLoggerMgr;
+    IfLogger            *m_pLogger;
+
 public:
     //taskMgr”…ServerContainer…˙≥….
-    TInt32 Init(IfTaskMgr *pTaskMgr,const TChar *pConfigName=szDefaultLoggerName);
+    TInt32 Init(IfTaskMgr *pTaskMgr,IfLoggerManager *pIfLogMgr,const TChar *pConfigName=szDefaultCommConfigName);
     virtual IfCommunicator *RegisterWorker(TUInt16 srvId);
 
     virtual TInt32 Begin(TInt32 threadId)

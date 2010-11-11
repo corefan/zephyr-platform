@@ -231,7 +231,7 @@ public:
     */
     //no use now
     //int IsSliced();
-
+    TInt32 ResetBodyLength(TUInt32 bodyLength);
 private:
 	//to make sure you could only create the message by msgPool.
 	CMessageHeader()

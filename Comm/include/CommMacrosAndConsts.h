@@ -5,7 +5,7 @@
 namespace Zephyr
 {
 
-const TChar szDefaultLoggerName[] = "commConfig.ini";
+const TChar szDefaultCommConfigName[] = "commConfig.ini";
 
 }
 #endif

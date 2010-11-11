@@ -113,6 +113,10 @@ TInt32 CNetTask::Run(const TInt32 threadId,const TInt32 runCnt)
             //先确认收了
             pConnection->OnNetSent();
             ret += pConnection->NetRoutine();
+            if (event.m_connectionEvents == event_connection_app_handled)
+            {
+                pConnection->OnNetContinue();
+            }
             //需要通知释放连接.
             ++usedCnt;
         }

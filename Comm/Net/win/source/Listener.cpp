@@ -136,6 +136,7 @@ TInt32 CListener::Run(TInt32 cnt)
                 pCryptor = NULL;
             }
             TInt32 ret = pNew->Init(acceptedSocket,&pair,pAppCallBack,pParser,pCryptor);
+            pNew->SetConnectionType(connection_is_postive);
             if (SUCCESS > ret)
             {
                 pNew->CloseConnection();

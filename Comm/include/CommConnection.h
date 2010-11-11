@@ -27,7 +27,7 @@ private:
     //#ifdef _DEBUG
     TUInt64         m_msgRecved;
     TUInt64         m_msgSend;
-
+    
     //#endif
      DECLARE_CLASS_LIST (CCommConnection)
 public:
@@ -50,7 +50,6 @@ public:
 
     //任何socket异常都会自动关闭网络连接
     virtual TInt32 OnDissconneted(TInt32 erroCode);
-
 
     //
     TInt32 SendMsg(TUChar *pMsg,TUInt32 msgLen) ;

@@ -20,23 +20,60 @@ TInt32 CLoggerManager::Init()
     return SUCCESS;
 }
 
-IfLogger *CLoggerManager::AddLogger(const TChar *pName,TUInt32 loggerIdx,TUInt32 logLvlWriteFileMask/* = 0xFFFFFFFF*/,TUInt32 logLvlPrintScreenMask /*= 0*/,TUInt32 cacheLen/* = DEFAULT_CACHED_LOG_LENGTH*/)
+TInt32 CLoggerManager::AddLogger(const TChar *pName,TInt32 loggerIdx,TUInt32 logLvlWriteFileMask/* = 0xFFFFFFFF*/,TUInt32 logLvlPrintScreenMask /*= 0*/,TUInt32 cacheLen/* = DEFAULT_CACHED_LOG_LENGTH*/)
 {
-    if (m_pLogger[loggerIdx])
+    m_cLock.Lock();
+    CAutoLockP autolock(m_cLock);
+    if (-1 == loggerIdx)
     {
-        //already existed!
-        return m_pLogger[loggerIdx];
+        for (int i = 0;i< MAX_LOGGER_NUM;++i)
+        {
+            if (NULL == m_pLogger[i])
+            {
+                loggerIdx = i;
+                break;
+            }
+        }
+        if (-1 == loggerIdx)
+        {
+            return OUT_OF_MEM;
+        }
     }
+    else
+    {
+        if (loggerIdx < MAX_LOGGER_NUM)
+        {
+            if (m_pLogger[loggerIdx])
+            {
+                //already existed!
+                //if (m_pLogg)
+                if (0 == strcmp(pName,m_pLogger[loggerIdx]->GetFileName()))
+                {
+                    return loggerIdx;
+                }
+                else
+                {
+                    printf("Recreate logger with different name!");
+                    return ALREADY_EXIST;
+                }
+            }
+        }
+        else
+        {
+            return OUT_OF_RANGE;
+        }
+        
+    }
+    //走到这儿肯定有空位
     CLogger *pLogger = new CLogger();
     TInt32 ret = pLogger->Init(pName,logLvlWriteFileMask,logLvlPrintScreenMask,cacheLen);
     if (ret < SUCCESS)
     {
         delete pLogger;
         //init failed
-        return NULL;
+        return OUT_OF_MEM;
     }
-    m_pLogger[loggerIdx] = pLogger;
-    return pLogger;
+    return ret;
 }
 
 void CLoggerManager::ReleaseLogger(IfLogger *pLogger)

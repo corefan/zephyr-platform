@@ -3,7 +3,7 @@
 #include "..\Public\include\TypeDef.h"
 #include "..\Public\Interface\App\include\IfParserFactory.h"
 #include "..\Public\Interface\App\include\IfParser.h"
-#include "include\MsgParser.h"
+#include "MsgParser.h"
 namespace Zephyr
 {
 class CMsgParserFactory : public IfParserFactory

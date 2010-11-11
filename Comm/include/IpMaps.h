@@ -30,6 +30,13 @@ union TVirtualIp
     TUInt64 m_key;
 };
 
+class CIpMapItem
+{
+public:
+    TVirtualIp m_tKey;
+    TUInt32    m_uLastConnectTime;
+    
+};
 
 class CIpMap
 {
@@ -40,8 +47,11 @@ public:
     TUInt16              m_localNodeId;
     TUInt16              m_localVirtualIp;
     TVirtualIp           *m_pVirtualIps;
-    //转发路由表
+    //转发路由表,发向不同的node.
     TUInt32              *m_pRoutes;
+
+
+ 
 
     //保存该平台所连接的其他节点的信息
     TInt32               m_connectedNode;

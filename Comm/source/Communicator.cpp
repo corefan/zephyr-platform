@@ -7,6 +7,7 @@ CCommunicator::CCommunicator()
 {
     m_pBuff     = NULL;
     m_buffSize  = 0;
+    m_pTimeSys = NULL;
 }
 
 CCommunicator::~CCommunicator()
@@ -14,8 +15,9 @@ CCommunicator::~CCommunicator()
     DELETE(m_pBuff);
 }
 
-TInt32 CCommunicator::Init(TUInt32 inPipeSize,TUInt32 outPipeSize,TUInt32 maxMessageSize)
+TInt32 CCommunicator::Init(CTimeSystem *pTimeSystem,TUInt32 inPipeSize,TUInt32 outPipeSize,TUInt32 maxMessageSize)
 {
+    m_pTimeSys = pTimeSystem;
     TInt32 ret = m_inPipe.Init(inPipeSize);
     if (SUCCESS > ret)
     {
@@ -120,5 +122,9 @@ CConnectionEvent CCommunicator::GetConnectionEvent(TInt32& result)
     return tmp;
 }
 
+TUInt32 CCommunicator::GetTime()
+{
+    return m_pTimeSys->GetTimeNow();
+}
 
 }

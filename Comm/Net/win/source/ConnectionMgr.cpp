@@ -179,6 +179,8 @@ TInt32 CConnectionMgr::Run(TUInt32 runCnt)
             TInt32 ret = pConnection->AppRoutine(m_pBuff,m_buffSize);
             //不能先处理，再确认，因为，可能在处理完了，即上句执行完了，网络层又有了新事件，就会丢失.
             //pConnection->OnAppRecved();
+            pConnection->OnAppHandled();
+
             if (ret < SUCCESS)
             {
                 //pConnection->CloseConnection();

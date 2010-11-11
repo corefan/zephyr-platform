@@ -43,7 +43,7 @@
 				AdditionalIncludeDirectories="include;../../System/ExceptionParser/include;../../System/TaskMgr/include;../../Public/include;../../Public/Interface/App/include;../../Public/Interface/Platform/include;../../System/include;../../System/Logger/include;../../Public"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
 				MinimalRebuild="true"
-				BasicRuntimeChecks="3"
+				BasicRuntimeChecks="0"
 				RuntimeLibrary="1"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
