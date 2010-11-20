@@ -59,8 +59,8 @@ TInt32 CCommMgr::Init(IfTaskMgr *pTaskMgr,IfLoggerManager *pIfLogMgr,const TChar
 #endif
                 return OUT_OF_MEM;
             }
-            TInt32 rtn = m_pNet->Connect(m_ipMaps.m_pVirtualIps[i].m_realIp,m_ipMaps.m_pVirtualIps[m_ipMaps.m_localVirtualIp].m_realIp,
-                            m_ipMaps.m_pVirtualIps[i].m_listenPort,m_ipMaps.m_pVirtualIps[m_ipMaps.m_localVirtualIp].m_bindPort,pConnection);
+            TInt32 rtn = m_pNet->Connect(m_ipMaps.m_pVirtualIps[i].m_tKey.m_realIp,m_ipMaps.m_pVirtualIps[m_ipMaps.m_localVirtualIp].m_tKey.m_realIp,
+                            m_ipMaps.m_pVirtualIps[i].m_tKey.m_listenPort,m_ipMaps.m_pVirtualIps[m_ipMaps.m_localVirtualIp].m_tKey.m_bindPort,pConnection);
             if (rtn < SUCCESS)
             {
 #ifdef _DEBUG
@@ -92,8 +92,8 @@ TInt32 CCommMgr::Init(IfTaskMgr *pTaskMgr,IfLoggerManager *pIfLogMgr,const TChar
             {
                 return OUT_OF_MEM;
             }
-            TInt32 rtn = m_pNet->Connect(m_ipMaps.m_connectedNodeInfo.m_realIp,m_ipMaps.m_pVirtualIps[m_ipMaps.m_localVirtualIp].m_realIp,
-                m_ipMaps.m_connectedNodeInfo.m_listenPort,m_ipMaps.m_pVirtualIps[m_ipMaps.m_localVirtualIp].m_bindPort,p);
+            TInt32 rtn = m_pNet->Connect(m_ipMaps.m_connectedNodeInfo.m_realIp,m_ipMaps.m_pVirtualIps[m_ipMaps.m_localVirtualIp].m_tKey.m_realIp,
+                m_ipMaps.m_connectedNodeInfo.m_listenPort,m_ipMaps.m_pVirtualIps[m_ipMaps.m_localVirtualIp].m_tKey.m_bindPort,p);
             if (rtn < SUCCESS)
             {
 #ifdef _DEBUG
@@ -204,8 +204,8 @@ TBool CCommMgr::CheckNetState(CMessageHeader *pMsg)
     if (nrOfDest)
     { 
         CDoid *pDoid = pMsg->GetDestDoidByIdx();
-        int idx = m_ipMaps.GetConnectionIdx(pDoid);
-        m_ipMaps.GetConnectionIdx(pDoid);
+        //int idx = m_ipMaps.GetConnectionIdx(pDoid);
+        CCommConnection *pConn = m_ipMaps.RouteTo(pDoid);
         int nrToSend = 1;
         int i = 1;
         while(i <= nrOfDest)
@@ -221,19 +221,19 @@ TBool CCommMgr::CheckNetState(CMessageHeader *pMsg)
                 //不同了
                 TUInt32 needLen = pMsg->GetBodyLength() + sizeof(CMessageHeader) + (sizeof(CDoid) * (nrToSend));
                 //小于0，则丢弃.
-                if (idx > 0)
+                //if (idx > 0)
                 {
                     //connection没连上，那就不管了.
-                    if (m_ppConnections[idx])
+                    if (pConn)
                     {
-                        if (m_ppConnections[idx]->GetFreeBuffLength() < needLen)
+                        if (pConn->GetFreeBuffLength() < needLen)
                         {
                             return FALSE;
                         }
                     }
                 }
                 pDoid = pNext;
-                idx = m_ipMaps.GetConnectionIdx(pDoid);
+                pConn = m_ipMaps.RouteTo(pDoid);
                 nrToSend = 1;
                 ++i;
             }
@@ -241,12 +241,12 @@ TBool CCommMgr::CheckNetState(CMessageHeader *pMsg)
 
         TUInt32 needLen = pMsg->GetBodyLength() + (sizeof(CMessageHeader) + sizeof(CDoid) * (nrToSend));
         //小于0，则丢弃.
-        if (idx > 0)
+        //if (idx > 0)
         {
             //connection没连上，那就不管了.
-            if (m_ppConnections[idx])
+            if (pConn)
             {
-                if (m_ppConnections[idx]->GetFreeBuffLength() < needLen)
+                if (pConn->GetFreeBuffLength() < needLen)
                 {
                     return FALSE;
                 }
@@ -255,10 +255,11 @@ TBool CCommMgr::CheckNetState(CMessageHeader *pMsg)
     }
     else //没有广播
     {
-        int idx = m_ipMaps.GetConnectionIdx(pMsg->GetDestDoidByIdx());
-        if (idx >= 0)
+        //int idx = m_ipMaps.GetConnectionIdx(pMsg->GetDestDoidByIdx());
+        CCommConnection *pConn = m_ipMaps.RouteTo(pMsg->GetDestDoidByIdx(0));
+        if (pConn)
         {
-            TUInt32 freeLen = m_ppConnections[idx]->GetFreeBuffLength();
+            TUInt32 freeLen = pConn->GetFreeBuffLength();
             if (pMsg->GetLength() <= freeLen)
             {
                 return TRUE;
@@ -277,8 +278,7 @@ void CCommMgr::SendAppMsg(CMessageHeader *pMsg)
     if (nrOfDest)
     { 
         CDoid *pDoid = pMsg->GetDestDoidByIdx();
-        int idx = m_ipMaps.GetConnectionIdx(pDoid);
-        m_ipMaps.GetConnectionIdx(pDoid);
+        CCommConnection *pConn = m_ipMaps.RouteTo(pDoid);
         int from = 0;
         int i = 1;
         while(i <= nrOfDest)
@@ -294,51 +294,109 @@ void CCommMgr::SendAppMsg(CMessageHeader *pMsg)
                /* TUInt32 needLen = pMsg->GetBodyLength() + (sizeof(CMessageHeader) * (nrToSend));*/
                 //小于0，则丢弃.
                 pMsg->ReInitMsg4Send(from,(i-1));
-                if (idx > 0)
+                //if (idx > 0)
                 {
                     //connection没连上，那就不管了.
-                    if (m_ppConnections[idx])
+                    if (pConn)
                     {
-                        m_ppConnections[idx]->SendMsg((TUChar*)pMsg,pMsg->GetLength());
+                        pConn->SendMsg((TUChar*)pMsg,pMsg->GetLength());
                     }
                 }
-                else
-                {
-                    //发送失败
-                }
                 pDoid = pNext;
-                idx = m_ipMaps.GetConnectionIdx(pDoid);
+                pConn = m_ipMaps.RouteTo(pDoid);
                 from = i;
                 ++i;
             }
         }
         
         
-        if (idx > 0)
+        if (pConn)
         {
             //connection没连上，那就不管了.
             pMsg->ReInitMsg4Send(from,nrOfDest);
-            if (m_ppConnections[idx])
+            //if (m_ppConnections[idx])
             {
-                m_ppConnections[idx]->SendMsg((TUChar*)pMsg,pMsg->GetLength());
-            }
-            else//发送失败
-            {
-
+                pConn->SendMsg((TUChar*)pMsg,pMsg->GetLength());
             }
         }
         pMsg->SetBroadcastDoid(nrOfDest);
     }
     else //没有广播
     {
-        int idx = m_ipMaps.GetConnectionIdx(pMsg->GetDestDoidByIdx());
-        if (idx >= 0)
+        CCommConnection *pConn  = m_ipMaps.RouteTo(pMsg->GetDestDoidByIdx());
+        if (pConn)
         {
-            m_ppConnections[idx]->SendMsg((TUChar*)pMsg,pMsg->GetLength());
+            pConn->SendMsg((TUChar*)pMsg,pMsg->GetLength());
         }
         //return FALSE;
     }
 
+}
+
+//收到的时候必须都是CMessagerHeader的格式，由调用者保证
+TInt32 CCommMgr::SendMsg(TUChar *pBuff,TUInt32 buffLen)
+{
+    CMessageHeader *pMsg = (CMessageHeader*)pBuff;
+    TUInt32 usedLen = 0;
+    TUInt32 msgLen = pMsg->GetLength();
+    while (msgLen >= buffLen)
+    {
+        usedLen += msgLen;
+        buffLen -= msgLen;
+        HandleOneMsg(pMsg);
+        if (sizeof(CMessageHeader) < buffLen)
+        {
+            pMsg = (CMessageHeader*)(pBuff + usedLen);
+        }
+        else
+        {
+            break;
+        }
+    }
+    return usedLen;
+}
+//永远是最大
+TUInt32 CCommMgr::GetFreeBuffLength()
+{
+    return 0x7FFFFFFF;
+}
+//返回本地连接本地的
+//获取连接信息
+CConPair *CCommMgr::GetConnectionInfo()
+{
+    return &m_cLoopBack;;
+}
+//设置是否需要Negla算法
+TInt32 CCommMgr::NeedNoDelay(const char chOpt)
+{
+    return SUCCESS;
+}
+//获取连接状态.
+EnConnectionState CCommMgr::GetConnctionState()
+{
+    return connection_is_using;
+}
+//用以获取还未发送的数据的长度
+TInt32 CCommMgr::GetPendingDataLen()
+{
+    return 0;
+}
+
+//调用这个后，就可以将IfConnectionCallBack释放.Net不会继续回调该接口.
+TInt32 CCommMgr::Disconnect()
+{
+    return SUCCESS;
+}
+
+void CCommMgr::HandleOneMsg(CMessageHeader *pMsg)
+{
+    int msgDoidNr = pMsg->GetBroadcastDoidNr();
+    for (int i = 0;i<= msgDoidNr;i++)
+    {
+        CDoid *pDoid = pMsg->GetDestDoidByIdx(i);
+        
+        
+    }
 }
 
 }

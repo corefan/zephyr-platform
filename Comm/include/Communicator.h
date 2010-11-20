@@ -19,6 +19,7 @@ protected:
     TUInt32 m_buffSize;
     CPipe   m_eventPool;
     CTimeSystem *m_pTimeSys;
+    TInt32  m_nBlockTimes;
 public:
     CCommunicator();
     ~CCommunicator();
@@ -76,6 +77,8 @@ protected:
     {
         m_outPipe.ReturnMsgBuff((TUChar*)pMsg,pMsg->GetLength());
     }
+
+    TInt32 AddNetMsg(CMessageHeader *pMsg);
 
 friend class CCommMgr;
 };

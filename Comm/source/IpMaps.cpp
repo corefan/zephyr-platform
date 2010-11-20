@@ -31,7 +31,7 @@ TInt32 CIpMap::Init(const TChar *pConfigName)
     
     if (m_nrOfNodes > 0)
     {
-        NEW(m_pVirtualIps,TVirtualIp,(m_nrOfVirtualIp+1));
+        NEW(m_pVirtualIps,CIpMapItem,(m_nrOfVirtualIp+1));
         if (!m_pVirtualIps)
         {
             return OUT_OF_MEM;
@@ -44,15 +44,15 @@ TInt32 CIpMap::Init(const TChar *pConfigName)
         const char* pIp = settingFile.GetString(buff,"ip");
         if (pIp)
         {
-            m_pVirtualIps[i].m_realIp = inet_addr(pIp);
+            m_pVirtualIps[i].m_tKey.m_realIp = inet_addr(pIp);
         }
         else
         {
             return NULL_POINTER;
         }
-        m_pVirtualIps[i].m_bindPort = settingFile.GetInteger(buff,"bindPort",0);
-        m_pVirtualIps[i].m_listenPort = settingFile.GetInteger(buff,"listenPort",0);
-        if (0 == m_pVirtualIps[i].m_listenPort)
+        m_pVirtualIps[i].m_tKey.m_bindPort = settingFile.GetInteger(buff,"bindPort",0);
+        m_pVirtualIps[i].m_tKey.m_listenPort = settingFile.GetInteger(buff,"listenPort",0);
+        if (0 == m_pVirtualIps[i].m_tKey.m_listenPort)
         {
             return NULL_POINTER;
         }

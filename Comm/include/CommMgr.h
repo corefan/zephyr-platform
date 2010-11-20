@@ -23,8 +23,13 @@ enum EnCommOpr
     en_comm_read_net_msg_blocked,
     en_comm_send_net_msg_blocked,
 };
-
-class CCommMgr : public IfCommunicatorMgr, public IfTask
+//添加一个IfConnection,这样处理本地消息的时候，也抽象成一个IfConnection.
+/*处理群发消息逻辑：
+尽量的省内存，如果是发给不同node的，则把所有发给该node的一起发，如果是同node,则按ip一起发，到了comm,则按同一srv一起发
+最后再stub层进行obj层的重用.
+发送不了就扔吧
+*/
+class CCommMgr : public IfCommunicatorMgr,public IfConnection, public IfTask
 {
 private:
     TUInt32             m_nrOfComm;
@@ -46,7 +51,7 @@ private:
     TUChar              *m_pBuff;
     IfLoggerManager     *m_pLoggerMgr;
     IfLogger            *m_pLogger;
-
+    CConPair            m_cLoopBack;
 public:
     //taskMgr由ServerContainer生成.
     TInt32 Init(IfTaskMgr *pTaskMgr,IfLoggerManager *pIfLogMgr,const TChar *pConfigName=szDefaultCommConfigName);
@@ -72,6 +77,25 @@ private:
 
     TBool CheckNetState(CMessageHeader *pMsg);
     void SendAppMsg(CMessageHeader *pMsg);
+
+    void HandleOneMsg(CMessageHeader *pMsg);
+public:
+    //发给本地.
+    virtual TInt32 SendMsg(TUChar *pMsg,TUInt32 msgLen);
+    //永远是最大
+    virtual TUInt32 GetFreeBuffLength();
+    //返回本地连接本地的
+    //获取连接信息
+    virtual CConPair *GetConnectionInfo() ;
+    //设置是否需要Negla算法
+    virtual TInt32 NeedNoDelay(const char chOpt);
+    //获取连接状态.
+    virtual EnConnectionState GetConnctionState();
+    //用以获取还未发送的数据的长度
+    virtual TInt32 GetPendingDataLen();
+
+    //调用这个后，就可以将IfConnectionCallBack释放.Net不会继续回调该接口.
+    virtual TInt32 Disconnect();
 
     //TInt32 DistributeSrvMsg(TInt32 idx);
 };

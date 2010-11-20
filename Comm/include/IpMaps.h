@@ -33,9 +33,9 @@ union TVirtualIp
 class CIpMapItem
 {
 public:
-    TVirtualIp m_tKey;
-    TUInt32    m_uLastConnectTime;
-    
+    TVirtualIp      m_tKey;
+    TUInt32         m_uLastConnectTime;
+    CCommConnection *m_pConnection;
 };
 
 class CIpMap
@@ -46,7 +46,7 @@ public:
     TUInt16              m_nrOfVirtualIp;
     TUInt16              m_localNodeId;
     TUInt16              m_localVirtualIp;
-    TVirtualIp           *m_pVirtualIps;
+    CIpMapItem           *m_pVirtualIps;
     //转发路由表,发向不同的node.
     TUInt32              *m_pRoutes;
 
@@ -70,62 +70,27 @@ public:
         return FALSE;
     }
 
-    TInt32 RouteTo(CDoid *pDoId)
+    CCommConnection *RouteTo(CDoid *pDoId)
     {
         if (pDoId->m_nodeId < m_nrOfNodes)
         {
             if (pDoId->m_nodeId == m_connectedNode)
             {
-                return m_redirectIdx;
+                if (pDoId->m_virtualIp < m_nrOfVirtualIp)
+                {
+                    return m_pVirtualIps[pDoId->m_virtualIp].m_pConnection;
+                }
+            }
+            else
+            {
+                return m_pVirtualIps[m_pRoutes[pDoId->m_nodeId]].m_pConnection;
             }
             //return m_pRoutes[pDoId->m_nodeId];
         }
         //直接丢弃.
-        return -1;
+        return NULL;
     }
-    
-    TInt32 GetConnectionIdx(CDoid *pDoId)
-    {
-        if((pDoId->m_nodeId == m_localNodeId))
-        {
-            if (pDoId->m_virtualIp < m_nrOfVirtualIp)
-            {
-                return pDoId->m_virtualIp;
-            }
-            return -1;
-        }
-        if (pDoId->m_nodeId < m_nrOfNodes)
-        {
-            if (pDoId->m_nodeId == m_connectedNode)
-            {
-                return m_redirectIdx;
-            }
-            return m_pRoutes[pDoId->m_nodeId];
-        }
-        return -1;
-    }
-//     CCommConnection *GetConnection(CDoid *pDoid)
-//     {
-//         //只检查nodeId,和srvId
-//         if((pDoid->m_nodeId == m_localNodeId))
-//         {
-//             if ((pDoid->m_virtualIp != m_localVirtualIp))
-//             {
-//                 if (pDoid->m_virtualIp < m_nrOfVirtualIp)
-//                 {
-//                     //return (m_pLocalConnections + pDoid->m_virtualIp);
-//                 }
-//             }
-//         }
-//         else
-//         {
-//             if (pDoid->m_nodeId < m_nrOfNodes)
-//             {
-//                 return m_pLocalConnections;
-//             }
-//         }
-//         return NULL;
-//     }
 };
+
 }
 #endif

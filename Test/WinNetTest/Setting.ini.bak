@@ -1,8 +1,0 @@
-[MAIN]
-myIp=192.168.1.2
-remoteIp=192.168.1.3
-myPort=13279
-remotePort=13279
-passiveConnectionNr=40
-maxConnectionNr=128
-initSendMsg= 100

@@ -127,4 +127,25 @@ TUInt32 CCommunicator::GetTime()
     return m_pTimeSys->GetTimeNow();
 }
 
+TInt32 CCommunicator::AddNetMsg(CMessageHeader *pMsg)
+{
+    TInt32 freeLen = m_inPipe.GetFreeLen();
+    if (freeLen > pMsg->GetLength())
+    {
+        return m_inPipe.WriteData((TUChar*)pMsg,pMsg->GetLength());
+    }
+    else
+    {
+        if (!m_nBlockTimes)
+        {
+            return MSG_QUEUE_BLOCKED;
+        }
+        else
+        {
+            //CommMgr直接扔掉消息,
+            return OUT_OF_MEM;
+        }
+    }
+}
+
 }

@@ -1403,6 +1403,14 @@ public:
                     }
                     return SUCCESS;
                 }
+    TBool   IsFull()
+            {
+                if (m_pHead->m_pRightNode == m_pRear)
+                {
+                    return TRUE;
+                }
+                return FALSE;
+            }
 
 
 
