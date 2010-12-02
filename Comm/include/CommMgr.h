@@ -79,7 +79,7 @@ private:
     void SendAppMsg(CMessageHeader *pMsg);
 
     void HandleOneNetMsg(CMessageHeader *pMsg);
-    IfCommunicator *GetIfComm(TUInt32 srvId)
+    CCommunicator *GetIfComm(TUInt32 srvId)
     {
         return m_pCommunicators + (srvId%m_nrOfComm);
     }

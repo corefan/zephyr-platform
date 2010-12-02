@@ -313,8 +313,10 @@ void CCommMgr::SendAppMsg(CMessageHeader *pMsg)
         
         if (pConn)
         {
-           
-            pMsg->ReInitMsg4Send(from,nrOfDest);
+            if (from)
+            {
+                pMsg->ReInitMsg4Send(from,nrOfDest);
+            }
             //if (m_ppConnections[idx])
             {
                 pConn->SendMsg((TUChar*)pMsg,pMsg->GetLength());
@@ -395,14 +397,39 @@ TInt32 CCommMgr::Disconnect()
 
 void CCommMgr::HandleOneNetMsg(CMessageHeader *pMsg)
 {
-
+    int i = 0;
+    int from = 0;
+    int to = 1;
+    CDoid *pDoid = pMsg->GetDestDoidByIdx(i);
+    CCommunicator *pComm = GetIfComm(pDoid->m_srvId);
     int msgDoidNr = pMsg->GetBroadcastDoidNr();
-    for (int i = 0;i<= msgDoidNr;i++)
+    if (msgDoidNr)
     {
-        CDoid *pDoid = pMsg->GetDestDoidByIdx(i);
-        
-        
+        pDoid = pMsg->GetBroadcastDoids();
+        for (i=0;i< msgDoidNr;i++)
+        {
+            if (pComm != GetIfComm(pDoid->m_srvId))
+            {
+                //send last msg
+                to = i;
+                pMsg->ReInitMsg4Send(from,to);
+                pComm->AddNetMsg(pMsg);
+                from = to;
+            }
+            else
+            {
+                pComm = GetIfComm(pDoid->m_srvId);
+            }
+            ++pDoid;
+        }
     }
+    //如果from改变过，则需要重新init Msg.
+    if (from)
+    {
+        pMsg->ReInitMsg4Send(from,to);
+    }
+    pComm->AddNetMsg(pMsg);
+    pMsg->SetBroadcastDoid(msgDoidNr);
 }
 
 }

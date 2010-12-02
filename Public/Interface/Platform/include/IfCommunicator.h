@@ -11,7 +11,7 @@ class IfCommunicator
 {
 public:
 
-    //add a new idx , that indicate the pipe to use!
+    //
     virtual CMessageHeader *GetMsg(TUInt32 needRetMsgBuff = 1) = 0;
 
     virtual void ReturnMsgBuff(CMessageHeader *pMsg) = 0;
