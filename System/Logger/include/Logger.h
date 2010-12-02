@@ -67,6 +67,7 @@ public:
     virtual void WriteLog(const TUInt32 lvl,const TChar *_pFormat,...);
     virtual void WriteLog(const TUInt32 logId,const TUInt32 lvl,const TChar *_pFormat,va_list ValueList);
     virtual void WriteLog(const TUInt32 lvl,const TChar *_pFormat,va_list ValueList);
+    virtual void WriteRawLog(const TUInt32 lvl,const TChar *__pFormat,...);
     TChar *GetFileName()
     {
         return m_fileName;

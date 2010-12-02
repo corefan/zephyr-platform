@@ -1,7 +1,8 @@
 #include "CommMgr.h"
 #include "SettingFile.h"
-#include "..\Public\include\NetCenter.h"
-#include "..\System\include\SysInc.h"
+#include "../Public/include/NetCenter.h"
+#include "../System/include\SysInc.h"
+#include "include/CommLogger.h"
 namespace Zephyr
 {
 
@@ -312,12 +313,16 @@ void CCommMgr::SendAppMsg(CMessageHeader *pMsg)
         
         if (pConn)
         {
-            //connection没连上，那就不管了.
+           
             pMsg->ReInitMsg4Send(from,nrOfDest);
             //if (m_ppConnections[idx])
             {
                 pConn->SendMsg((TUChar*)pMsg,pMsg->GetLength());
             }
+        }
+        else //connection没连上
+        {
+            RecordOneMsg(pMsg);
         }
         pMsg->SetBroadcastDoid(nrOfDest);
     }
@@ -343,7 +348,7 @@ TInt32 CCommMgr::SendMsg(TUChar *pBuff,TUInt32 buffLen)
     {
         usedLen += msgLen;
         buffLen -= msgLen;
-        HandleOneMsg(pMsg);
+        HandleOneNetMsg(pMsg);
         if (sizeof(CMessageHeader) < buffLen)
         {
             pMsg = (CMessageHeader*)(pBuff + usedLen);
@@ -366,30 +371,31 @@ CConPair *CCommMgr::GetConnectionInfo()
 {
     return &m_cLoopBack;;
 }
-//设置是否需要Negla算法
+//设置是否需要Negla算法，无用
 TInt32 CCommMgr::NeedNoDelay(const char chOpt)
 {
     return SUCCESS;
 }
-//获取连接状态.
+//获取连接状态，无用
 EnConnectionState CCommMgr::GetConnctionState()
 {
     return connection_is_using;
 }
-//用以获取还未发送的数据的长度
+//用以获取还未发送的数据的长度，无用
 TInt32 CCommMgr::GetPendingDataLen()
 {
     return 0;
 }
 
-//调用这个后，就可以将IfConnectionCallBack释放.Net不会继续回调该接口.
+//对CCommMgr来说，这个无用
 TInt32 CCommMgr::Disconnect()
 {
     return SUCCESS;
 }
 
-void CCommMgr::HandleOneMsg(CMessageHeader *pMsg)
+void CCommMgr::HandleOneNetMsg(CMessageHeader *pMsg)
 {
+
     int msgDoidNr = pMsg->GetBroadcastDoidNr();
     for (int i = 0;i<= msgDoidNr;i++)
     {

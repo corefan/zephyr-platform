@@ -78,7 +78,11 @@ private:
     TBool CheckNetState(CMessageHeader *pMsg);
     void SendAppMsg(CMessageHeader *pMsg);
 
-    void HandleOneMsg(CMessageHeader *pMsg);
+    void HandleOneNetMsg(CMessageHeader *pMsg);
+    IfCommunicator *GetIfComm(TUInt32 srvId)
+    {
+        return m_pCommunicators + (srvId%m_nrOfComm);
+    }
 public:
     //发给本地.
     virtual TInt32 SendMsg(TUChar *pMsg,TUInt32 msgLen);

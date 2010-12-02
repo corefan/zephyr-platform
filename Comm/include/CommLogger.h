@@ -4,7 +4,7 @@ namespace Zephyr
 {
 
 
-IfLogger *g_pCommLogger;
+extern IfLogger *g_pCommLogger;
 
 #define COMM_DEBUG_LOG(LOG_IDX,LOG_STR,...) g_pCommLogger->WriteLog((LOG_IDX),log_debug,LOG_STR,__VA_ARGS__);
 

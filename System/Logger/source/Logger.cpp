@@ -499,4 +499,63 @@ void CLogger::WriteLog(const TUInt32 lvl,const TChar *_pFormat,va_list ValueList
     }
 }
 
+void CLogger::WriteRawLog(const TUInt32 lvl,const TChar *__pFormat,...)
+{
+    if (!(lvl & m_needOperation))
+    {
+        return;
+    }
+    m_loggerCount ++;
+
+    TChar *pBuff;
+    TUInt32 maxLogLenth = MAX_LOGGER_LENGTH;
+    pBuff = (TChar *)m_pipe.PrepareMsg(maxLogLenth);
+    if (maxLogLenth < MAX_LOGGER_LENGTH)
+    {
+        pBuff = m_buff;
+    }
+    va_list argList;
+    va_start(argList,__pFormat);
+    
+    TInt32 strLen = _vsnprintf((pBuff),MAX_LOGGER_CONTENTS_LENGTH,__pFormat,argList);
+    va_end(argList);
+    if (strLen <= 0)
+    {
+        return;
+    }
+    //不加任何东西
+//     if ('\n' != pBuff[(strLen-1)])
+//     {
+//         // MAX_LOGGER_LENGTH - MAX_LOGGER_CONTENTS_LENGTH == 48, enough for a lot of thing
+//         pBuff[strLen] = '\n';
+//         strLen ++;
+//     }
+
+
+    //TInt32 strLen = pEnd - m_buff;
+    if (lvl & m_writeToFile)
+    {
+        if (pBuff == m_buff)
+        {
+            TInt32 ret = m_pipe.WriteData((TUChar*)m_buff,strLen);
+            while(ret < 0)
+            {
+                //app will write the file to HD;
+                AppRun(strLen);
+                ret = m_pipe.WriteData((TUChar*)m_buff,strLen);
+            }
+        }
+        else // already write into pipe!
+        {
+            m_pipe.ConfirmAddMsg((TUChar*)pBuff,strLen);
+        }
+    }
+
+    if (lvl & m_printToScreen)
+    {
+         pBuff[strLen] = '\0';
+        printf("%s",m_buff);
+    }
+}
+
 }

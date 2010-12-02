@@ -22,6 +22,8 @@ public:
     virtual void WriteLog(const TUInt32 lvl,const TChar *_pFormat,...) = 0;
     virtual void WriteLog(const TUInt32 logId,const TUInt32 lvl,const TChar* __pFormat,va_list vl) = 0;
     virtual void WriteLog(const TUInt32 lvl,const TChar *__pFormat,va_list vl) = 0;
+    //直接写数据，不按格式写
+    virtual void WriteRawLog(const TUInt32 lvl,const TChar *__pFormat,...) = 0;
 };
 
 
