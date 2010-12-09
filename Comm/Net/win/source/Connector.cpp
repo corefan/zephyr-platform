@@ -145,10 +145,11 @@ TInt32 CConnector::Run(const TUInt32 runCnt)
 
 TInt32 CConnector::Connect(CConPair *pPair,IfConnectionCallBack *pAppCallBack)
 {
-    if (m_pendingSocket.IsFull())
-    {
-        return OUT_OF_MEM;
-    }
+    //不查了，下面的GetItem会保证
+//     if (m_pendingSocket.IsFull())
+//     {
+//         return OUT_OF_MEM;
+//     }
     CConnection *pNew = m_pConnectionPool->GetItem();
     if(!pNew)
     {

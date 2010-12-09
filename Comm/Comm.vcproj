@@ -177,7 +177,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\TimeSystem.cpp"
+				RelativePath=".\source\TimeSystem.cpp"
 				>
 			</File>
 		</Filter>

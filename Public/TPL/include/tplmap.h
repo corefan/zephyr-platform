@@ -1252,12 +1252,58 @@ TplNode<CItem,CKey> *TplNode<CItem,CKey>::ReleaseNode(CKey& key)
 template<class CItem, class CKey>
 class TplMap
 {
+    struct TMemBlock
+    {
+        TInt32                   m_nSize;
+        TplNode<CItem,CKey>*     m_pItem;
+    };
+
 private:
-    TInt32                         m_size;
-    TplNode<CItem,CKey>*     m_pItem;
+    TUInt32                  m_nBlockNr;
+    TMemBlock                *m_pBlocks;
+    TInt32                   m_nTotalSize;
+    //TInt32                   m_nMaxSize;
+    //TplNode<CItem,CKey>*     m_pItem;
     TplNode<CItem,CKey>*     m_pRear;
     TplNode<CItem,CKey>*     m_pHead;
     TplNode<CItem,CKey>*     m_pTree;
+private:
+    TBool ExpandMem()
+    {
+        if (!m_pRear)
+        {
+            //这不应该！，除非是没有初始化
+            printf("Map Not Initialized!");
+            return FALSE;
+        }
+        //每次增加1/4
+        int expand = (m_nTotalSize << 1) + 1;
+
+        TplNode<CItem,CKey>* pItem = new TplNode<CItem,CKey>[expand];
+        TMemBlock *pBlock = new TMemBlock[m_nBlockNr+1];
+        if ((NULL == pItem)||(NULL == pBlock))
+        {
+            return FALSE;
+        }
+        
+        memcpy(pBlock,m_pBlocks,(sizeof(TMemBlock)*m_nBlockNr));
+        
+
+        m_pBlocks[m_nBlockNr].m_nSize = expand;
+        m_pBlocks[m_nBlockNr].m_pItem = pItem;
+        ++m_nBlockNr;
+        m_nTotalSize += expand;
+        for (TInt32 i=0;i< expand;i++)
+        {
+            //pointer to itself
+            (pItem + i)->m_pLeftNode  = (pItem + i);
+            (pItem + i)->m_pRightNode = (pItem + i + 1);
+        }
+        (pItem + expand -1)->m_pRightNode = NULL;
+        m_pRear->m_pRightNode = pItem;
+        m_pRear = pItem;
+        return TRUE;
+    }
 public:
 	TplNode<CItem,CKey>*     GetRoot()
 	{
@@ -1281,36 +1327,29 @@ public:
 	}
     class Iterator
     {
-    private:
-        TplNode<CItem,CKey> *m_pNode;
-        TplMap              *m_pMap;
-    public:
-        void        operator ++()
-                    {
-                        while ((m_pNode + 1) < (m_pMap->m_pItem + m_pMap->m_size))
-                        {
-                            if ((++m_pNode)->m_pLeftNode != m_pNode)
-                            {
-                                return;
-                            }
-                        }
-                    }
-        CItem*      operator ->()
-                    {
-                        return m_pNode;
-                    }
-        bool        operator == (Iterator& itor)
-                    {
-                        if (itor.m_pNode == m_pNode)
-                        {
-                            return true;
-                        }
-                        return false;
-                    }
-    private:
-        Iterator(){};
-        ~Iterator(){};
-        friend class TplMap<CItem,CKey>;
+//     private:
+//         TplNode<CItem,CKey>::Iterator m_iterator;
+//     public:
+//         void        operator ++()
+//                     {
+//                         ++m_iterator;
+//                     }
+//         CItem*      operator ->()
+//                     {
+//                         return m_iterator.GetItem();
+//                     }
+//         bool        operator == (Iterator& itor)
+//                     {
+//                         if (itor.m_iterator == m_iterator)
+//                         {
+//                             return true;
+//                         }
+//                         return false;
+//                     }
+//     private:
+//         Iterator(){};
+//         ~Iterator(){};
+//         friend class TplMap<CItem,CKey>;
     };
     friend class Iterator;
 private:
@@ -1350,10 +1389,14 @@ public:
     TInt32 Init(TInt32 size);
     void UnInit()
     {
-        if (m_pItem)
+        if (m_pBlocks)
         {
-            delete [] m_pItem;
-            m_pItem = NULL;
+            for (int i = 0;i<m_nBlockNr;++i)
+            {
+                 DELETEP(m_pBlocks[i].m_pItem);
+            }
+            DELETEP(m_pBlocks);
+            m_nBlockNr = 0;
         }
 
     }
@@ -1387,7 +1430,7 @@ public:
     CItem   *GetItemByKey(CKey* pKey);
     TInt32         GetSize()
                 {
-                    return m_size;
+                    return m_nTotalSize;
                 }
 
     TInt32         PrintTree()
@@ -1427,22 +1470,26 @@ TInt32 TplMap<CItem,CKey>::Init(TInt32 size)
     // 0 ~ 1G memory was used as system area.
     //may have warnings, but it's ok.
 
-
-    m_pItem = new TplNode<CItem,CKey>[size];
-    if (NULL == m_pItem)
+    
+    TplNode<CItem,CKey>* pItem = new TplNode<CItem,CKey>[size];
+    if (NULL == pItem)
     {
         return OUT_OF_MEM;
     }
-    m_size = size;
+    m_nBlockNr = 1;
+    m_pBlocks = new TMemBlock;
+    m_pBlocks->m_nSize = size;
+    m_pBlocks->m_pItem = pItem;
+    m_nTotalSize = size;
     for (TInt32 i=0;i< size;i++)
     {
         //pointer to itself
-        (m_pItem + i)->m_pLeftNode  = (m_pItem + i);
-        (m_pItem + i)->m_pRightNode = (m_pItem + i + 1);
+        (pItem + i)->m_pLeftNode  = (pItem + i);
+        (pItem + i)->m_pRightNode = (pItem + i + 1);
     }
-    (m_pItem + size -1)->m_pRightNode = NULL;
-    m_pRear = (m_pItem + size -1);
-    m_pHead = m_pItem;
+    (pItem + size -1)->m_pRightNode = NULL;
+    m_pRear = (pItem + size -1);
+    m_pHead = pItem;
     m_pTree = NULL;
     return SUCCESS;
 }
@@ -1453,8 +1500,11 @@ CItem *TplMap<CItem,CKey>::GetItem(TInt32& result,CKey* pKey)
     if (m_pHead->m_pRightNode == m_pRear)
     {
        //out of memory!
-       result = OUT_OF_MEM;
-       return NULL;
+       if (FALSE == ExpandMem())
+       {
+           result = OUT_OF_MEM;
+           return NULL;
+       }
     }
     if (pKey)
     {
@@ -1509,13 +1559,13 @@ TInt32 TplMap<CItem,CKey>::ReleaseItem(CItem * pItem)
     //we do not use dynamic_cast to check if pItem belongs to this list, because the CItem has virtual func, otherwise it wouldn't has v_table.
     TplNode<CItem,CKey> *pNew = static_cast< TplNode<CItem,CKey>* >(pItem);
 
-    TInt32 offset = ((char*)pNew - (char*)m_pItem);
+    //TInt32 offset = ((char*)pNew - (char*)m_pItem);
 
 
-    if ((pNew >= (m_pItem + m_size))||(offset < 0)||(0 != (offset % sizeof( TplNode<CItem,CKey>* ))))
-    {
-        return NOT_BELONG_TO_THIS_CAPSULA;
-    }
+//     if ((pNew >= (m_pItem + m_size))||(offset < 0)||(0 != (offset % sizeof( TplNode<CItem,CKey>* ))))
+//     {
+//         return NOT_BELONG_TO_THIS_CAPSULA;
+//     }
     //delete the pItem in the tree;
     if (m_pTree)
     {
@@ -1550,13 +1600,13 @@ TInt32 TplMap<CItem,CKey>::AddInTree(CItem* pItem, CKey* pKey)
     }
 
     TplNode<CItem,CKey> *pNew = static_cast< TplNode<CItem,CKey>* >(pItem);
-    TInt32 offset = ((char*)pNew - (char*)m_pItem);
-
-
-    if ((offset < 0)||(0 != (offset % sizeof( TplNode<CItem,CKey>* ))))
-    {
-        return NOT_BELONG_TO_THIS_CAPSULA;
-    }
+//     TInt32 offset = ((char*)pNew - (char*)m_pItem);
+// 
+// 
+//     if ((offset < 0)||(0 != (offset % sizeof( TplNode<CItem,CKey>* ))))
+//     {
+//         return NOT_BELONG_TO_THIS_CAPSULA;
+//     }
     CItem *pExist = GetItemByKey(pKey);
     if (pExist)
     {

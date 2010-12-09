@@ -15,7 +15,7 @@ using namespace std;
 int main()
 {
     IfTaskMgr *pTaskMgr = CreateTaskMgr();
-    
+
     CExceptionParser parser;
     IfLoggerManager *pLogMgr = CreateLogSys(pTaskMgr);
     IfCommunicatorMgr *pMgr = CreateCommMgr(2,pTaskMgr,pLogMgr,NULL);
