@@ -176,6 +176,10 @@
 				RelativePath=".\source\MsgParserFactory.cpp"
 				>
 			</File>
+			<File
+				RelativePath=".\TimeSystem.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="include"

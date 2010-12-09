@@ -55,6 +55,7 @@ class CConnector
 private:
     TInt16          m_pendingConnections;
     TInt16          m_maxPendingConnection;
+    //改成动态new,因为连接应该很少发生，不会有很多.
     TplMap<CConnectingList,SOCKET>  m_pendingSocket;
     TInt32          m_connected;
     TInt32          m_failed;

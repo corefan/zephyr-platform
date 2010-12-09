@@ -185,8 +185,7 @@ catch(...) \
 { \
 } \
 
-
-#define DELETE(POINTER) \
+#define DELETEP(POINTER) \
 { \
     delete POINTER; \
     POINTER = NULL; \

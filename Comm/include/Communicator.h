@@ -19,7 +19,7 @@ protected:
     TUInt32 m_buffSize;
     CPipe   m_eventPool;
     CTimeSystem *m_pTimeSys;
-    TInt32  m_nBlockTimes;
+    TUInt32  m_nLastBlockTimes;
 public:
     CCommunicator();
     ~CCommunicator();

@@ -22,6 +22,8 @@
 #define I64_FMT "%lld"
 
 
+
+
 #else
 
 #error you must specify WIN32 specification
@@ -43,8 +45,20 @@ typedef struct in_addr IN_ADDR;
 
 
 
+
 #endif
 
+#ifdef _WIN32
 
+#else
+namespace Zephyr
+{
+
+    void SleepT(TUInt32 ms)
+    {
+        usleep(ms*1000);
+    }
+}
+#endif
 
 #endif

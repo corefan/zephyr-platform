@@ -1,5 +1,6 @@
 #include "Communicator.h"
-
+#include "CommLogger.h"
+#include "../System/include/SysInc.h"
 namespace Zephyr
 {
 
@@ -12,7 +13,7 @@ CCommunicator::CCommunicator()
 
 CCommunicator::~CCommunicator()
 {
-    DELETE(m_pBuff);
+    DELETEP(m_pBuff);
 }
 
 TInt32 CCommunicator::Init(CTimeSystem *pTimeSystem,TUInt32 inPipeSize,TUInt32 outPipeSize,TUInt32 maxMessageSize)
@@ -136,16 +137,35 @@ TInt32 CCommunicator::AddNetMsg(CMessageHeader *pMsg)
     }
     else
     {
-        if (!m_nBlockTimes)
+        TUInt32 timeNow = m_pTimeSys->GetTimeNow();
+        if (timeNow >= m_nLastBlockTimes)
         {
-            return MSG_QUEUE_BLOCKED;
-        }
-        else
-        {
-            //CommMgr直接扔掉消息,
-            return OUT_OF_MEM;
+            TUInt32 gap = timeNow - m_nLastBlockTimes;
+            if (gap > 1000)
+            {
+                m_nLastBlockTimes = timeNow;
+                Sleep(15);
+                //再试一次
+                freeLen = m_inPipe.GetFreeLen();
+                if (freeLen > pMsg->GetLength())
+                {
+                    return m_inPipe.WriteData((TUChar*)pMsg,pMsg->GetLength());
+                }
+                //else
+                //{
+                      //扔掉消息
+                //}
+                
+            }
+            //else
+            //{
+                //扔掉消息
+            //}
         }
     }
+    //记下日志，然后扔掉
+    RecordOneMsg(pMsg);
+    return pMsg->GetLength();
 }
 
 }

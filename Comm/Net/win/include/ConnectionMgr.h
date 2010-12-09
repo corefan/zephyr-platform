@@ -85,7 +85,10 @@ public:
 
     TInt32 Init(TUInt32 maxConnectionNum,IfTaskMgr *pTaskMgr,IfTask *pUser,IfParserFactory* pParserFactory,IfCryptorFactory *pIfCryptorfactory = NULL,TUInt32 buffSize = 256*1024);
     void   Final();
-    
+    void   TestReference(IfTask& task)
+    {
+        task.Begin(1);
+    }
 };
 
 
