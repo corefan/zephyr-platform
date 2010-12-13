@@ -12,9 +12,34 @@
 
 using namespace Zephyr;
 using namespace std;
+class CTest
+{
+public:
+    int a;
+};
+class CTestB : public CTest
+{
+    //CTestB();
+public:
+
+    int b;
+};
 int main()
 {
     IfTaskMgr *pTaskMgr = CreateTaskMgr();
+    CTestB b;
+    int *p = &b.b;
+    if (p > &b.a)
+    {
+        *p = 1;
+    }
+    enum EnTest
+    {
+        BEGIN_DBServer,
+        ROLE_DBServer = 1,
+        ROLE_DBServer2 = 1,
+    };
+    EnTest t = ROLE_DBServer;
 
     CExceptionParser parser;
     IfLoggerManager *pLogMgr = CreateLogSys(pTaskMgr);
