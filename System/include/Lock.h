@@ -13,7 +13,7 @@
 
 #include <SysMacros.h>
 #include <SysInc.h>
-
+#include <Windows.h>
 namespace Zephyr
 {
 
@@ -83,9 +83,9 @@ typedef LinuxLock  CLock;
 class CAutoLock
 {
 protected:
-	CLock m_lock;
+	CLock& m_lock;
 public:
-	CAutoLock() 
+    CAutoLock(CLock& lock):m_lock(lock) 
     { 
         m_lock.Lock();
     }

@@ -10,55 +10,40 @@
 #ifndef __SYS_INCLUDE_H__
 #define __SYS_INCLUDE_H__
 
-#include "SysMacros.h"
+#include "TypeDef.h"
 
-#ifdef _MSC_VER
 // win include
-#ifdef WIN32
-#include <windows.h>
-#include <process.h>
-#include <winerror.h>
-
-#define I64_FMT "%lld"
-
-
-
-
-#else
-
+#ifndef WIN32
 #error you must specify WIN32 specification
 #endif
 
+#ifdef WIN32
+#ifndef _WIN32_WINNT 
+# define _WIN32_WINNT 0x500 
+#endif
+
+#include <windows.h>
+#include <process.h>
+#include <winerror.h>
+#define I64_FMT "%I64d"
 // linux include
 #else
 #include <pthread.h>
-
-
 #define NOERROR 0
 #define E_FAIL  0x80005
 #define SOCKET_ERROR -1
 typedef struct hostent HOSTENT;
 typedef struct in_addr IN_ADDR;
-
-
-#define I64_FMT "%I64d"
-
-
-
-
 #endif
 
-#ifdef _WIN32
-
-#else
 namespace Zephyr
 {
-
-    void SleepT(TUInt32 ms)
-    {
-        usleep(ms*1000);
-    }
-}
+#ifdef _WIN32
+    void SleepT(TUInt32 ms);
+#else
+    void SleepT(TUInt32 ms);
 #endif
+
+}
 
 #endif

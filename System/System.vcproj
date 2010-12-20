@@ -160,12 +160,24 @@
 				RelativePath=".\include\SysInc.h"
 				>
 			</File>
+			<File
+				RelativePath=".\include\SystemTools.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\ThreadClass.h"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="source"
 			>
 			<File
 				RelativePath=".\source\ProducerAndConsumer.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\source\SysInc.cpp"
 				>
 			</File>
 		</Filter>
