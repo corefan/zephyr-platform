@@ -144,6 +144,8 @@ const unsigned int REPLY_MSG			= 0x10000000;
 
 #define SELECT_TIME_OUT (1)
 
+#define DEFAULT_THREAD_TERMINATE_TIME 5000
+
 
 
 #define NR_OF_QUEUE_IN_TASK (3)

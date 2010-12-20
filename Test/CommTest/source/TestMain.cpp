@@ -26,6 +26,11 @@ public:
 };
 int main()
 {
+    long long llTest = -231;
+    char *pSz = "dsfsdfsdfsdfd";
+    unsigned long long ullTest = 3;
+    printf("Id is %lld",llTest);
+    printf("Id is %llu",ullTest);
     IfTaskMgr *pTaskMgr = CreateTaskMgr();
     CTestB b;
     int *p = &b.b;
