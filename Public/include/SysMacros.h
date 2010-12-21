@@ -228,6 +228,10 @@ LISTCLASS *GetNext()\
 {\
 return m_##LISTCLASS##List.m_pNext;\
 }\
+LISTCLASS *GetPrev()\
+{\
+    return m_##LISTCLASS##List.m_pNext;\
+}\
 void Detach() \
 { \
     if(m_##LISTCLASS##List.m_pPrev)\
