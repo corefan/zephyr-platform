@@ -11,9 +11,9 @@
 #ifndef __THREAD_LOCK_H__
 #define __THREAD_LOCK_H__
 
-#include <SysMacros.h>
+//#include <SysMacros.h>
 #include <SysInc.h>
-#include <Windows.h>
+
 namespace Zephyr
 {
 

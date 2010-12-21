@@ -10,7 +10,7 @@
 #ifndef __SYS_INCLUDE_H__
 #define __SYS_INCLUDE_H__
 
-#include "TypeDef.h"
+//#include "TypeDef.h"
 
 // win include
 #ifndef WIN32
@@ -39,9 +39,9 @@ typedef struct in_addr IN_ADDR;
 namespace Zephyr
 {
 #ifdef _WIN32
-    void SleepT(TUInt32 ms);
+    void SleepT(unsigned int ms);
 #else
-    void SleepT(TUInt32 ms);
+    void SleepT(unsigned int ms);
 #endif
 
 }
