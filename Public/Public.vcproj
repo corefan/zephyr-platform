@@ -296,6 +296,10 @@
 			Name="Tpl"
 			>
 			<File
+				RelativePath=".\TplList.h"
+				>
+			</File>
+			<File
 				RelativePath=".\TPL\include\Tplmap.h"
 				>
 			</File>
