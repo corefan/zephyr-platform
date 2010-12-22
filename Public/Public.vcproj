@@ -296,7 +296,7 @@
 			Name="Tpl"
 			>
 			<File
-				RelativePath=".\TplList.h"
+				RelativePath=".\TPL\include\TplList.h"
 				>
 			</File>
 			<File
