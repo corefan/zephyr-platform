@@ -41,7 +41,7 @@ public:
 
 	virtual int Connect(LPCTSTR ConnectStr)=0;
 	virtual int Disconnect()=0;
-	virtual BOOL IsConnected()=0;
+	virtual int IsConnected()=0;
 	virtual int ExecuteSQL(LPCSTR SQLStr,int StrLen=0,IDBParameterSet * pParamSet=NULL)=0;	
 	virtual int GetResults(IDBRecordSet * pDBRecordset)=0;
 	virtual int NextResults(IDBRecordSet * pDBRecordset)=0;	
@@ -49,10 +49,10 @@ public:
 	virtual int EnableTransaction(BOOL IsEnable)=0;
 	virtual int Commit()=0;
 	virtual int RollBack()=0;	
-	virtual UINT GetLastDatabaseErrorCode()=0;
-	virtual LPCTSTR GetLastDatabaseErrorString()=0;
+	virtual unsigned int GetLastDatabaseErrorCode()=0;
+	virtual const char* GetLastDatabaseErrorString()=0;
 	virtual int TranslateString(LPCTSTR szSource,int SrcLen,LPTSTR szTarget,int MaxLen)=0;
-
+    virtual unsigned long long GetInsertId() = 0;
 };
 
 class IDBRecordSet

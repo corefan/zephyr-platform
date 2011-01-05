@@ -208,10 +208,10 @@ public:
 
 typedef struct  tagDB_GUID
 {
-	DWORD Data1;
-	WORD Data2;
-	WORD Data3;
-	BYTE Data4[ 8 ];
+	unsigned int Data1;
+	unsigned short Data2;
+	unsigned short Data3;
+	unsigned char Data4[ 8 ];
 	tagDB_GUID()
 	{
 		ZeroMemory(this,sizeof(*this));
@@ -223,7 +223,7 @@ typedef struct tagDB_COLUMN_INFO
 	char	Name[MAX_COLUMN_NAME];
 	short	Type;	
 	short	DigitSize;
-	UINT	Size;
+	unsigned int	Size;
 }DB_COLUMN_INFO;
 
 
@@ -231,7 +231,7 @@ typedef struct tagDB_PARAM_INFO
 {	
 	short	Type;	
 	short	DigitSize;
-	UINT	Size;
+	unsigned int	Size;
 	short	ParamType;
 	bool	IsNull;	
 }DB_PARAM_INFO;
@@ -348,9 +348,9 @@ inline DB_TIMESTAMP::DB_TIMESTAMP(const DB_TIME& Value)
 //	fraction=SysTime.wMilliseconds*1000000;
 //}
 
-inline UINT BitToUINT(LPVOID pBitData,int Len)
+inline unsigned int BitToUINT(void * pBitData,int Len)
 {
-	UINT Value=0;
+	unsigned int Value=0;
 	if(Len<0)
 		Len=0;
 	if(Len>4)
@@ -359,9 +359,9 @@ inline UINT BitToUINT(LPVOID pBitData,int Len)
 	return Value;
 }
 
-inline UINT64 BitToUINT64(LPVOID pBitData,int Len)
+inline unsigned __int64 BitToUINT64(void * pBitData,int Len)
 {
-	UINT64 Value=0;
+	unsigned __int64 Value=0;
 	if(Len<0)
 		Len=0;
 	if(Len>8)

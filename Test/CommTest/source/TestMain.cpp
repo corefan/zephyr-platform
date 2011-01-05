@@ -9,6 +9,7 @@
 #include "LogCenter.h"
 #include "CommCenter.h"
 #include <iostream>
+#include <List>
 
 using namespace Zephyr;
 using namespace std;
@@ -26,25 +27,10 @@ public:
 };
 int main()
 {
-    long long llTest = -231;
-    char *pSz = "dsfsdfsdfsdfd";
-    unsigned long long ullTest = 3;
-    printf("Id is %lld",llTest);
-    printf("Id is %llu",ullTest);
+    
+
     IfTaskMgr *pTaskMgr = CreateTaskMgr();
-    CTestB b;
-    int *p = &b.b;
-    if (p > &b.a)
-    {
-        *p = 1;
-    }
-    enum EnTest
-    {
-        BEGIN_DBServer,
-        ROLE_DBServer = 1,
-        ROLE_DBServer2 = 1,
-    };
-    EnTest t = ROLE_DBServer;
+
 
     CExceptionParser parser;
     IfLoggerManager *pLogMgr = CreateLogSys(pTaskMgr);

@@ -80,7 +80,7 @@ int CMySQLConnection::Connect(LPCTSTR ConnectStr)
 	if(UnixSocket[0]==0)
 		UnixSocket=NULL;
 	int Port=StrAnalyzer.GetInteger(NULL,"Port",3306);
-	DWORD Flags=FetchConnectFlags(FlagsStr);
+	unsigned int Flags=FetchConnectFlags(FlagsStr);
 
 	if(mysql_real_connect(m_MySQLHandle,Host,User,Password,DB,Port,UnixSocket,
 		Flags)==NULL)
@@ -223,11 +223,15 @@ LPCTSTR CMySQLConnection::GetLastDatabaseErrorString()
 	return mysql_error(m_MySQLHandle);
 }
 
-int CMySQLConnection::TranslateString(LPCTSTR szSource,int SrcLen,LPTSTR szTarget,int MaxLen)
+int CMySQLConnection::TranslateString(const char* szSource,int SrcLen,char* szTarget,int MaxLen)
 {
 	return (int)mysql_real_escape_string(m_MySQLHandle,szTarget,szSource,SrcLen);
 }
 
+unsigned __int64 CMySQLConnection::GetInsertId(void)
+{
+    return (unsigned __int64)mysql_insert_id(m_MySQLHandle);
+}
 void CMySQLConnection::ProcessErrorMsg(LPCTSTR Msg)
 {
 	PrintDBLog(0xff,"%s %s\r\n",Msg,mysql_error(m_MySQLHandle));
@@ -342,9 +346,9 @@ int CMySQLConnection::FetchResult(CMySQLRecordSet * pDBRecordset)
 	return pDBRecordset->Init(this,hResults);
 }
 
-DWORD CMySQLConnection::FetchConnectFlags(LPCTSTR FlagsStr)
+unsigned int CMySQLConnection::FetchConnectFlags(const char* FlagsStr)
 {
-	DWORD Flags=0;
+	unsigned int Flags=0;
 	CStringSplitter Splitter(FlagsStr,'|');
 	for(int i=0;i<(int)Splitter.GetCount();i++)
 	{
@@ -395,7 +399,7 @@ DWORD CMySQLConnection::FetchConnectFlags(LPCTSTR FlagsStr)
 	return Flags;
 }
 
-BOOL CMySQLConnection::MySQLValueToDBValue(int ValueType,LPCVOID pData,int DataSize,int DitigalSize,CDBValue& DBValue)
+BOOL CMySQLConnection::MySQLValueToDBValue(int ValueType,void *pData,int DataSize,int DitigalSize,CDBValue& DBValue)
 {
 	switch(ValueType)
 	{
@@ -403,7 +407,7 @@ BOOL CMySQLConnection::MySQLValueToDBValue(int ValueType,LPCVOID pData,int DataS
 		{
 			if(pData)
 			{
-				char Value=(char)atol((LPCTSTR)pData);
+				char Value=(char)atol((const char*)pData);
 				DBValue.SetValue(DB_TYPE_TINY,&Value,sizeof(Value),0);
 			}
 			else
@@ -416,7 +420,7 @@ BOOL CMySQLConnection::MySQLValueToDBValue(int ValueType,LPCVOID pData,int DataS
 		{
 			if(pData)
 			{
-				short Value=(short)atol((LPCTSTR)pData);
+				short Value=(short)atol((const char*)pData);
 				DBValue.SetValue(DB_TYPE_SMALLINT,&Value,sizeof(Value),0);
 			}
 			else
@@ -429,7 +433,7 @@ BOOL CMySQLConnection::MySQLValueToDBValue(int ValueType,LPCVOID pData,int DataS
 		{
 			if(pData)
 			{
-				long Value=(long)atol((LPCTSTR)pData);
+				long Value=(long)atol((const char*)pData);
 				DBValue.SetValue(DB_TYPE_INTEGER,&Value,sizeof(Value),0);
 			}
 			else
@@ -442,7 +446,7 @@ BOOL CMySQLConnection::MySQLValueToDBValue(int ValueType,LPCVOID pData,int DataS
 		{
 			if(pData)
 			{
-				long Value=(long)atol((LPCTSTR)pData);
+				long Value=(long)atol((const char*)pData);
 				DBValue.SetValue(DB_TYPE_INTEGER,&Value,sizeof(Value),0);
 			}
 			else
@@ -455,7 +459,7 @@ BOOL CMySQLConnection::MySQLValueToDBValue(int ValueType,LPCVOID pData,int DataS
 		{
 			if(pData)
 			{
-				INT64 Value=(INT64)_atoi64((LPCTSTR)pData);
+				INT64 Value=(INT64)_atoi64((const char*)pData);
 				DBValue.SetValue(DB_TYPE_BIGINT,&Value,sizeof(Value),0);
 			}
 			else
@@ -468,7 +472,7 @@ BOOL CMySQLConnection::MySQLValueToDBValue(int ValueType,LPCVOID pData,int DataS
 		{
 			if(pData)
 			{
-				double Value=(double)atof((LPCTSTR)pData);
+				double Value=(double)atof((const char*)pData);
 				DBValue.SetValue(DB_TYPE_DOUBLE,&Value,sizeof(Value),DitigalSize);
 			}
 			else
@@ -481,7 +485,7 @@ BOOL CMySQLConnection::MySQLValueToDBValue(int ValueType,LPCVOID pData,int DataS
 		{
 			if(pData)
 			{
-				float Value=(float)atof((LPCTSTR)pData);
+				float Value=(float)atof((const char*)pData);
 				DBValue.SetValue(DB_TYPE_FLOAT,&Value,sizeof(Value),DitigalSize);
 			}
 			else
@@ -494,7 +498,7 @@ BOOL CMySQLConnection::MySQLValueToDBValue(int ValueType,LPCVOID pData,int DataS
 		{
 			if(pData)
 			{
-				double Value=(double)atof((LPCTSTR)pData);
+				double Value=(double)atof((const char*)pData);
 				DBValue.SetValue(DB_TYPE_DOUBLE,&Value,sizeof(Value),DitigalSize);
 			}
 			else
@@ -507,7 +511,7 @@ BOOL CMySQLConnection::MySQLValueToDBValue(int ValueType,LPCVOID pData,int DataS
 		{
 			if(pData)
 			{
-				double Value=(double)atof((LPCTSTR)pData);
+				double Value=(double)atof((const char*)pData);
 				DBValue.SetValue(DB_TYPE_DOUBLE,&Value,sizeof(Value),DitigalSize);
 			}
 			else
@@ -526,7 +530,7 @@ BOOL CMySQLConnection::MySQLValueToDBValue(int ValueType,LPCVOID pData,int DataS
 			if(pData)
 			{
 				DB_TIMESTAMP Value;
-				sscanf((LPCTSTR)pData,"%hd-%hd-%hd %hd:%hd:%hd.&d",
+				sscanf((const char*)pData,"%hd-%hd-%hd %hd:%hd:%hd.&d",
 					&Value.year,&Value.month,&Value.day,
 					&Value.hour,&Value.minute,&Value.second,
 					&Value.fraction);
@@ -543,7 +547,7 @@ BOOL CMySQLConnection::MySQLValueToDBValue(int ValueType,LPCVOID pData,int DataS
 			if(pData)
 			{
 				DB_DATE Value;
-				sscanf((LPCTSTR)pData,"%hd-%hd-%hd",
+				sscanf((const char*)pData,"%hd-%hd-%hd",
 					&Value.year,&Value.month,&Value.day);
 				DBValue.SetValue(DB_TYPE_DATE,&Value,sizeof(Value),0);
 			}
@@ -558,7 +562,7 @@ BOOL CMySQLConnection::MySQLValueToDBValue(int ValueType,LPCVOID pData,int DataS
 			if(pData)
 			{
 				DB_TIME Value;
-				sscanf((LPCTSTR)pData,"%hd:%hd:%hd",
+				sscanf((const char*)pData,"%hd:%hd:%hd",
 					&Value.hour,&Value.minute,&Value.second);
 				DBValue.SetValue(DB_TYPE_TIME,&Value,sizeof(Value),0);
 			}
@@ -573,7 +577,7 @@ BOOL CMySQLConnection::MySQLValueToDBValue(int ValueType,LPCVOID pData,int DataS
 			if(pData)
 			{
 				DB_TIMESTAMP Value;
-				sscanf((LPCTSTR)pData,"%hd-%hd-%hd %hd:%hd:%hd",
+				sscanf((const char*)pData,"%hd-%hd-%hd %hd:%hd:%hd",
 					&Value.year,&Value.month,&Value.day,
 					&Value.hour,&Value.minute,&Value.second);
 				DBValue.SetValue(DB_TYPE_TIMESTAMP,&Value,sizeof(Value),0);
@@ -588,7 +592,7 @@ BOOL CMySQLConnection::MySQLValueToDBValue(int ValueType,LPCVOID pData,int DataS
 		{
 			if(pData)
 			{
-				long Value=(long)atol((LPCTSTR)pData);
+				long Value=(long)atol((const char*)pData);
 				DBValue.SetValue(DB_TYPE_INTEGER,&Value,sizeof(Value),0);
 			}
 			else

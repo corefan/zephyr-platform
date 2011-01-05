@@ -156,10 +156,6 @@
 				RelativePath=".\DBInterfaces.h"
 				>
 			</File>
-			<File
-				RelativePath=".\DBTypes.h"
-				>
-			</File>
 		</Filter>
 		<Filter
 			Name="¸½¼Ó×é¼þ"
@@ -228,7 +224,19 @@
 					>
 				</File>
 				<File
+					RelativePath=".\DBTypes.h"
+					>
+				</File>
+				<File
 					RelativePath=".\DBUserStub.h"
+					>
+				</File>
+				<File
+					RelativePath=".\DBValue.h"
+					>
+				</File>
+				<File
+					RelativePath=".\IfConnection.h"
 					>
 				</File>
 			</Filter>
@@ -458,10 +466,6 @@
 			</File>
 			<File
 				RelativePath=".\DBValue.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\DBValue.h"
 				>
 			</File>
 		</Filter>

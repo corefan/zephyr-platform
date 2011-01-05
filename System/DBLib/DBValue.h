@@ -1,6 +1,6 @@
 #ifndef __DB_LIB_DB_VALUE_H__
 #define __DB_LIB_DB_VALUE_H__
-#include "dbinterfaces.h"
+#include "DBTypes.h"
 
 namespace DBLib
 {

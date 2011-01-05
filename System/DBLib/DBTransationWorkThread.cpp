@@ -90,7 +90,12 @@ BOOL CDBTransationWorkThread::OnRun()
 			m_pConnection->RollBack();
 		}
 		pDBTansaction->SetResult(Ret);
-		m_FinishTransQueue.PushBack(pDBTansaction);
+		BOOL bRet = m_FinishTransQueue.PushBack(pDBTansaction);
+        while(bRet == FALSE)
+        {
+            SleepT(1);
+            bRet = m_FinishTransQueue.PushBack(pDBTansaction);
+        }
 		//m_TransQueue.PopFront(pDBTansaction);
 	}
 	else

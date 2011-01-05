@@ -33,7 +33,7 @@ public:
 	virtual int Connect(LPCTSTR ConnectStr);
 	virtual int Disconnect();
 	virtual BOOL IsConnected();
-	virtual int ExecuteSQL(LPCSTR SQLStr,int StrLen=0,IDBParameterSet * pParamSet=NULL);		
+	virtual int ExecuteSQL(const char* SQLStr,int StrLen=0,IDBParameterSet * pParamSet=NULL);		
 	virtual int GetResults(IDBRecordSet * pDBRecordset);
 	virtual int NextResults(IDBRecordSet * pDBRecordset);	
 	virtual int GetAffectedRowCount();
@@ -41,18 +41,19 @@ public:
 	virtual int Commit();
 	virtual int RollBack();
 
-	virtual UINT GetLastDatabaseErrorCode();
-	virtual LPCTSTR GetLastDatabaseErrorString();
+	virtual unsigned int GetLastDatabaseErrorCode();
+	virtual const char* GetLastDatabaseErrorString();
 
-	virtual int TranslateString(LPCTSTR szSource,int SrcLen,LPTSTR szTarget,int MaxLen);
+	virtual int TranslateString(const char* szSource,int SrcLen,char *szTarget,int MaxLen);
 
-	static BOOL MySQLValueToDBValue(int ValueType,LPCVOID pData,int DataSize,int DitigalSize,CDBValue& DBValue);
+    virtual unsigned __int64 GetInsertId(void);
+	static int MySQLValueToDBValue(int ValueType,void *pData,int DataSize,int DitigalSize,CDBValue& DBValue);
 
-	void ProcessErrorMsg(LPCTSTR Msg);
+	void ProcessErrorMsg(const char* Msg);
 protected:
 	int FetchStaticResult(CDBStaticRecordSet * pDBRecordset);
 	int FetchResult(CMySQLRecordSet * pDBRecordset);
-	DWORD FetchConnectFlags(LPCTSTR FlagsStr);
+	unsigned int FetchConnectFlags(const char* FlagsStr);
 };
 
 }
