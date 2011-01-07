@@ -7,12 +7,12 @@ namespace Zephyr
 {
 
 
-TInt32 CCommMgr::Init(IfTaskMgr *pTaskMgr,IfLoggerManager *pIfLogMgr,const TChar *pConfigName/* =szDefaultLoggerName */)
+TInt32 CCommMgr::Init(int nrOfWorkerThread,IfTaskMgr *pTaskMgr,IfLoggerManager *pIfLogMgr,const TChar *pConfigName/* =szDefaultLoggerName */)
 {
     //初始化网络底层
     
     //先读取配置
-    TInt32 ret = m_ipMaps.Init(pConfigName);
+    TInt32 ret = m_ipMaps.Init(pConfigName,this);
     if (SUCCESS > ret)
     {
         return ret;
@@ -110,17 +110,15 @@ TInt32 CCommMgr::Init(IfTaskMgr *pTaskMgr,IfLoggerManager *pIfLogMgr,const TChar
 
     //读取配置，看有几个Service, 需要启动几个工作Service.
     CSettingFile settingFile;
-    TInt32 nrOfComm = 2;
     TInt32 inPipeSize = 512*1024;
     TInt32 outPipeSize = 512*1024;
     TInt32 maxMsgSize = 256*1024;
-    if (!settingFile.Load("commSetting.ini"))
+    if (!settingFile.LoadFromFile("commSetting.ini"))
     {
 
     }
     else
     {
-        nrOfComm = settingFile.GetInteger("MAIN","nrOfComm",nrOfComm);
         inPipeSize = settingFile.GetInteger("MAIN","inPipeSize",inPipeSize);
         outPipeSize = settingFile.GetInteger("MAIN","outPipeSize",outPipeSize);
         maxMsgSize = settingFile.GetInteger("MAIN","maxMsgSize",maxMsgSize);
@@ -134,8 +132,8 @@ TInt32 CCommMgr::Init(IfTaskMgr *pTaskMgr,IfLoggerManager *pIfLogMgr,const TChar
         return OUT_OF_MEM;
     }
     
-    m_nrOfComm = nrOfComm;
-    NEW(m_pCommunicators,CCommunicator,nrOfComm);
+    m_nrOfComm = nrOfWorkerThread;
+    NEW(m_pCommunicators,CCommunicator,nrOfWorkerThread);
     if (!m_pCommunicators)
     {
 #ifdef _DEBUG
@@ -145,9 +143,10 @@ TInt32 CCommMgr::Init(IfTaskMgr *pTaskMgr,IfLoggerManager *pIfLogMgr,const TChar
         return OUT_OF_MEM;
     }
     
-    for (int i=0;i<nrOfComm;++i)
+    for (int i=0;i<nrOfWorkerThread;++i)
     {
         int ret = m_pCommunicators[i].Init(&m_timeSystem,inPipeSize,outPipeSize,maxMsgSize);
+        m_pCommunicators[i].InitEventPool(m_ipMaps.m_nrOfVirtualIp);
         if (ret < SUCCESS)
         {
 #ifdef _DEBUG
@@ -164,6 +163,8 @@ TInt32 CCommMgr::Init(IfTaskMgr *pTaskMgr,IfLoggerManager *pIfLogMgr,const TChar
         return ret;
     }
     m_pLogger = m_pLoggerMgr->GetLogger(ret);
+    g_pCommLogger = m_pLogger;
+    pTaskMgr->AddTask(this);
     return SUCCESS;
 }
 
@@ -185,6 +186,10 @@ TInt32 CCommMgr::Run(const TInt32 threadId,const TInt32 runCnt)
     {
  //       usedCnt += DistributeSrvMsg(i);
         CMessageHeader *pMsg = m_pCommunicators[i].GetAppMsg(m_pBuff);
+        if (!pMsg)
+        {
+            continue;
+        }
         if(CheckNetState(pMsg))
         {
             SendAppMsg(pMsg);
@@ -192,6 +197,7 @@ TInt32 CCommMgr::Run(const TInt32 threadId,const TInt32 runCnt)
             {
                  m_pCommunicators[i].AppMsgSent(pMsg);   
             }
+            ++usedCnt;
         }
     }
     return usedCnt;
@@ -206,7 +212,7 @@ TBool CCommMgr::CheckNetState(CMessageHeader *pMsg)
     { 
         CDoid *pDoid = pMsg->GetDestDoidByIdx();
         //int idx = m_ipMaps.GetConnectionIdx(pDoid);
-        CCommConnection *pConn = m_ipMaps.RouteTo(pDoid);
+        IfConnection *pConn = m_ipMaps.RouteTo(pDoid);
         int nrToSend = 1;
         int i = 1;
         while(i <= nrOfDest)
@@ -257,7 +263,7 @@ TBool CCommMgr::CheckNetState(CMessageHeader *pMsg)
     else //没有广播
     {
         //int idx = m_ipMaps.GetConnectionIdx(pMsg->GetDestDoidByIdx());
-        CCommConnection *pConn = m_ipMaps.RouteTo(pMsg->GetDestDoidByIdx(0));
+        IfConnection *pConn = m_ipMaps.RouteTo(pMsg->GetDestDoidByIdx(0));
         if (pConn)
         {
             TUInt32 freeLen = pConn->GetFreeBuffLength();
@@ -279,7 +285,7 @@ void CCommMgr::SendAppMsg(CMessageHeader *pMsg)
     if (nrOfDest)
     { 
         CDoid *pDoid = pMsg->GetDestDoidByIdx();
-        CCommConnection *pConn = m_ipMaps.RouteTo(pDoid);
+        IfConnection *pConn = m_ipMaps.RouteTo(pDoid);
         int from = 0;
         int i = 1;
         while(i <= nrOfDest)
@@ -330,7 +336,7 @@ void CCommMgr::SendAppMsg(CMessageHeader *pMsg)
     }
     else //没有广播
     {
-        CCommConnection *pConn  = m_ipMaps.RouteTo(pMsg->GetDestDoidByIdx());
+        IfConnection *pConn  = m_ipMaps.RouteTo(pMsg->GetDestDoidByIdx());
         if (pConn)
         {
             pConn->SendMsg((TUChar*)pMsg,pMsg->GetLength());

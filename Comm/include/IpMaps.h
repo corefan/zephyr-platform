@@ -33,9 +33,15 @@ union TVirtualIp
 class CIpMapItem
 {
 public:
+    CIpMapItem()
+    {
+        m_tKey.m_key = 0;
+        m_uLastConnectTime = 0;
+        m_pConnection = 0;
+    }
     TVirtualIp      m_tKey;
     TUInt32         m_uLastConnectTime;
-    CCommConnection *m_pConnection;
+    IfConnection    *m_pConnection;
 };
 
 class CIpMap
@@ -60,7 +66,7 @@ public:
     //CCommConnection      *m_pLocalConnections;
 public:
     CIpMap();
-    TInt32 Init(const TChar *pConfigName);
+    TInt32 Init(const TChar *pConfigName,IfConnection *pSelf);
     TBool IsLocal(CDoid *pDoId)
     {
         if((pDoId->m_nodeId == m_localNodeId) && (pDoId->m_virtualIp == m_localVirtualIp))
@@ -70,11 +76,11 @@ public:
         return FALSE;
     }
 
-    CCommConnection *RouteTo(CDoid *pDoId)
+    IfConnection *RouteTo(CDoid *pDoId)
     {
         if (pDoId->m_nodeId < m_nrOfNodes)
         {
-            if (pDoId->m_nodeId == m_connectedNode)
+            if (pDoId->m_nodeId == m_localNodeId)
             {
                 if (pDoId->m_virtualIp < m_nrOfVirtualIp)
                 {
@@ -83,6 +89,11 @@ public:
             }
             else
             {
+                if (pDoId->m_nodeId == m_connectedNode)
+                {
+                    return m_pVirtualIps[m_redirectIdx].m_pConnection;
+                }
+                //else
                 return m_pVirtualIps[m_pRoutes[pDoId->m_nodeId]].m_pConnection;
             }
             //return m_pRoutes[pDoId->m_nodeId];

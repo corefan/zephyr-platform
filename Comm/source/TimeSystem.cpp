@@ -10,6 +10,19 @@
 
 namespace Zephyr 
 {
+
+CTimeSystem::CTimeSystem()
+{
+#ifdef _WIN32
+    m_timeBegin = (TUInt32)timeGetTime();
+#else
+    timeval * tv;
+    gettimeofday(tv, 0 );
+    m_timeBegin = tv->tv_usec;
+#endif
+
+}
+    
 void CTimeSystem::Update()
 {
 #ifdef _WIN32

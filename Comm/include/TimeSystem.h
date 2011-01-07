@@ -12,6 +12,7 @@ public:
     TUInt32 m_timeBegin;
     volatile TUInt32 m_timeNow;
 public:
+    CTimeSystem();
     TUInt32 GetTimeNow()
     {
         return m_timeNow;

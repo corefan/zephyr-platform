@@ -22,7 +22,7 @@ TInt32 CLoggerManager::Init()
 
 TInt32 CLoggerManager::AddLogger(const TChar *pName,TInt32 loggerIdx,TUInt32 logLvlWriteFileMask/* = 0xFFFFFFFF*/,TUInt32 logLvlPrintScreenMask /*= 0*/,TUInt32 cacheLen/* = DEFAULT_CACHED_LOG_LENGTH*/)
 {
-    m_cLock.Lock();
+   // m_cLock.Lock();
     CAutoLockP autolock(m_cLock);
     if (-1 == loggerIdx)
     {
@@ -73,7 +73,8 @@ TInt32 CLoggerManager::AddLogger(const TChar *pName,TInt32 loggerIdx,TUInt32 log
         //init failed
         return OUT_OF_MEM;
     }
-    return ret;
+    m_pLogger[loggerIdx] = pLogger;
+    return loggerIdx;
 }
 
 void CLoggerManager::ReleaseLogger(IfLogger *pLogger)

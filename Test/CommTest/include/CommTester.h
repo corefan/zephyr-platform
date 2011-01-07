@@ -12,14 +12,23 @@
 using namespace Zephyr;
 
 //每秒
+//可以测试同Ip间对发，测试同Node间的对法，测试不同node间的路由。
+//测试同Ip间的多发，测试同Node间的多发，测试不同node间的路由
+//2011-01-05,完成同Ip见的对法，不走ip转.
 class CCommTester : public IfTask
 {
 protected:
     IfCommunicatorMgr *m_pCommMgr;
-    IfCommunicator    *m_pComms[24];
-    int                m_nrOfComm;
+    IfCommunicator    *m_pComms;
+    CDoid              m_tSvrDoid;
+    int                m_nInitSendMgrNr;
+    int                m_nInitSendMgrLen;
+    int                m_nSrvNr;
+    unsigned int       m_nSuccessTime;
+    unsigned int       m_nFailedTime;
 public:
-    int Init(IfCommunicatorMgr *pMgr,int nrOfComm);
+    int Init(IfCommunicatorMgr *pMgr,CDoid *pSrvDoid);
+    void OnStartTestOne(int nInitMsgNr,int nInitMsgLen,int srvNr);
     virtual TInt32 Begin(TInt32 threadId)
     {
         return SUCCESS;

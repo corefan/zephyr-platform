@@ -54,7 +54,7 @@ private:
     CConPair            m_cLoopBack;
 public:
     //taskMgr”…ServerContainer…˙≥….
-    TInt32 Init(IfTaskMgr *pTaskMgr,IfLoggerManager *pIfLogMgr,const TChar *pConfigName=szDefaultCommConfigName);
+    TInt32 Init(int nrOfWorkerThread,IfTaskMgr *pTaskMgr,IfLoggerManager *pIfLogMgr,const TChar *pConfigName=szDefaultCommConfigName);
     virtual IfCommunicator *RegisterWorker(TUInt16 srvId);
 
     virtual TInt32 Begin(TInt32 threadId)

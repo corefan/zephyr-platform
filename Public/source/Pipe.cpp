@@ -246,6 +246,7 @@ TInt32 CPipe::WriteData(TUChar *pSrc,TUInt32 len)
     TUChar *pRear = (TUChar *)(m_pRear);
 	TUChar *pHeader = (TUChar *)(m_pHeader);
 #ifdef _DEBUG
+    m_msgRecvd += len;
 	bool needRecycle = false;
 #endif
     if (pRear > pHeader)

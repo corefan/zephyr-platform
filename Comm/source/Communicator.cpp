@@ -34,6 +34,7 @@ TInt32 CCommunicator::Init(CTimeSystem *pTimeSystem,TUInt32 inPipeSize,TUInt32 o
     {
         return SUCCESS;
     }
+    m_buffSize = maxMessageSize;
     return OUT_OF_MEM;
 }
 
@@ -54,12 +55,12 @@ CMessageHeader *CCommunicator::GetMsg(TUInt32 needRetMsgBuff)
     if (pHeader)
     {
         TUInt32 len = m_inPipe.GetDataLen();
-        if (len > pHeader->GetLength())
+        if (len >= pHeader->GetLength())
         {
             len  = pHeader->GetLength();
             TUChar *pData = m_inPipe.GetData(len);
             //内存是否是一块？
-            if (len > pHeader->GetLength())
+            if (len >= pHeader->GetLength())
             {
                 //pHeader = (CMessageHeader *)pData;
             }
@@ -89,9 +90,13 @@ void CCommunicator::ReturnMsgBuff(CMessageHeader *pMsg)
 
 CMessageHeader *CCommunicator::PrepareMsg(TInt32 bodyLength,TUInt32 methodId,CDoid srcId,CDoid* pDestDoid,TInt32 destDoidNum)
 {
-    TUInt32 len = sizeof(CMessageHeader) + (destDoidNum-1)*sizeof(CDoid);
+    TUInt32 len = sizeof(CMessageHeader) + (destDoidNum-1)*sizeof(CDoid) + bodyLength;
     TUInt32 getLen = len;
     CMessageHeader *pRtn = (CMessageHeader *)m_outPipe.PrepareMsg(getLen);
+    if (!pRtn)
+    {
+        return NULL;
+    }
     if (getLen < len)
     {
         pRtn = (CMessageHeader *)m_pBuff;
@@ -133,7 +138,7 @@ TInt32 CCommunicator::AddNetMsg(CMessageHeader *pMsg)
     TInt32 freeLen = m_inPipe.GetFreeLen();
     if (freeLen > pMsg->GetLength())
     {
-        return m_inPipe.WriteData((TUChar*)pMsg,pMsg->GetLength());
+         return m_inPipe.WriteData((TUChar*)pMsg,pMsg->GetLength());
     }
     else
     {

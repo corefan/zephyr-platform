@@ -17,10 +17,10 @@ CIpMap::CIpMap()
     m_pVirtualIps = NULL;
 }
 
-TInt32 CIpMap::Init(const TChar *pConfigName)
+TInt32 CIpMap::Init(const TChar *pConfigName,IfConnection *pSelf)
 {
     CSettingFile settingFile;
-    if (!settingFile.Load(pConfigName))
+    if (!settingFile.LoadFromFile(pConfigName))
     {
         return NULL_POINTER;
     }
@@ -64,7 +64,7 @@ TInt32 CIpMap::Init(const TChar *pConfigName)
         {
             char buff[64];
             sprintf(buff,"NODE%d",i);
-            m_pRoutes[i] = settingFile.GetInteger(buff,"nodeGatewayVirtualIp");
+            m_pRoutes[i] = settingFile.GetInteger(buff,"nodeGatewayIp");
             if (m_pRoutes[i] == m_localVirtualIp)
             {
                 m_redirectIdx = m_nrOfVirtualIp + 1;
@@ -87,7 +87,7 @@ TInt32 CIpMap::Init(const TChar *pConfigName)
         m_pRoutes = NULL;
         m_redirectIdx = -1;
     }
-    
+    m_pVirtualIps[m_localNodeId].m_pConnection = pSelf;
     return SUCCESS;
 }
 

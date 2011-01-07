@@ -37,8 +37,9 @@ TInt32 CTaskInfo::Run(TInt32 threadId)
     //--m_operatingThread
 TInt32 CTaskInfo::QuitTask()
 {
-    m_lock.Unlock();
     m_operatingThread = 0;
+    m_lock.Unlock();
+    
 	return SUCCESS;
 }
 

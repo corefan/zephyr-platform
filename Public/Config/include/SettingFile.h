@@ -56,6 +56,12 @@ public:
 	{
 		FILE * pFile=NULL;
 		pFile=fopen(FileName,"rb");
+        if(NULL == pFile)
+        {
+            fprintf(stderr, "Open logfile failed:%s ", strerror(errno));
+        }
+
+
 		if(pFile)
 		{
 			fseek(pFile,0,SEEK_END);

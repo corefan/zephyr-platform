@@ -11,6 +11,8 @@
 #include <iostream>
 #include <List>
 
+#include "Config/include/SettingFile.h"
+
 using namespace Zephyr;
 using namespace std;
 class CTest
@@ -34,11 +36,40 @@ int main()
 
     CExceptionParser parser;
     IfLoggerManager *pLogMgr = CreateLogSys(pTaskMgr);
-    IfCommunicatorMgr *pMgr = CreateCommMgr(2,pTaskMgr,pLogMgr,NULL);
+    int initSendMsgNr = 0;
+    int initSendMsgLen = 0;
+    CDoid initSendMsgDoid;
+    CSettingFile setting;
+    int nrOfTester = 0;
+    if (setting.LoadFromFile("CommTestConfig.ini"))
+    {
+        initSendMsgNr = setting.GetInteger("MAIN","initSendMsgNr",0);
+        initSendMsgLen = setting.GetInteger("MAIN","initSendMsgLen",0);
+        initSendMsgDoid.m_nodeId = setting.GetInteger("MAIN","nodeId",0);
+        initSendMsgDoid.m_virtualIp = setting.GetInteger("MAIN","m_virtualIp",0);
+        initSendMsgDoid.m_srvId    = setting.GetInteger("MAIN","m_srvId",0);
+        initSendMsgDoid.m_objId  = setting.GetInteger("MAIN","m_objId",0);
+        nrOfTester   = setting.GetInteger("MAIN","num",1);
+    }
+    else
+    {
+        printf("Can not open file CommTestConfig.ini");
+        return FAIL;
+    }
+    IfCommunicatorMgr *pMgr = CreateCommMgr(nrOfTester,pTaskMgr,pLogMgr,"IpMaps.ini");
     
-    CCommTester commTest;
-    commTest.Init(pMgr,2);
-    pTaskMgr->AddTask(&commTest);
+    
+    
+
+
+    CCommTester* pCommTests = new CCommTester[nrOfTester];
+    for (int i=0;i<nrOfTester;++i)
+    {
+        initSendMsgDoid.m_srvId = i;
+        pCommTests[i].Init(pMgr,&initSendMsgDoid);
+        pCommTests[i].OnStartTestOne(initSendMsgNr,initSendMsgLen,nrOfTester);
+        pTaskMgr->AddTask(pCommTests+i);
+    }
 
     pTaskMgr->StartWorking(4);
     char stop = 'n';

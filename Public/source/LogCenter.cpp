@@ -12,6 +12,7 @@ IfLoggerManager *CreateLogSys(IfTaskMgr *pTaskMgr)
         return NULL;
     }
     CLoggerManager *pLogMgr = CLoggerManager::Instance();
+    pTaskMgr->AddTask(pLogMgr);
     return pLogMgr;
 }
 
