@@ -88,7 +88,7 @@ void CCommunicator::ReturnMsgBuff(CMessageHeader *pMsg)
     }
 }
 
-CMessageHeader *CCommunicator::PrepareMsg(TInt32 bodyLength,TUInt32 methodId,CDoid srcId,CDoid* pDestDoid,TInt32 destDoidNum)
+CMessageHeader *CCommunicator::PrepareMsg(TInt32 bodyLength,TUInt32 methodId,CDoid srcId,CDoid* pDestDoid,TInt32 destDoidNum,bool bRearrangeDest)
 {
     TUInt32 len = sizeof(CMessageHeader) + (destDoidNum-1)*sizeof(CDoid) + bodyLength;
     TUInt32 getLen = len;
@@ -101,7 +101,7 @@ CMessageHeader *CCommunicator::PrepareMsg(TInt32 bodyLength,TUInt32 methodId,CDo
     {
         pRtn = (CMessageHeader *)m_pBuff;
     }
-    len = pRtn->Init(bodyLength,methodId,srcId,pDestDoid,destDoidNum);
+    len = pRtn->Init(bodyLength,methodId,srcId,pDestDoid,destDoidNum,bRearrangeDest);
     if (SUCCESS > len)
     {
         return NULL;
@@ -128,10 +128,22 @@ CConnectionEvent CCommunicator::GetConnectionEvent(TInt32& result)
     return tmp;
 }
 
-TUInt32 CCommunicator::GetTime()
+TUInt32 CCommunicator::GetLocalTime()
 {
-    return m_pTimeSys->GetTimeNow();
+    return m_pTimeSys->GetLocalTime();
 }
+
+TUInt32 CCommunicator::GetTimeGap(TUInt32 nLast)
+{
+    return m_pTimeSys->GetTimeGap(nLast);
+}
+
+TUInt64 CCommunicator::GetPlatfromTime()
+{
+    return m_pTimeSys->GetPlatformTime();
+}
+
+
 
 TInt32 CCommunicator::AddNetMsg(CMessageHeader *pMsg)
 {
@@ -142,11 +154,11 @@ TInt32 CCommunicator::AddNetMsg(CMessageHeader *pMsg)
     }
     else
     {
-        TUInt32 timeNow = m_pTimeSys->GetTimeNow();
-        if (timeNow >= m_nLastBlockTimes)
+        TUInt64 timeNow = m_pTimeSys->GetPlatformTime();
+        if (timeNow > m_nLastBlockTimes)
         {
             TUInt32 gap = timeNow - m_nLastBlockTimes;
-            if (gap > 1000)
+            if (gap > 100) //每秒钟最多只睡9次
             {
                 m_nLastBlockTimes = timeNow;
                 Sleep(15);

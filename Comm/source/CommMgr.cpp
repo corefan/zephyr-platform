@@ -412,7 +412,7 @@ void CCommMgr::HandleOneNetMsg(CMessageHeader *pMsg)
     if (msgDoidNr)
     {
         pDoid = pMsg->GetBroadcastDoids();
-        for (i=0;i< msgDoidNr;i++)
+        for (i=1;i<= msgDoidNr;++i)
         {
             if (pComm != GetIfComm(pDoid->m_srvId))
             {
@@ -420,11 +420,13 @@ void CCommMgr::HandleOneNetMsg(CMessageHeader *pMsg)
                 to = i;
                 pMsg->ReInitMsg4Send(from,to);
                 pComm->AddNetMsg(pMsg);
+                pMsg->SetBroadcastDoid(msgDoidNr);
                 from = to;
+                pComm = GetIfComm(pDoid->m_srvId);
             }
             else
             {
-                pComm = GetIfComm(pDoid->m_srvId);
+                //pComm = GetIfComm(pDoid->m_srvId);
             }
             ++pDoid;
         }
@@ -432,7 +434,7 @@ void CCommMgr::HandleOneNetMsg(CMessageHeader *pMsg)
     //如果from改变过，则需要重新init Msg.
     if (from)
     {
-        pMsg->ReInitMsg4Send(from,to);
+        pMsg->ReInitMsg4Send(from,(msgDoidNr+1));
     }
     pComm->AddNetMsg(pMsg);
     pMsg->SetBroadcastDoid(msgDoidNr);

@@ -19,7 +19,7 @@ protected:
     TUInt32 m_buffSize;
     CPipe   m_eventPool;
     CTimeSystem *m_pTimeSys;
-    TUInt32  m_nLastBlockTimes;
+    TUInt64  m_nLastBlockTimes;
 public:
     CCommunicator();
     ~CCommunicator();
@@ -32,7 +32,7 @@ public:
 
     virtual void ReturnMsgBuff(CMessageHeader *pMsg);
 
-    virtual CMessageHeader *PrepareMsg(TInt32 bodyLength,TUInt32 methodId,CDoid srcId,CDoid* pDestDoid,TInt32 destDoidNum);
+    virtual CMessageHeader *PrepareMsg(TInt32 bodyLength,TUInt32 methodId,CDoid srcId,CDoid* pDestDoid,TInt32 destDoidNum,bool bRearrangeDest);
 
     //virtual int SendMsg(SCTDMessageHeader *,bool bNeedCopy = false) = 0;
     //do not need the para bNeedCopy any more, I will check it!`
@@ -41,7 +41,10 @@ public:
     //application should not call this !!! called by work thread only! or else some events would lost!
     virtual CConnectionEvent GetConnectionEvent(TInt32& result);
 
-    virtual TUInt32 GetTime();
+
+    virtual TUInt32 GetLocalTime();
+    virtual TUInt32 GetTimeGap(TUInt32 nLast);
+    virtual TUInt64 GetPlatfromTime();
 protected:
     //π©commMgr π”√.
     CMessageHeader *GetAppMsg(TUChar *pBuff)

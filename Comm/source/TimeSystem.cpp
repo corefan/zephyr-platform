@@ -18,9 +18,9 @@ CTimeSystem::CTimeSystem()
 #else
     timeval * tv;
     gettimeofday(tv, 0 );
-    m_timeBegin = tv->tv_usec;
+    m_timeBegin = tv->tv_usec + (tv->tv_sec * 1000);
 #endif
-
+    m_nPlatformTime = 0;
 }
     
 void CTimeSystem::Update()
@@ -30,15 +30,18 @@ void CTimeSystem::Update()
 #else
     timeval * tv;
     gettimeofday(tv, 0 );
-    TUInt32 timeNow = tv->tv_usec;
+    TUInt32 m_timeNow = (tv->tv_usec/1000) + (tv->tv_sec * 1000);
 #endif
-    if (timeNow > m_timeBegin)
+    int gap;
+    if (timeNow >= m_timeNow) //这儿不用存，因为就是这儿更新的
     {
-        m_timeNow = timeNow - m_timeBegin;
+        gap = timeNow - m_timeNow;
     }
     else
     {
-        m_timeNow = (((TUInt32)0xFFFFFFFF) - m_timeBegin) + timeNow;
+        gap = (((TUInt32)0xFFFFFFFF) - m_timeNow) + timeNow;
     }
+    m_timeNow = timeNow;
+    m_nPlatformTime += gap;
 }
 }
