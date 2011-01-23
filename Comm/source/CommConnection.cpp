@@ -2,6 +2,10 @@
 #include "..\Public\include\SysMacros.h"
 #include "include\CommLogger.h"
 
+#include "include\CommMgr.h"
+
+#include "include\IpMaps.h"
+
 namespace Zephyr
 {
 
@@ -43,6 +47,9 @@ TInt32 CCommConnection::OnInit()
     //#ifdef _DEBUG
     m_msgRecved     = 0;
     m_msgSend       = 0;
+    m_nVirtualIp    = 0;
+    m_nNodeId       = 0;
+    m_pCommMgr      = NULL;
     return SUCCESS;
 }
 
@@ -57,6 +64,7 @@ TInt32 CCommConnection::OnFinal()
     //#ifdef _DEBUG
     m_msgRecved     = 0;
     m_msgSend       = 0;
+    m_pCommMgr      = NULL;
     return SUCCESS;
 }
 
@@ -75,8 +83,11 @@ TInt32 CCommConnection::Run()
 
 TInt32 CCommConnection::OnRecv(TUChar *pMsg, TUInt32 msgLen)
 {
-    TInt32 runCnt = 0;
-    return runCnt;
+    if (m_pIpMapItem)
+    {
+        m_pIpMapItem->OnUsed(m_pCommMgr->GetTimeSystem()->GetLocalTime());
+    }
+    return m_pCommMgr->SendMsg(pMsg,msgLen);
 }
 
 //virtual TInt32 OnRecvIn2Piece(TUChar *pMsg, TUInt32 msgLen,TUChar *pMsg2,TUInt32 msgLen2) = 0;
@@ -87,7 +98,19 @@ TInt32 CCommConnection::OnRecv(TUChar *pMsg, TUInt32 msgLen)
 //IfConnection *pIfConnection在连接实际建立的时候再传给应用层。
 TInt32 CCommConnection::OnConnected(IfConnection *pIfConnection,IfParser *pParser,IfCryptor *pCryptor)
 {
-    return SUCCESS;
+    //连接好了，那就
+    //走到这儿，那nodeId vip 都应该是准备好了的啦~
+    if (m_pCommMgr)
+    {
+        m_pIfConnection = pIfConnection;
+        m_pCommMgr->OnConnected(this);
+        return SUCCESS;
+    }
+    else
+    {
+        //不应该走到这儿
+    }
+    return FAIL;
 }
 
 //任何socket异常都会自动关闭网络连接
@@ -96,37 +119,15 @@ TInt32 CCommConnection::OnDissconneted(TInt32 erroCode)
     return SUCCESS;
 }
 
-
-//
-TInt32 CCommConnection::SendMsg(TUChar *pMsg,TUInt32 msgLen)
-{
-    return SUCCESS;
-}
-
-//获取连接信息
-CConPair *CCommConnection::GetConnectionInfo()
-{
-    return SUCCESS;
-}
-//设置是否需要Negla算法
-TInt32 CCommConnection::NeedNoDelay(const char chOpt)
-{
-    return SUCCESS;
-}
-//获取连接状态.
-EnConnectionState CCommConnection::GetConnctionState()
-{
-    return connection_is_not_in_use;
-}
-//用以获取还未发送的数据的长度
-TInt32 CCommConnection::GetPendingDataLen()
-{
-    return 0;
-}
-
 //调用这个后，就可以将IfConnectionCallBack释放.Net不会继续回调该接口.
 TInt32 CCommConnection::Disconnect()
 {
+    if (m_pIfConnection)
+    {
+        m_pIfConnection->Disconnect();
+    }
+    m_pIfConnection = NULL;
+    //内存由mgr负责释放
     return SUCCESS;
 }
 

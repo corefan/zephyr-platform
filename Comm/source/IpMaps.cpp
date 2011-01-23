@@ -67,7 +67,7 @@ TInt32 CIpMap::Init(const TChar *pConfigName,IfConnection *pSelf)
             m_pRoutes[i] = settingFile.GetInteger(buff,"nodeGatewayIp");
             if (m_pRoutes[i] == m_localVirtualIp)
             {
-                m_redirectIdx = m_nrOfVirtualIp + 1;
+                m_redirectIdx = m_nrOfVirtualIp;
                 const char *pIp = settingFile.GetString(buff,"ip");
                 if (pIp)
                 {
@@ -86,8 +86,9 @@ TInt32 CIpMap::Init(const TChar *pConfigName,IfConnection *pSelf)
     {
         m_pRoutes = NULL;
         m_redirectIdx = -1;
+        m_connectedNodeInfo.m_key = 0xFFFFFFFFFFFFFFFF;
     }
-    m_pVirtualIps[m_localNodeId].m_pConnection = pSelf;
+    m_pVirtualIps[m_localNodeId].m_pIfConnection = pSelf;
     return SUCCESS;
 }
 

@@ -36,12 +36,43 @@ public:
     CIpMapItem()
     {
         m_tKey.m_key = 0;
-        m_uLastConnectTime = 0;
+        m_uLastUsedTime = 0;
         m_pConnection = 0;
     }
-    TVirtualIp      m_tKey;
-    TUInt32         m_uLastConnectTime;
-    IfConnection    *m_pConnection;
+    //这个是一开始就初始化好的
+
+    TVirtualIp          m_tKey;
+    TUInt32             m_uLastUsedTime;
+    CCommConnection    *m_pConnection;
+    IfConnection       *m_pIfConnection;
+    void OnConnecting(CCommConnection *pCon,TUInt32 uTimeNow)
+    {
+        m_pConnection = pCon;
+        m_uLastUsedTime = uTimeNow;
+    }
+    //被动连接的调用这个，返回上一个CCommConnection
+    CCommConnection *OnConnected(CCommConnection *pConnection,TUInt32 uTimeNow)
+    {
+        CCommConnection *pOld = m_pConnection;
+        m_pConnection = pConnection;
+        m_pIfConnection = pConnection->GetIfConnection();
+        m_uLastUsedTime = uTimeNow;
+        return pOld;
+    }
+    void OnDisconnected(TUInt32 uTimeNow)
+    {
+        m_pConnection = NULL;
+        m_pIfConnection = NULL;
+        m_uLastUsedTime = uTimeNow;
+    }
+    void OnUsed(TUInt32 uUseTime)
+    {
+        m_uLastUsedTime = uUseTime; 
+    }
+    TUInt32 GetLastUsedTime()
+    {
+        return m_uLastUsedTime;
+    }
 };
 
 class CIpMap
@@ -63,9 +94,65 @@ public:
     TInt32               m_connectedNode;
     TUInt32              m_redirectIdx;
     TVirtualIp           m_connectedNodeInfo;
+
+    
     //CCommConnection      *m_pLocalConnections;
 public:
     CIpMap();
+
+    //只有被动连接调用这个，
+    TInt32 GetIpMapInfo(TUInt16 &nNodeId,TUInt16 &nVip,CConPair *pConn)
+    {
+        TVirtualIp conn;
+        conn.m_realIp = pConn->GetRemoteIp();
+        conn.m_bindPort = pConn->GetRemotePort();
+        conn.m_listenPort = pConn->GetMyPort();
+        for (int i = 0;i<m_nrOfVirtualIp;++i)
+        {
+            if (conn.m_key == m_pVirtualIps[i].m_tKey.m_key)
+            {
+                nNodeId = m_localNodeId;
+                nVip    = i;
+                return SUCCESS;
+            }
+        }
+        //走到这儿那就应该是这个了
+        if (m_connectedNode)
+        if (conn.m_key == m_connectedNodeInfo.m_key)
+        {
+            nNodeId = m_connectedNode;
+            nVip    = 0;
+            return SUCCESS;
+        }
+        return OUT_OF_RANGE;
+    }
+    //如果有老的连接，会在这儿返回给CommMgr
+    CCommConnection *OnConnected(CCommConnection *pCommConnection,TUInt32 uTimeNow)
+    {
+        if (pCommConnection->GetNodeId() == m_localNodeId)
+        {
+            return m_pVirtualIps[pCommConnection->GetVirtualIp()].OnConnected(pCommConnection,uTimeNow);
+        } 
+        //if (pCommConnection->GetNodeId() == m_connectedNode) 必须是，不然就奇怪了
+        return m_pVirtualIps[m_nrOfVirtualIp].OnConnected(pCommConnection,uTimeNow);
+    }
+    
+    void OnDisconnected(CCommConnection *pCommConnection,TUInt32 uTimeNow)
+    {
+        if (pCommConnection->GetNodeId() == m_localNodeId)
+        {
+            return m_pVirtualIps[pCommConnection->GetVirtualIp()].OnDisconnected(uTimeNow);
+        } 
+        //if (pCommConnection->GetNodeId() == m_connectedNode) 必须是，不然就奇怪了
+        return m_pVirtualIps[m_nrOfVirtualIp].OnDisconnected(uTimeNow);
+    }
+
+    //返回
+    CIpMapItem *GetConnection(TUInt32 nIdx)
+    {
+        return m_pVirtualIps + nIdx;
+    }
+
     TInt32 Init(const TChar *pConfigName,IfConnection *pSelf);
     TBool IsLocal(CDoid *pDoId)
     {
@@ -84,17 +171,17 @@ public:
             {
                 if (pDoId->m_virtualIp < m_nrOfVirtualIp)
                 {
-                    return m_pVirtualIps[pDoId->m_virtualIp].m_pConnection;
+                    return m_pVirtualIps[pDoId->m_virtualIp].m_pIfConnection;
                 }
             }
             else
             {
                 if (pDoId->m_nodeId == m_connectedNode)
                 {
-                    return m_pVirtualIps[m_redirectIdx].m_pConnection;
+                    return m_pVirtualIps[m_redirectIdx].m_pIfConnection;
                 }
                 //else
-                return m_pVirtualIps[m_pRoutes[pDoId->m_nodeId]].m_pConnection;
+                return m_pVirtualIps[m_pRoutes[pDoId->m_nodeId]].m_pIfConnection;
             }
             //return m_pRoutes[pDoId->m_nodeId];
         }

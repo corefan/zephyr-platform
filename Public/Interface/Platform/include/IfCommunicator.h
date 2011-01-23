@@ -16,7 +16,7 @@ public:
 
     virtual void ReturnMsgBuff(CMessageHeader *pMsg) = 0;
 
-    virtual CMessageHeader *PrepareMsg(TInt32 bodyLength,TUInt32 methodId,CDoid srcId,CDoid* destDoid,TInt32 destDoidNum) = 0;
+    virtual CMessageHeader *PrepareMsg(TInt32 bodyLength,TUInt32 methodId,CDoid srcId,CDoid* destDoid,TInt32 destDoidNum,bool bRearrangeDest) = 0;
 
     //virtual int SendMsg(SCTDMessageHeader *,bool bNeedCopy = false) = 0;
     //do not need the para bNeedCopy any more, I will check it!
@@ -25,7 +25,9 @@ public:
     //application should not call this !!! called by work thread only! or else some events would lost!
     virtual CConnectionEvent GetConnectionEvent(TInt32& result) = 0;
 
-    virtual TUInt32 GetTime() = 0;
+    virtual TUInt32 GetLocalTime() = 0;
+    virtual TUInt32 GetTimeGap(TUInt32 nLast) = 0;
+    virtual TUInt64 GetPlatfromTime() = 0;
     //maybe I could expose less header files
 };
 

@@ -17,17 +17,24 @@
 
 namespace Zephyr
 {
+class CCommMgr;
 
+class CIpMapItem;
 
 class CCommConnection : public IfConnectionCallBack
 {
 private:
     IfConnection*   m_pIfConnection;
+    CIpMapItem      *m_pIpMapItem;
     TUInt32         m_usedTime;
     //#ifdef _DEBUG
     TUInt64         m_msgRecved;
     TUInt64         m_msgSend;
     
+    TUInt16         m_nVirtualIp;
+    TUInt16         m_nNodeId;
+    
+    CCommMgr        *m_pCommMgr;
     //#endif
      DECLARE_CLASS_LIST (CCommConnection)
 public:
@@ -36,8 +43,26 @@ public:
     TBool IsActived();
     TInt32 OnInit();
     TInt32 OnFinal();
-
+    IfConnection *GetIfConnection()
+    {
+        return m_pIfConnection;
+    }
     TInt32 Run();
+    void SetAllInfo(CCommMgr *pMgr,CIpMapItem *pIp,TUInt16 nNode,TUInt16 nVIP)
+    {
+        m_pCommMgr = pMgr;
+        m_nNodeId  = nNode;
+        m_nVirtualIp = nVIP;
+        m_pIpMapItem = pIp;
+    }
+    TUInt16 GetNodeId()
+    {
+        return m_nNodeId;
+    }
+    TUInt16 GetVirtualIp()
+    {
+        return m_nVirtualIp;
+    }
 
     virtual TInt32 OnRecv(TUChar *pMsg, TUInt32 msgLen);
     //virtual TInt32 OnRecvIn2Piece(TUChar *pMsg, TUInt32 msgLen,TUChar *pMsg2,TUInt32 msgLen2) = 0;
@@ -51,29 +76,8 @@ public:
     //任何socket异常都会自动关闭网络连接
     virtual TInt32 OnDissconneted(TInt32 erroCode);
 
-    //
-    TInt32 SendMsg(TUChar *pMsg,TUInt32 msgLen) ;
-
-    //获取连接信息
-    CConPair *GetConnectionInfo();
-    //设置是否需要Negla算法
-    TInt32 NeedNoDelay(const char chOpt);
-    //获取连接状态.
-    EnConnectionState GetConnctionState();
-    //用以获取还未发送的数据的长度
-    TInt32 GetPendingDataLen();
-
     //调用这个后，就可以将IfConnectionCallBack释放.Net不会继续回调该接口.
-    TInt32 Disconnect();    
-
-    TUInt32 GetFreeBuffLength()
-    {
-        if (m_pIfConnection)
-        {
-            return m_pIfConnection->GetFreeBuffLength();
-        }
-        return 0;
-    }
+    TInt32 Disconnect();
 };
 
 }

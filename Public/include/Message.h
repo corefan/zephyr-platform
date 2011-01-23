@@ -198,7 +198,8 @@ public:
         }
     }*/
     
-    TInt32 Init(TUInt32 bodyLength,TUInt32 methodId,CDoid srcId,CDoid* pDestDoids,TUInt32 destDoidNum);
+    //最后一个参数的意思是DestDoid是否需要好序
+    TInt32 Init(TUInt32 bodyLength,TUInt32 methodId,CDoid srcId,CDoid* pDestDoids,TUInt32 destDoidNum,bool bNeedRearrangeDestDoid);
 
 	//先使用GetCompackedLen()获得长度
     void Compack4Client(TUChar *pBuff)

@@ -29,7 +29,7 @@ enum EnCommOpr
 最后再stub层进行obj层的重用.
 发送不了就扔吧
 */
-class CCommMgr : public IfCommunicatorMgr,public IfConnection, public IfTask
+class CCommMgr : public IfCommunicatorMgr,public IfConnection, public IfListenerCallBack, public IfTask
 {
 private:
     TUInt32             m_nrOfComm;
@@ -39,7 +39,7 @@ private:
     IfNet               *m_pNet;
     ItemClassPool<CCommConnection> m_connectionPool;
     CMsgParserFactory   *m_pParserFactory;
-    CCommConnection     **m_ppConnections;
+    //CCommConnection     **m_ppConnections;
 
     EnCommOpr           m_enLastOpr;
     TUInt16             m_nNetBlockedOnIp;
@@ -56,7 +56,10 @@ public:
     //taskMgr由ServerContainer生成.
     TInt32 Init(int nrOfWorkerThread,IfTaskMgr *pTaskMgr,IfLoggerManager *pIfLogMgr,const TChar *pConfigName=szDefaultCommConfigName);
     virtual IfCommunicator *RegisterWorker(TUInt16 srvId);
-
+    CTimeSystem *GetTimeSystem()
+    {
+        return &m_timeSystem;
+    }
     virtual TInt32 Begin(TInt32 threadId)
     {
         return SUCCESS;
@@ -102,6 +105,14 @@ public:
     virtual TInt32 Disconnect();
 
     //TInt32 DistributeSrvMsg(TInt32 idx);
+
+public:
+    virtual IfConnectionCallBack *OnNewConnection(CConPair *pPair);
+    //获取虚信息.
+    TInt32 GetIpMapInfo(TUInt16& uNodeId,TUInt16& uVip,CConPair *pPair);
+
+    void   OnConnected(CCommConnection *pConnection);
+    void   OnDisconnected(CCommConnection *pConnection);
 };
 
 }

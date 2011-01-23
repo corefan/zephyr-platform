@@ -24,11 +24,17 @@ protected:
     int                m_nInitSendMgrNr;
     int                m_nInitSendMgrLen;
     int                m_nSrvNr;
+    short              m_nIpNr;
+    short              m_nNodeNr;
     unsigned int       m_nSuccessTime;
     unsigned int       m_nFailedTime;
+    unsigned int       m_nMsgReced;
+    static CDoid       *sm_pDoids;
+    unsigned long long        m_nBeginTime;
 public:
     int Init(IfCommunicatorMgr *pMgr,CDoid *pSrvDoid);
     void OnStartTestOne(int nInitMsgNr,int nInitMsgLen,int srvNr);
+    void OnStartTestOne(int nInitMsgNr,int nInitMsgLen,int srvNr,int nIpNr,int nNodeNr);
     virtual TInt32 Begin(TInt32 threadId)
     {
         return SUCCESS;

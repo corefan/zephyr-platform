@@ -7,6 +7,8 @@ IfLogger *g_pCommLogger = NULL;
 
 void RecordOneMsg(CMessageHeader *pMsg)
 {
+    static int nCount = 0;
+    ++nCount;
     CDoid *pDoid = pMsg->GetSrcDoid();
     CDoid *pDest = pMsg->GetDestDoidByIdx();
     COMM_EXCPETION_LOG(COMM_DROP_MSG,"Drop message from Doid:%u-%i-%u-%u to %u-%u-%u-%u, method_id = %u",

@@ -9,7 +9,7 @@
 namespace Zephyr
 {
 
-TInt32 CMessageHeader::Init(TUInt32 bodyLength,TUInt32 methodId,CDoid srcId,CDoid* pDestDoids,TUInt32 destDoidNum)
+TInt32 CMessageHeader::Init(TUInt32 bodyLength,TUInt32 methodId,CDoid srcId,CDoid* pDestDoids,TUInt32 destDoidNum,bool bNeedRearrangeDestDoid)
 {
     if ((destDoidNum > 63) || (NULL == pDestDoids) || (bodyLength < 0) || (methodId > 0x3FFFF))
     {
@@ -20,10 +20,14 @@ TInt32 CMessageHeader::Init(TUInt32 bodyLength,TUInt32 methodId,CDoid srcId,CDoi
     m_msgInfo.m_msgBodyLength = bodyLength;
     m_msgInfo.m_methodId  = methodId;
     m_srcDoid   = srcId;
+    m_msgInfo.m_nrOfBroadcastDoid = (destDoidNum-1);
     
     if (destDoidNum > 1)
     {	
-        sort(pDestDoids,pDestDoids+destDoidNum);
+        if (bNeedRearrangeDestDoid)
+        {
+            sort(pDestDoids,pDestDoids+destDoidNum);
+        }
         memcpy((void*)GetBroadcastDoids(),(void*)(pDestDoids+1),(sizeof(CDoid)*(destDoidNum-1)));
     }
     m_destDoid  = *pDestDoids;
@@ -63,18 +67,30 @@ TInt32 CMessageHeader::ResetBodyLength(TUInt32 bodyLength)
 //不检查有效性，有调用者负责
 void CMessageHeader::ReInitMsg4Send(TInt32 fromDest,TInt32 to)
 {
-    if (0 != fromDest)
+    if (to > fromDest)
     {
-        memcpy(&m_destDoid,GetDestDoidByIdx(fromDest),sizeof(CMessageHeader));
+        int nrOfBroadcastDoid = to - fromDest - 1;
+        if (0 != fromDest)
+        {
+            memcpy(&m_destDoid,GetDestDoidByIdx(fromDest),sizeof(CDoid));
+        }
+        else
+        {
+            m_msgInfo.m_nrOfBroadcastDoid  = nrOfBroadcastDoid;
+            return ;
+        }
+        ++fromDest;
+        if(to > fromDest)
+        {
+            memmove(((TUChar*)this + sizeof(CMessageHeader) + GetBodyLength()),GetDestDoidByIdx(fromDest),sizeof(CDoid)*(to-fromDest));
+        }
+        m_msgInfo.m_nrOfBroadcastDoid  = nrOfBroadcastDoid;
     }
     else
     {
-        return ;
-    }
-    ++fromDest;
-    if(to > fromDest)
-    {
-        memmove(((TUChar*)this + sizeof(CMessageHeader) + GetBodyLength()),GetDestDoidByIdx(fromDest),sizeof(CMessageHeader)*(to-fromDest));
+#ifdef _DEBUG
+        printf("FromDest is no less than to!");
+#endif
     }
 }
 
