@@ -81,6 +81,14 @@ TInt32 CCommConnection::Run()
     return runCnt;
 }
 
+void CCommConnection::SetAllInfo(CCommMgr *pMgr,CIpMapItem *pIp)
+{
+    m_pCommMgr = pMgr;
+    m_nNodeId  = pIp->m_nNodeId;
+    m_nVirtualIp = pIp->m_nVirtualIp;
+    m_pIpMapItem = pIp;
+}
+
 TInt32 CCommConnection::OnRecv(TUChar *pMsg, TUInt32 msgLen)
 {
     if (m_pIpMapItem)

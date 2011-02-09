@@ -279,7 +279,7 @@ TInt32 CConnector::AddToPendingList(CConnection *pConnection)
         pList->m_key = pConnection->GetSocket();
         pList->m_pConnection = pConnection;
         pList->m_tryTimes = 0;
-        //m_pendingSocket.AddInTree(pList)
+        m_pendingSocket.AddInTree(pList,&pList->m_key);
     }
     else
     {

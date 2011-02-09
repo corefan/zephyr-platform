@@ -28,10 +28,23 @@ TInt32 CIpMap::Init(const TChar *pConfigName,IfConnection *pSelf)
     m_nrOfVirtualIp = settingFile.GetInteger("MAIN","nrOfVirtualIp");
     m_localNodeId    = settingFile.GetInteger("MAIN","localNodeId");
     m_localVirtualIp = settingFile.GetInteger("MAIN","localVirtualIp");
-    
-    if (m_nrOfNodes > 0)
+
+    int m_nNrOfMapItem = m_nrOfVirtualIp;
+    if (m_nrOfNodes > 1)
     {
-        NEW(m_pVirtualIps,CIpMapItem,(m_nrOfVirtualIp+1));
+        for (int i=0;i<m_nrOfNodes;++i)
+        {
+            char buff[64];
+            sprintf(buff,"NODE%d",i);
+            if (m_localVirtualIp == settingFile.GetInteger(buff,"localVIP"))
+            {
+                ++m_nNrOfMapItem;
+            }
+        }
+    }
+    //if (m_nrOfNodes > 0)
+    {
+        NEW(m_pVirtualIps,CIpMapItem,(m_nNrOfMapItem));
         if (!m_pVirtualIps)
         {
             return OUT_OF_MEM;
@@ -57,37 +70,76 @@ TInt32 CIpMap::Init(const TChar *pConfigName,IfConnection *pSelf)
             return NULL_POINTER;
         }
     }
+    int usedNode = 0;
     if (m_nrOfNodes > 1)
     {
         m_pRoutes = new TUInt32[m_nrOfNodes];
+        memset(m_pRoutes,0,(sizeof(TUInt32)*m_nrOfNodes));
+        m_pRoutes[m_localNodeId] = m_localVirtualIp; 
         for (int i=0;i<m_nrOfNodes;++i)
         {
             char buff[64];
             sprintf(buff,"NODE%d",i);
-            m_pRoutes[i] = settingFile.GetInteger(buff,"nodeGatewayIp");
-            if (m_pRoutes[i] == m_localVirtualIp)
+
+            if (m_localVirtualIp == settingFile.GetInteger(buff,"localVIP"))
             {
-                m_redirectIdx = m_nrOfVirtualIp;
-                const char *pIp = settingFile.GetString(buff,"ip");
+                m_pRoutes[i] = m_nrOfVirtualIp + usedNode;
+                const char* pIp = settingFile.GetString(buff,"nodeGatewayIp");
                 if (pIp)
                 {
-                    m_connectedNodeInfo.m_realIp = atoi(pIp);
+                    m_pVirtualIps[m_pRoutes[i]].m_tKey.m_realIp = inet_addr(pIp);
                 }
                 else
                 {
                     return NULL_POINTER;
                 }
-                m_connectedNodeInfo.m_bindPort = settingFile.GetInteger(buff,"bindPort",0);
-                m_connectedNodeInfo.m_listenPort = settingFile.GetInteger(buff,"listenPort",0);
+                m_pVirtualIps[m_pRoutes[i]].m_tKey.m_bindPort = settingFile.GetInteger(buff,"bindPort",0);
+                m_pVirtualIps[m_pRoutes[i]].m_tKey.m_listenPort = settingFile.GetInteger(buff,"listenPort",0);
+                if (0 == m_pVirtualIps[m_pRoutes[i]].m_tKey.m_listenPort)
+                {
+                    return NULL_POINTER;
+                }
+                //m_pVirtualIps[m_pRoutes[i]]
+                ++usedNode;
+            }
+            else
+            {
+                m_pRoutes[i] = settingFile.GetInteger(buff,"localVIP");
             }
         }
     }
-    else
-    {
-        m_pRoutes = NULL;
-        m_redirectIdx = -1;
-        m_connectedNodeInfo.m_key = 0xFFFFFFFFFFFFFFFF;
-    }
+    
+//     if (m_nrOfNodes > 1)
+//     {
+//         m_pRoutes = new TUInt32[m_nrOfNodes];
+//         for (int i=0;i<m_nrOfNodes;++i)
+//         {
+//             char buff[64];
+//             sprintf(buff,"NODE%d",i);
+//             m_pRoutes[i] = settingFile.GetInteger(buff,"nodeGatewayIp");
+//             if (m_pRoutes[i] == m_localVirtualIp)
+//             {
+//                 m_redirectIdx = m_nrOfVirtualIp;
+//                 const char *pIp = settingFile.GetString(buff,"ip");
+//                 if (pIp)
+//                 {
+//                     m_connectedNodeInfo.m_realIp = atoi(pIp);
+//                 }
+//                 else
+//                 {
+//                     return NULL_POINTER;
+//                 }
+//                 m_connectedNodeInfo.m_bindPort = settingFile.GetInteger(buff,"bindPort",0);
+//                 m_connectedNodeInfo.m_listenPort = settingFile.GetInteger(buff,"listenPort",0);
+//             }
+//         }
+//     }
+//     else
+//     {
+//         m_pRoutes = NULL;
+//         m_redirectIdx = -1;
+//         m_connectedNodeInfo.m_key = 0xFFFFFFFFFFFFFFFF;
+//     }
     m_pVirtualIps[m_localNodeId].m_pIfConnection = pSelf;
     return SUCCESS;
 }

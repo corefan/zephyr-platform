@@ -48,13 +48,7 @@ public:
         return m_pIfConnection;
     }
     TInt32 Run();
-    void SetAllInfo(CCommMgr *pMgr,CIpMapItem *pIp,TUInt16 nNode,TUInt16 nVIP)
-    {
-        m_pCommMgr = pMgr;
-        m_nNodeId  = nNode;
-        m_nVirtualIp = nVIP;
-        m_pIpMapItem = pIp;
-    }
+    void SetAllInfo(CCommMgr *pMgr,CIpMapItem *pIp);
     TUInt16 GetNodeId()
     {
         return m_nNodeId;

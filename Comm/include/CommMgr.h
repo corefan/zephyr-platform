@@ -37,7 +37,7 @@ private:
     CIpMap              m_ipMaps;
     TUInt32             m_lastCheckTime;
     IfNet               *m_pNet;
-    ItemClassPool<CCommConnection> m_connectionPool;
+    CPool<CCommConnection> m_connectionPool;
     CMsgParserFactory   *m_pParserFactory;
     //CCommConnection     **m_ppConnections;
 
@@ -109,7 +109,7 @@ public:
 public:
     virtual IfConnectionCallBack *OnNewConnection(CConPair *pPair);
     //获取虚信息.
-    TInt32 GetIpMapInfo(TUInt16& uNodeId,TUInt16& uVip,CConPair *pPair);
+    CIpMapItem *GetIpMapInfo(CConPair *pPair);
 
     void   OnConnected(CCommConnection *pConnection);
     void   OnDisconnected(CCommConnection *pConnection);

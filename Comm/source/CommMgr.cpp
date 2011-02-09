@@ -39,6 +39,11 @@ TInt32 CCommMgr::Init(int nrOfWorkerThread,IfTaskMgr *pTaskMgr,IfLoggerManager *
 #endif
         return OUT_OF_MEM;
     }
+    int nRet = m_connectionPool.InitPool(m_ipMaps.m_nrOfVirtualIp + m_ipMaps.m_nrOfNodes);
+    if (nRet)
+    {
+
+    }
 //     NEW(m_ppConnections,CCommConnection*,m_ipMaps.m_nrOfVirtualIp + 5);
 //     if (!m_ppConnections)
 //     {
@@ -52,68 +57,47 @@ TInt32 CCommMgr::Init(int nrOfWorkerThread,IfTaskMgr *pTaskMgr,IfLoggerManager *
 	//主动连接vip比自己小的所有机器，每台机器重启后都是这个顺序.并且只尝试重连比自己vip小的机器
     //if (m_ipMaps.m_nrOfNodes > 1)
     {
-        for (int i = 0;i<m_ipMaps.m_localVirtualIp;++i)
+        for (int i = 0;i<m_ipMaps.m_nNrOfMapItem;++i)
         {
-            CCommConnection *pConnection = m_connectionPool.GetItem();
-            if (!pConnection)
+            if (m_ipMaps.IsPostive(i))
             {
+                CCommConnection *pConnection = m_connectionPool.GetMem();
+                if (!pConnection)
+                {
 #ifdef _DEBUG
-                printf("Can not get Comm Connection");
+                    printf("Can not get Comm Connection");
 #endif
-                return OUT_OF_MEM;
-            }
-           
-            TInt32 rtn = m_pNet->Connect(m_ipMaps.m_pVirtualIps[i].m_tKey.m_realIp,m_ipMaps.m_pVirtualIps[m_ipMaps.m_localVirtualIp].m_tKey.m_realIp,
-                            m_ipMaps.m_pVirtualIps[i].m_tKey.m_listenPort,m_ipMaps.m_pVirtualIps[m_ipMaps.m_localVirtualIp].m_tKey.m_bindPort,pConnection);
-            if (rtn < SUCCESS)
-            {
+                    return OUT_OF_MEM;
+                }
+                CIpMapItem *pIp = m_ipMaps.GetConnection(i);
+                TInt32 rtn = m_pNet->Connect(pIp->m_tKey.m_realIp,m_ipMaps.m_pVirtualIps[m_ipMaps.m_localVirtualIp].m_tKey.m_realIp,
+                    pIp->m_tKey.m_listenPort,pIp->m_tKey.m_bindPort,pConnection);
+                if (rtn < SUCCESS)
+                {
 #ifdef _DEBUG
-                printf("Connection Failed!");
+                    printf("Connection Failed!");
 #endif
-                m_connectionPool.ReleaseItem(pConnection);
-                return rtn;
-            }
-            //m_ppConnections[i] = pConnection;
-            pConnection->SetAllInfo(this,(m_ipMaps.m_pVirtualIps + i),m_ipMaps.m_localNodeId,i);
-            m_ipMaps.m_pVirtualIps[i].OnConnecting(pConnection,m_timeSystem.GetLocalTime());
-            //解决同时连接过多的问题
-            if (0 == (i % 32))
-            {
-                printf("Connecting...");
+                    m_connectionPool.ReleaseMem(pConnection);
+                    return rtn;
+                }
+                //m_ppConnections[i] = pConnection;
+                pConnection->SetAllInfo(this,pIp);
+                pIp->OnConnecting(pConnection,m_timeSystem.GetLocalTime());
+                //解决同时连接过多的问题
+                if (0 == (i % 32))
+                {
+                    printf("Connecting...");
 #ifdef _WIN32
-                Sleep(50);
+                    Sleep(50);
 #else  
-                usleep(15000);
+                    usleep(15000);
 #endif
-                m_pNet->Run(128);
+                    m_pNet->Run(128);
+                }
             }
         }
     }
-    for (int i=0;i<m_ipMaps.m_localNodeId;++i)
-    {
-        if (m_ipMaps.m_connectedNode >= 0)
-        {
-            CCommConnection *p = m_connectionPool.GetItem();
-            if (!p)
-            {
-                return OUT_OF_MEM;
-            }
-            TInt32 rtn = m_pNet->Connect(m_ipMaps.m_connectedNodeInfo.m_realIp,m_ipMaps.m_pVirtualIps[m_ipMaps.m_localVirtualIp].m_tKey.m_realIp,
-                m_ipMaps.m_connectedNodeInfo.m_listenPort,m_ipMaps.m_pVirtualIps[m_ipMaps.m_localVirtualIp].m_tKey.m_bindPort,p);
-            if (rtn < SUCCESS)
-            {
-#ifdef _DEBUG
-                printf("Connection Failed!");
-#endif
-                m_connectionPool.ReleaseItem(p);
-                return rtn;
-            }
-            //m_ppConnections[m_ipMaps.m_redirectIdx] = p;
-            p->SetAllInfo(this,(m_ipMaps.m_pVirtualIps + m_ipMaps.m_redirectIdx), m_ipMaps.m_connectedNode,0);
-            m_ipMaps.m_pVirtualIps[m_ipMaps.m_localVirtualIp].OnConnecting(p,m_timeSystem.GetLocalTime());
-            break;
-        }
-    }
+    
 
     //读取配置，看有几个Service, 需要启动几个工作Service.
     CSettingFile settingFile;
@@ -209,7 +193,7 @@ TInt32 CCommMgr::Run(const TInt32 threadId,const TInt32 runCnt)
     }
     //一分钟检查一次
     TUInt32 uTimeNow = m_timeSystem.GetLocalTime() - 60000;
-    for (TUInt32 i = 0;i<m_ipMaps.m_nrOfVirtualIp;++i)
+    for (TUInt32 i = 0;i<m_ipMaps.m_nNrOfMapItem;++i)
     {
         CIpMapItem *pItem = m_ipMaps.GetConnection(i);
         if (pItem->m_uLastUsedTime < uTimeNow)
@@ -439,9 +423,9 @@ TInt32 CCommMgr::Disconnect()
     return SUCCESS;
 }
 
-TInt32 CCommMgr::GetIpMapInfo(TUInt16& uNode,TUInt16& uVip,CConPair *pPair)
+CIpMapItem *CCommMgr::GetIpMapInfo(CConPair *pPair)
 {
-    return m_ipMaps.GetIpMapInfo(uNode,uVip,pPair);
+    return m_ipMaps.GetIpMapInfo(pPair);
 }
 
 void   CCommMgr::OnConnected(CCommConnection *pConnection)
@@ -450,36 +434,27 @@ void   CCommMgr::OnConnected(CCommConnection *pConnection)
     if (pLast != pConnection)
     {
         pLast->Disconnect();
-        m_connectionPool.ReleaseItem(pLast);
+        m_connectionPool.ReleaseMem(pLast);
     }
 }
 void   CCommMgr::OnDisconnected(CCommConnection *pConnection)
 {
     m_ipMaps.OnDisconnected(pConnection,m_timeSystem.GetLocalTime());
-    m_connectionPool.ReleaseItem(pConnection);
+    m_connectionPool.ReleaseMem(pConnection);
 }
 
 
 IfConnectionCallBack *CCommMgr::OnNewConnection(CConPair *pPair)
 {
     TUInt16 uNode,uVip;
-    int nRet = GetIpMapInfo(uNode,uVip,pPair);
-    if (nRet < SUCCESS)
+    CIpMapItem *pItem = GetIpMapInfo(pPair);
+    if (!pItem)
     {
         return NULL;
     }
     //
-    CIpMapItem *pItem;
-    if (uNode == m_ipMaps.m_localNodeId)
-    {
-        pItem = m_ipMaps.m_pVirtualIps + uVip;
-    }
-    else
-    {
-        pItem = m_ipMaps.m_pVirtualIps + m_ipMaps.m_redirectIdx;
-    }
-    CCommConnection *pConn = m_connectionPool.GetItem();
-    pConn->SetAllInfo(this,pItem,uNode,uVip);
+    CCommConnection *pConn = m_connectionPool.GetMem();
+    pConn->SetAllInfo(this,pItem);
     return pConn;
 }
 

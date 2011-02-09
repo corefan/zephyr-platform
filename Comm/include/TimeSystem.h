@@ -20,6 +20,7 @@ public:
     {
         return m_timeNow;
     }
+    //注意，nLast必须是在本次调用之前获得的，返回的肯定是正数.
     TUInt32 GetTimeGap(TUInt32 nLast)
     {
         TUInt32 timeNow = m_timeNow; //一定要先存下来

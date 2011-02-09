@@ -2,7 +2,7 @@
 #define __ZEPHYR_PUBLIC_TPL_TPL_POOL_H__
 #include "TypeDef.h"
 #include "SysMacros.h"
-
+#include "TplList.h"
 namespace Zephyr
 {
 //2级内存池，每个内存对象都保存自己属于哪个内存块CMemBlock，然后释放自己，如果CMemBlock是额外内存，把所有内存都回收了，则释放整个内存块
@@ -11,14 +11,14 @@ template <class Mem>
 class CPool
 {
 private:
-    class CMemBlocks;
+    class CMemBlock;
     class CPoolMem : public Mem
     {
     public:
         CPoolMem    *m_pMemPoolNext;
-        CMemBlocks  *m_pBelongsTo;
+        CMemBlock  *m_pBelongsTo;
     public:
-        void Init(CPoolMem *pNext,CMemBlocks *pBelongs2)
+        void Init(CPoolMem *pNext,CMemBlock *pBelongs2)
         {
             m_pMemPoolNext     = pNext;
             m_pBelongsTo       = pBelongs2;
@@ -26,7 +26,7 @@ private:
     };
     class CMemBlock
     {
-        DECLARE_CLASS_LIST(CMemBlock)
+        //DECLARE_CLASS_LIST(CMemBlock)
     private:
         CPoolMem *m_pPools;
         CPoolMem *m_pFree;
@@ -45,7 +45,7 @@ private:
         {
             return m_nFree;
         }
-        CMemBlock(int size)
+        int Init(int size)
         {
             //不能只分配1个吧？！
             if (size == 1)
@@ -67,10 +67,14 @@ private:
                 }
                 m_pPools[size-1].m_pMemPoolNext = NULL;
             }
+            else
+            {
+                return OUT_OF_MEM;
+            }
             m_pFree = m_pPools;
             m_nFree = size;
             m_nSize = size;
-
+            return SUCCESS;
             //m_pNextBlock = NULL;
         }
         ~CMemBlock()
@@ -86,7 +90,7 @@ private:
         }
         bool CanRecycle()
         {
-            return (m_nFree == m_nSize)
+            return (m_nFree == m_nSize);
         }
         CPoolMem *GetMem()
         {
@@ -112,9 +116,9 @@ private:
             return false;
         }
     };
-    CMemBlock *m_pMemBlocksHeader;
-    CMemBlock *m_pMemBlocksRear;
-    CMemBlock *m_pMainBlocks;
+    CList<CMemBlock> m_tUsingMemBlocks;
+    CList<CMemBlock> m_tFullMemBlocks;
+    CListNode<CMemBlock> *m_pMainBlock;
     int        m_nInitSize;
     int        m_nFreeNr;
 public:
@@ -124,123 +128,79 @@ public:
     }
     int InitPool(unsigned int size)
     {
+        CListNode<CMemBlock> *pBlock = NULL;
         try 
         {
-            m_pMemBlocksHeader = new CMemBlock(size);
+            CListNode<CMemBlock> *pBlock = new CListNode<CMemBlock>;
         }
         catch(...)
         {
 
         }
-        if (!m_pMemBlocksHeader)
+        if (!pBlock)
         {
-            return -1;
+            return OUT_OF_MEM;
         }
-        m_pMemBlocksRear = m_pMemBlocksHeader;
-        m_pMainBlocks = m_pMemBlocksRear;
+        m_tUsingMemBlocks.push_front(pBlock);
+        m_pMainBlock = pBlock;
         m_nInitSize = size;
         m_nFreeNr   = size;
     }
     bool IsNotMainBlock(CMemBlock* pBlock)
     {
-        if (pBlock != m_pMemBlocksHeader)
+        if (pBlock != m_pMainBlock)
         {
             return true;
         }
         return false;
     }
-    void OnBlockUsed(CMemBlock *pBlocks)
+    void OnBlockUsed(CListNode<CMemBlock> *pBlocks)
     {
         if (pBlocks->IsEmpty())
         {
-            if (pBlocks == m_pMemBlocksHeader)
-            {
-                m_pMemBlocksHeader = m_pMemBlocksHeader->GetNext();
-            }
-            if (pBlocks == m_pMemBlocksRear)
-            {
-                m_pMemBlocksRear = m_pMemBlocksRear->GetPrev();
-            }
-            pBlocks->Detach();
+            m_tUsingMemBlocks.HandleOver(&m_tFullMemBlocks,pBlocks);
         }
     }
     //之时是否要delete 这个块所属的Blocks
     void OnBlockRecycled(CMemBlock *pBlock,bool bIsEmpty)
     {
-        if (bIsEmpty)
-        {
-            if (m_pMemBlocksRear)
-            {
-                m_pMemBlocksRear->Attach(pBlock)
-            }
-            else
-            {
-                m_pMemBlocksHeader = pBlock;
-                m_pMemBlocksRear   = pBlock;
-            }
-        }
-        else
-        {
-            //不是主内存块
-            if (IsNotMainBlock(pBlock))
-            {
-                //可以释放
-                if (pBlock->CanRecycle())
-                {
-                    //而且也有很多空闲了
-                    int remains = m_nFreeNr-pBlock->GetFreeNr();
-                    
-                    if ((remains) > (m_nInitSize>>3))
-                    {
-                        if (m_pMemBlocksHeader == pBlock)
-                        {
-                            m_pMemBlocksHeader = pBlock->GetNext();
-                        }
-                        if (m_pMemBlocksRear == pBlock)
-                        {
-                            m_pMemBlocksRear = pBlock->GetPrev();
-                        }
-                        pBlock->Detach();
-                        
-                        delete pBlock;
-                        m_nFreeNr = remains;
-                    }
-                }
-            }
-        }
+        
     }
     Mem *GetMem()
     {
-        //CMemBlock *pBlock = m_pMemBlocksHeader;
-        if (m_pMemBlocksHeader)
+        CListNode<CMemBlock> *pBlock = m_tUsingMemBlocks.header();
+        if (pBlock)
         {
-            CPoolMem *pRtn = m_pMemBlocksHeader->GetMem();
-            if (pRtn)
+            CPoolMem *pRtn = pBlock->GetMem();
+            if (pRtn) //这个是必须的
             {
-                OnBlockUsed(m_pMemBlocksHeader);
+                OnBlockUsed(pBlock);
                 --m_nFreeNr;
                 return pRtn;
             }
+            else //呃回收一下？
+            {
+                OnBlockUsed(pBlock); 
+            }
         }
-        CMemBlock *pBlock;
         try
         {
-            pBlock = new CMemBlock((m_nInitSize>>1));
+            pBlock = new CListNode<CMemBlock>();
         }
         catch (...)
         {
         }
         if (pBlock)
         {
-            if (m_pMemBlocksRear)
+            if (pBlock->Init(m_nInitSize>>1) < SUCCESS)
             {
-                m_pMemBlocksRear->Attach(pBlock)
+                delete pBlock;
+                return NULL;
             }
-            else
-            {
-                m_pMemBlocksHeader = pBlock;
-                m_pMemBlocksRear   = pBlock;
-            }
+        }
+        if (pBlock)
+        {
+            m_tUsingMemBlocks.push_front(pBlock);
             m_nFreeNr += pBlock->GetFreeNr();
             //肯定成功
             --m_nFreeNr;
@@ -257,7 +217,8 @@ public:
         {
             ++m_nFreeNr;
         }
-        OnBlockRecycled(p,bIsEmpty);
+        OnBlockRecycled(pBlock,bIsEmpty);
+        return true;
     }
 };
 

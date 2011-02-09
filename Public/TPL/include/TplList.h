@@ -12,14 +12,14 @@
 #ifndef _S_LIST_TEMPLATE_H_
 #define _S_LIST_TEMPLATE_H_
 
-#include "include/SysMacros.h"
+#include "../../include/SysMacros.h"
 
 //¼Ù¶¨
 template<class BASE_CLASS>
 class CListNode : public BASE_CLASS
 {
 public:
-    DECLARE_CLASS_LIST(CList);
+    DECLARE_CLASS_LIST(CListNode);
 };
 
 template<class BASE_CLASS>
@@ -48,7 +48,7 @@ public:
         }
         return NULL;
     }
-    CListNode<BASE_CLASS> *pop_back();
+    CListNode<BASE_CLASS> *pop_back()
     {
         if (m_pRear)
         {
@@ -66,6 +66,15 @@ public:
             return pRtn;
         }
         return NULL;
+    }
+    
+    CListNode<BASE_CLASS> *header()
+    { 
+        return m_pHeader;
+    }
+    CListNode<BASE_CLASS> *rear()
+    {
+        return m_pRear;
     }
     void push_front(CListNode<BASE_CLASS> *p)
     {
