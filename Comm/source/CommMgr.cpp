@@ -70,8 +70,7 @@ TInt32 CCommMgr::Init(int nrOfWorkerThread,IfTaskMgr *pTaskMgr,IfLoggerManager *
                     return OUT_OF_MEM;
                 }
                 CIpMapItem *pIp = m_ipMaps.GetConnection(i);
-                TInt32 rtn = m_pNet->Connect(pIp->m_tKey.m_realIp,m_ipMaps.m_pVirtualIps[m_ipMaps.m_localVirtualIp].m_tKey.m_realIp,
-                    pIp->m_tKey.m_listenPort,pIp->m_tKey.m_bindPort,pConnection);
+                TInt32 rtn = m_pNet->Connect(pIp->m_tKey.GetRemoteIp(),pIp->m_tKey.GetMyIp(),pIp->m_tKey.GetRemotePort(),pIp->m_tKey.GetMyPort(),pConnection);
                 if (rtn < SUCCESS)
                 {
 #ifdef _DEBUG

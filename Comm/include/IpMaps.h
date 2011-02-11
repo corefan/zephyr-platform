@@ -18,30 +18,22 @@
 namespace Zephyr
 {
 
-union TVirtualIp
-{
-    struct
-    {
-        TUInt32     m_realIp;
-        TUInt16     m_bindPort;
-        TUInt16     m_listenPort;
-        //TUInt32     m_srvType;
-    };
-    TUInt64 m_key;
-};
+
 
 class CIpMapItem
 {
 public:
     CIpMapItem()
     {
-        m_tKey.m_key = 0;
+        m_nNodeId = 0;
+        m_nVirtualIp = 0;
         m_uLastUsedTime = 0;
         m_pConnection = 0;
+        m_pIfConnection = 0;
     }
     //这个是一开始就初始化好的
 
-    TVirtualIp          m_tKey;
+    CConPair            m_tKey;
     TUInt16             m_nNodeId;
     TUInt16             m_nVirtualIp;
     TUInt32             m_uLastUsedTime;
@@ -112,13 +104,9 @@ public:
     //只有被动连接调用这个，
     CIpMapItem *GetIpMapInfo(CConPair *pConn)
     {
-        TVirtualIp conn;
-        conn.m_realIp = pConn->GetRemoteIp();
-        conn.m_bindPort = pConn->GetRemotePort();
-        conn.m_listenPort = pConn->GetMyPort();
         for (int i = 0;i<m_nNrOfMapItem;++i)
         {
-            if (conn.m_key == m_pVirtualIps[i].m_tKey.m_key)
+            if (*pConn == m_pVirtualIps[i].m_tKey)
             {
                 return m_pVirtualIps + i;
             }
@@ -149,6 +137,8 @@ public:
         //if (pCommConnection->GetNodeId() == m_connectedNode) 必须是，不然就奇怪了
         m_pVirtualIps[m_pRoutes[pCommConnection->GetNodeId()]].OnDisconnected(uTimeNow);
     }
+    
+    int CIpMap::ReadIpMapItem(void *pFile,char *pMain,CIpMapItem *pItem);
 
     //返回
     CIpMapItem *GetConnection(TUInt32 nIdx)

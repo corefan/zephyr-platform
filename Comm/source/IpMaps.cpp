@@ -17,6 +17,42 @@ CIpMap::CIpMap()
     m_pVirtualIps = NULL;
 }
 
+int CIpMap::ReadIpMapItem(void *pFile,char *pMain,CIpMapItem *pItem)
+{
+    CSettingFile &file = *((CSettingFile*)pFile);
+    const char* pIp = file.GetString(pMain,"myIp");
+    unsigned int myIp = 0;
+    if (pIp)
+    {
+        myIp = inet_addr(pIp);
+    }
+    else
+    {
+        return -1;
+    }
+    unsigned int remoteIp = 0;
+     pIp = file.GetString(pMain,"remoteIp");
+    if (pIp)
+    {
+        remoteIp = inet_addr(pIp);
+    }
+    else
+    {
+        return -1;
+    }
+    unsigned short myPort = 0;
+    unsigned short remotePort = 0;
+    myPort = file.GetInteger(pMain,"myPort");
+    remotePort = file.GetInteger(pMain,"remotePort");
+    if (!(remotePort && myPort))
+    {
+        return -1;
+    }
+    pItem->m_tKey.Init(remoteIp,myIp,remotePort,myPort);
+    return SUCCESS;
+}
+
+
 TInt32 CIpMap::Init(const TChar *pConfigName,IfConnection *pSelf)
 {
     CSettingFile settingFile;
@@ -34,6 +70,10 @@ TInt32 CIpMap::Init(const TChar *pConfigName,IfConnection *pSelf)
     {
         for (int i=0;i<m_nrOfNodes;++i)
         {
+            if (i == m_localNodeId)
+            {
+                continue;
+            }
             char buff[64];
             sprintf(buff,"NODE%d",i);
             if (m_localVirtualIp == settingFile.GetInteger(buff,"localVIP"))
@@ -50,55 +90,100 @@ TInt32 CIpMap::Init(const TChar *pConfigName,IfConnection *pSelf)
             return OUT_OF_MEM;
         }
     }
+
+
+    char buff[64];
     for (int i=0;i<m_nrOfVirtualIp;++i)
     {
-        char buff[64];
         sprintf(buff,"VIP%d",i);
-        const char* pIp = settingFile.GetString(buff,"ip");
-        if (pIp)
+        if (ReadIpMapItem(&settingFile,buff,&m_pVirtualIps[i]) < 0)
         {
-            m_pVirtualIps[i].m_tKey.m_realIp = inet_addr(pIp);
+            return -1;
         }
-        else
-        {
-            return NULL_POINTER;
-        }
-        m_pVirtualIps[i].m_tKey.m_bindPort = settingFile.GetInteger(buff,"bindPort",0);
-        m_pVirtualIps[i].m_tKey.m_listenPort = settingFile.GetInteger(buff,"listenPort",0);
-        if (0 == m_pVirtualIps[i].m_tKey.m_listenPort)
-        {
-            return NULL_POINTER;
-        }
+        m_pVirtualIps[i].m_nNodeId = m_localNodeId;
+        m_pVirtualIps[i].m_nVirtualIp = i;
     }
     int usedNode = 0;
+
+    //获取我的node信息
     if (m_nrOfNodes > 1)
     {
+//         sprintf(buff,"NODE%d",m_localNodeId);
+// 
+//         //if (m_localVirtualIp == settingFile.GetInteger(buff,"localVIP"))
+//         unsigned int realIp = 0;
+//         unsigned short myPort = 0;
+//         unsigned short remotePort = 0;
+//         {
+//             
+//             const char* pIp = settingFile.GetString(buff,"nodeGatewayIp");
+//             unsigned int realIp;
+//             if (pIp)
+//             {
+//                 realIp = inet_addr(pIp);
+//             }
+//             else
+//             {
+//                 return NULL_POINTER;
+//             }
+//             bindPort = settingFile.GetInteger(buff,"bindPort",0);
+//         }
+
         m_pRoutes = new TUInt32[m_nrOfNodes];
         memset(m_pRoutes,0,(sizeof(TUInt32)*m_nrOfNodes));
         m_pRoutes[m_localNodeId] = m_localVirtualIp; 
         for (int i=0;i<m_nrOfNodes;++i)
         {
-            char buff[64];
+            if (i == m_localNodeId)
+            {
+                m_pRoutes[i] = 0;
+                continue;
+            }
             sprintf(buff,"NODE%d",i);
 
             if (m_localVirtualIp == settingFile.GetInteger(buff,"localVIP"))
             {
                 m_pRoutes[i] = m_nrOfVirtualIp + usedNode;
-                const char* pIp = settingFile.GetString(buff,"nodeGatewayIp");
-                if (pIp)
+                if (ReadIpMapItem(&settingFile,buff,&m_pVirtualIps[m_pRoutes[i]]) < 0)
                 {
-                    m_pVirtualIps[m_pRoutes[i]].m_tKey.m_realIp = inet_addr(pIp);
+                    return -1;
                 }
-                else
-                {
-                    return NULL_POINTER;
-                }
-                m_pVirtualIps[m_pRoutes[i]].m_tKey.m_bindPort = settingFile.GetInteger(buff,"bindPort",0);
-                m_pVirtualIps[m_pRoutes[i]].m_tKey.m_listenPort = settingFile.GetInteger(buff,"listenPort",0);
-                if (0 == m_pVirtualIps[m_pRoutes[i]].m_tKey.m_listenPort)
-                {
-                    return NULL_POINTER;
-                }
+                m_pVirtualIps[m_pRoutes[i]].m_nNodeId = i;
+                m_pVirtualIps[m_pRoutes[i]].m_nVirtualIp = 0;
+//                 const char* pIp = settingFile.GetString(buff,"remoteIp");
+//                 if (pIp)
+//                 {
+//                     m_pVirtualIps[m_pRoutes[i]].m_tKey.m_remoteIp = inet_addr(pIp);
+//                 }
+//                 else
+//                 {
+//                     return NULL_POINTER;
+//                 }
+//                 pIp = settingFile.GetString(buff,"myIp");
+//                 if (pIp)
+//                 {
+//                     m_pVirtualIps[m_pRoutes[i]].m_tKey.m_myIp = inet_addr(pIp);
+//                 }
+//                 else
+//                 {
+//                     return NULL_POINTER;
+//                 }
+// 
+//                 if (i < m_localNodeId)
+//                 {
+//                     m_pVirtualIps[m_pRoutes[i]].m_tKey.m_nMyPort = bindPort + i;
+//                 }
+//                 else
+//                 {
+//                     m_pVirtualIps[m_pRoutes[i]].m_tKey.m_bindPort = settingFile.GetInteger(buff,"bindPort",0) + m_localNodeId;
+//                 }
+//                 m_pVirtualIps[m_pRoutes[i]].m_tKey.m_listenPort = settingFile.GetInteger(buff,"listenPort",0);
+//                 if (0 == m_pVirtualIps[m_pRoutes[i]].m_tKey.m_listenPort)
+//                 {
+//                     return NULL_POINTER;
+//                 }
+//                 m_pVirtualIps[m_pRoutes[i]].m_nNodeId = i;
+//                 m_pVirtualIps[m_pRoutes[i]].m_nVirtualIp = settingFile.GetInteger(buff,"remoteVIP",0);
                 //m_pVirtualIps[m_pRoutes[i]]
                 ++usedNode;
             }
