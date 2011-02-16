@@ -235,12 +235,32 @@ TInt32 CConnectionMgr::Run(TUInt32 runCnt)
 //    }
 //}
 
-TInt32 CConnectionMgr::Listen(const TChar *pIp,TUInt16 port,TUInt16 maxConnection,void *pIfCallBack)
+void *CConnectionMgr::Listen(TUInt32 nIp,TUInt16 nPort,TUInt16 nMaxConnection,void *pIfCallBack)
 {
     CListener *p = new CListener();
     if (NULL == p)
     {
-        return OUT_OF_RANGE;
+        return 0;
+    }
+    TInt32 ret = p->Init(m_hCompletionPort,nIp, nPort, nMaxConnection,(IfListenerCallBack*)pIfCallBack,&m_conncectionPool,m_pParserFactory,m_pCryptorFactory);
+    if (SUCCESS > ret)
+    {
+        p->Final();
+        delete p;
+        return 0;
+    }
+    p->AttachToList(m_pListeners);
+    m_pListeners = p;
+    return p;
+}
+
+
+void *CConnectionMgr::Listen(const TChar *pIp,TUInt16 port,TUInt16 maxConnection,void *pIfCallBack)
+{
+    CListener *p = new CListener();
+    if (NULL == p)
+    {
+        return 0;
     }
     TUInt32 myIp = 0;
     if (pIp != NULL)
@@ -252,20 +272,20 @@ TInt32 CConnectionMgr::Listen(const TChar *pIp,TUInt16 port,TUInt16 maxConnectio
     {
         p->Final();
         delete p;
-        return ret;
+        return 0;
     }
     p->AttachToList(m_pListeners);
     m_pListeners = p;
-    return (TInt32)p;
+    return p;
 }
 
-TInt32 CConnectionMgr::StopListening(TInt32 listeningIdx)
+TInt32 CConnectionMgr::StopListening(void *pListeningPointer)
 {
     CListener *pListener = m_pListeners;
     CListener *pLast=NULL;
     while(pListener)
     {
-        if ((TInt32)pListener == (listeningIdx))
+        if (pListener == (pListeningPointer))
         {
             if(pLast)
             {

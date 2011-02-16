@@ -95,6 +95,17 @@ TInt32 CCommMgr::Init(int nrOfWorkerThread,IfTaskMgr *pTaskMgr,IfLoggerManager *
                 }
             }
         }
+        for (int i=0;i<m_ipMaps.m_nNrOfLisenting;++i)
+        {
+            CIpMapItem *pIpMap = m_ipMaps.GetConnection(m_ipMaps.m_pListening[i]);
+            TChar pIps[64];
+            
+            pIpMap->m_pListeningItem = m_pNet->Listen(pIpMap->m_tKey.GetMyIp(),pIpMap->m_tKey.GetMyPort(),32,this);
+            if (!pIpMap->m_pListeningItem)
+            {
+                printf("Listening to %u:%d failed!",pIpMap->m_tKey.GetMyIp(),(int)pIpMap->m_tKey.GetMyPort());
+            }
+        }
     }
     
 

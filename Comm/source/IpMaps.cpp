@@ -31,7 +31,7 @@ int CIpMap::ReadIpMapItem(void *pFile,char *pMain,CIpMapItem *pItem)
         return -1;
     }
     unsigned int remoteIp = 0;
-     pIp = file.GetString(pMain,"remoteIp");
+    pIp = file.GetString(pMain,"remoteIp");
     if (pIp)
     {
         remoteIp = inet_addr(pIp);
@@ -65,7 +65,7 @@ TInt32 CIpMap::Init(const TChar *pConfigName,IfConnection *pSelf)
     m_localNodeId    = settingFile.GetInteger("MAIN","localNodeId");
     m_localVirtualIp = settingFile.GetInteger("MAIN","localVirtualIp");
 
-    int m_nNrOfMapItem = m_nrOfVirtualIp;
+    m_nNrOfMapItem = m_nrOfVirtualIp;
     if (m_nrOfNodes > 1)
     {
         for (int i=0;i<m_nrOfNodes;++i)
@@ -90,8 +90,8 @@ TInt32 CIpMap::Init(const TChar *pConfigName,IfConnection *pSelf)
             return OUT_OF_MEM;
         }
     }
-
-
+    m_pListening = new TUInt16[m_nNrOfMapItem];
+    m_nNrOfLisenting = 0;
     char buff[64];
     for (int i=0;i<m_nrOfVirtualIp;++i)
     {
@@ -102,6 +102,14 @@ TInt32 CIpMap::Init(const TChar *pConfigName,IfConnection *pSelf)
         }
         m_pVirtualIps[i].m_nNodeId = m_localNodeId;
         m_pVirtualIps[i].m_nVirtualIp = i;
+        //if (i)
+        {
+            if (FALSE == IsListeningExisted(&m_pVirtualIps[i],(i)))
+            {
+                m_pListening[m_nNrOfLisenting] = i;
+                ++m_nNrOfLisenting;
+            }
+        }
     }
     int usedNode = 0;
 
@@ -150,9 +158,14 @@ TInt32 CIpMap::Init(const TChar *pConfigName,IfConnection *pSelf)
                 }
                 m_pVirtualIps[m_pRoutes[i]].m_nNodeId = i;
                 m_pVirtualIps[m_pRoutes[i]].m_nVirtualIp = 0;
+                if (FALSE == IsListeningExisted(&m_pVirtualIps[m_pRoutes[i]],(m_pRoutes[i])))
+                {
+                    m_pListening[m_nNrOfLisenting] = m_pRoutes[i];
+                    ++m_nNrOfLisenting;
+                }
 //                 const char* pIp = settingFile.GetString(buff,"remoteIp");
 //                 if (pIp)
-//                 {
+//                 -1
 //                     m_pVirtualIps[m_pRoutes[i]].m_tKey.m_remoteIp = inet_addr(pIp);
 //                 }
 //                 else
@@ -193,6 +206,11 @@ TInt32 CIpMap::Init(const TChar *pConfigName,IfConnection *pSelf)
             }
         }
     }
+    //²»tryÁË
+    TUInt16 *pN = new TUInt16[m_nNrOfLisenting];
+    memcpy(pN,m_pListening,sizeof(TUInt16)*m_nNrOfLisenting);
+    delete [] m_pListening;
+    m_pListening = pN;
     
 //     if (m_nrOfNodes > 1)
 //     {

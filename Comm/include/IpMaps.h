@@ -15,6 +15,7 @@
 #include "Typedef.h"
 #include "CommConnection.h"
 #include "Doid.h"
+
 namespace Zephyr
 {
 
@@ -30,6 +31,7 @@ public:
         m_uLastUsedTime = 0;
         m_pConnection = 0;
         m_pIfConnection = 0;
+        m_pListeningItem = 0;
     }
     //这个是一开始就初始化好的
 
@@ -37,8 +39,9 @@ public:
     TUInt16             m_nNodeId;
     TUInt16             m_nVirtualIp;
     TUInt32             m_uLastUsedTime;
-    CCommConnection    *m_pConnection;
-    IfConnection       *m_pIfConnection;
+    CCommConnection     *m_pConnection;
+    IfConnection        *m_pIfConnection;
+    void                *m_pListeningItem;
     void OnConnecting(CCommConnection *pCon,TUInt32 uTimeNow)
     {
         m_pConnection = pCon;
@@ -81,6 +84,10 @@ public:
     TUInt32              m_nNrOfMapItem;
     //转发路由表,发向不同的node.
     TUInt32              *m_pRoutes;
+
+    TUInt16              *m_pListening;
+    TUInt32              m_nNrOfLisenting;
+    
     //CCommConnection      *m_pLocalConnections;
 public:
     CIpMap();
@@ -176,6 +183,21 @@ public:
         }
         //直接丢弃.
         return NULL;
+    }
+private:
+    TBool IsListeningExisted(CIpMapItem *pItem,TInt32 nMax)
+    {
+        for (TInt32 i=0;i<nMax;++i)
+        {
+            if (m_pVirtualIps[i].m_tKey.GetMyIp() == pItem->m_tKey.GetMyIp())
+            {
+                if (m_pVirtualIps[i].m_tKey.GetMyPort() == pItem->m_tKey.GetMyPort())
+                {
+                    return TRUE;
+                }
+            }
+        }
+        return FALSE;
     }
 };
 

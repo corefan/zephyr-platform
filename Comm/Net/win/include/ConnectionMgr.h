@@ -68,9 +68,11 @@ public:
 
     virtual TInt32 Connect(const TUInt32 remoteIp,const TUInt32 myIp,TUInt16 remotePort,TUInt16 myPort,void *pAppCallBack);
     
-    virtual TInt32 Listen(const TChar *pIp,TUInt16 port,TUInt16 maxConnection,void *pIfCallBack);
+    virtual void *Listen(const TChar *pIp,TUInt16 port,TUInt16 maxConnection,void *pIfCallBack);
 
-    virtual TInt32 StopListening(TInt32 listeningIdx);
+    virtual void *Listen(TUInt32 nIp,TUInt16 nPort,TUInt16 nMaxConnection,void *pIfCallBack);
+
+    virtual TInt32 StopListening(void *pListeningPointer);
 
 
     //if chOpt = 1,disable the Nagle algrithom.

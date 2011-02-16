@@ -69,7 +69,9 @@ public:
         //sendRemainMsg 是否发送剩余的消息
     
     //监听
-    virtual TInt32 Listen(const TChar *pIp,TUInt16 port,TUInt16 maxConnection,void *pIfCallBack) = 0;
+    virtual void *Listen(const TChar *pIp,TUInt16 port,TUInt16 maxConnection,void *pIfCallBack) = 0;
+
+    virtual void *Listen(TUInt32 nIp,TUInt16 nPort,TUInt16 nMaxConnection,void *pIfCallBack) = 0;
     
     virtual TInt32 StopListening(TInt32 listeningIdx) = 0;
     
