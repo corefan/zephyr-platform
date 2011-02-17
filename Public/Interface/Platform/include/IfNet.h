@@ -73,7 +73,7 @@ public:
 
     virtual void *Listen(TUInt32 nIp,TUInt16 nPort,TUInt16 nMaxConnection,void *pIfCallBack) = 0;
     
-    virtual TInt32 StopListening(TInt32 listeningIdx) = 0;
+    virtual TInt32 StopListening(void *pListener) = 0;
     
     //if chOpt = 1,disable the Nagle algrithom.
     //else enable it , it is enableed by default.
