@@ -28,8 +28,8 @@ TInt32 CWinNetTester::Init(const char *pMyIp,const char *pRemoteIp,unsigned shor
     strcpy(m_remoteIp,pRemoteIp);
     m_myPort = myPort;
     m_remotePort = remotePort;
-    int ret = m_pNet->Listen(pMyIp,myPort,connectionNr,&m_ConnectionPool);
-    if (SUCCESS > ret)
+    int ret = (int)m_pNet->Listen(pMyIp,myPort,connectionNr,&m_ConnectionPool);
+    if (NULL == ret)
     {
         return ret;
     }
