@@ -115,7 +115,7 @@ TInt32 CLogger::CreateFile()
 #else
 
     int status;
-    status = mkdir("/Log5", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+    status = mkdir("/Log", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 
 
 #endif

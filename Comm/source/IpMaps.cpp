@@ -15,6 +15,9 @@ CIpMap::CIpMap()
     m_localNodeId = 0;
     m_localVirtualIp = 0;
     m_pVirtualIps = NULL;
+    m_pRoutes = NULL;
+    m_pListening = NULL;
+    m_nNrOfMapItem = 0;
 }
 
 int CIpMap::ReadIpMapItem(void *pFile,char *pMain,CIpMapItem *pItem)
