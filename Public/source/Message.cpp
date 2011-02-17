@@ -26,7 +26,7 @@ TInt32 CMessageHeader::Init(TUInt32 bodyLength,TUInt32 methodId,CDoid srcId,CDoi
     {	
         if (bNeedRearrangeDestDoid)
         {
-            sort(pDestDoids,pDestDoids+destDoidNum);
+            std::sort(pDestDoids,pDestDoids+destDoidNum);
         }
         memcpy((void*)GetBroadcastDoids(),(void*)(pDestDoids+1),(sizeof(CDoid)*(destDoidNum-1)));
     }
