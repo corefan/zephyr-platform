@@ -12,7 +12,7 @@
 #define __THREAD_LOCK_H__
 
 //#include <SysMacros.h>
-#include <SysInc.h>
+#include "SysInc.h"
 
 namespace Zephyr
 {

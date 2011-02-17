@@ -180,6 +180,10 @@
 				RelativePath=".\source\SysInc.cpp"
 				>
 			</File>
+			<File
+				RelativePath=".\source\ThreadClass.cpp"
+				>
+			</File>
 		</Filter>
 	</Files>
 	<Globals>

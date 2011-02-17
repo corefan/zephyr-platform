@@ -4,6 +4,9 @@ Microsoft Visual Studio Solution File, Format Version 9.00
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TaskMgr", "System\TaskMgr\TaskMgr.vcproj", "{0EBD2D73-9ECA-4CBA-93B8-DBE819C8F884}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Public", "Public", "{C7419687-6981-493D-8387-5F474403E966}"
+	ProjectSection(SolutionItems) = preProject
+		System\include\ProducerAndConsumer.h = System\include\ProducerAndConsumer.h
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "System", "System", "{CB01E3F3-E456-47A2-A616-9736C22EFC9C}"
 EndProject
