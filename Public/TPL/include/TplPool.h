@@ -151,6 +151,7 @@ public:
         m_pMainBlock = pBlock;
         m_nInitSize = size;
         m_nFreeNr   = size;
+        return SUCCESS;
     }
     bool IsNotMainBlock(CMemBlock* pBlock)
     {
