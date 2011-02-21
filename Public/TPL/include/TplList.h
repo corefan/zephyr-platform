@@ -29,6 +29,11 @@ private:
     CListNode<BASE_CLASS> *m_pHeader;
     CListNode<BASE_CLASS> *m_pRear;
 public:
+    CList()
+    {
+        m_pHeader = NULL;
+        m_pRear   = NULL;
+    }
     CListNode<BASE_CLASS> *pop_front()
     {
         if (m_pHeader)

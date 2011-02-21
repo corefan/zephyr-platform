@@ -131,7 +131,7 @@ public:
         CListNode<CMemBlock> *pBlock = NULL;
         try 
         {
-            CListNode<CMemBlock> *pBlock = new CListNode<CMemBlock>;
+            pBlock = new CListNode<CMemBlock>;
         }
         catch(...)
         {
@@ -142,6 +142,12 @@ public:
             return OUT_OF_MEM;
         }
         m_tUsingMemBlocks.push_front(pBlock);
+        int nRet = pBlock->Init(size);
+        if (nRet < 0)
+        {
+            delete pBlock;
+            return nRet;
+        }
         m_pMainBlock = pBlock;
         m_nInitSize = size;
         m_nFreeNr   = size;
