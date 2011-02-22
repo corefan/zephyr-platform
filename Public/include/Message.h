@@ -26,15 +26,13 @@ enum EnConnectEvent
 {
     en_connection_is_broken_event             = 0,
     en_connection_is_established_event        = 1,
-    en_connection_is_reestablished_event      = 2,
-    en_connection_can_not_established_event   = 3,
 };
 
 struct CConnectionEvent
 {
-    unsigned int m_vip;
-    unsigned int m_event;
-    void         *m_pData;
+    unsigned short m_nNodeId;
+    unsigned short m_nVip;
+    unsigned int   m_nEvent;
 };
 
 

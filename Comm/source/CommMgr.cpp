@@ -201,6 +201,9 @@ TInt32 CCommMgr::Run(const TInt32 threadId,const TInt32 runCnt)
             ++usedCnt;
         }
     }
+
+    //检查Net事件
+    
     //一分钟检查一次
     TUInt32 uTimeNow = m_timeSystem.GetLocalTime() - 60000;
     for (TUInt32 i = 0;i<m_ipMaps.m_nNrOfMapItem;++i)
@@ -218,6 +221,8 @@ TInt32 CCommMgr::Run(const TInt32 threadId,const TInt32 runCnt)
             }
         }
     }
+
+    
     return usedCnt;
 }
 
@@ -441,16 +446,38 @@ CIpMapItem *CCommMgr::GetIpMapInfo(CConPair *pPair)
 void   CCommMgr::OnConnected(CCommConnection *pConnection)
 {
     CCommConnection *pLast = m_ipMaps.OnConnected(pConnection,m_timeSystem.GetLocalTime());
+    CConnectionEvent event;
+    event.m_nNodeId = pConnection->GetNodeId();
+    event.m_nVip    = pConnection->GetVirtualIp();
+    event.m_nEvent  = en_connection_is_established_event;
+    for (int i=0;i<m_nrOfComm;++i)
+    {
+        m_pCommunicators[i].AddNetEvent(event,this);
+    }
     if (pLast != pConnection)
     {
         pLast->Disconnect();
         m_connectionPool.ReleaseMem(pLast);
     }
 }
-void   CCommMgr::OnDisconnected(CCommConnection *pConnection)
+void   CCommMgr::OnDisconnected(CCommConnection *pConnection,TBool bIsNegative)
 {
+    
     m_ipMaps.OnDisconnected(pConnection,m_timeSystem.GetLocalTime());
+
     m_connectionPool.ReleaseMem(pConnection);
+
+    if (bIsNegative)
+    {
+        CConnectionEvent event;
+        event.m_nNodeId = pConnection->GetNodeId();
+        event.m_nVip    = pConnection->GetVirtualIp();
+        event.m_nEvent  = en_connection_is_broken_event;
+        for (int i=0;i<m_nrOfComm;++i)
+        {
+            m_pCommunicators[i].AddNetEvent(event,this);
+        }
+    }
 }
 
 

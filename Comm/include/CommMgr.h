@@ -112,7 +112,7 @@ public:
     CIpMapItem *GetIpMapInfo(CConPair *pPair);
 
     void   OnConnected(CCommConnection *pConnection);
-    void   OnDisconnected(CCommConnection *pConnection);
+    void   OnDisconnected(CCommConnection *pConnection,TBool bIsNegative = TRUE);
 };
 
 }

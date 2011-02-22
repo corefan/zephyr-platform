@@ -41,9 +41,13 @@ public:
     {
         m_pData = NULL;
     }
+    //下面几个可以用，但是经测试，相应时间太长(10ms),是我写错了么？
     void    Init4Event();
+
+    //这里的event是一次性的
     TInt32  Wait4Event(TInt32 timeout=15);
     void    OnNewEvent();
+    void    TrySleep(unsigned int ms);
 };
 
 }

@@ -5,6 +5,7 @@
 #include "IfCommunicator.h"
 #include "Pipe.h"
 #include "TimeSystem.h"
+#include "..\..\Public\Interface\Platform\include\IfTask.h"
 namespace Zephyr
 {
 
@@ -20,6 +21,7 @@ protected:
     CPipe   m_eventPool;
     CTimeSystem *m_pTimeSys;
     TUInt64  m_nLastBlockTimes;
+    IfTask  *m_pPendingCommMgr;
 public:
     CCommunicator();
     ~CCommunicator();
@@ -45,6 +47,9 @@ public:
     virtual TUInt32 GetLocalTime();
     virtual TUInt32 GetTimeGap(TUInt32 nLast);
     virtual TUInt64 GetPlatfromTime();
+    //注意，有阻塞
+    void AddNetEvent(CConnectionEvent event,IfTask *pTask);
+    int GetEvent(CConnectionEvent &event);
 protected:
     //供commMgr使用.
     CMessageHeader *GetAppMsg(TUChar *pBuff)

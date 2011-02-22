@@ -9,6 +9,7 @@ CCommunicator::CCommunicator()
     m_pBuff     = NULL;
     m_buffSize  = 0;
     m_pTimeSys = NULL;
+    m_pPendingCommMgr = NULL;
 }
 
 CCommunicator::~CCommunicator()
@@ -143,7 +144,31 @@ TUInt64 CCommunicator::GetPlatfromTime()
     return m_pTimeSys->GetPlatformTime();
 }
 
+void CCommunicator::AddNetEvent(CConnectionEvent event,IfTask *pPendingTask)
+{
+    TInt32 nLen =  m_eventPool.GetFreeLen();
+    while(nLen < sizeof(CConnectionEvent))
+    {
+        m_pPendingCommMgr = pPendingTask;
+        pPendingTask->Wait4Event();
+        nLen = m_eventPool.GetFreeLen();
+    }
+}
 
+int CCommunicator::GetEvent(CConnectionEvent &event)
+{
+    TInt32 nLen = m_eventPool.GetFreeLen();
+    if (nLen >= sizeof(CConnectionEvent))
+    {
+        m_eventPool.ReadData((TUChar*)&event,sizeof(CConnectionEvent));
+        if (m_pPendingCommMgr)
+        {
+            m_pPendingCommMgr->OnNewEvent();
+        }
+        return 1;
+    }
+    return 0;
+}
 
 TInt32 CCommunicator::AddNetMsg(CMessageHeader *pMsg)
 {

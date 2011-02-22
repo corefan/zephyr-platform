@@ -124,6 +124,13 @@ TInt32 CCommConnection::OnConnected(IfConnection *pIfConnection,IfParser *pParse
 //任何socket异常都会自动关闭网络连接
 TInt32 CCommConnection::OnDissconneted(TInt32 erroCode)
 {
+    if (m_pIfConnection) //不是主动断连
+    {
+        if (m_pCommMgr)
+        {
+            m_pCommMgr->OnDisconnected(this);
+        }
+    }
     return SUCCESS;
 }
 
@@ -132,9 +139,16 @@ TInt32 CCommConnection::Disconnect()
 {
     if (m_pIfConnection)
     {
-        m_pIfConnection->Disconnect();
+        
+        IfConnection *p = m_pIfConnection;
+        m_pIfConnection = NULL;
+        p->Disconnect();
+
+        if (m_pCommMgr)
+        {
+            m_pCommMgr->OnDisconnected(this,FALSE);
+        }
     }
-    m_pIfConnection = NULL;
     //内存由mgr负责释放
     return SUCCESS;
 }
