@@ -140,6 +140,7 @@ public:
         if (pCommConnection->GetNodeId() == m_localNodeId)
         {
             m_pVirtualIps[pCommConnection->GetVirtualIp()].OnDisconnected(uTimeNow);
+            return;
         } 
         //if (pCommConnection->GetNodeId() == m_connectedNode) 必须是，不然就奇怪了
         m_pVirtualIps[m_pRoutes[pCommConnection->GetNodeId()]].OnDisconnected(uTimeNow);
