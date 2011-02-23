@@ -45,6 +45,41 @@ TInt32 CCommMgr::Init(int nrOfWorkerThread,IfTaskMgr *pTaskMgr,IfLoggerManager *
 
     }
 
+    CSettingFile settingFile;
+    TInt32 inPipeSize = 512*1024;
+    TInt32 outPipeSize = 512*1024;
+    TInt32 maxMsgSize = 256*1024;
+    if (!settingFile.LoadFromFile("commSetting.ini"))
+    {
+
+    }
+    else
+    {
+        inPipeSize = settingFile.GetInteger("MAIN","inPipeSize",inPipeSize);
+        outPipeSize = settingFile.GetInteger("MAIN","outPipeSize",outPipeSize);
+        maxMsgSize = settingFile.GetInteger("MAIN","maxMsgSize",maxMsgSize);
+    }
+    NEW(m_pBuff,TUChar,maxMsgSize);
+    if (!m_pBuff)
+    {
+#ifdef _DEBUG
+        printf("Can not allocated memory for m_pBuff");
+#endif
+        return OUT_OF_MEM;
+    }
+
+
+    //再看是否需要主动连接外node.
+    m_pLoggerMgr = pIfLogMgr;
+    ret = m_pLoggerMgr->AddLogger("CommLogger",-1);
+    if (ret < SUCCESS)
+    {
+        return ret;
+    }
+    m_pLogger = m_pLoggerMgr->GetLogger(ret);
+    g_pCommLogger = m_pLogger;
+    pTaskMgr->AddTask(this);
+
     m_nrOfComm = nrOfWorkerThread;
     NEW(m_pCommunicators,CCommunicator,nrOfWorkerThread);
     if (!m_pCommunicators)
@@ -137,40 +172,7 @@ TInt32 CCommMgr::Init(int nrOfWorkerThread,IfTaskMgr *pTaskMgr,IfLoggerManager *
     
 
     //读取配置，看有几个Service, 需要启动几个工作Service.
-    CSettingFile settingFile;
-    TInt32 inPipeSize = 512*1024;
-    TInt32 outPipeSize = 512*1024;
-    TInt32 maxMsgSize = 256*1024;
-    if (!settingFile.LoadFromFile("commSetting.ini"))
-    {
-
-    }
-    else
-    {
-        inPipeSize = settingFile.GetInteger("MAIN","inPipeSize",inPipeSize);
-        outPipeSize = settingFile.GetInteger("MAIN","outPipeSize",outPipeSize);
-        maxMsgSize = settingFile.GetInteger("MAIN","maxMsgSize",maxMsgSize);
-    }
-    NEW(m_pBuff,TUChar,maxMsgSize);
-    if (!m_pBuff)
-    {
-#ifdef _DEBUG
-        printf("Can not allocated memory for m_pBuff");
-#endif
-        return OUT_OF_MEM;
-    }
     
-    
-    //再看是否需要主动连接外node.
-    m_pLoggerMgr = pIfLogMgr;
-    ret = m_pLoggerMgr->AddLogger("CommLogger",-1);
-    if (ret < SUCCESS)
-    {
-        return ret;
-    }
-    m_pLogger = m_pLoggerMgr->GetLogger(ret);
-    g_pCommLogger = m_pLogger;
-    pTaskMgr->AddTask(this);
     return SUCCESS;
 }
 
