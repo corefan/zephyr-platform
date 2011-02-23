@@ -160,14 +160,17 @@ int CCommunicator::GetEvent(CConnectionEvent &event)
     TInt32 nLen = m_eventPool.GetDataLen();
     if (nLen >= sizeof(CConnectionEvent))
     {
-        m_eventPool.ReadData((TUChar*)&event,sizeof(CConnectionEvent));
-        if (m_pPendingCommMgr)
+        nLen = m_eventPool.ReadData((TUChar*)&event,sizeof(CConnectionEvent));
+    }
+    if (m_pPendingCommMgr)
+    {
+        if (m_eventPool.GetFreeLen() >= sizeof(CConnectionEvent))
         {
             m_pPendingCommMgr->OnNewEvent();
+            m_pPendingCommMgr = NULL;
         }
-        return 1;
     }
-    return 0;
+    return nLen;
 }
 
 TInt32 CCommunicator::AddNetMsg(CMessageHeader *pMsg)
