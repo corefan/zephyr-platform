@@ -157,7 +157,7 @@ void CCommunicator::AddNetEvent(CConnectionEvent event,IfTask *pPendingTask)
 
 int CCommunicator::GetEvent(CConnectionEvent &event)
 {
-    TInt32 nLen = m_eventPool.GetFreeLen();
+    TInt32 nLen = m_eventPool.GetDataLen();
     if (nLen >= sizeof(CConnectionEvent))
     {
         m_eventPool.ReadData((TUChar*)&event,sizeof(CConnectionEvent));
