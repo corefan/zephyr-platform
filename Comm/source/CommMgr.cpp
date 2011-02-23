@@ -44,6 +44,33 @@ TInt32 CCommMgr::Init(int nrOfWorkerThread,IfTaskMgr *pTaskMgr,IfLoggerManager *
     {
 
     }
+
+    m_nrOfComm = nrOfWorkerThread;
+    NEW(m_pCommunicators,CCommunicator,nrOfWorkerThread);
+    if (!m_pCommunicators)
+    {
+#ifdef _DEBUG
+        printf("Allocate mem 4 m_pCommunicators Failed!");
+#endif
+        //OnFinal();
+        return OUT_OF_MEM;
+    }
+
+    for (int i=0;i<nrOfWorkerThread;++i)
+    {
+        int ret = m_pCommunicators[i].Init(&m_timeSystem,inPipeSize,outPipeSize,maxMsgSize);
+        m_pCommunicators[i].InitEventPool(m_ipMaps.m_nrOfVirtualIp);
+        if (ret < SUCCESS)
+        {
+#ifdef _DEBUG
+            printf("Can not init Communicator %d",i);
+#endif
+            return ret;
+        }
+    }
+
+
+
 //     NEW(m_ppConnections,CCommConnection*,m_ipMaps.m_nrOfVirtualIp + 5);
 //     if (!m_ppConnections)
 //     {
@@ -133,29 +160,7 @@ TInt32 CCommMgr::Init(int nrOfWorkerThread,IfTaskMgr *pTaskMgr,IfLoggerManager *
         return OUT_OF_MEM;
     }
     
-    m_nrOfComm = nrOfWorkerThread;
-    NEW(m_pCommunicators,CCommunicator,nrOfWorkerThread);
-    if (!m_pCommunicators)
-    {
-#ifdef _DEBUG
-        printf("Allocate mem 4 m_pCommunicators Failed!");
-#endif
-        //OnFinal();
-        return OUT_OF_MEM;
-    }
     
-    for (int i=0;i<nrOfWorkerThread;++i)
-    {
-        int ret = m_pCommunicators[i].Init(&m_timeSystem,inPipeSize,outPipeSize,maxMsgSize);
-        m_pCommunicators[i].InitEventPool(m_ipMaps.m_nrOfVirtualIp);
-        if (ret < SUCCESS)
-        {
-#ifdef _DEBUG
-            printf("Can not init Communicator %d",i);
-#endif
-            return ret;
-        }
-    }
     //再看是否需要主动连接外node.
     m_pLoggerMgr = pIfLogMgr;
     ret = m_pLoggerMgr->AddLogger("CommLogger",-1);
