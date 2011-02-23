@@ -14,23 +14,36 @@ TInt32 CCommTester::Run(const TInt32 threadId,const TInt32 runCnt)
             {
                 m_nBeginTime = 0;
                 //发消息
-                for (int n=0;n<m_nNodeNr;++n)
+               
+            }
+        }
+    }
+    CConnectionEvent event;
+    
+    int usedCnt = m_pComms->GetEvent(event);
+    while (usedCnt)
+    {
+        if (event.m_nEvent == en_connection_is_established_event)
+        {
+            for (int n=0;n<m_nNodeNr;++n)
+            {
+                for (int ip=0;ip<m_nIpNr;++ip)
                 {
-                    for (int ip=0;ip<m_nIpNr;++ip)
+                    for (int i = 0;i<m_nSrvNr;++i)
                     {
-                        for (int i = 0;i<m_nSrvNr;++i)
-                        {
-                            int offset = n*m_nIpNr*m_nSrvNr+ip*m_nSrvNr+i;
-                            //这就是目标啦 sm_pDoids[offset];
-
-                        }
+                        int offset = n*m_nIpNr*m_nSrvNr+ip*m_nSrvNr+i;
+                        //这就是目标啦 sm_pDoids[offset];
+                        
                     }
                 }
             }
         }
+        else
+        {
+            //断链了
+        }
+        usedCnt = m_pComms->GetEvent(event);
     }
-    
-    int usedCnt = 0;
     for (int i=0;i<runCnt;++i)
     {
         CMessageHeader *pMsg = m_pComms->GetMsg();
