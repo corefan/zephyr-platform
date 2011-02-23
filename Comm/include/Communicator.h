@@ -43,13 +43,14 @@ public:
     //application should not call this !!! called by work thread only! or else some events would lost!
     virtual CConnectionEvent GetConnectionEvent(TInt32& result);
 
+    virtual int GetEvent(CConnectionEvent &event);
 
     virtual TUInt32 GetLocalTime();
     virtual TUInt32 GetTimeGap(TUInt32 nLast);
     virtual TUInt64 GetPlatfromTime();
     //注意，有阻塞
     void AddNetEvent(CConnectionEvent event,IfTask *pTask);
-    int GetEvent(CConnectionEvent &event);
+    
 protected:
     //供commMgr使用.
     CMessageHeader *GetAppMsg(TUChar *pBuff)

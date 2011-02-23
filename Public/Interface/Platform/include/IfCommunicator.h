@@ -28,6 +28,8 @@ public:
     virtual TUInt32 GetLocalTime() = 0;
     virtual TUInt32 GetTimeGap(TUInt32 nLast) = 0;
     virtual TUInt64 GetPlatfromTime() = 0;
+
+    virtual int GetEvent(CConnectionEvent &event) = 0;
     //maybe I could expose less header files
 };
 
