@@ -461,10 +461,13 @@ void   CCommMgr::OnConnected(CCommConnection *pConnection)
     {
         m_pCommunicators[i].AddNetEvent(event,this);
     }
-    if (pLast != pConnection)
+    if (pLast)
     {
-        pLast->Disconnect();
-        m_connectionPool.ReleaseMem(pLast);
+        if (pLast != pConnection)
+        {
+            pLast->Disconnect();
+            m_connectionPool.ReleaseMem(pLast);
+        }
     }
 }
 void   CCommMgr::OnDisconnected(CCommConnection *pConnection,TBool bIsNegative)
