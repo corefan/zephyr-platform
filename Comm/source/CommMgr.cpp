@@ -162,7 +162,7 @@ TInt32 CCommMgr::Init(int nrOfWorkerThread,IfTaskMgr *pTaskMgr,IfLoggerManager *
             CIpMapItem *pIpMap = m_ipMaps.GetConnection(m_ipMaps.m_pListening[i]);
             TChar pIps[64];
             
-            pIpMap->m_pListeningItem = m_pNet->Listen(pIpMap->m_tKey.GetMyIp(),pIpMap->m_tKey.GetMyPort(),32,this);
+            pIpMap->m_pListeningItem = m_pNet->Listen(pIpMap->m_tKey.GetMyIp(),pIpMap->m_tKey.GetMyPort(),32,((IfListenerCallBack*)this));
             if (!pIpMap->m_pListeningItem)
             {
                 printf("Listening to %u:%d failed!",pIpMap->m_tKey.GetMyIp(),(int)pIpMap->m_tKey.GetMyPort());
