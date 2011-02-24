@@ -317,7 +317,7 @@ TInt32 CPipe::ReadData(TUChar *pTo,TUInt32 len)
         dataLen = (m_pMemPool + m_memPoolSize - pRear);
     }
     
-    if (dataLen > len)
+    if (dataLen >= len)
     {
         memcpy(pTo,pRear,len);
         pRear += len;
