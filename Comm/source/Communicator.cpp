@@ -153,6 +153,7 @@ void CCommunicator::AddNetEvent(CConnectionEvent event,IfTask *pPendingTask)
         pPendingTask->Wait4Event();
         nLen = m_eventPool.GetFreeLen();
     }
+    m_eventPool.WriteData(&event,sizeof(CConnectionEvent));
 }
 
 int CCommunicator::GetEvent(CConnectionEvent &event)

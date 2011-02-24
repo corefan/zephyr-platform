@@ -58,7 +58,8 @@ TInt32 CListener::Init(HANDLE completionPort,TUInt32 myIp,TUInt16 listeningPort,
 		sizeof(struct sockaddr));
     if(ret   ==   SOCKET_ERROR)   
     {   
-        closesocket(m_listeningSocket);   
+        closesocket(m_listeningSocket);
+        m_listeningSocket = 0;
         return FAIL;
     }
     ret = listen(m_listeningSocket, maxAcceptNr);
