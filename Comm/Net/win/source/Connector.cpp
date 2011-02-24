@@ -309,7 +309,7 @@ void CConnector::OnConnectionEstablish(CConnection *pConnection)
 //         m_pConnectionPool->ReleaseConnection(pConnection);
         return ;
     }
-    pConnection->OnConnected();
+    //pConnection->OnConnected();
 }
 
 void CConnector::OnDisconnected(CConnection *pConnection)
