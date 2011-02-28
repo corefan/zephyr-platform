@@ -23,9 +23,9 @@ class CConPair
 {
 protected:
     //all in mechina order. and this can be run only in little-endian mode
-    TUInt32 m_remoteIp;
+    TUInt32 m_remoteIp; //这个ip是网络序的，反正差不多，就用了网络序。
     TUInt32 m_myIp;
-    TUInt16 m_remotePort;
+    TUInt16 m_remotePort; //port是小端在前，为了方便debug
     TUInt16 m_myPort;
     
 public:
