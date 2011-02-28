@@ -13,6 +13,8 @@ TInt32 CCommMgr::Init(int nrOfWorkerThread,IfTaskMgr *pTaskMgr,IfLoggerManager *
     
     //ÏÈ¶ÁÈ¡ÅäÖÃ
     TInt32 ret = m_ipMaps.Init(pConfigName,this);
+    m_timeSystem.Update();
+    m_lastCheckTime = m_timeSystem.GetLocalTime();
     if (SUCCESS > ret)
     {
         return ret;
