@@ -164,7 +164,7 @@ public:
         return FALSE;
     }
 
-    IfConnection *RouteTo(CDoid *pDoId)
+    CIpMapItem *RouteTo(CDoid *pDoId)
     {
         if (pDoId->m_nodeId < m_nrOfNodes)
         {
@@ -172,13 +172,13 @@ public:
             {
                 if (pDoId->m_virtualIp < m_nrOfVirtualIp)
                 {
-                    return m_pVirtualIps[pDoId->m_virtualIp].m_pIfConnection;
+                    return &m_pVirtualIps[pDoId->m_virtualIp];
                 }
             }
             else
             {
                 //else
-                return m_pVirtualIps[m_pRoutes[pDoId->m_nodeId]].m_pIfConnection;
+                return &m_pVirtualIps[m_pRoutes[pDoId->m_nodeId]];
             }
             //return m_pRoutes[pDoId->m_nodeId];
         }

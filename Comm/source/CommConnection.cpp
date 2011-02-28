@@ -124,17 +124,26 @@ TInt32 CCommConnection::OnConnected(IfConnection *pIfConnection,IfParser *pParse
 //任何socket异常都会自动关闭网络连接
 TInt32 CCommConnection::OnDissconneted(TInt32 erroCode)
 {
-    if (m_pIfConnection) //不是主动断连
+    if (m_pIfConnection) //不是主动断连,并且连接已经建立
     {
         if (m_pCommMgr)
         {
             m_pCommMgr->OnDisconnected(this);
         }
     }
+    else
+    {
+        if (m_pCommMgr)
+        {
+            //因为连接还没建立，所以不用通知应用层，因为这个时候应用层还是认为连接没有建立的。
+            m_pCommMgr->OnDisconnected(this,FALSE);
+        }
+    }
     return SUCCESS;
 }
 
 //调用这个后，就可以将IfConnectionCallBack释放.Net不会继续回调该接口.
+//记住，调用完这个，CommConnection就失效了，不能再用了.
 TInt32 CCommConnection::Disconnect()
 {
     if (m_pIfConnection)
@@ -143,11 +152,14 @@ TInt32 CCommConnection::Disconnect()
         IfConnection *p = m_pIfConnection;
         m_pIfConnection = NULL;
         p->Disconnect();
-
-        if (m_pCommMgr)
-        {
-            m_pCommMgr->OnDisconnected(this,FALSE);
-        }
+    }
+    else
+    {
+        //不应该有这个发生！
+    }
+    if (m_pCommMgr)
+    {
+        m_pCommMgr->OnDisconnected(this,FALSE);
     }
     //内存由mgr负责释放
     return SUCCESS;

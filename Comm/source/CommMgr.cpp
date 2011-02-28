@@ -211,25 +211,62 @@ TInt32 CCommMgr::Run(const TInt32 threadId,const TInt32 runCnt)
 
     //检查Net事件
     
-    //一分钟检查一次
-    TUInt32 uTimeNow = m_timeSystem.GetLocalTime() - 60000;
-    for (TUInt32 i = 0;i<m_ipMaps.m_nNrOfMapItem;++i)
+    //10秒钟检查一次
+    TUInt32 uTimeNow = m_timeSystem.GetLocalTime();
+    if ((uTimeNow-10000) > m_lastCheckTime)
     {
-        CIpMapItem *pItem = m_ipMaps.GetConnection(i);
-        if (pItem->m_uLastUsedTime < uTimeNow)
+        m_lastCheckTime = uTimeNow;
+        for (TUInt32 i = 0;i<m_ipMaps.m_nNrOfMapItem;++i)
         {
-            if (pItem->m_pConnection)
+            CIpMapItem *pItem = m_ipMaps.GetConnection(i);
+            TUInt32 nGap = m_timeSystem.GetTimeGap(pItem->m_uLastUsedTime);
+            if (nGap > 10000)
             {
-                //发送心跳消息
-            }
-            else
-            {
-                //重连
+                if (pItem->m_pIfConnection)
+                {
+                    //发送心跳消息
+                }
+                else
+                {
+                    //重连
+                    if (pItem->m_pConnection)
+                    {
+                        //正在重连？！
+                        continue;
+                    }
+                    if (m_ipMaps.IsPostive(i))
+                    {
+                        CCommConnection *pConnection = m_connectionPool.GetMem();
+                        if (!pConnection)
+                        {
+#ifdef _DEBUG
+                            printf("Can not get Comm Connection");
+#endif
+                            return usedCnt;
+                        }
+                        CIpMapItem *pIp = m_ipMaps.GetConnection(i);
+                        TInt32 rtn = m_pNet->Connect(pIp->m_tKey.GetRemoteIp(),pIp->m_tKey.GetMyIp(),pIp->m_tKey.GetRemotePort(),pIp->m_tKey.GetMyPort(),pConnection);
+                        if (rtn < SUCCESS)
+                        {
+#ifdef _DEBUG
+                            printf("Connection Failed!");
+#endif
+                            m_connectionPool.ReleaseMem(pConnection);
+                            continue;
+                        }
+                        //m_ppConnections[i] = pConnection;
+                        pConnection->SetAllInfo(this,pIp);
+                        pItem->OnConnecting(pConnection,m_timeSystem.GetLocalTime());
+                        //解决同时连接过多的问题
+                        if (0 == (i % 32))
+                        {
+                            break;
+                        }
+                    }
+                }
             }
         }
     }
-
-    
     return usedCnt;
 }
 
@@ -317,7 +354,20 @@ void CCommMgr::SendAppMsg(CMessageHeader *pMsg)
     if (nrOfDest)
     { 
         CDoid *pDoid = pMsg->GetDestDoidByIdx();
-        IfConnection *pConn = m_ipMaps.RouteTo(pDoid);
+        CIpMapItem *pItem =  m_ipMaps.RouteTo(pDoid);
+        IfConnection *pConn;
+        if (pItem)
+        {
+            pConn = pItem->m_pIfConnection;
+            if (pConn)
+            {
+                pItem->m_uLastUsedTime = m_timeSystem.GetLocalTime();
+            }
+        }
+        else
+        {
+            pConn = NULL;
+        }
         int from = 0;
         int i = 1;
         while(i <= nrOfDest)
@@ -348,7 +398,19 @@ void CCommMgr::SendAppMsg(CMessageHeader *pMsg)
                     RecordOneMsg(pMsg);
                 }
                 pDoid = pNext;
-                pConn = m_ipMaps.RouteTo(pDoid);
+                CIpMapItem *pIpMapItem = m_ipMaps.RouteTo(pDoid);
+                if (pIpMapItem)
+                {
+                    pConn = pIpMapItem->m_pIfConnection;
+                    if (pConn)
+                    {
+                        pIpMapItem->m_uLastUsedTime = m_timeSystem.GetLocalTime();
+                    }
+                }
+                else
+                {
+                    pConn = NULL;
+                }
                 from = i;
                 ++i;
                 
@@ -375,7 +437,20 @@ void CCommMgr::SendAppMsg(CMessageHeader *pMsg)
     }
     else //没有广播
     {
-        IfConnection *pConn  = m_ipMaps.RouteTo(pMsg->GetDestDoidByIdx());
+        CIpMapItem *pIpMapItem = m_ipMaps.RouteTo(pMsg->GetDestDoidByIdx());
+        IfConnection *pConn;
+        if (pIpMapItem)
+        {
+            pConn = pIpMapItem->m_pIfConnection;
+            if (pConn)
+            {
+                pIpMapItem->m_uLastUsedTime = m_timeSystem.GetLocalTime();
+            }
+        }
+        else
+        {
+            pConn = NULL;
+        }
         int nRet = FAIL;
         if (pConn)
         {
@@ -472,7 +547,7 @@ void   CCommMgr::OnConnected(CCommConnection *pConnection)
 }
 void   CCommMgr::OnDisconnected(CCommConnection *pConnection,TBool bIsNegative)
 {
-    
+    //清ipmap表
     m_ipMaps.OnDisconnected(pConnection,m_timeSystem.GetLocalTime());
 
     m_connectionPool.ReleaseMem(pConnection);

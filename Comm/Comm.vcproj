@@ -207,6 +207,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\include\CommMsg.h"
+				>
+			</File>
+			<File
 				RelativePath=".\include\Communicator.h"
 				>
 			</File>
