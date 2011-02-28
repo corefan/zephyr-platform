@@ -16,9 +16,9 @@ private:
     {
     public:
         CPoolMem    *m_pMemPoolNext;
-        CMemBlock  *m_pBelongsTo;
+        CListNode<CMemBlock>  *m_pBelongsTo;
     public:
-        void Init(CPoolMem *pNext,CMemBlock *pBelongs2)
+        void Init(CPoolMem *pNext,CListNode<CMemBlock>  *pBelongs2)
         {
             m_pMemPoolNext     = pNext;
             m_pBelongsTo       = pBelongs2;
@@ -45,7 +45,7 @@ private:
         {
             return m_nFree;
         }
-        int Init(int size)
+        int Init(int size,CListNode<CMemBlock> *pBlock)
         {
             //不能只分配1个吧？！
             if (size == 1)
@@ -63,7 +63,7 @@ private:
             {
                 for (int i=0;i<size;++i)
                 {
-                    m_pPools[i].Init((m_pPools+i),this);
+                    m_pPools[i].Init((m_pPools+i),pBlock);
                 }
                 m_pPools[size-1].m_pMemPoolNext = NULL;
             }
@@ -86,7 +86,7 @@ private:
         }
         bool IsEmpty()
         {
-            return (m_nFree);
+            return (!m_nFree);
         }
         bool CanRecycle()
         {
@@ -142,7 +142,7 @@ public:
             return OUT_OF_MEM;
         }
         m_tUsingMemBlocks.push_front(pBlock);
-        int nRet = pBlock->Init(size);
+        int nRet = pBlock->Init(size,pBlock);
         if (nRet < 0)
         {
             delete pBlock;
@@ -169,9 +169,23 @@ public:
         }
     }
     //之时是否要delete 这个块所属的Blocks
-    void OnBlockRecycled(CMemBlock *pBlock,bool bIsEmpty)
+    void OnBlockRecycled(CListNode<CMemBlock> *pBlock,bool bIsEmpty)
     {
-        
+        if (bIsEmpty)
+        {
+            m_tFullMemBlocks.HandleOver(&m_tUsingMemBlocks,pBlock);
+        }
+        else
+        {
+            if (pBlock != m_pMainBlock)
+            {
+                if (pBlock->CanRecycle())
+                {
+                    m_tUsingMemBlocks.Detach(pBlock);
+                    delete pBlock;
+                }
+            }
+        }
     }
     Mem *GetMem()
     {
@@ -199,7 +213,7 @@ public:
         }
         if (pBlock)
         {
-            if (pBlock->Init(m_nInitSize>>1) < SUCCESS)
+            if (pBlock->Init(((m_nInitSize>>1)+1),pBlock) < SUCCESS)
             {
                 delete pBlock;
                 return NULL;
@@ -218,7 +232,7 @@ public:
     bool ReleaseMem(Mem *pMem)
     {
         CPoolMem *p = (CPoolMem*)pMem;
-        CMemBlock *pBlock = p->m_pBelongsTo;
+        CListNode<CMemBlock>  *pBlock = p->m_pBelongsTo;
         bool bIsEmpty = pBlock->IsEmpty();
         if(pBlock->ReleaseMem(p))
         {
