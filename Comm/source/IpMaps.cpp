@@ -106,6 +106,7 @@ TInt32 CIpMap::Init(const TChar *pConfigName,IfConnection *pSelf)
         m_pVirtualIps[i].m_nNodeId = m_localNodeId;
         m_pVirtualIps[i].m_nVirtualIp = i;
         //if (i)
+        if (!IsPostive(i))
         {
             if (FALSE == IsListeningExisted(&m_pVirtualIps[i],(i)))
             {
