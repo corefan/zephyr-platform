@@ -246,8 +246,7 @@ TInt32 CCommMgr::Run(const TInt32 threadId,const TInt32 runCnt)
 #endif
                             return usedCnt;
                         }
-                        CIpMapItem *pIp = m_ipMaps.GetConnection(i);
-                        TInt32 rtn = m_pNet->Connect(pIp->m_tKey.GetRemoteIp(),pIp->m_tKey.GetMyIp(),pIp->m_tKey.GetRemotePort(),pIp->m_tKey.GetMyPort(),pConnection);
+                        TInt32 rtn = m_pNet->Connect(pItem->m_tKey.GetRemoteIp(),pItem->m_tKey.GetMyIp(),pItem->m_tKey.GetRemotePort(),pItem->m_tKey.GetMyPort(),pConnection);
                         if (rtn < SUCCESS)
                         {
 #ifdef _DEBUG
@@ -257,7 +256,7 @@ TInt32 CCommMgr::Run(const TInt32 threadId,const TInt32 runCnt)
                             continue;
                         }
                         //m_ppConnections[i] = pConnection;
-                        pConnection->SetAllInfo(this,pIp);
+                        pConnection->SetAllInfo(this,pItem);
                         pItem->OnConnecting(pConnection,m_timeSystem.GetLocalTime());
                         //解决同时连接过多的问题
                         if (0 == (i % 32))
