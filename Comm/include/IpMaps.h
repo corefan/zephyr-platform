@@ -155,6 +155,14 @@ public:
     }
 
     TInt32 Init(const TChar *pConfigName,IfConnection *pSelf);
+    TBool IsLocal(CIpMapItem *pItem)
+    {
+        if ((pItem->m_nNodeId == m_localNodeId)&&(pItem->m_nVirtualIp == m_localVirtualIp))
+        {
+            return TRUE;
+        }
+        return FALSE;
+    }
     TBool IsLocal(CDoid *pDoId)
     {
         if((pDoId->m_nodeId == m_localNodeId) && (pDoId->m_virtualIp == m_localVirtualIp))

@@ -225,7 +225,7 @@ TInt32 CCommMgr::Run(const TInt32 threadId,const TInt32 runCnt)
             TUInt32 nGap = m_timeSystem.GetTimeGap(pItem->m_uLastUsedTime);
             if (nGap > 10000)
             {
-                if (pItem->m_pIfConnection)
+                if ((pItem->m_pIfConnection) && (!m_ipMaps.IsLocal(pItem)))
                 {
                     //发送心跳消息
                     char buff[sizeof(CMessageHeader)];
