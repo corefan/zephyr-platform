@@ -3,6 +3,7 @@
 #include "../Public/include/NetCenter.h"
 #include "../System/include\SysInc.h"
 #include "include/CommLogger.h"
+#include "CommMsg.h"
 namespace Zephyr
 {
 
@@ -227,6 +228,13 @@ TInt32 CCommMgr::Run(const TInt32 threadId,const TInt32 runCnt)
                 if (pItem->m_pIfConnection)
                 {
                     //发送心跳消息
+                    char buff[sizeof(CMessageHeader)];
+                    CMessageHeader *pMsg = (CMessageHeader*)(buff);
+                    CDoid src(m_ipMaps.m_localNodeId,m_ipMaps.m_localVirtualIp,0,0);
+                    CDoid dest(pItem->m_nNodeId,pItem->m_nVirtualIp,0,0);
+
+                    pMsg->Init(0,_COMM_CONNECTION_HEART_BEAT_MSG_ID_,src,&dest,1,false);
+                    pItem->m_pIfConnection->SendMsg((TUChar*)pMsg,sizeof(CMessageHeader));
                 }
                 else
                 {
@@ -476,7 +484,14 @@ TInt32 CCommMgr::SendMsg(TUChar *pBuff,TUInt32 buffLen)
     {
         usedLen += msgLen;
         buffLen -= msgLen;
-        HandleOneNetMsg(pMsg);
+        if (pMsg->IsSystemCall())
+        {
+            HandleOneSystemMsg(pMsg);
+        }
+        else
+        {
+            HandleOneNetMsg(pMsg);
+        }
         if (sizeof(CMessageHeader) < buffLen)
         {
             pMsg = (CMessageHeader*)(pBuff + usedLen);
@@ -619,6 +634,38 @@ void CCommMgr::HandleOneNetMsg(CMessageHeader *pMsg)
     }
     pComm->AddNetMsg(pMsg);
     pMsg->SetBroadcastDoid(msgDoidNr);
+}
+
+void CCommMgr::HandleOneSystemMsg(CMessageHeader *pMsg)
+{
+    switch(pMsg->GetMethodId())
+    {
+    case _COMM_CONNECTION_WELCOME_MSG_ID_:
+        {
+
+        }
+        break;
+    case _COMM_CONNECTION_HEART_BEAT_MSG_ID_:
+        {   
+            CDoid *pSrc = pMsg->GetSrcDoid();
+            CIpMapItem *pItem =  m_ipMaps.RouteTo(pSrc);
+            if (pItem)
+            {
+                pItem->m_uLastUsedTime = m_timeSystem.GetLocalTime();
+            }
+        }
+        break;
+    case _COMM_CONNECTION_TIME_SYNCHRONIZE_MSG_ID:
+        {
+
+        }
+        break;
+    case _COMM_EXCEPTION_MSG_ID:
+        {
+
+        }
+        break;
+    }
 }
 
 }
