@@ -231,6 +231,18 @@ public:
     //no use now
     //int IsSliced();
     TInt32 ResetBodyLength(TUInt32 bodyLength);
+    void SetSystemCall()
+    {
+        m_msgInfo.m_systemCall = 1;
+    }
+    TBool IsSystemCall()
+    {
+        if (m_msgInfo.m_systemCall)
+        {
+            return TRUE;
+        }
+        return FALSE;
+    }
 private:
 	//to make sure you could only create the message by msgPool.
 	CMessageHeader()

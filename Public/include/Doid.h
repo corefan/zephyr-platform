@@ -38,6 +38,13 @@ public:
         m_objId = 0xFFFF;
  #endif
 	}
+    CDoid(TUInt16 nNodeId,TUInt16 nVip,TUInt16 nSrvId,TUInt16 nObjId)
+    {
+        m_nodeId = nNodeId;
+        m_virtualIp = nVip;
+        m_srvId = nSrvId;
+        m_objId = nObjId;
+    }
 	
     ~CDoid()
     {
