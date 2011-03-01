@@ -232,8 +232,8 @@ TInt32 CCommMgr::Run(const TInt32 threadId,const TInt32 runCnt)
                     CMessageHeader *pMsg = (CMessageHeader*)(buff);
                     CDoid src(m_ipMaps.m_localNodeId,m_ipMaps.m_localVirtualIp,0,0);
                     CDoid dest(pItem->m_nNodeId,pItem->m_nVirtualIp,0,0);
-
                     pMsg->Init(0,_COMM_CONNECTION_HEART_BEAT_MSG_ID_,src,&dest,1,false);
+                    pMsg->SetSystemCall();
                     pItem->m_pIfConnection->SendMsg((TUChar*)pMsg,sizeof(CMessageHeader));
                 }
                 else
