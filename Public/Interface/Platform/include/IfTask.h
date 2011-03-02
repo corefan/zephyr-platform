@@ -37,10 +37,7 @@ public:
     virtual TInt32 End(TInt32 threadId)    = 0;
     virtual ~IfTask();
 public:
-    IfTask()
-    {
-        m_pData = NULL;
-    }
+    IfTask();
     //下面几个可以用，但是经测试，相应时间太长(10ms),是我写错了么？
     void    Init4Event();
 

@@ -2,11 +2,18 @@
 #include "..\..\System\include\ProducerAndConsumer.h"
 namespace Zephyr
 {
+IfTask::IfTask()
+{
+    m_pData = NULL;
+    Init4Event();
+}
+
 IfTask::~IfTask()
 {
     if (m_pData)
     {
         //²»Çå¿Õ
+        delete m_pData;
         m_pData = NULL;
     }
 }
