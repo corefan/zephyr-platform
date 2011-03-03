@@ -5,7 +5,10 @@
 #include "IfCommunicator.h"
 #include "Pipe.h"
 #include "TimeSystem.h"
-#include "..\..\Public\Interface\Platform\include\IfTask.h"
+#include "../../Public/Interface/Platform/include/IfTask.h"
+#include "../../System/include/ProducerAndConsumer.h"
+#include "../Net/win/include/NetEventQueue.h"
+
 namespace Zephyr
 {
 
@@ -18,10 +21,13 @@ protected:
     CPipe   m_outPipe;
     TUChar* m_pBuff;
     TUInt32 m_buffSize;
-    CPipe   m_eventPool;
+
     CTimeSystem *m_pTimeSys;
     TUInt64  m_nLastBlockTimes;
-    IfTask  *m_pPendingCommMgr;
+    
+    CIoEventQueue<CConnectionEvent> m_tNetEventQueue; 
+    TUInt32 m_uLastBlockedTime;
+    
 public:
     CCommunicator();
     ~CCommunicator();
@@ -40,16 +46,16 @@ public:
     //do not need the para bNeedCopy any more, I will check it!`
     virtual TInt32 SendMsg(CMessageHeader *pMsg);
 
-    //application should not call this !!! called by work thread only! or else some events would lost!
-    virtual CConnectionEvent GetConnectionEvent(TInt32& result);
+    
+    virtual TInt32 GetNetEvent(CConnectionEvent& result);
 
-    virtual int GetEvent(CConnectionEvent &event);
+ /*   virtual int GetEvent(CConnectionEvent &event);*/
 
     virtual TUInt32 GetLocalTime();
     virtual TUInt32 GetTimeGap(TUInt32 nLast);
     virtual TUInt64 GetPlatfromTime();
     //注意，有阻塞
-    void AddNetEvent(CConnectionEvent event,IfTask *pTask);
+    void AddNetEvent(CConnectionEvent event);
     
 protected:
     //供commMgr使用.

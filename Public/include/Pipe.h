@@ -16,7 +16,7 @@
 namespace Zephyr
 {
 
-#define MIN_PIPE_LENGTH (1024 * 4)
+#define MIN_PIPE_LENGTH (128 * 4)
 
 class CPipe
 {

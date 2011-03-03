@@ -89,6 +89,12 @@ private:
 
     volatile TUInt32            m_nNetBlocked;
 
+    TUInt32                     m_uLastNetAppBlocked;
+    TUInt32                     m_uLastAppAppBlocked;
+
+    TUInt16                     m_uNetBlockedTime;
+    TUInt16                     m_uAppBlockedTime;
+
     CPipe                       m_inPipe;
     CPipe                       m_outPipe;
     
@@ -306,6 +312,8 @@ private:
     TInt32 Reconnect();
     //TInt32 CloseConnection();
     void CheckAppDisconnected();
+    inline int GetNetWaitTime();
+    inline int GetAppWaitTime();
 };
 
 }

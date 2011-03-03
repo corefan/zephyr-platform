@@ -2,7 +2,7 @@
 #include "Mmsystem.h"
 CWinNetTester::CWinNetTester(IfTaskMgr *pTaskMgr,int maxConnectionNr)
 {
-    m_pNet = CreateNet(pTaskMgr,this,&m_parserFactory,NULL,maxConnectionNr);
+    m_pNet = CreateNet(pTaskMgr,&m_parserFactory,NULL,maxConnectionNr);
     if(!m_pNet)
     {
         return;
@@ -22,7 +22,6 @@ TInt32 CWinNetTester::OnInit()
 
 TInt32 CWinNetTester::Init(const char *pMyIp,const char *pRemoteIp,unsigned short myPort,unsigned short remotePort,int passiveConnectionNr,int connectionNr,int initSendMsg)
 {
-    Init4Event();
     m_ConnectionPool.Init(connectionNr);
     strcpy(m_myIp,pMyIp);
     strcpy(m_remoteIp,pRemoteIp);

@@ -9,7 +9,6 @@ CCommunicator::CCommunicator()
     m_pBuff     = NULL;
     m_buffSize  = 0;
     m_pTimeSys = NULL;
-    m_pPendingCommMgr = NULL;
 }
 
 CCommunicator::~CCommunicator()
@@ -41,7 +40,7 @@ TInt32 CCommunicator::Init(CTimeSystem *pTimeSystem,TUInt32 inPipeSize,TUInt32 o
 
 TInt32 CCommunicator::InitEventPool(TUInt32 maxEventNr)
 {
-    return m_eventPool.Init(maxEventNr * sizeof(CConnectionEvent));
+    return m_tNetEventQueue.Init(maxEventNr);
 }
     //add a new idx , that indicate the pipe to use!
 CMessageHeader *CCommunicator::GetMsg(TUInt32 needRetMsgBuff)
@@ -122,11 +121,15 @@ TInt32 CCommunicator::SendMsg(CMessageHeader *pMsg)
 }
 
     //application should not call this !!! called by work thread only! or else some events would lost!
-CConnectionEvent CCommunicator::GetConnectionEvent(TInt32& result)
+TInt32 CCommunicator::GetNetEvent(CConnectionEvent& event)
 {
-    CConnectionEvent tmp;
-    result = m_eventPool.ReadData((TUChar*)&tmp,sizeof(tmp));
-    return tmp;
+    CConnectionEvent *pEvent = m_tNetEventQueue.GetEvent();
+    if(pEvent)
+    {
+        event = *pEvent;
+        return SUCCESS;
+    }
+    return FAIL;
 }
 
 TUInt32 CCommunicator::GetLocalTime()
@@ -144,35 +147,37 @@ TUInt64 CCommunicator::GetPlatfromTime()
     return m_pTimeSys->GetPlatformTime();
 }
 
-void CCommunicator::AddNetEvent(CConnectionEvent event,IfTask *pPendingTask)
+void CCommunicator::AddNetEvent(CConnectionEvent event)
 {
-    TInt32 nLen =  m_eventPool.GetFreeLen();
-    while(nLen < sizeof(CConnectionEvent))
+    TUInt32 nGap = m_pTimeSys->GetTimeGap(m_uLastBlockedTime);
+    m_uLastBlockedTime = m_pTimeSys->GetLocalTime();
+    if (nGap > 100)
     {
-        m_pPendingCommMgr = pPendingTask;
-        pPendingTask->Wait4Event();
-        nLen = m_eventPool.GetFreeLen();
+        m_tNetEventQueue.AddEvent(event,30);
     }
-    m_eventPool.WriteData((TUChar*)&event,sizeof(CConnectionEvent));
+    else
+    {
+        m_tNetEventQueue.AddEvent(event,0);
+    }
 }
 
-int CCommunicator::GetEvent(CConnectionEvent &event)
-{
-    TInt32 nLen = m_eventPool.GetDataLen();
-    if (nLen >= sizeof(CConnectionEvent))
-    {
-        nLen = m_eventPool.ReadData((TUChar*)&event,sizeof(CConnectionEvent));
-    }
-    if (m_pPendingCommMgr)
-    {
-        if (m_eventPool.GetFreeLen() >= sizeof(CConnectionEvent))
-        {
-            m_pPendingCommMgr->OnNewEvent();
-            m_pPendingCommMgr = NULL;
-        }
-    }
-    return nLen;
-}
+// int CCommunicator::GetEvent(CConnectionEvent &event)
+// {
+//     TInt32 nLen = m_eventPool.GetDataLen();
+//     if (nLen >= sizeof(CConnectionEvent))
+//     {
+//         nLen = m_eventPool.ReadData((TUChar*)&event,sizeof(CConnectionEvent));
+//     }
+//     if (m_nNetBlocked)
+//     {
+//         if (m_eventPool.GetFreeLen() >= sizeof(CConnectionEvent))
+//         {
+//             m_pPendingCommMgr->OnNewEvent();
+//             m_pPendingCommMgr = NULL;
+//         }
+//     }
+//     return nLen;
+// }
 
 TInt32 CCommunicator::AddNetMsg(CMessageHeader *pMsg)
 {
@@ -197,16 +202,7 @@ TInt32 CCommunicator::AddNetMsg(CMessageHeader *pMsg)
                 {
                     return m_inPipe.WriteData((TUChar*)pMsg,pMsg->GetLength());
                 }
-                //else
-                //{
-                      //扔掉消息
-                //}
-                
             }
-            //else
-            //{
-                //扔掉消息
-            //}
         }
     }
     //记下日志，然后扔掉

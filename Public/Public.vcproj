@@ -254,14 +254,6 @@
 						>
 					</File>
 				</Filter>
-				<Filter
-					Name="source"
-					>
-					<File
-						RelativePath=".\Interface\Platform\source\IfTask.cpp"
-						>
-					</File>
-				</Filter>
 			</Filter>
 			<Filter
 				Name="App"

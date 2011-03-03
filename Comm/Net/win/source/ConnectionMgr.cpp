@@ -21,10 +21,9 @@ CConnectionMgr::~CConnectionMgr()
     //Final();
 }
 
-TInt32 CConnectionMgr::Init(TUInt32 maxConnectionNum,IfTaskMgr *pTaskMgr,IfTask *pUser,IfParserFactory* pParserFactory,IfCryptorFactory *pIfCryptorfactory,TUInt32 buffSize)
+TInt32 CConnectionMgr::Init(TUInt32 maxConnectionNum,IfTaskMgr *pTaskMgr,IfParserFactory* pParserFactory,IfCryptorFactory *pIfCryptorfactory,TUInt32 buffSize)
 {
     int result = m_conncectionPool.Init(maxConnectionNum,buffSize);
-    m_pUser = pUser;
     if (SUCCESS > result)
     {
         return result;
@@ -99,7 +98,7 @@ TInt32 CConnectionMgr::Init(TUInt32 maxConnectionNum,IfTaskMgr *pTaskMgr,IfTask 
     m_pParserFactory = pParserFactory;
     m_pCryptorFactory = pIfCryptorfactory;
     
-    result = m_netEventQueues.Init(maxConnectionNum,m_pUser);
+    result = m_netEventQueues.Init(maxConnectionNum);
     return result;
 }
 
@@ -175,7 +174,7 @@ TInt32 CConnectionMgr::Run(TUInt32 runCnt)
         {
             //先确认处理了消息，这样网络层如果有新事件，也会发事件通知.
             pConnection->OnAppRecved();
-            //由应用层调用，如果返回-1，则表示需要释放连接,把链接closeb ,并且放回connectionPool
+            //由应用层调用，如果返回-1，则表示需要释放连接,把链接close ,并且放回connectionPool
             TInt32 ret = pConnection->AppRoutine(m_pBuff,m_buffSize);
             //不能先处理，再确认，因为，可能在处理完了，即上句执行完了，网络层又有了新事件，就会丢失.
             //pConnection->OnAppRecved();

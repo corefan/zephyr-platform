@@ -2,6 +2,7 @@
 #include "ConnectionMgr.h"
 #include "SysMacros.h"
 #include "NetApi.h"
+#include <time.h>
 namespace Zephyr
 {
 
@@ -763,7 +764,7 @@ void CConnection::OnAppSend()
         event.m_seqNum              = m_appSeqNum;
         event.m_connectionIdx       = m_connectionIdx;
         event.m_connectionEvents    = event_connection_has_new_data_to_send;
-        m_pEventQueues->AddAppEvent(event);
+        m_pEventQueues->AddAppEvent(event,GetAppWaitTime());
     }
 }
 
@@ -781,7 +782,7 @@ void CConnection::OnAppDisconnected()
         event.m_seqNum              = m_appSeqNum;
         event.m_connectionIdx       = m_connectionIdx;
         event.m_connectionEvents    = event_connection_is_aborted;
-        m_pEventQueues->AddAppEvent(event);
+        m_pEventQueues->AddAppEvent(event,GetAppWaitTime());
     }
 }
 //网络层发送了数据
@@ -810,9 +811,8 @@ void CConnection::OnNetRecv()
         event.m_seqNum           = m_netSeqNum;
         event.m_connectionIdx    = m_connectionIdx;
         event.m_connectionEvents = event_connection_has_new_data_to_read;
-        m_pEventQueues->AddNetEvent(event);
+        m_pEventQueues->AddNetEvent(event,GetNetWaitTime());
     }
-    m_pEventQueues->AwakeApp();
 }
 //应用层收取了网络层的书
 void CConnection::OnAppRecved()
@@ -834,7 +834,7 @@ void CConnection::OnAppHandled()
         event.m_seqNum           = m_netSeqNum;
         event.m_connectionIdx    = m_connectionIdx;
         event.m_connectionEvents = event_connection_app_handled;
-        if (m_pEventQueues->AddNetEvent(event) >= SUCCESS)
+        if (m_pEventQueues->AddNetEvent(event,-1) >= SUCCESS)
         {
             m_nNetBlocked = 0;
         }
@@ -930,7 +930,7 @@ void CConnection::OnNetDisconnected()
             event.m_seqNum           = m_netSeqNum;
             event.m_connectionIdx    = m_connectionIdx;
             event.m_connectionEvents = event_connection_is_broken;
-            m_pEventQueues->AddNetEvent(event);
+            m_pEventQueues->AddNetEvent(event,GetNetWaitTime());
         }
     }
 }
@@ -961,6 +961,46 @@ TInt32 CConnection::GetPendingDataLen()
         return m_inPipe.GetDataLen();
     }
     return NOT_INITIALIZED;
+}
+
+inline int CConnection::GetNetWaitTime()
+{
+    TUInt32 uTimeNow = time(0);
+    if (m_uNetBlockedTime == uTimeNow)
+    {
+        ++m_uNetBlockedTime;
+        if(m_uNetBlockedTime < 10)
+        {
+            return 15;
+        }
+    }
+    else
+    {
+        m_uNetBlockedTime = uTimeNow;
+        m_uNetBlockedTime = 0;
+        return 30;
+    }
+    return 0;
+    
+}
+inline int CConnection::GetAppWaitTime()
+{
+    TUInt32 uTimeNow = time(0);
+    if (m_uAppBlockedTime == uTimeNow)
+    {
+        if(m_uAppBlockedTime < 10)
+        {
+            ++m_uAppBlockedTime;
+            return 15;
+        }
+    }
+    else
+    {
+        m_uAppBlockedTime = uTimeNow;
+        m_uAppBlockedTime = 0;
+        return 20;
+    }
+    return 0;
 }
 
 }

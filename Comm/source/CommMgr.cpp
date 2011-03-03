@@ -34,7 +34,7 @@ TInt32 CCommMgr::Init(int nrOfWorkerThread,IfTaskMgr *pTaskMgr,IfLoggerManager *
 #endif
         return OUT_OF_MEM;
     }
-    m_pNet = CreateNet(pTaskMgr,this,m_pParserFactory,NULL,(m_ipMaps.m_nrOfVirtualIp + 5)/*多加5个*/);
+    m_pNet = CreateNet(pTaskMgr,m_pParserFactory,NULL,(m_ipMaps.m_nrOfVirtualIp + 5)/*多加5个*/);
     if (!m_pNet)
     {
 #ifdef _DEBUG
@@ -550,7 +550,7 @@ void   CCommMgr::OnConnected(CCommConnection *pConnection)
     event.m_nEvent  = en_connection_is_established_event;
     for (int i=0;i<m_nrOfComm;++i)
     {
-        m_pCommunicators[i].AddNetEvent(event,this);
+        m_pCommunicators[i].AddNetEvent(event);
     }
     if (pLast)
     {
@@ -576,7 +576,7 @@ void   CCommMgr::OnDisconnected(CCommConnection *pConnection,TBool bIsNegative)
         event.m_nEvent  = en_connection_is_broken_event;
         for (int i=0;i<m_nrOfComm;++i)
         {
-            m_pCommunicators[i].AddNetEvent(event,this);
+            m_pCommunicators[i].AddNetEvent(event);
         }
     }
 }

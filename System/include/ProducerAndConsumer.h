@@ -24,7 +24,6 @@
 namespace Zephyr
 {
 
-
 class CProduerAndConsumer
 {
 private:
@@ -32,9 +31,9 @@ private:
     #ifdef _WIN32
     HANDLE  m_cond;
     #else   //Linux
-    TUInt32 m_productsNr;
+    volatile TUInt32 m_productsNr;
     pthread_mutex_t m_mutex;
-    pthread_cond_t  m_cond;k
+    pthread_cond_t  m_cond;
     #endif
 public:
     CProduerAndConsumer();

@@ -2,38 +2,16 @@
 #include "..\..\System\include\ProducerAndConsumer.h"
 namespace Zephyr
 {
-IfTask::IfTask()
+
+
+TInt32  IfTask::Wait4Event(void *pProducerAndConsumer,TInt32 timeout)
 {
-    m_pData = NULL;
-    Init4Event();
+    return ((CProduerAndConsumer*)pProducerAndConsumer)->RequireFetchProduct(timeout);
 }
 
-IfTask::~IfTask()
+void IfTask::OnNewEvent(void *pProducerAndConsumer)
 {
-    if (m_pData)
-    {
-        //²»Çå¿Õ
-        delete m_pData;
-        m_pData = NULL;
-    }
-}
-
-void IfTask::Init4Event()
-{
-    if (!m_pData)
-    {
-        m_pData = new CProduerAndConsumer();
-    }
-}
-
-TInt32  IfTask::Wait4Event(TInt32 timeout)
-{
-    return ((CProduerAndConsumer*)m_pData)->RequireFetchProduct(timeout);
-}
-
-void IfTask::OnNewEvent()
-{
-    ((CProduerAndConsumer*)m_pData)->OnProduced();
+    ((CProduerAndConsumer*)pProducerAndConsumer)->OnProduced();
 }
 
 

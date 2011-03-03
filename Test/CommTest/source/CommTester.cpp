@@ -20,8 +20,8 @@ TInt32 CCommTester::Run(const TInt32 threadId,const TInt32 runCnt)
     }
     CConnectionEvent event;
     
-    int usedCnt = m_pComms->GetEvent(event);
-    while (usedCnt)
+    int usedCnt = m_pComms->GetNetEvent(event);
+    while (usedCnt>=0)
     {
         if (event.m_nEvent == en_connection_is_established_event)
         {
@@ -42,7 +42,7 @@ TInt32 CCommTester::Run(const TInt32 threadId,const TInt32 runCnt)
         {
             //¶ÏÁ´ÁË
         }
-        usedCnt = m_pComms->GetEvent(event);
+        usedCnt = m_pComms->GetNetEvent(event);
     }
     for (int i=0;i<runCnt;++i)
     {

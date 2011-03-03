@@ -22,7 +22,7 @@ TBool    CProduerAndConsumer::OnProduced()
     return SetEvent(m_cond);
 #else
     pthread_mutex_lock(&m_mutex);
-    ++m_productsNr;
+    m_productsNr = 1;
     bool ret = pthread_cond_signal(&m_cond);
     pthread_mutex_unlock(&m_mutex);
     return ret;
@@ -70,7 +70,7 @@ TInt32 CProduerAndConsumer::RequireFetchProduct(TUInt32 timeout)
         int retcode=int  pthread_cond_reltimedwait_np(&m_cond,&m_mutex,&ts);
         //if (m_productsNr)
         {
-            int result = m_productsNr;
+            int result = (int)m_productsNr;
             m_productsNr = 0;
             pthread_mutex_unlock(&m_mutex);
             return result;
