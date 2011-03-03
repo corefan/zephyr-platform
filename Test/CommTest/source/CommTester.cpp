@@ -44,6 +44,7 @@ TInt32 CCommTester::Run(const TInt32 threadId,const TInt32 runCnt)
         }
         usedCnt = m_pComms->GetNetEvent(event);
     }
+    usedCnt = 0;
     for (int i=0;i<runCnt;++i)
     {
         CMessageHeader *pMsg = m_pComms->GetMsg();
