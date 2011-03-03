@@ -127,6 +127,7 @@ TInt32 CCommunicator::GetNetEvent(CConnectionEvent& event)
     if(pEvent)
     {
         event = *pEvent;
+        ConfirmHandleEvent(pEvent);
         return SUCCESS;
     }
     return FAIL;
