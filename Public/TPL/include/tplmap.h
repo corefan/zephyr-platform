@@ -24,6 +24,8 @@ using namespace std;
 #endif
 
 
+#include "TplPool.h"
+
 namespace Zephyr
 {
 
@@ -32,12 +34,11 @@ class TplNode : public CItem
 {
 public:
     //CKey                       m_key;
-    TUInt32               m_nodeSize:31;
-    TUInt32               m_isActive:1;
-
     TplNode<CItem,CKey>*    m_pLeftNode;
     TplNode<CItem,CKey>*    m_pRightNode;
     TplNode<CItem,CKey>*    m_pParent;
+    TUInt32               m_nodeSize:31;
+    TUInt32               m_isActive:1;
 public:
     void     CheckTree()
     {
@@ -1259,9 +1260,7 @@ class TplMap
     };
 
 private:
-    TUInt32                  m_nBlockNr;
-    TMemBlock                *m_pBlocks;
-    TInt32                   m_nTotalSize;
+
     //TInt32                   m_nMaxSize;
     //TplNode<CItem,CKey>*     m_pItem;
     TplNode<CItem,CKey>*     m_pRear;
@@ -1277,13 +1276,25 @@ private:
             return FALSE;
         }
         //每次增加1/4
-        int expand = (m_nTotalSize << 1) + 1;
-
-        TplNode<CItem,CKey>* pItem = new TplNode<CItem,CKey>[expand];
-        TMemBlock *pBlock = new TMemBlock[m_nBlockNr+1];
-        if ((NULL == pItem)||(NULL == pBlock))
+        int expand = (m_nTotalSize >> 2) + 1;
+        TplNode<CItem,CKey>* pItem = NULL;;
+        TMemBlock *pBlock = NULL;
+        try
         {
-            return FALSE;
+            pItem = new TplNode<CItem,CKey>[expand];
+            pBlock = new TMemBlock[m_nBlockNr+1];
+        }
+        catch(...)
+        {
+            
+        }
+        if (NULL == pBlock)
+        {
+            if (pItem)
+            {
+                delete [] pItem;
+                return FALSE;
+            }
         }
         
         memcpy(pBlock,m_pBlocks,(sizeof(TMemBlock)*m_nBlockNr));

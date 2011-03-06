@@ -16,7 +16,7 @@ private:
     {
     public:
         CPoolMem    *m_pMemPoolNext;
-        CListNode<CMemBlock>  *m_pBelongsTo;
+        CMemBlock   *m_pBelongsTo;
     public:
         void Init(CPoolMem *pNext,CListNode<CMemBlock>  *pBelongs2)
         {
@@ -32,6 +32,7 @@ private:
         CPoolMem *m_pFree;
         int       m_nSize;
         int       m_nFree;
+        CList<CMemBlock> *m_pBelongsTo;
         bool Belongs2Me(CPoolMem *pPools)
         {
             if ((pPools >= m_pPools) && (pPools < m_pPools+m_nSize))
@@ -41,47 +42,52 @@ private:
             return false;
         }
     public:
+        friend CPool;
         int GetFreeNr()
         {
             return m_nFree;
         }
-        int Init(int size,CListNode<CMemBlock> *pBlock)
+        CMemBlock()
         {
-            //不能只分配1个吧？！
-            if (size == 1)
-            {
-                size = 2;
-            }
-            try
-            {
-                m_pPools = new CPoolMem[size];
-            }
-            catch (...)
-            {
-            }
-            if (m_pPools)
-            {
-                for (int i=0;i<size;++i)
-                {
-                    m_pPools[i].Init((m_pPools+i),pBlock);
-                }
-                m_pPools[size-1].m_pMemPoolNext = NULL;
-            }
-            else
-            {
-                return OUT_OF_MEM;
-            }
-            m_pFree = m_pPools;
-            m_nFree = size;
-            m_nSize = size;
-            return SUCCESS;
-            //m_pNextBlock = NULL;
+            m_nFree = 0;
+            m_nSize = 0;
+            m_pPools = NULL;
+            m_pFree  = NULL;
+            m_pBelongsTo = NULL;
         }
         ~CMemBlock()
         {
             if (m_pPools)
             {
                 delete []m_pPools;
+            }
+        }
+        int Init(int nSize,CList<CMemBlock> *pBlongsTo)
+        {
+            try
+            {
+                m_pPools = new CPoolMem[nSize];
+            }
+            catch (...)
+            {
+            	
+            }
+            if (m_pPools)
+            {
+                for (int i=0;i<nSize;++i)
+                {
+                    m_pPools[i].m_pMemPoolNext = m_pPools + i + 1;
+                }
+                m_pPools[nSize-1].m_pMemPoolNext = NULL;
+                m_pFree = m_pPools;
+                m_nSize = nSize;
+                m_nFree = nSize;
+                m_pBelongsTo = pBlongsTo;
+                return nSize;
+            }
+            else
+            {
+                return OUT_OF_MEM;
             }
         }
         bool IsEmpty()
@@ -116,6 +122,7 @@ private:
             return false;
         }
     };
+    
     CList<CMemBlock> m_tUsingMemBlocks;
     CList<CMemBlock> m_tFullMemBlocks;
     CListNode<CMemBlock> *m_pMainBlock;
@@ -141,13 +148,12 @@ public:
         {
             return OUT_OF_MEM;
         }
-        m_tUsingMemBlocks.push_front(pBlock);
-        int nRet = pBlock->Init(size,pBlock);
-        if (nRet < 0)
+        int nRet = pBlock->Init(size,m_tUsingMemBlocks);
+        if (nRet < SUCCESS)
         {
-            delete pBlock;
             return nRet;
         }
+        m_tUsingMemBlocks.push_back(pBlock);
         m_pMainBlock = pBlock;
         m_nInitSize = size;
         m_nFreeNr   = size;
@@ -161,29 +167,60 @@ public:
         }
         return false;
     }
-    void OnBlockUsed(CListNode<CMemBlock> *pBlocks)
+    void OnBlockUsed(CListNode<CMemBlock> *pBlock)
     {
-        if (pBlocks->IsEmpty())
+        if (pBlock->IsEmpty()) //空了!
         {
-            m_tUsingMemBlocks.HandleOver(&m_tFullMemBlocks,pBlocks);
+            pBlock->m_pBelongsTo->Detach(pBlock);
+            m_tFullMemBlocks.push_front(pBlock);
+            pBlock->m_pBelongsTo = &m_tFullMemBlocks;
         }
     }
     //之时是否要delete 这个块所属的Blocks
-    void OnBlockRecycled(CListNode<CMemBlock> *pBlock,bool bIsEmpty)
+    void OnBlockRecycled(CListNode<CMemBlock> *pBlock)
     {
-        if (bIsEmpty)
+        
+        if (IsNotMainBlock(pBlock)) //非主块，放后面
         {
-            m_tFullMemBlocks.HandleOver(&m_tUsingMemBlocks,pBlock);
-        }
-        else
-        {
-            if (pBlock != m_pMainBlock)
+            pBlock->m_pBelongsTo->Detach(pBlock);
+            pBlock->m_pBelongsTo = &m_tUsingMemBlocks;
+            if (pBlock->CanRecycle()) //能回收，则放队尾
             {
-                if (pBlock->CanRecycle())
+                m_tUsingMemBlocks.push_back(pBlock);
+            }
+            else //不能
+            {
+                //如果队首是主块，则放主块后面
+                if (m_tUsingMemBlocks.header() == m_pMainBlock)
                 {
-                    m_tUsingMemBlocks.Detach(pBlock);
-                    delete pBlock;
+                    m_pMainBlock->Attach(pBlock);       
                 }
+                else
+                {
+                    m_tUsingMemBlocks.push_front(pBlock);
+                }
+            }
+        }
+        else //主块放前面，每次用header的，帮助非主块释放
+        {
+            if (pBlock->m_pBelongsTo != &m_tUsingMemBlocks)
+            {
+                pBlock->m_pBelongsTo->Detach(pBlock);
+                pBlock->m_pBelongsTo = & m_tUsingMemBlocks;
+                m_tUsingMemBlocks.push_front(pBlock);
+            }
+        }
+        ++m_nFreeNr;
+        if (m_nFreeNr > (m_nInitSize>>1))
+        {
+            CListNode<CMemBlock> *pRear = m_tUsingMemBlocks.rear();
+            if ((pRear)&&(IsNotMainBlock(pRear))&&(pRear->CanRecycle()))
+            {
+                CListNode<CMemBlock> *pDel = pRear;
+                m_tUsingMemBlocks.Detach(pRear);
+                pRear = m_tUsingMemBlocks.rear();
+                m_nFreeNr -= pDel->m_nSize;
+                delete pDel;
             }
         }
     }
@@ -233,12 +270,11 @@ public:
     {
         CPoolMem *p = (CPoolMem*)pMem;
         CListNode<CMemBlock>  *pBlock = p->m_pBelongsTo;
-        bool bIsEmpty = pBlock->IsEmpty();
         if(pBlock->ReleaseMem(p))
         {
             ++m_nFreeNr;
         }
-        OnBlockRecycled(pBlock,bIsEmpty);
+        OnBlockRecycled(pBlock);
         return true;
     }
 };

@@ -230,7 +230,7 @@ return m_##LISTCLASS##List.m_pNext;\
 }\
 LISTCLASS *GetPrev()\
 {\
-    return m_##LISTCLASS##List.m_pNext;\
+    return m_##LISTCLASS##List.m_pPrev;\
 }\
 void Detach() \
 { \
@@ -250,6 +250,7 @@ void Attach(LISTCLASS* pConnection)\
 if (pConnection)\
 {\
     pConnection->m_##LISTCLASS##List.m_pPrev = this;\
+    pConnection->m_##LISTCLASS##List.m_pNext = m_##LISTCLASS##List.m_pNext;\
 }\
     m_##LISTCLASS##List.m_pNext = pConnection;\
 }\
