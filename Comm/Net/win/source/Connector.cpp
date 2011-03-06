@@ -47,7 +47,7 @@ TInt32 CConnector::Init(TInt32 maxPendingConnections,HANDLE completionPort,ItemC
 TInt32 CConnector::Run(const TUInt32 runCnt)
 {
     int usedCnt = 0;
-    if (!m_pendingSocket.GetSize())
+    if (!m_pendingSocket.GetFreeSize())
     {
         return SUCCESS;
     }
