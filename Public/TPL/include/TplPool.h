@@ -77,6 +77,7 @@ private:
                 for (int i=0;i<nSize;++i)
                 {
                     m_pPools[i].m_pMemPoolNext = m_pPools + i + 1;
+                    m_pPools[i].m_pBelongsTo = this;
                 }
                 m_pPools[nSize-1].m_pMemPoolNext = NULL;
                 m_pFree = m_pPools;
@@ -195,24 +196,7 @@ public:
     {
         if (IsNotMainBlock(pBlock)) //非主块，放后面
         {
-            pBlock->m_pBelongsTo->Detach(pBlock);
-            pBlock->m_pBelongsTo = &m_tUsingMemBlocks;
-            if (pBlock->CanRecycle()) //能回收，则放队尾
-            {
-                m_tUsingMemBlocks.push_back(pBlock);
-            }
-            else //不能
-            {
-                //如果队首是主块，则放主块后面
-                if (m_tUsingMemBlocks.header() == m_pMainBlock)
-                {
-                    m_pMainBlock->Attach(pBlock);       
-                }
-                else
-                {
-                    m_tUsingMemBlocks.push_front(pBlock);
-                }
-            }
+           
         }
         else //主块放前面，每次用header的，帮助非主块释放
         {
@@ -275,7 +259,7 @@ public:
         }
         if (pBlock)
         {
-            m_tUsingMemBlocks.push_front(pBlock);
+            //m_tUsingMemBlocks.push_front(pBlock);
             m_nFreeNr += pBlock->GetFreeNr();
             //肯定成功
             --m_nFreeNr;

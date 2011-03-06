@@ -60,6 +60,12 @@ public:
             CListNode<BASE_CLASS> *pRtn = m_pRear;
             if (m_pHeader == m_pRear)
             {
+#ifdef _DEBUG
+                if ((m_pRear->GetNext())||(m_pRear->GetPrev()))
+                {
+                    printf("ListNode Incorrect!");
+                }
+#endif
                 m_pHeader = NULL;
                 m_pRear   = NULL;
             }
