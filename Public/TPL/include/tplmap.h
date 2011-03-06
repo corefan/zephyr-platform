@@ -157,9 +157,11 @@ public:
                     m_pLeftNode = NULL;
                     m_pRightNode = NULL;
                     m_pParent    = NULL;
+                    Active();
                 }
     void        UnInit()
                 {
+                    Deactive();
                     m_nodeSize = 0;
                     m_isActive = 0;
                     m_pLeftNode = NULL;
@@ -1253,68 +1255,14 @@ TplNode<CItem,CKey> *TplNode<CItem,CKey>::ReleaseNode(CKey& key)
 template<class CItem, class CKey>
 class TplMap
 {
-    struct TMemBlock
-    {
-        TInt32                   m_nSize;
-        TplNode<CItem,CKey>*     m_pItem;
-    };
-
 private:
 
     //TInt32                   m_nMaxSize;
     //TplNode<CItem,CKey>*     m_pItem;
-    TplNode<CItem,CKey>*     m_pRear;
-    TplNode<CItem,CKey>*     m_pHead;
+    CPool<TplNode<CItem,CKey> > m_tPool;
     TplNode<CItem,CKey>*     m_pTree;
 private:
-    TBool ExpandMem()
-    {
-        if (!m_pRear)
-        {
-            //这不应该！，除非是没有初始化
-            printf("Map Not Initialized!");
-            return FALSE;
-        }
-        //每次增加1/4
-        int expand = (m_nTotalSize >> 2) + 1;
-        TplNode<CItem,CKey>* pItem = NULL;;
-        TMemBlock *pBlock = NULL;
-        try
-        {
-            pItem = new TplNode<CItem,CKey>[expand];
-            pBlock = new TMemBlock[m_nBlockNr+1];
-        }
-        catch(...)
-        {
-            
-        }
-        if (NULL == pBlock)
-        {
-            if (pItem)
-            {
-                delete [] pItem;
-                return FALSE;
-            }
-        }
-        
-        memcpy(pBlock,m_pBlocks,(sizeof(TMemBlock)*m_nBlockNr));
-        
-
-        m_pBlocks[m_nBlockNr].m_nSize = expand;
-        m_pBlocks[m_nBlockNr].m_pItem = pItem;
-        ++m_nBlockNr;
-        m_nTotalSize += expand;
-        for (TInt32 i=0;i< expand;i++)
-        {
-            //pointer to itself
-            (pItem + i)->m_pLeftNode  = (pItem + i);
-            (pItem + i)->m_pRightNode = (pItem + i + 1);
-        }
-        (pItem + expand -1)->m_pRightNode = NULL;
-        m_pRear->m_pRightNode = pItem;
-        m_pRear = pItem;
-        return TRUE;
-    }
+    
 public:
 	TplNode<CItem,CKey>*     GetRoot()
 	{
@@ -1400,16 +1348,7 @@ public:
     TInt32 Init(TInt32 size);
     void UnInit()
     {
-        if (m_pBlocks)
-        {
-            for (int i = 0;i<m_nBlockNr;++i)
-            {
-                 DELETEP(m_pBlocks[i].m_pItem);
-            }
-            DELETEP(m_pBlocks);
-            m_nBlockNr = 0;
-        }
-
+        m_tPool.Final();
     }
     //first get the Item
     CItem        *GetItem(TInt32& result,CKey* pKey=NULL);
@@ -1439,9 +1378,9 @@ public:
     TInt32      AddInTree(CItem* pItem, CKey* pKey);
 
     CItem   *GetItemByKey(CKey* pKey);
-    TInt32         GetSize()
+    TInt32         GetFreeSize()
                 {
-                    return m_nTotalSize;
+                    return m_tPool.GetFreeNr();
                 }
 
     TInt32         PrintTree()
@@ -1473,50 +1412,19 @@ public:
 template<class CItem, class CKey>
 TInt32 TplMap<CItem,CKey>::Init(TInt32 size)
 {
-
     if (size < 0)
     {
         return INPUT_PARA_ERROR;
     }
     // 0 ~ 1G memory was used as system area.
     //may have warnings, but it's ok.
-
-    
-    TplNode<CItem,CKey>* pItem = new TplNode<CItem,CKey>[size];
-    if (NULL == pItem)
-    {
-        return OUT_OF_MEM;
-    }
-    m_nBlockNr = 1;
-    m_pBlocks = new TMemBlock;
-    m_pBlocks->m_nSize = size;
-    m_pBlocks->m_pItem = pItem;
-    m_nTotalSize = size;
-    for (TInt32 i=0;i< size;i++)
-    {
-        //pointer to itself
-        (pItem + i)->m_pLeftNode  = (pItem + i);
-        (pItem + i)->m_pRightNode = (pItem + i + 1);
-    }
-    (pItem + size -1)->m_pRightNode = NULL;
-    m_pRear = (pItem + size -1);
-    m_pHead = pItem;
     m_pTree = NULL;
-    return SUCCESS;
+    return m_tPool.InitPool(size);
 }
 
 template<class CItem, class CKey>
 CItem *TplMap<CItem,CKey>::GetItem(TInt32& result,CKey* pKey)
 {
-    if (m_pHead->m_pRightNode == m_pRear)
-    {
-       //out of memory!
-       if (FALSE == ExpandMem())
-       {
-           result = OUT_OF_MEM;
-           return NULL;
-       }
-    }
     if (pKey)
     {
         if (GetItemByKey(pKey))
@@ -1526,10 +1434,16 @@ CItem *TplMap<CItem,CKey>::GetItem(TInt32& result,CKey* pKey)
         }
     }
     //get a new node;
-    TplNode<CItem,CKey>* pResult = m_pHead;
-    m_pHead = m_pHead->m_pRightNode;
-    pResult->Init();
-
+    TplNode<CItem,CKey>* pResult = m_tPool.GetMem();
+    if (pResult)
+    {
+        pResult->Init();
+    }
+    else
+    {
+        result = OUT_OF_MEM;
+        return NULL;
+    }
     if (pKey)
     {
         pResult->m_key = *pKey;
@@ -1589,17 +1503,10 @@ TInt32 TplMap<CItem,CKey>::ReleaseItem(CItem * pItem)
             m_pTree = m_pTree->ReleaseNode(pNew->m_key);
             //END ADD 01-04-2009 S0032 TDS00035
         }
-        else
-        {
-            return NOT_BELONG_TO_THIS_CAPSULA;
-        }
     }
     //force upper casting, because we know it's ok.
-    m_pRear->m_pRightNode= pNew;
-    pNew->m_pRightNode = NULL;
-    pNew->m_pLeftNode  = pNew;
-    m_pRear = pNew;
-    return SUCCESS;
+    pNew->UnInit();
+    return m_tPool.ReleaseMem(pNew);
 }
 
 template<class CItem, class CKey>

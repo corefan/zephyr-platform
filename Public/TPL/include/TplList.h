@@ -47,8 +47,8 @@ public:
             else
             {
                 m_pHeader = m_pHeader->GetNext();
+                pRtn->Detach();
             }
-            pRtn->Detach();
             return pRtn;
         }
         return NULL;
@@ -66,8 +66,8 @@ public:
             else
             {
                 m_pRear = m_pRear->GetPrev();
+                pRtn->Detach();
             }
-            pRtn->Detach();
             return pRtn;
         }
         return NULL;
@@ -126,6 +126,11 @@ public:
     {
         Detach(p);
         pTo->push_front(p);
+    }
+    void clear()
+    {
+        m_pHeader = NULL;
+        m_pRear   = NULL;
     }
 };
 

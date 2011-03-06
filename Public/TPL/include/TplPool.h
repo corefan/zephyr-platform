@@ -129,6 +129,10 @@ private:
     int        m_nInitSize;
     int        m_nFreeNr;
 public:
+    ~CPool()
+    {
+        Final();
+    }
     int GetFreeNr()
     {
         return m_nFreeNr;
@@ -148,7 +152,7 @@ public:
         {
             return OUT_OF_MEM;
         }
-        int nRet = pBlock->Init(size,m_tUsingMemBlocks);
+        int nRet = pBlock->Init(size,&m_tUsingMemBlocks);
         if (nRet < SUCCESS)
         {
             return nRet;
@@ -158,6 +162,16 @@ public:
         m_nInitSize = size;
         m_nFreeNr   = size;
         return SUCCESS;
+    }
+    void Final()
+    {
+        CListNode<CMemBlock> *p = m_tUsingMemBlocks.pop_front();
+        while (p)
+        {
+            CListNode<CMemBlock> *pDel = p;
+            p = m_tUsingMemBlocks.pop_front();
+            delete pDel;
+        }
     }
     bool IsNotMainBlock(CMemBlock* pBlock)
     {
@@ -179,7 +193,6 @@ public:
     //之时是否要delete 这个块所属的Blocks
     void OnBlockRecycled(CListNode<CMemBlock> *pBlock)
     {
-        
         if (IsNotMainBlock(pBlock)) //非主块，放后面
         {
             pBlock->m_pBelongsTo->Detach(pBlock);
@@ -250,10 +263,14 @@ public:
         }
         if (pBlock)
         {
-            if (pBlock->Init(((m_nInitSize>>1)+1),pBlock) < SUCCESS)
+            if (pBlock->Init(((m_nInitSize>>1)+1),&m_tUsingMemBlocks) < SUCCESS)
             {
                 delete pBlock;
                 return NULL;
+            }
+            else
+            {
+                m_tUsingMemBlocks.push_back(pBlock);
             }
         }
         if (pBlock)
@@ -269,7 +286,7 @@ public:
     bool ReleaseMem(Mem *pMem)
     {
         CPoolMem *p = (CPoolMem*)pMem;
-        CListNode<CMemBlock>  *pBlock = p->m_pBelongsTo;
+        CListNode<CMemBlock>  *pBlock = (CListNode<CMemBlock>  *)p->m_pBelongsTo;
         if(pBlock->ReleaseMem(p))
         {
             ++m_nFreeNr;
