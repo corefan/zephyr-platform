@@ -69,6 +69,48 @@ BOOL CDBTransationWorkThread::OnStart()
 {
 	return SUCCESS;
 }
+
+void CDBTransationWorkThread::SafeTerminate(int timeout)
+{
+    m_nRun = 0;
+    unsigned int uTimeNow = time(0);
+    CEasyTimer timer;
+    timer.SetTimeOut(uTimeNow);
+    while(0 == m_nRun)
+    {
+        SleepT(15);
+        if (timer.IsTimeOut())
+        {
+            break;
+        }
+        if (m_nRun != 0)
+        {
+            break;
+        }
+    }
+}
+
+int CDBTransationWorkThread::Start()
+{
+    m_nRun = 1;
+#ifdef _WIN32
+    return _beginthread(CDBTransationWorkThread::Run,(512*1024),(void*)this);
+#else
+
+#endif
+    return SUCCESS;
+}
+
+void CDBTransationWorkThread::Run(void *pArg)
+{
+    CDBTransationWorkThread *pThread = (CDBTransationWorkThread*)pArg;
+    while (pThread->m_nRun)
+    {
+        pThread->OnRun();
+    }
+    pThread->m_nRun = -1;
+}
+
 BOOL CDBTransationWorkThread::OnRun()
 {
 	CDBTransaction * pDBTansaction=NULL;

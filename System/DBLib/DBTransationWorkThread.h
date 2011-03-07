@@ -20,7 +20,8 @@ protected:
 	CThreadSafeList<CDBTransaction *>	m_TransQueue;
 	CThreadSafeList<CDBTransaction *>	m_FinishTransQueue;
 	CEasyTimer							m_ConnectionTestTimer;
-
+    
+    volatile        int                 m_nRun;
 	
 public:
 	CDBTransationWorkThread(CDBTransationManager * pManager);
@@ -45,6 +46,7 @@ public:
     int Start();
 
 protected:
+    static void Run(void *pArg);
 	virtual BOOL OnStart();	
 	virtual BOOL OnRun();
 	virtual void OnBeginTerminate();
