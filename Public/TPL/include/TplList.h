@@ -13,7 +13,9 @@
 #define _S_LIST_TEMPLATE_H_
 
 #include "../../include/SysMacros.h"
-
+#ifdef _DEBUG
+#include "stdio.h"
+#endif
 //¼Ù¶¨
 template<class BASE_CLASS>
 class CListNode : public BASE_CLASS
@@ -91,7 +93,7 @@ public:
     {
         if (m_pHeader)
         {
-            p->Attach(m_pHeader);
+            p->AttachList(m_pHeader);
             m_pHeader = p;
         }
         else
@@ -104,7 +106,7 @@ public:
     {
         if (m_pRear)
         {
-            m_pRear->Attach(p);
+            m_pRear->AttachList(p);
             m_pRear = p;
         }
         else

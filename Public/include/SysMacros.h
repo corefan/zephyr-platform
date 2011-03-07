@@ -245,14 +245,22 @@ void Detach() \
     m_##LISTCLASS##List.m_pNext = NULL;\
     m_##LISTCLASS##List.m_pPrev = NULL;\
 }\
-void Attach(LISTCLASS* pConnection)\
+void AttachList(LISTCLASS* pClass)\
 {\
-if (pConnection)\
+if (pClass)\
 {\
-    pConnection->m_##LISTCLASS##List.m_pPrev = this;\
-    pConnection->m_##LISTCLASS##List.m_pNext = m_##LISTCLASS##List.m_pNext;\
+    pClass->m_##LISTCLASS##List.m_pPrev = this;\
 }\
-    m_##LISTCLASS##List.m_pNext = pConnection;\
+    m_##LISTCLASS##List.m_pNext = pClass;\
+}\
+void InsertNode(LISTCLASS* pClass)\
+{\
+    if (pClass)\
+{\
+    pClass->m_##LISTCLASS##List.m_pPrev = this;\
+    pClass->m_##LISTCLASS##List.m_pNext = m_##LISTCLASS##List.m_pNext;\
+}\
+    m_##LISTCLASS##List.m_pNext = pClass;\
 }\
 
 #endif 

@@ -1,7 +1,7 @@
 #ifndef __ZEPHYR_PUBLIC_TPL_TPL_POOL_H__
 #define __ZEPHYR_PUBLIC_TPL_TPL_POOL_H__
-#include "TypeDef.h"
-#include "SysMacros.h"
+#include "../../include/TypeDef.h"
+#include "../../include/SysMacros.h"
 #include "TplList.h"
 namespace Zephyr
 {
@@ -196,7 +196,29 @@ public:
     {
         if (IsNotMainBlock(pBlock)) //非主块，放后面
         {
-           
+           if (pBlock->CanRecycle())
+           {
+                pBlock->m_pBelongsTo->Detach(pBlock);
+                m_tUsingMemBlocks.push_back(pBlock);
+                pBlock->m_pBelongsTo = &m_tUsingMemBlocks;
+           }
+           else
+           {
+                if (pBlock->m_pBelongsTo == &m_tFullMemBlocks)
+                {
+                    pBlock->m_pBelongsTo->Detach(pBlock);
+                    if (m_pMainBlock == m_tUsingMemBlocks.header())
+                    {
+                        m_pMainBlock->InsertNode(pBlock);
+                    }
+                    else
+                    {
+                        m_tUsingMemBlocks.push_front(pBlock);
+                    }
+                    pBlock->m_pBelongsTo = &m_tUsingMemBlocks;
+                }
+               //else 什么也不动
+           }
         }
         else //主块放前面，每次用header的，帮助非主块释放
         {
@@ -207,8 +229,7 @@ public:
                 m_tUsingMemBlocks.push_front(pBlock);
             }
         }
-        ++m_nFreeNr;
-        if (m_nFreeNr > (m_nInitSize>>1))
+        if (m_nFreeNr > (m_nInitSize))
         {
             CListNode<CMemBlock> *pRear = m_tUsingMemBlocks.rear();
             if ((pRear)&&(IsNotMainBlock(pRear))&&(pRear->CanRecycle()))
@@ -326,7 +347,7 @@ public:
         m_pFreeHeader->Init();
         for (TUInt32 i=1;i<nrOfMaxItem;i++)
         {
-            m_pFreeRear->Attach((m_pItemPool+i));
+            m_pFreeRear->AttachList((m_pItemPool+i));
             m_pFreeRear = (m_pItemPool+i);
             m_pFreeRear->Init();
             int ret = m_pFreeRear->OnCreate(i,buffSize);
@@ -353,7 +374,7 @@ public:
                 m_pFreeRear = NULL;
             }
             pResult->Detach();
-            pResult->Attach(m_pUsed);
+            pResult->AttachList(m_pUsed);
             m_pUsed = pResult;
             pResult->OnInit();
             --m_freeItemNum;
