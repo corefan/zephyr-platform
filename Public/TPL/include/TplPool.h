@@ -397,7 +397,7 @@ public:
         pItem->Detach();
         if(m_pFreeRear)
         {
-            m_pFreeRear->Attach(pItem);
+            m_pFreeRear->AttachList(pItem);
             m_pFreeRear = pItem;
         }
         else
