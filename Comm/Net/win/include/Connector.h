@@ -53,7 +53,6 @@ class CConnectionMgr;
 class CConnector
 {
 private:
-    TInt16          m_pendingConnections;
     TInt16          m_maxPendingConnection;
     //改成动态new,因为连接应该很少发生，不会有很多.
     TplMap<CConnectingList,SOCKET>  m_pendingSocket;
@@ -82,7 +81,7 @@ public:
 
     TBool  IsListFull()
     {
-        if (m_maxPendingConnection <= m_pendingConnections)
+        if (m_maxPendingConnection <= m_pendingSocket.GetActivedSize())
         {
             return TRUE;
         }

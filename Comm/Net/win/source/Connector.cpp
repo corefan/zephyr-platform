@@ -8,7 +8,6 @@ namespace Zephyr
 
 CConnector::CConnector()
 {
-    m_pendingConnections        = 0;
     m_maxPendingConnection      = 0;
     m_connected                 = 0;
     m_failed                    = 0;
@@ -47,7 +46,7 @@ TInt32 CConnector::Init(TInt32 maxPendingConnections,HANDLE completionPort,ItemC
 TInt32 CConnector::Run(const TUInt32 runCnt)
 {
     int usedCnt = 0;
-    if (!m_pendingSocket.GetFreeSize())
+    if (!m_pendingSocket.GetActivedSize())
     {
         return SUCCESS;
     }
@@ -84,7 +83,7 @@ TInt32 CConnector::Run(const TUInt32 runCnt)
         }
         if (!it.IsNull())
         {
-            printf("Too much socket?!");
+            printf("Too much socket?!\n\t");
         }
         usedCnt += wset.fd_count;
         exceptSet = wset;
