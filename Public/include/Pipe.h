@@ -89,6 +89,11 @@ public:
         {
             pipeSize = MIN_PIPE_LENGTH;
         }
+        if (!m_pMemPool)
+        {
+            delete [] m_pMemPool;
+            m_pMemPool = NULL;
+        }
         m_pMemPool = new TUChar[pipeSize];
         if (NULL == m_pMemPool)
         {
