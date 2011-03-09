@@ -79,16 +79,16 @@ TInt32 CAppConnection::Run()
                 break;
             case 2:
                 {
-                    if (m_pIfConnection)
-                    {
-                        m_pIfConnection->Disconnect();
-                        m_msgRecved = 0;
-                        m_msgSend = 0;
-                        //printf("[CAppConnection::Run]App disconnected!");
-                        m_pIfConnection = NULL;
-                        m_actived = 3;
-                        return 0;
-                    }
+//                     if (m_pIfConnection)
+//                     {
+//                         m_pIfConnection->Disconnect();
+//                         m_msgRecved = 0;
+//                         m_msgSend = 0;
+//                         //printf("[CAppConnection::Run]App disconnected!");
+//                         m_pIfConnection = NULL;
+//                         m_actived = 3;
+//                         return 0;
+//                     }
                 }
                 break;
             case 3:
