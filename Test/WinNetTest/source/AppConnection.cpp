@@ -32,7 +32,8 @@ TInt32 CAppConnection::OnInit()
     m_actived = 1;
     m_connectedTime = 0;
     m_lastLogTime = timeGetTime();
-    srand(time(NULL));
+    //呃，这儿又是一个bug，因为转的很快，time(NULL)都是相同值，所以下面的rand()都是相同值
+    //srand(time(NULL));
     m_unconnectedTime = (rand()%10000);
     return SUCCESS;
 }
@@ -68,6 +69,12 @@ TInt32 CAppConnection::Run()
             case 1:
                 {
                     //return 0;
+                    if (!m_pIfConnection)
+                    {
+                        OnInit();
+                        m_passiveSendNr = 100;
+                        return -5;
+                    }
                 }
                 break;
             case 2:

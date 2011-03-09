@@ -1,5 +1,6 @@
 #include "WinNetTester.h"
 #include "Mmsystem.h"
+#include "time.h"
 CWinNetTester::CWinNetTester(IfTaskMgr *pTaskMgr,int maxConnectionNr)
 {
     m_pNet = CreateNet(pTaskMgr,&m_parserFactory,NULL,maxConnectionNr);
@@ -39,7 +40,7 @@ TInt32 CWinNetTester::Init(const char *pMyIp,const char *pRemoteIp,unsigned shor
         bool tryAgain = true;
         while(tryAgain)
         {
-            
+            //这里有个bug，如果一开始连接没成功，那么后面就不会重连.
             int ret = m_pNet->Connect(pRemoteIp,pMyIp,remotePort,0,pConnection);
             if (SUCCESS > ret)
             {
@@ -69,6 +70,7 @@ TInt32 CWinNetTester::OnFianl()
 TInt32 CWinNetTester::Run(const TInt32 threadId,const TInt32 runCnt)
 {
     int usedCnt = m_pNet->Run(runCnt);
+    srand(time(NULL));
     if (!usedCnt)
     {
         //使用了反而速度降慢了？
