@@ -32,7 +32,7 @@ TInt32 CConnectionMgr::Init(TUInt32 maxConnectionNum,IfTaskMgr *pTaskMgr,IfParse
     for (int i = 0;i<maxConnectionNum;++i)
     {
         m_conncectionPool.GetConectionByIdx(i)->SetEventQueue(&m_netEventQueues);
-        m_conncectionPool.GetConectionByIdx(i)->OnCreate(i,buffSize);
+        //m_conncectionPool.GetConectionByIdx(i)->OnCreate(i,buffSize);
     }
     
     NEW(m_pBuff,TUChar,buffSize);
