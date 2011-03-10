@@ -19,9 +19,10 @@ private:
     static int      sm_averageMsgLen;
     unsigned int    m_connectedTime;
     unsigned int    m_lastLogTime;
-    unsigned int    m_actived;
+    
     unsigned int    m_unconnectedTime;
 public:
+    unsigned int    m_actived;
     void SetMgr(CAppConnectionMgr *pMgr)
     {
         m_pConnectionMgr = pMgr;
