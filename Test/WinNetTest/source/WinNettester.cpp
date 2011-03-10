@@ -103,7 +103,11 @@ TInt32 CWinNetTester::Run(const TInt32 threadId,const TInt32 runCnt)
                 
                 if (-5 == ret)
                 {
-                    int ret = m_pNet->Connect(m_remoteIp,m_myIp,m_remotePort,0,pConn);
+                    ret = m_pNet->Connect(m_remoteIp,m_myIp,m_remotePort,0,pConn);
+                    if(ret < SUCCESS)
+                    {
+                        pConn->m_actived = 3;
+                    }
                 }
                 if (-4 == ret)
                 {

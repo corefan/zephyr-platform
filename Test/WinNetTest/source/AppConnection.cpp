@@ -69,26 +69,21 @@ TInt32 CAppConnection::Run()
             case 1:
                 {
                     //return 0;
-                    if (!m_pIfConnection)
-                    {
-                        OnInit();
-                        m_passiveSendNr = 100;
-                        return -5;
-                    }
+
                 }
                 break;
             case 2:
                 {
-//                     if (m_pIfConnection)
-//                     {
-//                         m_pIfConnection->Disconnect();
-//                         m_msgRecved = 0;
-//                         m_msgSend = 0;
-//                         //printf("[CAppConnection::Run]App disconnected!");
-//                         m_pIfConnection = NULL;
-//                         m_actived = 3;
-//                         return 0;
-//                     }
+                    if (m_pIfConnection)
+                    {
+                        m_pIfConnection->Disconnect();
+                        m_msgRecved = 0;
+                        m_msgSend = 0;
+                        //printf("[CAppConnection::Run]App disconnected!");
+                        m_pIfConnection = NULL;
+                        m_actived = 3;
+                        return 0;
+                    }
                 }
                 break;
             case 3:
@@ -190,9 +185,8 @@ TInt32 CAppConnection::OnDissconneted(TInt32 erroCode)
     if (!m_passiveSendNr)
     {
         m_pConnectionMgr->ReleaseConnection(this);
-        m_actived = 3;
     }
-    
+    m_actived = 3;
     m_pIfConnection = NULL;
     return SUCCESS;
 }
