@@ -51,6 +51,8 @@ protected:
     
     CNetEventQueues     m_netEventQueues;
 
+    TUInt32             m_nTimeNow;
+
 //         
 //         //TUInt32           m_lastRunTo;
 //         //ÍøÂç²ãÊÂ¼ş

@@ -337,6 +337,7 @@ CConnection::CConnection()
     m_pIfParser = NULL;
     m_pIfCryptor = NULL;
     m_pEventQueues = NULL;
+    m_pTimer = &m_uLastNetAppBlocked; //先这么着吧~
 }
 
 void CConnection::CloseConnection()
@@ -963,9 +964,9 @@ TInt32 CConnection::GetPendingDataLen()
     return NOT_INITIALIZED;
 }
 
-inline int CConnection::GetNetWaitTime()
+inline TInt32 CConnection::GetNetWaitTime()
 {
-    TUInt32 uTimeNow = time(0);
+    TUInt32 uTimeNow = GetTimeNow();
     if (m_uNetBlockedTime == uTimeNow)
     {
         ++m_uNetBlockedTime;
@@ -983,9 +984,11 @@ inline int CConnection::GetNetWaitTime()
     return 0;
     
 }
-inline int CConnection::GetAppWaitTime()
+
+
+inline TInt32 CConnection::GetAppWaitTime()
 {
-    TUInt32 uTimeNow = time(0);
+    TUInt32 uTimeNow = GetTimeNow();
     if (m_uAppBlockedTime == uTimeNow)
     {
         if(m_uAppBlockedTime < 10)
@@ -1001,6 +1004,11 @@ inline int CConnection::GetAppWaitTime()
         return 20;
     }
     return 0;
+}
+
+inline TUInt32 CConnection::GetTimeNow()
+{
+    return *m_pTimer;
 }
 
 }

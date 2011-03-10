@@ -109,6 +109,8 @@ private:
     #ifdef _DEBUG
     TUInt64                     m_msgRecv;
     TUInt64                     m_msgSend;
+
+
     #endif
     //TUChar m_pRecvBuff[1024*4];
     #ifdef _WIN32
@@ -124,6 +126,8 @@ private:
     volatile TUInt32            m_netSeqNum;
     //应用层确认序列号
     volatile TUInt32            m_appConfirmNum; 
+
+    TUInt32*                    m_pTimer;
     DECLARE_CLASS_LIST(CConnection)
 public:
     virtual TInt32 SendMsg(TUChar *pMsg,TUInt32 msgLen);
@@ -136,6 +140,10 @@ public:
     virtual EnConnectionState GetConnctionState();
 public:
     CConnection();
+    void SetTimer(TUInt32 *pTimer)
+    {
+        m_pTimer = pTimer;
+    }
     TInt32  Init()
     {
         return SUCCESS;
@@ -312,8 +320,9 @@ private:
     TInt32 Reconnect();
     //TInt32 CloseConnection();
     void CheckAppDisconnected();
-    inline int GetNetWaitTime();
-    inline int GetAppWaitTime();
+    inline TInt32 GetNetWaitTime();
+    inline TInt32 GetAppWaitTime();
+    inline TUInt32 GetTimeNow();
 };
 
 }
