@@ -79,6 +79,10 @@ TInt32 CAppConnection::Run()
                         m_pIfConnection->Disconnect();
                         m_msgRecved = 0;
                         m_msgSend = 0;
+                        if (!m_passiveSendNr)
+                        {
+                             OnDissconneted(-1);
+                        }
                         //printf("[CAppConnection::Run]App disconnected!");
                         m_pIfConnection = NULL;
                         m_actived = 3;
