@@ -54,7 +54,7 @@ TInt32 CAppConnection::Run()
     {
         return 0;
     }
-    if (m_passiveSendNr)
+    //if (m_passiveSendNr)
     {
         unsigned int timeNow = timeGetTime();
         m_connectedTime += (timeNow - m_lastLogTime);
@@ -88,10 +88,13 @@ TInt32 CAppConnection::Run()
                 break;
             case 3:
                 {
-                    m_actived = 1;
-                    OnInit();
-                    m_passiveSendNr = 100;
-                    return -5;
+                    if (m_passiveSendNr)
+                    {
+                        m_actived = 1;
+                        OnInit();
+                        m_passiveSendNr = 100;
+                        return -5;
+                    }
                 }
                 break;
             }
