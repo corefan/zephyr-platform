@@ -67,7 +67,7 @@ int main()
     {
         initSendMsgDoid.m_srvId = i;
         pCommTests[i].Init(pMgr,&initSendMsgDoid);
-        pCommTests[i].OnStartTestOne(initSendMsgNr,initSendMsgLen,nrOfTester);
+        pCommTests[i].OnStartTestOne(initSendMsgNr,initSendMsgLen,nrOfTester,2,1);
         pTaskMgr->AddTask(pCommTests+i);
     }
 

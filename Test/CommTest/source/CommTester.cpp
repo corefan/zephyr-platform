@@ -5,7 +5,7 @@ CDoid *CCommTester::sm_pDoids = NULL;
 
 TInt32 CCommTester::Run(const TInt32 threadId,const TInt32 runCnt)
 {
-    if(m_nBeginTime)
+    if(m_nBeginTime) //先跳过一段时间
     {
         unsigned long long timeNow = m_pComms->GetPlatfromTime();
         if (timeNow > m_nBeginTime)
@@ -20,32 +20,33 @@ TInt32 CCommTester::Run(const TInt32 threadId,const TInt32 runCnt)
     }
     CConnectionEvent event;
     
-    int usedCnt = m_pComms->GetNetEvent(event);
-    while (usedCnt>=0)
+    int eventNr = m_pComms->GetNetEvent(event);
+    int usedCnt = 0;
+    while (eventNr>=0)
     {
         if (event.m_nEvent == en_connection_is_established_event)
         {
-            for (int n=0;n<m_nNodeNr;++n)
-            {
-                for (int ip=0;ip<m_nIpNr;++ip)
-                {
-                    for (int i = 0;i<m_nSrvNr;++i)
-                    {
-                        int offset = n*m_nIpNr*m_nSrvNr+ip*m_nSrvNr+i;
-                        //这就是目标啦 sm_pDoids[offset];
-                        
-                    }
-                }
-            }
+            m_bIsConnected = 1;
         }
         else
         {
             //断链了
+            m_bIsConnected = 0;
         }
-        usedCnt = m_pComms->GetNetEvent(event);
+        ++usedCnt;
+        eventNr = m_pComms->GetNetEvent(event);
     }
-    usedCnt = 0;
-    for (int i=0;i<runCnt;++i)
+    if (!m_bIsConnected)
+    {
+        return usedCnt;
+    }
+    if (1 == m_bIsConnected) //最新连接，要发初始消息
+    {
+        SendAllMessage();
+        ++m_bIsConnected;
+    }
+    
+    for (int i=usedCnt;i<runCnt;++i)
     {
         CMessageHeader *pMsg = m_pComms->GetMsg();
         while (pMsg)
@@ -71,33 +72,23 @@ TInt32 CCommTester::Run(const TInt32 threadId,const TInt32 runCnt)
                     }
                 }
             }
-            //是m_nSrvNr就群发
-            if ((m_nMsgReced % m_nSrvNr) == 0)
-            {
-                CMessageHeader *pRtn = m_pComms->PrepareMsg(pMsg->GetBodyLength(),pMsg->GetMethodId(),*pMsg->GetDestDoidByIdx(),sm_pDoids,m_nSrvNr,false);
-                TUChar *pD = pRtn->GetBody();
-                for (unsigned int i = 0;i<id ;++i)
-                {
-                    pD[i] = i;
-                }
-                m_pComms->SendMsg(pRtn);
-            }
-            else
-            {
-                //不发
-            }
+            
             ++m_nMsgReced;
 
             ++usedCnt;
+            
+            m_pComms->ReturnMsgBuff(pMsg);
             if (usedCnt >= runCnt)
             {
                 return usedCnt;
             }
-            m_pComms->ReturnMsgBuff(pMsg);
+            SendAllMessage();
 
             pMsg = m_pComms->GetMsg();
         }
+        //是m_nSrvNr就群发
     }
+    CheckAll();
     return usedCnt;
 }
 
@@ -105,10 +96,10 @@ void CCommTester::OnStartTestOne(int nInitMsgNr,int nInitMsgLen,int srvNr,int nI
 {
     if (!sm_pDoids)
     {
-        int n = srvNr;
+        int totalNr = srvNr;
         if (nIpNr>0)
         {
-            srvNr *= nIpNr;
+            totalNr *= nIpNr;
         }
         else
         {
@@ -116,13 +107,13 @@ void CCommTester::OnStartTestOne(int nInitMsgNr,int nInitMsgLen,int srvNr,int nI
         }
         if (nNodeNr>0)
         {
-            srvNr *= nNodeNr;
+            totalNr *= nNodeNr;
         }
         else
         {
             nNodeNr = 1;
         }
-        sm_pDoids = new CDoid[srvNr];
+        sm_pDoids = new CDoid[totalNr];
         for (int n=0;n<nNodeNr;++n)
         {
             for (int ip=0;ip<nIpNr;++ip)
@@ -137,8 +128,9 @@ void CCommTester::OnStartTestOne(int nInitMsgNr,int nInitMsgLen,int srvNr,int nI
                 }
             }
         }
-        
+        m_nDoidNr = totalNr;
     }
+   
     m_nInitSendMgrNr = nInitMsgNr;
     m_nInitSendMgrLen  = nInitMsgLen;
     m_nSrvNr = srvNr;
@@ -149,6 +141,7 @@ void CCommTester::OnStartTestOne(int nInitMsgNr,int nInitMsgLen,int srvNr,int nI
     {
         m_nBeginTime = 1;
     }
+    
     //for (int i = 0;i<nInitMsgNr;++i)
     
 }
@@ -202,5 +195,33 @@ int CCommTester::Init(IfCommunicatorMgr *pMgr,CDoid *pSrvDoid)
     m_nInitSendMgrNr = 0;
     m_nInitSendMgrLen = 0;
     m_nMsgReced = 0;
+    m_nLastSendTime = 0;
+    m_bIsConnected = 0;
+    m_nLastSendTime = m_pComms->GetLocalTime();
     return SUCCESS;
+}
+
+
+void CCommTester::SendAllMessage()
+{
+    CMessageHeader *pMsg = m_pComms->PrepareMsg(m_nInitSendMgrLen,m_nInitSendMgrLen,m_tSvrDoid,sm_pDoids,m_nDoidNr,true);
+    if (pMsg)
+    {
+        unsigned char *pBuff = (unsigned char*)pMsg->GetBody();
+        for (unsigned int i=0;i<m_nInitSendMgrLen;++i)
+        {
+            *pBuff = (unsigned char)i;
+        }
+        m_pComms->SendMsg(pMsg);
+        m_nLastSendTime = m_pComms->GetLocalTime();
+    }
+}
+
+void CCommTester::CheckAll()
+{
+    if (m_pComms->GetTimeGap(m_nLastSendTime) > 60)
+    {
+        m_nLastSendTime = m_pComms->GetLocalTime();
+        SendAllMessage();
+    }
 }
