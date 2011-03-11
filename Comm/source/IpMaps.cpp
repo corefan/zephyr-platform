@@ -247,7 +247,7 @@ TInt32 CIpMap::Init(const TChar *pConfigName,IfConnection *pSelf)
 //         m_redirectIdx = -1;
 //         m_connectedNodeInfo.m_key = 0xFFFFFFFFFFFFFFFF;
 //     }
-    m_pVirtualIps[m_localNodeId].m_pIfConnection = pSelf;
+    m_pVirtualIps[m_localVirtualIp].m_pIfConnection = pSelf;
     return SUCCESS;
 }
 
