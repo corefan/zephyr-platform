@@ -34,7 +34,21 @@ TInt32 CCommMgr::Init(int nrOfWorkerThread,IfTaskMgr *pTaskMgr,IfLoggerManager *
 #endif
         return OUT_OF_MEM;
     }
-    m_pNet = CreateNet(pTaskMgr,m_pParserFactory,NULL,(m_ipMaps.m_nrOfVirtualIp + 5)/*多加5个*/);
+    CSettingFile settingFile;
+    TInt32 inPipeSize = 128*1024;
+    TInt32 outPipeSize = 256*1024;
+    TInt32 maxMsgSize = 256*1024;
+    if (!settingFile.LoadFromFile("commSetting.ini"))
+    {
+
+    }
+    else
+    {
+        inPipeSize = settingFile.GetInteger("MAIN","inPipeSize",inPipeSize);
+        outPipeSize = settingFile.GetInteger("MAIN","outPipeSize",outPipeSize);
+        maxMsgSize = settingFile.GetInteger("MAIN","maxMsgSize",maxMsgSize);
+    }
+    m_pNet = CreateNet(pTaskMgr,m_pParserFactory,NULL,(m_ipMaps.m_nNrOfMapItem+1),outPipeSize,inPipeSize/*多加5个*/);
     if (!m_pNet)
     {
 #ifdef _DEBUG
@@ -48,20 +62,7 @@ TInt32 CCommMgr::Init(int nrOfWorkerThread,IfTaskMgr *pTaskMgr,IfLoggerManager *
 
     }
 
-    CSettingFile settingFile;
-    TInt32 inPipeSize = 512*1024;
-    TInt32 outPipeSize = 512*1024;
-    TInt32 maxMsgSize = 256*1024;
-    if (!settingFile.LoadFromFile("commSetting.ini"))
-    {
-
-    }
-    else
-    {
-        inPipeSize = settingFile.GetInteger("MAIN","inPipeSize",inPipeSize);
-        outPipeSize = settingFile.GetInteger("MAIN","outPipeSize",outPipeSize);
-        maxMsgSize = settingFile.GetInteger("MAIN","maxMsgSize",maxMsgSize);
-    }
+    
     NEW(m_pBuff,TUChar,maxMsgSize);
     if (!m_pBuff)
     {

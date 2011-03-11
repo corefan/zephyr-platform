@@ -221,7 +221,7 @@ public:
         return m_socket;
     }
     
-    TInt32 OnCreate(TUInt32 idx,TUInt32 pipeSize);
+    TInt32 OnCreate(TUInt32 idx,TUInt32 nSendPipeSize,TUInt32 nRecvPipeSize);
     void OnTryConnecting()
     {
         m_connectionState = connection_is_trying;

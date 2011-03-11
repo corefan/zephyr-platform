@@ -200,16 +200,16 @@ TInt32 CConnection::OnSent(CIocpOverlappedDataHeader *pHeader,TUInt32 ioSize)
 	return SUCCESS;
 }
 
-TInt32 CConnection::OnCreate(TUInt32 idx,TUInt32 pipeSize)
+TInt32 CConnection::OnCreate(TUInt32 idx,TUInt32 nSendPipeSize,TUInt32 nRecvPipeSize)
 {
     m_connectionIdx = idx;
     m_seqNum = 0;
-    TInt32 ret = m_inPipe.Init(pipeSize);
+    TInt32 ret = m_inPipe.Init(nRecvPipeSize);
     if (ret < SUCCESS)
     {
         return ret;
     }
-    ret = m_outPipe.Init(pipeSize);
+    ret = m_outPipe.Init(nSendPipeSize);
     //m_pConfirmedTo = m_inPipe.GetDataHeader();
     return ret;
 }

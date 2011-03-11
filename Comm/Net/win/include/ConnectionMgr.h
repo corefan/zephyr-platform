@@ -87,7 +87,7 @@ public:
     CConnectionMgr();
     ~CConnectionMgr();
 
-    TInt32 Init(TUInt32 maxConnectionNum,IfTaskMgr *pTaskMgr,IfParserFactory* pParserFactory,IfCryptorFactory *pIfCryptorfactory = NULL,TUInt32 buffSize = 256*1024);
+    TInt32 Init(TUInt32 maxConnectionNum,IfTaskMgr *pTaskMgr,IfParserFactory* pParserFactory,IfCryptorFactory *pIfCryptorfactory,TUInt32 nSendBuffSize,TUInt32 nRecvBuffSize);
     void   Final();
     void   TestReference(IfTask& task)
     {

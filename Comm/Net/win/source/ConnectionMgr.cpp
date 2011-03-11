@@ -21,9 +21,9 @@ CConnectionMgr::~CConnectionMgr()
     //Final();
 }
 
-TInt32 CConnectionMgr::Init(TUInt32 maxConnectionNum,IfTaskMgr *pTaskMgr,IfParserFactory* pParserFactory,IfCryptorFactory *pIfCryptorfactory,TUInt32 buffSize)
+TInt32 CConnectionMgr::Init(TUInt32 maxConnectionNum,IfTaskMgr *pTaskMgr,IfParserFactory* pParserFactory,IfCryptorFactory *pIfCryptorfactory,TUInt32 nSendBuffSize,TUInt32 nRecvBuffSize)
 {
-    int result = m_conncectionPool.Init(maxConnectionNum,buffSize);
+    int result = m_conncectionPool.Init(maxConnectionNum);
     if (SUCCESS > result)
     {
         return result;
@@ -33,16 +33,28 @@ TInt32 CConnectionMgr::Init(TUInt32 maxConnectionNum,IfTaskMgr *pTaskMgr,IfParse
     {
         m_conncectionPool.GetConectionByIdx(i)->SetEventQueue(&m_netEventQueues);
         m_conncectionPool.GetConectionByIdx(i)->SetTimer(&m_nTimeNow);
-        //m_conncectionPool.GetConectionByIdx(i)->OnCreate(i,buffSize);
+        int ret = m_conncectionPool.GetConectionByIdx(i)->OnCreate(i,nSendBuffSize,nRecvBuffSize);
+        if (ret < SUCCESS)
+        {
+            return ret;
+        }
     }
     
-    NEW(m_pBuff,TUChar,buffSize);
+    
+   
+    if (nSendBuffSize > nRecvBuffSize)
+    {
+        m_buffSize = nSendBuffSize;
+    }
+    else
+    {
+        m_buffSize = nRecvBuffSize;
+    }
+    NEW(m_pBuff,TUChar,m_buffSize);
     if (!m_pBuff)
     {
         return OUT_OF_MEM;
     }
-    m_buffSize = buffSize;
-    
     m_pListeners = NULL;
     WSADATA wsaData;
     result = WSAStartup(MAKEWORD(2,2), &wsaData);	
@@ -83,7 +95,7 @@ TInt32 CConnectionMgr::Init(TUInt32 maxConnectionNum,IfTaskMgr *pTaskMgr,IfParse
 
     for (TUInt32 i=0;i<NR_OF_NET_WORKER;i++)
     {
-        m_netWorker.Init(m_hCompletionPort,&m_conncectionPool,&m_netEventQueues,buffSize);
+        m_netWorker.Init(m_hCompletionPort,&m_conncectionPool,&m_netEventQueues,m_buffSize);
         result = pTaskMgr->AddTask(&m_netWorker,normal_task);
         if (result < SUCCESS)
         {
