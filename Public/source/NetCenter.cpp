@@ -4,10 +4,10 @@
 namespace Zephyr
 {
 
-IfNet *CreateNet(IfTaskMgr *pTaskMgr,IfParserFactory *pParserFactory,IfCryptorFactory *pCryptorFactory,TInt32 maxConnectionNr,TUInt32 buffSize)
+IfNet *CreateNet(IfTaskMgr *pTaskMgr,IfParserFactory *pParserFactory,IfCryptorFactory *pCryptorFactory,TInt32 maxConnectionNr,TUInt32 nSendBuffSize,TUInt32 nRecvBuffSize)
 {
     CConnectionMgr *pConnectionMgr = new CConnectionMgr();
-    int ret = pConnectionMgr->Init(maxConnectionNr,pTaskMgr,pParserFactory,pCryptorFactory,buffSize);
+    int ret = pConnectionMgr->Init(maxConnectionNr,pTaskMgr,pParserFactory,pCryptorFactory,nSendBuffSize,nRecvBuffSize);
     if (ret < SUCCESS)
     {
         delete pConnectionMgr;

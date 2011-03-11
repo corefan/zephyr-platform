@@ -329,7 +329,7 @@ public:
             delete [] m_pItemPool;
         }
     }
-    TInt32              Init(TInt32 nrOfMaxItem,TInt32 buffSize)
+    TInt32              Init(TInt32 nrOfMaxItem)
     {
         try
         {
@@ -350,13 +350,6 @@ public:
             m_pFreeRear->AttachList((m_pItemPool+i));
             m_pFreeRear = (m_pItemPool+i);
             m_pFreeRear->Init();
-            int ret = m_pFreeRear->OnCreate(i,buffSize);
-            if (ret < SUCCESS)
-            {
-                delete [] m_pItemPool;
-                m_pItemPool = NULL;
-                return ret;
-            }
         }
         m_maxItemNum = nrOfMaxItem;
         m_freeItemNum = nrOfMaxItem;
