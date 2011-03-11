@@ -24,10 +24,12 @@ class CDoid
 {
 
 public:
-    TUInt16 m_nodeId;           //一组服务器为1个节点
-	TUInt16 m_virtualIp;               //一组服务器内的虚拟ip
-	TUInt16 m_srvId;             //srv id, decide the port,每个虚拟ip上可以跑多个service.
+
 	TUInt16 m_objId;                   //obj idx;
+    TUInt16 m_srvId;             //srv id, decide the port,每个虚拟ip上可以跑多个service.
+
+    TUInt16 m_virtualIp;               //一组服务器内的虚拟ip
+    TUInt16 m_nodeId;           //一组服务器为1个节点
 public:
 	CDoid()
 	{
