@@ -24,13 +24,16 @@ protected:
     int                m_nInitSendMgrNr;
     int                m_nInitSendMgrLen;
     int                m_nSrvNr;
-    short              m_nIpNr;
-    short              m_nNodeNr;
-    unsigned int       m_nSuccessTime;
-    unsigned int       m_nFailedTime;
-    unsigned int       m_nMsgReced;
+    int                m_nIpNr;
+    int                m_nNodeNr;
+    int                m_nDoidNr;
+    unsigned long long       m_nSuccessTime;
+    unsigned long long       m_nFailedTime;
+    unsigned long long       m_nMsgReced;
     static CDoid       *sm_pDoids;
     unsigned long long        m_nBeginTime;
+    int                m_bIsConnected;
+    unsigned int        m_nLastSendTime;
 public:
     int Init(IfCommunicatorMgr *pMgr,CDoid *pSrvDoid);
     void OnStartTestOne(int nInitMsgNr,int nInitMsgLen,int srvNr);
@@ -44,6 +47,9 @@ public:
     {
         return SUCCESS;
     }
+private:
+    void SendAllMessage();
+    void CheckAll(); //1分钟肯定重发一次
 };
 
 #endif
