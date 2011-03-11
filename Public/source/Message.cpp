@@ -67,9 +67,9 @@ TInt32 CMessageHeader::ResetBodyLength(TUInt32 bodyLength)
 //不检查有效性，有调用者负责
 void CMessageHeader::ReInitMsg4Send(TInt32 fromDest,TInt32 to)
 {
-    if (to > fromDest)
+    if (to >= fromDest)
     {
-        int nrOfBroadcastDoid = to - fromDest - 1;
+        int nrOfBroadcastDoid = to - fromDest;
         if (0 != fromDest)
         {
             memcpy(&m_destDoid,GetDestDoidByIdx(fromDest),sizeof(CDoid));
@@ -80,16 +80,16 @@ void CMessageHeader::ReInitMsg4Send(TInt32 fromDest,TInt32 to)
             return ;
         }
         ++fromDest;
-        if(to > fromDest)
+        if(nrOfBroadcastDoid)
         {
-            memmove(((TUChar*)this + sizeof(CMessageHeader) + GetBodyLength()),GetDestDoidByIdx(fromDest),sizeof(CDoid)*(to-fromDest));
+            memmove(((TUChar*)this + sizeof(CMessageHeader) + GetBodyLength()),GetDestDoidByIdx(fromDest),sizeof(CDoid)*(nrOfBroadcastDoid));
         }
         m_msgInfo.m_nrOfBroadcastDoid  = nrOfBroadcastDoid;
     }
     else
     {
 #ifdef _DEBUG
-        printf("FromDest is no less than to!");
+        printf("FromDest is not less than to!");
 #endif
     }
 }
