@@ -614,11 +614,10 @@ void CCommMgr::HandleOneNetMsg(CMessageHeader *pMsg)
             if (pComm != GetIfComm(pDoid->m_srvId))
             {
                 //send last msg
-                to = i;
-                pMsg->ReInitMsg4Send(from,to);
+                pMsg->ReInitMsg4Send(from,i-1);
                 pComm->AddNetMsg(pMsg);
                 pMsg->SetBroadcastDoid(msgDoidNr);
-                from = to;
+                from = i;
                 pComm = GetIfComm(pDoid->m_srvId);
             }
             else
@@ -631,7 +630,7 @@ void CCommMgr::HandleOneNetMsg(CMessageHeader *pMsg)
     //如果from改变过，则需要重新init Msg.
     if (from)
     {
-        pMsg->ReInitMsg4Send(from,(msgDoidNr+1));
+        pMsg->ReInitMsg4Send(from,(msgDoidNr));
     }
     pComm->AddNetMsg(pMsg);
     pMsg->SetBroadcastDoid(msgDoidNr);
