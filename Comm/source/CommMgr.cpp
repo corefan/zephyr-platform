@@ -493,7 +493,8 @@ TInt32 CCommMgr::SendMsg(TUChar *pBuff,TUInt32 buffLen)
         {
             HandleOneNetMsg(pMsg);
         }
-        if (sizeof(CMessageHeader) < buffLen)
+        //可以是空数据包
+        if (sizeof(CMessageHeader) <= buffLen)
         {
             pMsg = (CMessageHeader*)(pBuff + usedLen);
         }
