@@ -82,8 +82,10 @@ TInt32 CCommTester::Run(const TInt32 threadId,const TInt32 runCnt)
             {
                 return usedCnt;
             }
-            SendAllMessage();
-
+            if (0==(m_nMsgReced%m_nDoidNr))
+            {
+                SendAllMessage();
+            }
             pMsg = m_pComms->GetMsg();
         }
         //是m_nSrvNr就群发
@@ -210,7 +212,7 @@ void CCommTester::SendAllMessage()
         unsigned char *pBuff = (unsigned char*)pMsg->GetBody();
         for (unsigned int i=0;i<m_nInitSendMgrLen;++i)
         {
-            *pBuff = (unsigned char)i;
+            pBuff[i] = (unsigned char)i;
         }
         m_pComms->SendMsg(pMsg);
         m_nLastSendTime = m_pComms->GetLocalTime();
