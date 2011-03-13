@@ -96,7 +96,7 @@ TInt32 CCommTester::Run(const TInt32 threadId,const TInt32 runCnt)
 
 void CCommTester::OnStartTestOne(int nInitMsgNr,int nInitMsgLen,int srvNr,int nIpNr,int nNodeNr)
 {
-    if (!sm_pDoids)
+    
     {
         int totalNr = srvNr;
         if (nIpNr>0)
@@ -115,18 +115,21 @@ void CCommTester::OnStartTestOne(int nInitMsgNr,int nInitMsgLen,int srvNr,int nI
         {
             nNodeNr = 1;
         }
-        sm_pDoids = new CDoid[totalNr];
-        for (int n=0;n<nNodeNr;++n)
+        if (!sm_pDoids)
         {
-            for (int ip=0;ip<nIpNr;++ip)
+            sm_pDoids = new CDoid[totalNr];
+            for (int n=0;n<nNodeNr;++n)
             {
-                for (int i = 0;i<srvNr;++i)
+                for (int ip=0;ip<nIpNr;++ip)
                 {
-                    int offset = n*nIpNr*srvNr+ip*srvNr+i;
-                    sm_pDoids[offset].m_nodeId = n;
-                    sm_pDoids[offset].m_virtualIp = ip;
-                    sm_pDoids[offset].m_srvId = i;
-                    sm_pDoids[offset].m_objId = 0;
+                    for (int i = 0;i<srvNr;++i)
+                    {
+                        int offset = n*nIpNr*srvNr+ip*srvNr+i;
+                        sm_pDoids[offset].m_nodeId = n;
+                        sm_pDoids[offset].m_virtualIp = ip;
+                        sm_pDoids[offset].m_srvId = i;
+                        sm_pDoids[offset].m_objId = 0;
+                    }
                 }
             }
         }
