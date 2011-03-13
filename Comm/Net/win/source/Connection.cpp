@@ -494,13 +494,13 @@ TInt32 CConnection::AppRoutine(TUChar *pBuff,TUInt32 buffLen)
         }
         TUInt32 len = m_inPipe.GetDataLen();
         TUChar *pHeader(NULL);
-        while(len > m_minHeaderLength)
+        while(len >= m_minHeaderLength)
         {
             if (m_pIfParser)
             {
                 TUInt32 headerLen(0);
                 TInt32 dataLen(0);
-                if (len > m_maxHeaderLength)
+                if (len >= m_maxHeaderLength)
                 {
                     headerLen = m_maxHeaderLength;
                     pHeader = m_inPipe.GetData(headerLen);
@@ -533,7 +533,10 @@ TInt32 CConnection::AppRoutine(TUChar *pBuff,TUInt32 buffLen)
                 
                     //保存需要的长度.
                 dataLen = m_pIfParser->OnRecv(pHeader,dataLen);
-
+                if (0 == dataLen)
+                {
+                    break;
+                }
                 if (dataLen > len)
                 {
                     break;
