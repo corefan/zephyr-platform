@@ -78,11 +78,13 @@ TUChar *CPipe::PrepareMsg(TUInt32& len)
 	TUChar *pHeader = (TUChar *)(m_pHeader);
     if (pRear > pHeader)
     {
-        len = (pRear - pHeader);
+        //这儿也要留1个字节
+        len = (pRear - pHeader-1);
     }
     else
     {
-        len = (m_pMemPool + m_memPoolSize - pHeader);
+        //这儿也要留一个字节
+        len = (m_pMemPool + m_memPoolSize - pHeader)-1;
     }
 #ifdef _DEBUG
     if (!len)
