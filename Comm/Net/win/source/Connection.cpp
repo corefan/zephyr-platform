@@ -842,7 +842,14 @@ void CConnection::OnNetRecv()
         event.m_seqNum           = m_netSeqNum;
         event.m_connectionIdx    = m_connectionIdx;
         event.m_connectionEvents = event_connection_has_new_data_to_read;
-        m_pEventQueues->AddNetEvent(event,GetNetWaitTime());
+        if (m_nNetBlocked)
+        {
+            m_pEventQueues->AddNetEvent(event,-1);
+        }
+        else
+        {
+            m_pEventQueues->AddNetEvent(event,GetNetWaitTime());
+        }
     }
 }
 //应用层收取了网络层的书
@@ -865,7 +872,8 @@ void CConnection::OnAppHandled()
         event.m_seqNum           = m_netSeqNum;
         event.m_connectionIdx    = m_connectionIdx;
         event.m_connectionEvents = event_connection_app_handled;
-        if (m_pEventQueues->AddNetEvent(event,-1) >= SUCCESS)
+        //晕，怎么加错消息了！之前一直没测到过这个问题！
+        if (m_pEventQueues->AddAppEvent(event,-1) >= SUCCESS)
         {
             m_nNetBlocked = 0;
         }
