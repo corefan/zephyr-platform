@@ -68,7 +68,8 @@ TInt32 CPipe::ReturnMsgBuff(TUChar *pMsg,TUInt32 len)
 
 TUChar *CPipe::PrepareMsg(TUInt32& len)
 {
-	if (len > GetFreeLen())
+    TInt32 nFreeLen = GetFreeLen();
+	if (len > nFreeLen)
 	{
 		len = 0;
         //cout<<"Error in CPipe::PrepareMsg, out of memory!"<<endl;
@@ -78,13 +79,19 @@ TUChar *CPipe::PrepareMsg(TUInt32& len)
 	TUChar *pHeader = (TUChar *)(m_pHeader);
     if (pRear > pHeader)
     {
-        //这儿也要留1个字节
-        len = (pRear - pHeader-1);
+        //这儿不能留一个字节，不然就会阻塞在pipe尾部
+        len = (pRear - pHeader)-1;
     }
     else
     {
-        //这儿也要留一个字节
-        len = (m_pMemPool + m_memPoolSize - pHeader)-1;
+        //这儿不能留一个字节，不然就会阻塞在pipe尾部
+        len = (m_pMemPool + m_memPoolSize - pHeader);
+    }
+
+    //这个就是
+    if (len > nFreeLen) 
+    {
+        len = nFreeLen;
     }
 #ifdef _DEBUG
     if (!len)
