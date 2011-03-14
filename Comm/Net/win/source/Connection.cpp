@@ -77,7 +77,7 @@ TInt32 CConnection::OnRecv(CIocpOverlappedDataHeader *pHeader,TUInt32 ioSize)
             usedSize +=3;
         }*/
 #endif	
-        if (SUCCESS != result)
+        if (SUCCESS > result)
         {
             return result;
         }
@@ -545,7 +545,7 @@ TInt32 CConnection::AppRoutine(TUChar *pBuff,TUInt32 buffLen)
                 //if(tmp)
                 
                     //保存需要的长度.
-                dataLen = m_pIfParser->OnRecv(pHeader,dataLen);
+                dataLen = m_pIfParser->OnRecv(pHeader,len);
 //                 static int time = 0;
 //                 static int totalDataLen = 0;
 //                 totalDataLen += dataLen;
