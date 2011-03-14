@@ -872,7 +872,8 @@ void CConnection::OnAppHandled()
         event.m_seqNum           = m_netSeqNum;
         event.m_connectionIdx    = m_connectionIdx;
         event.m_connectionEvents = event_connection_app_handled;
-        //晕，怎么加错消息了！之前一直没测到过这个问题！
+        //晕，怎么加错消息了！之前一直没测到过这个问题！而且加了之后也没有加seqNum！！
+        ++ m_appSeqNum;
         if (m_pEventQueues->AddAppEvent(event,-1) >= SUCCESS)
         {
             m_nNetBlocked = 0;
