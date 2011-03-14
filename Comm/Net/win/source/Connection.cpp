@@ -3,6 +3,8 @@
 #include "SysMacros.h"
 #include "NetApi.h"
 #include <time.h>
+
+
 namespace Zephyr
 {
 
@@ -254,10 +256,15 @@ CIocpOverlappedDataHeader *CConnection::PrepareToRead()
         {
             return NULL;
         }
-        if(availableLen > MAX_IOCP_PACKET_DATA_LENGTH)
-        {
-            availableLen = MAX_IOCP_PACKET_DATA_LENGTH;
-        }
+        //不再限制最大长度，没必要.
+//         if(availableLen > MAX_IOCP_PACKET_DATA_LENGTH)
+//         {
+//             availableLen = MAX_IOCP_PACKET_DATA_LENGTH;
+//         }
+//         else
+//         {
+//             printf("List Full \t");
+//         }
         if (pBuff)
         {
             m_readDataHeader.m_wsaBuff.buf = (char*)pBuff;
@@ -490,10 +497,16 @@ TInt32 CConnection::AppRoutine(TUChar *pBuff,TUInt32 buffLen)
                 m_inPipe.ReturnMsgBuff(pData,len);
                 len = m_inPipe.GetDataLen();
             }
-            return SUCCESS;
+            return len;
         }
         TUInt32 len = m_inPipe.GetDataLen();
+//         if (m_inPipe.m_msgRecvd>131072)
+//         {
+//             ++len;
+//             --len;
+//         }
         TUChar *pHeader(NULL);
+        int sendLen = 0;
         while(len >= m_minHeaderLength)
         {
             if (m_pIfParser)
@@ -533,6 +546,16 @@ TInt32 CConnection::AppRoutine(TUChar *pBuff,TUInt32 buffLen)
                 
                     //保存需要的长度.
                 dataLen = m_pIfParser->OnRecv(pHeader,dataLen);
+//                 static int time = 0;
+//                 static int totalDataLen = 0;
+//                 totalDataLen += dataLen;
+//                 printf("time=%d,len=%d,dataLen=%d,totalDataLen=%d,pipeLen =%d    ",time,len,dataLen,totalDataLen,m_inPipe.m_msgRecvd);
+//                 ++time;
+                
+//                 if (dataLen%448)
+//                 {
+//                     break;
+//                 }
                 if (0 == dataLen)
                 {
                     break;
@@ -549,6 +572,7 @@ TInt32 CConnection::AppRoutine(TUChar *pBuff,TUInt32 buffLen)
                     {
                         m_inPipe.ReadData(pBuff,dataLen);
                         m_pAppCallBack->OnRecv(pBuff,dataLen);
+                        sendLen += dataLen;
                     }
                     else
                     {
@@ -557,6 +581,7 @@ TInt32 CConnection::AppRoutine(TUChar *pBuff,TUInt32 buffLen)
                             m_pAppCallBack->OnRecv(pHeader,dataLen);
                         }
                         m_inPipe.ReturnMsgBuff(pHeader,dataLen);
+                        sendLen += dataLen; 
                     }
                 }
                
@@ -569,9 +594,11 @@ TInt32 CConnection::AppRoutine(TUChar *pBuff,TUInt32 buffLen)
                     m_pAppCallBack->OnRecv(pHeader,len);
                 }
                 m_inPipe.ReturnMsgBuff(pHeader,len);
+                sendLen += len; 
             }
             len = m_inPipe.GetDataLen();
         }
+        return sendLen;
     }
     else if (connection_is_aborted == m_connectionState)
     {
