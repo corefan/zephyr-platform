@@ -24,11 +24,12 @@ private:
     TUChar *m_pMemPool;
     volatile TUChar *m_pHeader;
     volatile TUChar *m_pRear;
-    #ifdef _DEBUG
-    TUInt32 m_msgRecvd;
-    #endif
+
     TUInt32 m_memPoolSize;
 public:
+#ifdef _DEBUG
+    TUInt32 m_msgRecvd;
+#endif
     TUInt32 GetDataPiece()
     {
         TUChar *pHeader = (TUChar*)m_pHeader;
