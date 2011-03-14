@@ -8,15 +8,15 @@ TInt32  CMsgParser::OnRecv(TUChar *pNetData,TInt32 dataLen)
 {
     CMessageHeader *pMsg = (CMessageHeader*)pNetData;
     TInt32 msgLen = pMsg->GetLength();
-    TInt32 returnLen = 0; 
-    while (msgLen <= dataLen)
+#ifdef _DEBUG  
+    //为测试而写！！！！
+    if (448 != msgLen)
     {
-        dataLen -= msgLen;
-        returnLen += msgLen;
-        pMsg = (CMessageHeader*)(pNetData + returnLen);
-        msgLen = pMsg->GetLength();
+        return 0;
     }
-    return returnLen;
+#endif
+    //一条条回
+    return msgLen;
 }
 
 }//end of namespace Zephyr;
