@@ -281,6 +281,10 @@
 						RelativePath=".\Interface\App\include\IfParserFactory.h"
 						>
 					</File>
+					<File
+						RelativePath=".\Interface\App\include\IfSkeleton.h"
+						>
+					</File>
 				</Filter>
 			</Filter>
 		</Filter>

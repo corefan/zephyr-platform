@@ -111,7 +111,7 @@ public:
     //只有被动连接调用这个，
     CIpMapItem *GetIpMapInfo(CConPair *pConn)
     {
-        for (int i = 0;i<m_nNrOfMapItem;++i)
+        for (TUInt32 i = 0;i<m_nNrOfMapItem;++i)
         {
             if (*pConn == m_pVirtualIps[i].m_tKey)
             {

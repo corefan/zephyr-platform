@@ -29,7 +29,7 @@ TInt32 CConnectionMgr::Init(TUInt32 maxConnectionNum,IfTaskMgr *pTaskMgr,IfParse
         return result;
     }
     
-    for (int i = 0;i<maxConnectionNum;++i)
+    for (TUInt32 i = 0;i<maxConnectionNum;++i)
     {
         m_conncectionPool.GetConectionByIdx(i)->SetEventQueue(&m_netEventQueues);
         m_conncectionPool.GetConectionByIdx(i)->SetTimer(&m_nTimeNow);
@@ -169,7 +169,7 @@ TInt32 CConnectionMgr::Run(TUInt32 runCnt)
     while (pList)
     {
         usedCnt += pList->Run(runCnt-usedCnt);
-        if (usedCnt > runCnt)
+        if (usedCnt >= runCnt)
         {
             return usedCnt;
         }

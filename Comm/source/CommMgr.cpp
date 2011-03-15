@@ -123,7 +123,7 @@ TInt32 CCommMgr::Init(int nrOfWorkerThread,IfTaskMgr *pTaskMgr,IfLoggerManager *
 	//主动连接vip比自己小的所有机器，每台机器重启后都是这个顺序.并且只尝试重连比自己vip小的机器
     //if (m_ipMaps.m_nrOfNodes > 1)
     {
-        for (int i = 0;i<m_ipMaps.m_nNrOfMapItem;++i)
+        for (TUInt32 i = 0;i<m_ipMaps.m_nNrOfMapItem;++i)
         {
             if (m_ipMaps.IsPostive(i))
             {
@@ -161,7 +161,7 @@ TInt32 CCommMgr::Init(int nrOfWorkerThread,IfTaskMgr *pTaskMgr,IfLoggerManager *
                 }
             }
         }
-        for (int i=0;i<m_ipMaps.m_nNrOfLisenting;++i)
+        for (TUInt32 i=0;i<m_ipMaps.m_nNrOfLisenting;++i)
         {
             CIpMapItem *pIpMap = m_ipMaps.GetConnection(m_ipMaps.m_pListening[i]);
             TChar pIps[64];
@@ -194,7 +194,7 @@ TInt32 CCommMgr::Run(const TInt32 threadId,const TInt32 runCnt)
     //再收消息，底层buff小
     usedCnt += m_pNet->Run(runCnt);
     //再转发消息
-    for (int i = 0;i<m_nrOfComm;++i)
+    for (TUInt32 i = 0;i<m_nrOfComm;++i)
     {
  //       usedCnt += DistributeSrvMsg(i);
         CMessageHeader *pMsg = m_pCommunicators[i].GetAppMsg(m_pBuff);
@@ -550,7 +550,7 @@ void   CCommMgr::OnConnected(CCommConnection *pConnection)
     event.m_nNodeId = pConnection->GetNodeId();
     event.m_nVip    = pConnection->GetVirtualIp();
     event.m_nEvent  = en_connection_is_established_event;
-    for (int i=0;i<m_nrOfComm;++i)
+    for (TUInt32 i=0;i<m_nrOfComm;++i)
     {
         m_pCommunicators[i].AddNetEvent(event);
     }
@@ -576,7 +576,7 @@ void   CCommMgr::OnDisconnected(CCommConnection *pConnection,TBool bIsNegative)
         event.m_nNodeId = pConnection->GetNodeId();
         event.m_nVip    = pConnection->GetVirtualIp();
         event.m_nEvent  = en_connection_is_broken_event;
-        for (int i=0;i<m_nrOfComm;++i)
+        for (TUInt32 i=0;i<m_nrOfComm;++i)
         {
             m_pCommunicators[i].AddNetEvent(event);
         }

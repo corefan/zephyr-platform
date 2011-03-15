@@ -512,7 +512,7 @@ TInt32 CConnection::AppRoutine(TUChar *pBuff,TUInt32 buffLen)
             if (m_pIfParser)
             {
                 TUInt32 headerLen(0);
-                TInt32 dataLen(0);
+                TUInt32 dataLen(0);
                 if (len >= m_maxHeaderLength)
                 {
                     headerLen = m_maxHeaderLength;
@@ -520,11 +520,6 @@ TInt32 CConnection::AppRoutine(TUChar *pBuff,TUInt32 buffLen)
                     if (headerLen < m_maxHeaderLength)
                     {
                         pHeader = m_inPipe.Peek(pBuff,m_maxHeaderLength);
-                        dataLen = m_maxHeaderLength;
-                    }
-                    else
-                    {
-                        dataLen = headerLen;
                     }
                 }
                 else
@@ -534,11 +529,6 @@ TInt32 CConnection::AppRoutine(TUChar *pBuff,TUInt32 buffLen)
                     if (headerLen < m_minHeaderLength)
                     {
                         pHeader = m_inPipe.Peek(pBuff,m_minHeaderLength);
-                        dataLen = m_minHeaderLength;
-                    }
-                    else
-                    {
-                        dataLen = headerLen;
                     }
                     //headerLen = m_minHeaderLength;
                 }

@@ -4,6 +4,7 @@
 #include "../../Public/tpl/include/TplPool.h"
 #include "time.h"
 #include "stdlib.h"
+#include <windows.h>
 
 class CTestClass
 {
@@ -26,6 +27,7 @@ int main()
         if(0==(runCnt%1000))
         {
             srand(time(0));
+            Sleep(15);
         }
         //srand(time(0));
         int ran = 0;
@@ -33,9 +35,16 @@ int main()
         {
             ran = (rand()%10000);
         }
-            
+        if (usedNr<10000)
+        {
+            ++ran;
+        }
+        if (usedNr>20000)
+        {
+            ++ran;
+        }
         bool bAdd = false;
-        if (ran%2)
+        if (runCnt%2)
         {
             bAdd = true;
         }

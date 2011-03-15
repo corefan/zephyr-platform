@@ -224,7 +224,7 @@ void CCommTester::SendAllMessage()
 
 void CCommTester::CheckAll()
 {
-    if (m_pComms->GetTimeGap(m_nLastSendTime) > 60)
+    if (m_pComms->GetTimeGap(m_nLastSendTime) > 5000)
     {
         m_nLastSendTime = m_pComms->GetLocalTime();
         SendAllMessage();

@@ -45,7 +45,7 @@ TInt32 CConnector::Init(TInt32 maxPendingConnections,HANDLE completionPort,ItemC
 
 TInt32 CConnector::Run(const TUInt32 runCnt)
 {
-    int usedCnt = 0;
+    TUInt32 usedCnt = 0;
     if (!m_pendingSocket.GetActivedSize())
     {
         return SUCCESS;
@@ -103,7 +103,7 @@ TInt32 CConnector::Run(const TUInt32 runCnt)
             break;
         default:
             {
-                for(int i=0;i<wset.fd_count;++i)
+                for(TUInt32 i=0;i<wset.fd_count;++i)
                 {
                     CConnectingList *pCItem = m_pendingSocket.GetItemByKey(wset.fd_array+i);
                     if (pCItem)
@@ -117,7 +117,7 @@ TInt32 CConnector::Run(const TUInt32 runCnt)
                         printf("[CConnector::Run] Find unexisted socket!");
                     }
                 }
-                for(int i=0;i<exceptSet.fd_count;++i)
+                for(TUInt32 i=0;i<exceptSet.fd_count;++i)
                 {
                     CConnectingList *pCItem = m_pendingSocket.GetItemByKey(exceptSet.fd_array+i);
                     if (pCItem)

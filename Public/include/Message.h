@@ -45,18 +45,13 @@ enum EnByteOrder
     big_endian            = 1,
 };
 
+
+
+
 class CMessageHeader
 {
-private:
-	
-	CDoid m_destDoid;          //the destination obj id(may have a lot, max 256)
-    //the 1st  bit indicate the byte-orders of this msg.
-    //the following 7 bits indicate how many dest doid does this header has;
-    //the rest 24 bits stored the length of this msg body
-    //TUInt64 m_msgInfo;
-	//把这个都copy了.
-	CDoid m_srcDoid;           //the source obj id
-    union
+public:
+    union UnMsgInfo
     {
         struct 
         {
@@ -92,8 +87,18 @@ private:
             TUInt64    m_reply:1;
         };
         TUInt64 m_data;
-    } m_msgInfo;
-
+    };
+private: //改公共的，不要麻烦了
+	
+	CDoid m_destDoid;          //the destination obj id(may have a lot, max 256)
+    //the 1st  bit indicate the byte-orders of this msg.
+    //the following 7 bits indicate how many dest doid does this header has;
+    //the rest 24 bits stored the length of this msg body
+    //TUInt64 m_msgInfo;
+	//把这个都copy了.
+	CDoid m_srcDoid;           //the source obj id
+    
+    UnMsgInfo m_msgInfo;
 
 	//不要了,timeStamp放到m_data中
     //TUInt16 m_timeStamp;
@@ -137,6 +142,7 @@ public:
             return OUT_OF_RANGE;
         }
         m_msgInfo.m_nrOfBroadcastDoid = num;
+        return num;
     }
     inline CDoid  *GetDestDoidByIdx(TUInt32 idx = 0)
     {

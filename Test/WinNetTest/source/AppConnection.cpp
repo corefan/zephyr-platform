@@ -76,16 +76,16 @@ TInt32 CAppConnection::Run()
                 {
                     if (m_pIfConnection)
                     {
-                        m_pIfConnection->Disconnect();
-                        m_msgRecved = 0;
-                        m_msgSend = 0;
-                        if (!m_passiveSendNr)
-                        {
-                             OnDissconneted(-1);
-                        }
-                        //printf("[CAppConnection::Run]App disconnected!");
-                        m_pIfConnection = NULL;
-                        m_actived = 3;
+//                         m_pIfConnection->Disconnect();
+//                         m_msgRecved = 0;
+//                         m_msgSend = 0;
+//                         if (!m_passiveSendNr)
+//                         {
+//                              OnDissconneted(-1);
+//                         }
+//                         //printf("[CAppConnection::Run]App disconnected!");
+//                         m_pIfConnection = NULL;
+//                         m_actived = 3;
                         return 0;
                     }
                 }
@@ -121,7 +121,7 @@ TInt32 CAppConnection::Run()
     if (m_pIfConnection && sm_averageMsgLen)
     {
         static int buff[32*1024];
-        int sendLen = 100;
+        int sendLen = 1000;
 //         sendLen <<= 1;
 //         sendLen &= 0xFFFFFFFC;
         

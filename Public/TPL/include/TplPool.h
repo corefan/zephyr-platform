@@ -345,7 +345,7 @@ public:
         m_pFreeHeader =m_pItemPool;
         m_pFreeRear = (m_pItemPool);
         m_pFreeHeader->Init();
-        for (TUInt32 i=1;i<nrOfMaxItem;i++)
+        for (TInt32 i=1;i<nrOfMaxItem;i++)
         {
             m_pFreeRear->AttachList((m_pItemPool+i));
             m_pFreeRear = (m_pItemPool+i);
