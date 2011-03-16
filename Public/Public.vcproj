@@ -246,6 +246,14 @@
 						>
 					</File>
 					<File
+						RelativePath=".\Interface\Platform\include\IfOrb.h"
+						>
+					</File>
+					<File
+						RelativePath=".\Interface\Platform\include\IfStub.h"
+						>
+					</File>
+					<File
 						RelativePath=".\Interface\platform\include\IfTask.h"
 						>
 					</File>
