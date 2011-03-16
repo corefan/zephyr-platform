@@ -34,6 +34,12 @@ protected:
     unsigned long long        m_nBeginTime;
     int                m_bIsConnected;
     unsigned int        m_nLastSendTime;
+
+    unsigned int        m_nLastGetAllRespTime;
+    unsigned int        m_nMinSendGap;
+    unsigned int        m_nMaxSendGap;
+    unsigned int        m_nSendTime;
+    unsigned int  m_nTotalSendGap;
 public:
     int Init(IfCommunicatorMgr *pMgr,CDoid *pSrvDoid);
     void OnStartTestOne(int nInitMsgNr,int nInitMsgLen,int srvNr);

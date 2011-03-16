@@ -42,6 +42,7 @@ TInt32 CCommTester::Run(const TInt32 threadId,const TInt32 runCnt)
     }
     if (1 == m_bIsConnected) //最新连接，要发初始消息
     {
+        m_nLastGetAllRespTime = m_pComms->GetLocalTime();
         SendAllMessage();
         ++m_bIsConnected;
     }
@@ -84,6 +85,23 @@ TInt32 CCommTester::Run(const TInt32 threadId,const TInt32 runCnt)
             }
             if (0==(m_nMsgReced%m_nDoidNr))
             {
+                
+                int gap = m_pComms->GetTimeGap(m_nLastGetAllRespTime);
+                m_nLastGetAllRespTime = m_pComms->GetLocalTime();
+                m_nTotalSendGap += gap;
+                if (gap < m_nMinSendGap)
+                {
+                    m_nMinSendGap = gap;
+                }
+                if (gap > m_nMaxSendGap)
+                {
+                    m_nMaxSendGap = gap;
+                }
+                ++m_nSendTime ;
+                if (0 == (m_nSendTime%10000))
+                {
+                    printf("MinSendGap:%u,MaxSendGap:%u,totalSendGap:%u,sendTime:%u,averageSendGap:%u \n\t",m_nMinSendGap,m_nMaxSendGap,m_nTotalSendGap,m_nSendTime,(m_nTotalSendGap/m_nSendTime));
+                }
                 SendAllMessage();
             }
             pMsg = m_pComms->GetMsg();
@@ -203,6 +221,12 @@ int CCommTester::Init(IfCommunicatorMgr *pMgr,CDoid *pSrvDoid)
     m_nLastSendTime = 0;
     m_bIsConnected = 0;
     m_nLastSendTime = m_pComms->GetLocalTime();
+    m_nLastGetAllRespTime = 0;
+    m_nMinSendGap = 10000000;
+    m_nMaxSendGap = 0;
+    m_nSendTime = 0;
+    m_nTotalSendGap = 0;
+
     return SUCCESS;
 }
 
