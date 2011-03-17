@@ -7,10 +7,10 @@
 #include "IfNet.h"
 #include "IpMaps.h"
 #include "TplPool.h"
-#include "..\Public\Interface\Platform\include\IfTaskMgr.h"
+#include "../Public/Interface/Platform/include/IfTaskMgr.h"
 #include "CommConnection.h"
 #include "MsgParserFactory.h"
-#include "TimeSystem.h"
+#include "../../Public/include/TimeSystem.h"
 #include "IfLoggerMgr.h"
 namespace Zephyr
 {
@@ -32,10 +32,10 @@ enum EnCommOpr
 class CCommMgr : public IfCommunicatorMgr,public IfConnection, public IfListenerCallBack, public IfTask
 {
 private:
-    TUInt32             m_nrOfComm;
+    TUInt32             m_nNrOfComm;
     CCommunicator       *m_pCommunicators;
     CIpMap              m_ipMaps;
-    TUInt32             m_lastCheckTime;
+    TUInt32             m_uLastCheckTime;
     IfNet               *m_pNet;
     CPool<CCommConnection> m_connectionPool;
     CMsgParserFactory   *m_pParserFactory;
@@ -51,7 +51,7 @@ private:
     TUChar              *m_pBuff;
     IfLoggerManager     *m_pLoggerMgr;
     IfLogger            *m_pLogger;
-    CConPair            m_cLoopBack;
+    CConPair             m_cLoopBack;
 public:
     //taskMgr由ServerContainer生成.
     TInt32 Init(int nrOfWorkerThread,IfTaskMgr *pTaskMgr,IfLoggerManager *pIfLogMgr,const TChar *pConfigName=szDefaultCommConfigName);
@@ -83,9 +83,9 @@ private:
 
     void HandleOneNetMsg(CMessageHeader *pMsg);
     void HandleOneSystemMsg(CMessageHeader *pMsg);
-    CCommunicator *GetIfComm(TUInt32 srvId)
+    CCommunicator *GetIfComm(TUInt32 uSrvId)
     {
-        return m_pCommunicators + (srvId%m_nrOfComm);
+        return m_pCommunicators + (uSrvId/m_nNrOfComm);
     }
 public:
     //发给本地.
