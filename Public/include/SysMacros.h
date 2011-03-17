@@ -108,6 +108,8 @@
 
 #define MSG_QUEUE_BLOCKED (-31)
 
+#define MEM_NOT_ALIGNED (-32)
+
 #define NR_OF_NET_WORKER (1)
 
 #define ABS(n)   (n>0 ? n : -n)

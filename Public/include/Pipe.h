@@ -86,6 +86,11 @@ public:
     }
     TInt32 Init(TInt32 pipeSize)
     {
+        TUInt32 uAddr= ((TUInt32)this);
+        if (uAddr % (sizeof(void*)))
+        {
+            return MEM_NOT_ALIGNED;
+        }
         if (MIN_PIPE_LENGTH > pipeSize)
         {
             pipeSize = MIN_PIPE_LENGTH;

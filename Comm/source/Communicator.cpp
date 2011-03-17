@@ -133,19 +133,9 @@ TInt32 CCommunicator::GetNetEvent(CConnectionEvent& event)
     return FAIL;
 }
 
-TUInt32 CCommunicator::GetLocalTime()
+const CTimeSystem *CCommunicator::GetTimeSystem()
 {
-    return m_pTimeSys->GetLocalTime();
-}
-
-TUInt32 CCommunicator::GetTimeGap(TUInt32 nLast)
-{
-    return m_pTimeSys->GetTimeGap(nLast);
-}
-
-TUInt64 CCommunicator::GetPlatfromTime()
-{
-    return m_pTimeSys->GetPlatformTime();
+    return m_pTimeSys;
 }
 
 void CCommunicator::AddNetEvent(CConnectionEvent event)

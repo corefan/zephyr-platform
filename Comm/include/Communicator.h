@@ -51,9 +51,7 @@ public:
 
  /*   virtual int GetEvent(CConnectionEvent &event);*/
 
-    virtual TUInt32 GetLocalTime();
-    virtual TUInt32 GetTimeGap(TUInt32 nLast);
-    virtual TUInt64 GetPlatfromTime();
+    virtual const CTimeSystem *GetTimeSystem();
     //×¢Òâ£¬ÓÐ×èÈû
     void AddNetEvent(CConnectionEvent event);
     

@@ -1,9 +1,9 @@
 #ifndef __ZEPHYR_PUBLIC_PLATFORM_IF_COMMUNICATOR_H__
 #define __ZEPHYR_PUBLIC_PLATFORM_IF_COMMUNICATOR_H__
 
-#include "Message.h"
-#include "TypeDef.h"
-
+#include "../../../include/Message.h"
+#include "../../../include/TypeDef.h"
+#include "../../../include/TimeSystem.h"
 namespace Zephyr
 {
 
@@ -22,12 +22,8 @@ public:
     //do not need the para bNeedCopy any more, I will check it!
     virtual TInt32 SendMsg(CMessageHeader *pMsg) = 0;
 
-    //application should not call this !!! called by work thread only! or else some events would lost!
-    //virtual CConnectionEvent GetConnectionEvent(TInt32& result) = 0;
-
-    virtual TUInt32 GetLocalTime() = 0;
-    virtual TUInt32 GetTimeGap(TUInt32 nLast) = 0;
-    virtual TUInt64 GetPlatfromTime() = 0;
+    //注意这个是时间系统
+    virtual const CTimeSystem *GetTimeSystem() = 0;
 // 
      virtual TInt32 GetNetEvent(CConnectionEvent &event) = 0;
     //maybe I could expose less header files

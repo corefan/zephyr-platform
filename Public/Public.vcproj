@@ -180,6 +180,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\include\TimeSystem.h"
+				>
+			</File>
+			<File
 				RelativePath=".\include\TypeDef.h"
 				>
 			</File>
@@ -250,7 +254,7 @@
 						>
 					</File>
 					<File
-						RelativePath=".\Interface\Platform\include\IfStub.h"
+						RelativePath=".\Interface\Platform\include\IfSkeleton.h"
 						>
 					</File>
 					<File
@@ -259,6 +263,10 @@
 					</File>
 					<File
 						RelativePath=".\Interface\platform\include\IfTaskMgr.h"
+						>
+					</File>
+					<File
+						RelativePath=".\Interface\Platform\include\IfTimer.h"
 						>
 					</File>
 				</Filter>
@@ -282,6 +290,10 @@
 						>
 					</File>
 					<File
+						RelativePath=".\Interface\App\include\IfObj.h"
+						>
+					</File>
+					<File
 						RelativePath=".\Interface\App\include\IfParser.h"
 						>
 					</File>
@@ -290,7 +302,7 @@
 						>
 					</File>
 					<File
-						RelativePath=".\Interface\App\include\IfSkeleton.h"
+						RelativePath=".\Interface\App\include\IfScheduler.h"
 						>
 					</File>
 				</Filter>
