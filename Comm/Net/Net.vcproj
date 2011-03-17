@@ -187,10 +187,6 @@
 				RelativePath=".\win\include\NetTask.h"
 				>
 			</File>
-			<File
-				RelativePath="..\include\TimeSystem.h"
-				>
-			</File>
 		</Filter>
 		<Filter
 			Name="source"

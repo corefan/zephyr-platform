@@ -15,7 +15,7 @@ TInt32 CCommMgr::Init(int nrOfWorkerThread,IfTaskMgr *pTaskMgr,IfLoggerManager *
     //先读取配置
     TInt32 ret = m_ipMaps.Init(pConfigName,this);
     m_timeSystem.Update();
-    m_lastCheckTime = m_timeSystem.GetLocalTime();
+    m_uLastCheckTime = m_timeSystem.GetLocalTime();
     if (SUCCESS > ret)
     {
         return ret;
@@ -84,7 +84,7 @@ TInt32 CCommMgr::Init(int nrOfWorkerThread,IfTaskMgr *pTaskMgr,IfLoggerManager *
     g_pCommLogger = m_pLogger;
     pTaskMgr->AddTask(this);
 
-    m_nrOfComm = nrOfWorkerThread;
+    m_nNrOfComm = nrOfWorkerThread;
     NEW(m_pCommunicators,CCommunicator,nrOfWorkerThread);
     if (!m_pCommunicators)
     {
@@ -182,7 +182,7 @@ TInt32 CCommMgr::Init(int nrOfWorkerThread,IfTaskMgr *pTaskMgr,IfLoggerManager *
 
 IfCommunicator *CCommMgr::RegisterWorker(TUInt16 srvId)
 {
-    int idx = srvId % m_nrOfComm;
+    int idx = srvId % m_nNrOfComm;
     return m_pCommunicators + idx;
 }
 
@@ -194,7 +194,7 @@ TInt32 CCommMgr::Run(const TInt32 threadId,const TInt32 runCnt)
     //再收消息，底层buff小
     usedCnt += m_pNet->Run(runCnt);
     //再转发消息
-    for (TUInt32 i = 0;i<m_nrOfComm;++i)
+    for (TUInt32 i = 0;i<m_nNrOfComm;++i)
     {
  //       usedCnt += DistributeSrvMsg(i);
         CMessageHeader *pMsg = m_pCommunicators[i].GetAppMsg(m_pBuff);
@@ -217,9 +217,9 @@ TInt32 CCommMgr::Run(const TInt32 threadId,const TInt32 runCnt)
     
     //10秒钟检查一次
     TUInt32 uTimeNow = m_timeSystem.GetLocalTime();
-    if ((uTimeNow-10000) > m_lastCheckTime)
+    if ((uTimeNow-10000) > m_uLastCheckTime)
     {
-        m_lastCheckTime = uTimeNow;
+        m_uLastCheckTime = uTimeNow;
         for (TUInt32 i = 0;i<m_ipMaps.m_nNrOfMapItem;++i)
         {
             CIpMapItem *pItem = m_ipMaps.GetConnection(i);
@@ -550,7 +550,7 @@ void   CCommMgr::OnConnected(CCommConnection *pConnection)
     event.m_nNodeId = pConnection->GetNodeId();
     event.m_nVip    = pConnection->GetVirtualIp();
     event.m_nEvent  = en_connection_is_established_event;
-    for (TUInt32 i=0;i<m_nrOfComm;++i)
+    for (TUInt32 i=0;i<m_nNrOfComm;++i)
     {
         m_pCommunicators[i].AddNetEvent(event);
     }
@@ -576,7 +576,7 @@ void   CCommMgr::OnDisconnected(CCommConnection *pConnection,TBool bIsNegative)
         event.m_nNodeId = pConnection->GetNodeId();
         event.m_nVip    = pConnection->GetVirtualIp();
         event.m_nEvent  = en_connection_is_broken_event;
-        for (TUInt32 i=0;i<m_nrOfComm;++i)
+        for (TUInt32 i=0;i<m_nNrOfComm;++i)
         {
             m_pCommunicators[i].AddNetEvent(event);
         }
