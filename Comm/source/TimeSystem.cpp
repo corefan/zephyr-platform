@@ -11,7 +11,7 @@
 namespace Zephyr 
 {
 
-CTimeSystem::CTimeSystem()
+CClock::CClock()
 {
 #ifdef _WIN32
     m_timeBegin = (TUInt32)timeGetTime();
@@ -23,7 +23,7 @@ CTimeSystem::CTimeSystem()
     m_nPlatformTime = 0;
 }
     
-void CTimeSystem::Update()
+void CClock::Update()
 {
 #ifdef _WIN32
     TUInt32 timeNow = (TUInt32)timeGetTime();

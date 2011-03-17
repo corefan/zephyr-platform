@@ -148,6 +148,10 @@
 			Name="include"
 			>
 			<File
+				RelativePath=".\include\Clock.h"
+				>
+			</File>
+			<File
 				RelativePath=".\include\CommCenter.h"
 				>
 			</File>
@@ -177,10 +181,6 @@
 			</File>
 			<File
 				RelativePath=".\include\TaskCenter.h"
-				>
-			</File>
-			<File
-				RelativePath=".\include\TimeSystem.h"
 				>
 			</File>
 			<File

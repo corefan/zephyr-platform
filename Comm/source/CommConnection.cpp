@@ -93,7 +93,7 @@ TInt32 CCommConnection::OnRecv(TUChar *pMsg, TUInt32 msgLen)
 {
     if (m_pIpMapItem)
     {
-        m_pIpMapItem->OnUsed(m_pCommMgr->GetTimeSystem()->GetLocalTime());
+        m_pIpMapItem->OnUsed(m_pCommMgr->GetClock()->GetLocalTime());
     }
     return m_pCommMgr->SendMsg(pMsg,msgLen);
 }

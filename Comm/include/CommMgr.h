@@ -10,7 +10,7 @@
 #include "../Public/Interface/Platform/include/IfTaskMgr.h"
 #include "CommConnection.h"
 #include "MsgParserFactory.h"
-#include "../../Public/include/TimeSystem.h"
+#include "../../Public/include/Clock.h"
 #include "IfLoggerMgr.h"
 namespace Zephyr
 {
@@ -47,7 +47,7 @@ private:
     TUInt32             m_netBlockTime;
     TUInt32             m_nAppBlockTime;
 
-    CTimeSystem         m_timeSystem;
+    CClock              m_tClock;
     TUChar              *m_pBuff;
     IfLoggerManager     *m_pLoggerMgr;
     IfLogger            *m_pLogger;
@@ -56,9 +56,9 @@ public:
     //taskMgr”…ServerContainer…˙≥….
     TInt32 Init(int nrOfWorkerThread,IfTaskMgr *pTaskMgr,IfLoggerManager *pIfLogMgr,const TChar *pConfigName=szDefaultCommConfigName);
     virtual IfCommunicator *RegisterWorker(TUInt16 srvId);
-    CTimeSystem *GetTimeSystem()
+    CClock *GetClock()
     {
-        return &m_timeSystem;
+        return &m_tClock;
     }
     virtual TInt32 Begin(TInt32 threadId)
     {

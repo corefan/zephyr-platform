@@ -14,8 +14,8 @@ TInt32 CCommMgr::Init(int nrOfWorkerThread,IfTaskMgr *pTaskMgr,IfLoggerManager *
     
     //先读取配置
     TInt32 ret = m_ipMaps.Init(pConfigName,this);
-    m_timeSystem.Update();
-    m_uLastCheckTime = m_timeSystem.GetLocalTime();
+    m_tClock.Update();
+    m_uLastCheckTime = m_tClock.GetLocalTime();
     if (SUCCESS > ret)
     {
         return ret;
@@ -97,7 +97,7 @@ TInt32 CCommMgr::Init(int nrOfWorkerThread,IfTaskMgr *pTaskMgr,IfLoggerManager *
 
     for (int i=0;i<nrOfWorkerThread;++i)
     {
-        int ret = m_pCommunicators[i].Init(&m_timeSystem,inPipeSize,outPipeSize,maxMsgSize);
+        int ret = m_pCommunicators[i].Init(&m_tClock,inPipeSize,outPipeSize,maxMsgSize);
         m_pCommunicators[i].InitEventPool(m_ipMaps.m_nrOfVirtualIp);
         if (ret < SUCCESS)
         {
@@ -147,7 +147,7 @@ TInt32 CCommMgr::Init(int nrOfWorkerThread,IfTaskMgr *pTaskMgr,IfLoggerManager *
                 }
                 //m_ppConnections[i] = pConnection;
                 pConnection->SetAllInfo(this,pIp);
-                pIp->OnConnecting(pConnection,m_timeSystem.GetLocalTime());
+                pIp->OnConnecting(pConnection,m_tClock.GetLocalTime());
                 //解决同时连接过多的问题
                 if (0 == (i % 32))
                 {
@@ -190,7 +190,7 @@ TInt32 CCommMgr::Run(const TInt32 threadId,const TInt32 runCnt)
 {
     int usedCnt = 0;
     //先调整时间
-    m_timeSystem.Update();
+    m_tClock.Update();
     //再收消息，底层buff小
     usedCnt += m_pNet->Run(runCnt);
     //再转发消息
@@ -216,14 +216,14 @@ TInt32 CCommMgr::Run(const TInt32 threadId,const TInt32 runCnt)
     //检查Net事件
     
     //10秒钟检查一次
-    TUInt32 uTimeNow = m_timeSystem.GetLocalTime();
+    TUInt32 uTimeNow = m_tClock.GetLocalTime();
     if ((uTimeNow-10000) > m_uLastCheckTime)
     {
         m_uLastCheckTime = uTimeNow;
         for (TUInt32 i = 0;i<m_ipMaps.m_nNrOfMapItem;++i)
         {
             CIpMapItem *pItem = m_ipMaps.GetConnection(i);
-            TUInt32 nGap = m_timeSystem.GetTimeGap(pItem->m_uLastUsedTime);
+            TUInt32 nGap = m_tClock.GetTimeGap(pItem->m_uLastUsedTime);
             if (nGap > 10000)
             {
                 if ((pItem->m_pIfConnection) && (!m_ipMaps.IsLocal(pItem)))
@@ -266,7 +266,7 @@ TInt32 CCommMgr::Run(const TInt32 threadId,const TInt32 runCnt)
                         }
                         //m_ppConnections[i] = pConnection;
                         pConnection->SetAllInfo(this,pItem);
-                        pItem->OnConnecting(pConnection,m_timeSystem.GetLocalTime());
+                        pItem->OnConnecting(pConnection,m_tClock.GetLocalTime());
                         //解决同时连接过多的问题
                         if (0 == (i % 32))
                         {
@@ -371,7 +371,7 @@ void CCommMgr::SendAppMsg(CMessageHeader *pMsg)
             pConn = pItem->m_pIfConnection;
             if (pConn)
             {
-                pItem->m_uLastUsedTime = m_timeSystem.GetLocalTime();
+                pItem->m_uLastUsedTime = m_tClock.GetLocalTime();
             }
         }
         else
@@ -414,7 +414,7 @@ void CCommMgr::SendAppMsg(CMessageHeader *pMsg)
                     pConn = pIpMapItem->m_pIfConnection;
                     if (pConn)
                     {
-                        pIpMapItem->m_uLastUsedTime = m_timeSystem.GetLocalTime();
+                        pIpMapItem->m_uLastUsedTime = m_tClock.GetLocalTime();
                     }
                 }
                 else
@@ -454,7 +454,7 @@ void CCommMgr::SendAppMsg(CMessageHeader *pMsg)
             pConn = pIpMapItem->m_pIfConnection;
             if (pConn)
             {
-                pIpMapItem->m_uLastUsedTime = m_timeSystem.GetLocalTime();
+                pIpMapItem->m_uLastUsedTime = m_tClock.GetLocalTime();
             }
         }
         else
@@ -545,7 +545,7 @@ CIpMapItem *CCommMgr::GetIpMapInfo(CConPair *pPair)
 
 void   CCommMgr::OnConnected(CCommConnection *pConnection)
 {
-    CCommConnection *pLast = m_ipMaps.OnConnected(pConnection,m_timeSystem.GetLocalTime());
+    CCommConnection *pLast = m_ipMaps.OnConnected(pConnection,m_tClock.GetLocalTime());
     CConnectionEvent event;
     event.m_nNodeId = pConnection->GetNodeId();
     event.m_nVip    = pConnection->GetVirtualIp();
@@ -566,7 +566,7 @@ void   CCommMgr::OnConnected(CCommConnection *pConnection)
 void   CCommMgr::OnDisconnected(CCommConnection *pConnection,TBool bIsNegative)
 {
     //清ipmap表
-    m_ipMaps.OnDisconnected(pConnection,m_timeSystem.GetLocalTime());
+    m_ipMaps.OnDisconnected(pConnection,m_tClock.GetLocalTime());
 
     m_connectionPool.ReleaseMem(pConnection);
 
@@ -652,7 +652,7 @@ void CCommMgr::HandleOneSystemMsg(CMessageHeader *pMsg)
             CIpMapItem *pItem =  m_ipMaps.RouteTo(pSrc);
             if (pItem)
             {
-                pItem->m_uLastUsedTime = m_timeSystem.GetLocalTime();
+                pItem->m_uLastUsedTime = m_tClock.GetLocalTime();
             }
         }
         break;

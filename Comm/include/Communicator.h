@@ -4,7 +4,7 @@
 #include "TypeDef.h"
 #include "IfCommunicator.h"
 #include "Pipe.h"
-#include "TimeSystem.h"
+#include "../../Public/include/Clock.h"
 #include "../../Public/Interface/Platform/include/IfTask.h"
 #include "../../System/include/ProducerAndConsumer.h"
 #include "../Net/win/include/NetEventQueue.h"
@@ -22,7 +22,7 @@ protected:
     TUChar* m_pBuff;
     TUInt32 m_buffSize;
 
-    CTimeSystem *m_pTimeSys;
+    CClock *m_pClock;
     TUInt64  m_nLastBlockTimes;
     
     CIoEventQueue<CConnectionEvent> m_tNetEventQueue; 
@@ -31,7 +31,7 @@ protected:
 public:
     CCommunicator();
     ~CCommunicator();
-    TInt32 Init(CTimeSystem *pTimeSystem,TUInt32 inPipeSize,TUInt32 outPipeSize,TUInt32 maxMessageSize);
+    TInt32 Init(CClock *pTimeSystem,TUInt32 inPipeSize,TUInt32 outPipeSize,TUInt32 maxMessageSize);
     TInt32 InitEventPool(TUInt32 maxEventNr);
 public:
 
@@ -51,7 +51,7 @@ public:
 
  /*   virtual int GetEvent(CConnectionEvent &event);*/
 
-    virtual const CTimeSystem *GetTimeSystem();
+    virtual const CClock *GetClock();
     //×¢Òâ£¬ÓÐ×èÈû
     void AddNetEvent(CConnectionEvent event);
     

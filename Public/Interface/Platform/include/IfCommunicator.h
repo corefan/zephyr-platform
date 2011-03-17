@@ -3,7 +3,7 @@
 
 #include "../../../include/Message.h"
 #include "../../../include/TypeDef.h"
-#include "../../../include/TimeSystem.h"
+#include "../../../include/Clock.h"
 namespace Zephyr
 {
 
@@ -23,7 +23,7 @@ public:
     virtual TInt32 SendMsg(CMessageHeader *pMsg) = 0;
 
     //注意这个是时间系统
-    virtual const CTimeSystem *GetTimeSystem() = 0;
+    virtual const CClock *GetClock() = 0;
 // 
      virtual TInt32 GetNetEvent(CConnectionEvent &event) = 0;
     //maybe I could expose less header files

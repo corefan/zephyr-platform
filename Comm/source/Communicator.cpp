@@ -8,7 +8,7 @@ CCommunicator::CCommunicator()
 {
     m_pBuff     = NULL;
     m_buffSize  = 0;
-    m_pTimeSys = NULL;
+    m_pClock = NULL;
 }
 
 CCommunicator::~CCommunicator()
@@ -16,9 +16,9 @@ CCommunicator::~CCommunicator()
     DELETEP(m_pBuff);
 }
 
-TInt32 CCommunicator::Init(CTimeSystem *pTimeSystem,TUInt32 inPipeSize,TUInt32 outPipeSize,TUInt32 maxMessageSize)
+TInt32 CCommunicator::Init(CClock *pClock,TUInt32 inPipeSize,TUInt32 outPipeSize,TUInt32 maxMessageSize)
 {
-    m_pTimeSys = pTimeSystem;
+    m_pClock = pClock;
     TInt32 ret = m_inPipe.Init(inPipeSize);
     if (SUCCESS > ret)
     {
@@ -133,15 +133,15 @@ TInt32 CCommunicator::GetNetEvent(CConnectionEvent& event)
     return FAIL;
 }
 
-const CTimeSystem *CCommunicator::GetTimeSystem()
+const CClock *CCommunicator::GetClock()
 {
-    return m_pTimeSys;
+    return m_pClock;
 }
 
 void CCommunicator::AddNetEvent(CConnectionEvent event)
 {
-    TUInt32 nGap = m_pTimeSys->GetTimeGap(m_uLastBlockedTime);
-    m_uLastBlockedTime = m_pTimeSys->GetLocalTime();
+    TUInt32 nGap = m_pClock->GetTimeGap(m_uLastBlockedTime);
+    m_uLastBlockedTime = m_pClock->GetLocalTime();
     if (nGap > 100)
     {
         m_tNetEventQueue.AddEvent(event,30);
@@ -179,7 +179,7 @@ TInt32 CCommunicator::AddNetMsg(CMessageHeader *pMsg)
     }
     else
     {
-        TUInt64 timeNow = m_pTimeSys->GetPlatformTime();
+        TUInt64 timeNow = m_pClock->GetPlatformTime();
         if (timeNow > m_nLastBlockTimes)
         {
             TUInt32 gap = timeNow - m_nLastBlockTimes;

@@ -7,7 +7,7 @@ TInt32 CCommTester::Run(const TInt32 threadId,const TInt32 runCnt)
 {
     if(m_nBeginTime) //先跳过一段时间
     {
-        unsigned long long timeNow = m_pComms->GetTimeSystem()->GetPlatformTime();
+        unsigned long long timeNow = m_pComms->GetClock()->GetPlatformTime();
         if (timeNow > m_nBeginTime)
         {
             if ((timeNow-m_nBeginTime) >  10000)
@@ -42,7 +42,7 @@ TInt32 CCommTester::Run(const TInt32 threadId,const TInt32 runCnt)
     }
     if (1 == m_bIsConnected) //最新连接，要发初始消息
     {
-        m_nLastGetAllRespTime = m_pComms->GetTimeSystem()->GetLocalTime();
+        m_nLastGetAllRespTime = m_pComms->GetClock()->GetLocalTime();
         SendAllMessage();
         ++m_bIsConnected;
     }
@@ -86,8 +86,8 @@ TInt32 CCommTester::Run(const TInt32 threadId,const TInt32 runCnt)
             if (0==(m_nMsgReced%m_nDoidNr))
             {
                 
-                int gap = m_pComms->GetTimeSystem()->GetTimeGap(m_nLastGetAllRespTime);
-                m_nLastGetAllRespTime = m_pComms->GetTimeSystem()->GetLocalTime();
+                int gap = m_pComms->GetClock()->GetTimeGap(m_nLastGetAllRespTime);
+                m_nLastGetAllRespTime = m_pComms->GetClock()->GetLocalTime();
                 m_nTotalSendGap += gap;
                 if (gap < m_nMinSendGap)
                 {
@@ -159,7 +159,7 @@ void CCommTester::OnStartTestOne(int nInitMsgNr,int nInitMsgLen,int srvNr,int nI
     m_nSrvNr = srvNr;
     m_nIpNr = nIpNr;
     m_nNodeNr = nNodeNr;
-    m_nBeginTime = m_pComms->GetTimeSystem()->GetPlatformTime();
+    m_nBeginTime = m_pComms->GetClock()->GetPlatformTime();
     if (0 == m_nBeginTime) //确保不为0
     {
         m_nBeginTime = 1;
@@ -220,7 +220,7 @@ int CCommTester::Init(IfCommunicatorMgr *pMgr,CDoid *pSrvDoid)
     m_nMsgReced = 0;
     m_nLastSendTime = 0;
     m_bIsConnected = 0;
-    m_nLastSendTime = m_pComms->GetTimeSystem()->GetLocalTime();
+    m_nLastSendTime = m_pComms->GetClock()->GetLocalTime();
     m_nLastGetAllRespTime = 0;
     m_nMinSendGap = 10000000;
     m_nMaxSendGap = 0;
@@ -242,15 +242,15 @@ void CCommTester::SendAllMessage()
             pBuff[i] = (unsigned char)i;
         }
         m_pComms->SendMsg(pMsg);
-        m_nLastSendTime = m_pComms->GetTimeSystem()->GetLocalTime();
+        m_nLastSendTime = m_pComms->GetClock()->GetLocalTime();
     }
 }
 
 void CCommTester::CheckAll()
 {
-    if (m_pComms->GetTimeSystem()->GetTimeGap(m_nLastSendTime) > 5000)
+    if (m_pComms->GetClock()->GetTimeGap(m_nLastSendTime) > 5000)
     {
-        m_nLastSendTime = m_pComms->GetTimeSystem()->GetLocalTime();
+        m_nLastSendTime = m_pComms->GetClock()->GetLocalTime();
         SendAllMessage();
     }
 }
