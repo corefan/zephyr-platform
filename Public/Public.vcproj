@@ -192,6 +192,10 @@
 			Name="source"
 			>
 			<File
+				RelativePath=".\source\Clock.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\include\CommCenter.cpp"
 				>
 			</File>

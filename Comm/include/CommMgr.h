@@ -83,9 +83,15 @@ private:
 
     void HandleOneNetMsg(CMessageHeader *pMsg);
     void HandleOneSystemMsg(CMessageHeader *pMsg);
-    CCommunicator *GetIfComm(TUInt32 uSrvId)
+    CCommunicator *GetIfComm(TUInt16 uSrvId)
     {
-        return m_pCommunicators + (uSrvId/m_nNrOfComm);
+        //每个comm是16个service
+        uSrvId>>=4;
+        if (uSrvId < m_nNrOfComm)
+        {
+            return m_pCommunicators + uSrvId;
+        }
+        return NULL;
     }
 public:
     //发给本地.

@@ -606,35 +606,58 @@ void CCommMgr::HandleOneNetMsg(CMessageHeader *pMsg)
     int to = 1;
     CDoid *pDoid = pMsg->GetDestDoidByIdx(i);
     CCommunicator *pComm = GetIfComm(pDoid->m_srvId);
-    int msgDoidNr = pMsg->GetBroadcastDoidNr();
-    if (msgDoidNr)
+    if (pComm)
     {
-        pDoid = pMsg->GetBroadcastDoids();
-        for (i=1;i<= msgDoidNr;++i)
+        int msgDoidNr = pMsg->GetBroadcastDoidNr();
+        if (msgDoidNr)
         {
-            if (pComm != GetIfComm(pDoid->m_srvId))
+            pDoid = pMsg->GetBroadcastDoids();
+            for (i=1;i<= msgDoidNr;++i)
             {
-                //send last msg
-                pMsg->ReInitMsg4Send(from,i-1);
-                pComm->AddNetMsg(pMsg);
-                pMsg->SetBroadcastDoid(msgDoidNr);
-                from = i;
-                pComm = GetIfComm(pDoid->m_srvId);
+                if (pComm != GetIfComm(pDoid->m_srvId))
+                {
+                    //send last msg
+                    pMsg->ReInitMsg4Send(from,i-1);
+                    pComm->AddNetMsg(pMsg);
+                    pMsg->SetBroadcastDoid(msgDoidNr);
+                    from = i;
+                    pComm = GetIfComm(pDoid->m_srvId);
+                    if (!pComm)
+                    {
+                        pMsg->SetBroadcastDoid(msgDoidNr);
+                        RecordOneMsg(pMsg);
+                        return;
+                    }
+                }
+                else
+                {
+                    //pComm = GetIfComm(pDoid->m_srvId);
+                }
+                ++pDoid;
             }
-            else
-            {
-                //pComm = GetIfComm(pDoid->m_srvId);
-            }
-            ++pDoid;
         }
+        
+        if (!pComm)
+        {
+            pMsg->SetBroadcastDoid(msgDoidNr);
+            RecordOneMsg(pMsg);
+            return;
+        }
+        //如果from改变过，则需要重新init Msg.
+        if (from)
+        {
+            pMsg->ReInitMsg4Send(from,(msgDoidNr));
+        }
+        
+        pComm->AddNetMsg(pMsg); //这里面如果失败，里面会记录，外面不用担心,CommMgr是管Comm的，不管Comm内部的逻辑
+        pMsg->SetBroadcastDoid(msgDoidNr);
+        return;
     }
-    //如果from改变过，则需要重新init Msg.
-    if (from)
+    else
     {
-        pMsg->ReInitMsg4Send(from,(msgDoidNr));
+        RecordOneMsg(pMsg);
+        return;
     }
-    pComm->AddNetMsg(pMsg);
-    pMsg->SetBroadcastDoid(msgDoidNr);
 }
 
 void CCommMgr::HandleOneSystemMsg(CMessageHeader *pMsg)

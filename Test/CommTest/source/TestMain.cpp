@@ -65,7 +65,7 @@ int main()
     CCommTester* pCommTests = new CCommTester[nrOfTester];
     for (int i=0;i<nrOfTester;++i)
     {
-        initSendMsgDoid.m_srvId = i;
+        initSendMsgDoid.m_srvId = i*16;
         pCommTests[i].Init(pMgr,&initSendMsgDoid);
         pCommTests[i].OnStartTestOne(initSendMsgNr,initSendMsgLen,nrOfTester,2,1);
         pTaskMgr->AddTask(pCommTests+i);

@@ -7,6 +7,9 @@
 namespace Zephyr
 {
 
+#define MAX_SERVICE_NR 16
+
+
 class IfCommunicator
 {
 public:
