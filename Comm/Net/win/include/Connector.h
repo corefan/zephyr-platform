@@ -46,6 +46,10 @@ public:
     SOCKET m_key;
     CConnection* m_pConnection;
     TInt32  m_tryTimes;
+    SOCKET &GetKey()
+    {
+        return m_key;
+    }
 };
 
 class CConnectionMgr;

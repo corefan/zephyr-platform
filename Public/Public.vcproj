@@ -324,6 +324,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\TPL\include\TplMultiMap.h"
+				>
+			</File>
+			<File
 				RelativePath=".\TPL\include\TplPool.h"
 				>
 			</File>

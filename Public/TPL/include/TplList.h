@@ -9,8 +9,8 @@
   Function List:  
   History:
 *************************************************/
-#ifndef _S_LIST_TEMPLATE_H_
-#define _S_LIST_TEMPLATE_H_
+#ifndef __ZEPHYR_PUBLIC_TPL_LIST_TEMPLATE_H__
+#define __ZEPHYR_PUBLIC_TPL_LIST_TEMPLATE_H__
 
 #include "../../include/SysMacros.h"
 #ifdef _DEBUG

@@ -10,6 +10,10 @@ class CTestClass
 {
 public:
     int m_nIdx;
+    int &GetKey()
+    {
+        return m_nIdx;
+    }
 };
 using namespace Zephyr;
 int main()
@@ -22,11 +26,17 @@ int main()
 
     __int64 nReleaseTime = 0;
     __int64 nGetTime = 0;
+    unsigned int timeLast = 0;
     while(++runCnt)
     {
-        if(0==(runCnt%1000))
+        if(0==(runCnt%100))
         {
             srand(time(0));
+#ifdef _WIN32
+            //srand(timeGetTime());
+#else
+            
+#endif
             Sleep(15);
         }
         //srand(time(0));

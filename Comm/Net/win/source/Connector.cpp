@@ -272,13 +272,17 @@ TInt32 CConnector::AddToPendingList(CConnection *pConnection)
 {
     TInt32 result = SUCCESS;
     SOCKET socket = pConnection->GetSocket();
-    CConnectingList *pList = m_pendingSocket.GetItem(result,&socket);
+    if (m_pendingSocket.GetItemByKey(&socket)) //已经加过了？！
+    {
+        return FAIL;
+    }
+    CConnectingList *pList = m_pendingSocket.PrepareItem();
     if (pList && (result == SUCCESS))
     {
         pList->m_key = pConnection->GetSocket();
         pList->m_pConnection = pConnection;
         pList->m_tryTimes = 0;
-        m_pendingSocket.AddInTree(pList,&pList->m_key);
+        m_pendingSocket.AddInTree(pList);
     }
     else
     {

@@ -17,6 +17,10 @@ class CMapTest
 {
 public:
     unsigned int m_key;
+    unsigned int &GetKey()
+    {
+        return m_key;
+    }
 };
 int main()
 {
@@ -62,10 +66,12 @@ int main()
             if (!pMap)
             {
                 TInt32 result;
-                pMap = map.GetItem(result,&ran);
+                pMap = map.PrepareItem();
                 if (pMap)
                 {
+                    pMap->m_key = ran;
                     pRandNr[num] = ran;
+                    map.AddInTree(pMap);
                     ++num;
                 }
                 else

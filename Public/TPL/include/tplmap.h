@@ -12,12 +12,12 @@
       And for the most important thing: U can read and debug it!
   History:
 *************************************************/
-#ifndef _S_MAP_TEMPLATE_H_
-#define _S_MAP_TEMPLATE_H_
+#ifndef _ZEPHYR_MAP_TEMPLATE_H_
+#define _ZEPHYR_MAP_TEMPLATE_H_
 
 
-#include "SysMacros.h"
-#include "TypeDef.h"
+#include "../../include/SysMacros.h"
+#include "../../include/TypeDef.h"
 #ifdef _DEBUG
 #include <iostream>
 using namespace std;
@@ -33,12 +33,16 @@ template<class CItem,class CKey>
 class TplNode : public CItem
 {
 public:
-    //CKey                       m_key;
+    //CKey                       GetKey();
     TplNode<CItem,CKey>*    m_pLeftNode;
     TplNode<CItem,CKey>*    m_pRightNode;
     TplNode<CItem,CKey>*    m_pParent;
+#ifdef _DEBUG
     TUInt32               m_nodeSize:31;
     TUInt32               m_isActive:1;
+#else
+    TUInt32               m_nodeSize;
+#endif
 public:
     void     CheckTree()
     {
@@ -79,7 +83,7 @@ public:
             return NULL;
         }
         TplNode<CItem,CKey> *pResult = NULL;
-        if (CItem::m_key > pNow->m_key)
+        if (CItem::GetKey() > pNow->GetKey())
         {
             if (m_pLeftNode)
             {
@@ -95,7 +99,7 @@ public:
                 return NULL;
             }
         }
-        if (CItem::m_key == pNow->m_key)
+        if (CItem::GetKey() == pNow->GetKey())
         {
             if (m_pRightNode)
             {
@@ -118,7 +122,7 @@ public:
     TplNode<CItem,CKey> *SafeAddNode(TplNode *pNode,TInt32&result)
     {
             TplNode<CItem,CKey> *pResult = this;
-            if (FindNode(pNode->m_key))
+            if (FindNode(pNode->GetKey()))
             {
                 result = FAIL;
             }
@@ -129,18 +133,18 @@ public:
             }
             return pResult;
     }
-
+private:
     //if return NULL, mean this node had already existed! U can't add again!
     TplNode<CItem,CKey> *AddNode(TplNode *pNode);
 public:
     //high efficiency also use this in release.
-    TplNode<CItem,CKey> *SafeReleaseNode(CKey& key,TInt32& result)
+    TplNode<CItem,CKey> *SafeReleaseNode(TplNode<CItem,CKey> *pNode,TInt32& result)
         {
-            TplNode<CItem,CKey> *pResult = this;
-            if (FindNode(key))
+            TplNode<CItem,CKey> *pResult = FindNode(pNode->GetKey());
+            if (pResult == pNode)
             {
                 result = SUCCESS;
-                pResult = ReleaseNode(key);
+                pResult = ReleaseNode(pNode->GetKey());
             }
             else
             {
@@ -148,26 +152,32 @@ public:
             }
             return pResult;
         }
+private:
     //if the key does not exist, U wouldn't know about it.
     TplNode<CItem,CKey> *ReleaseNode(CKey& key);
+public:
     void        Init()
                 {
                     m_nodeSize = 0;
-                    m_isActive = 1;
+
                     m_pLeftNode = NULL;
                     m_pRightNode = NULL;
                     m_pParent    = NULL;
+#ifdef _DEBUG
                     Active();
+#endif
                 }
     void        UnInit()
                 {
+#ifdef _DEBUG
                     Deactive();
+#endif
                     m_nodeSize = 0;
-                    m_isActive = 0;
                     m_pLeftNode = NULL;
                     m_pRightNode = NULL;
                     m_pParent    = NULL;
                 }
+#ifdef _DEBUG
     bool        IsActived()
                 {
                     return m_isActive;
@@ -180,7 +190,7 @@ public:
                 {
                     m_isActive = 0;
                 }
-    
+#endif
     void        Print(TInt32 etch,TInt32& count);
     typedef TInt32 (CItem::*_PFMSG)(TInt32); 
 	typedef TInt32 (*_PFV)(CItem *pThis,void *);
@@ -332,14 +342,14 @@ private:
         TInt32 totalNode = 0;
         if (m_pLeftNode)
         {
-            if(m_pLeftNode->FindNode(CItem::m_key))
+            if(m_pLeftNode->FindNode(CItem::GetKey()))
             {
                 printf("check tree failed, find self in the m_pLeftNode \n");
                 TInt32 count = 0;
                 Print(1,count);
                 return FAIL;
             }
-            if (!(CItem::m_key > m_pLeftNode->m_key))
+            if (!(CItem::GetKey() > m_pLeftNode->GetKey()))
             {
                 printf("check tree failed, left node key is not smaller than root!\n");
                 TInt32 count = 0;
@@ -350,14 +360,14 @@ private:
         }
         if (m_pRightNode)
         {
-            if (m_pRightNode->FindNode(CItem::m_key))
+            if (m_pRightNode->FindNode(CItem::GetKey()))
             {
                 printf("check tree failed, find self in the m_pRightNode \n");
                 TInt32 count = 0;
                 Print(1,count);
                 return FAIL;
             }
-            if (!(CItem::m_key < m_pRightNode->m_key))
+            if (!(CItem::GetKey() < m_pRightNode->GetKey()))
             {
                 printf("check tree failed, right node key is not bigger than root!\n");
                 TInt32 count = 0;
@@ -375,12 +385,12 @@ private:
         }
         if (m_pParent)
         {
-            if (m_pParent->m_key == m_key)
+            if (m_pParent->GetKey() == GetKey())
             {
                 printf("Check tree failed ,parent's key is the same to this!\n");
                 return FAIL;
             }
-            if (m_pParent->m_key > m_key)
+            if (m_pParent->GetKey() > GetKey())
             {
                 if (m_pParent->m_pLeftNode != this)
                 {
@@ -589,7 +599,7 @@ void TplNode<CItem,CKey>::Print(TInt32 etch,TInt32& count)
     {
         cout<<"+  ";
     }
-    cout<<CItem::m_key<<"("<<count++<<") nodeSize :"<<m_nodeSize<<endl;
+    cout<<CItem::GetKey()<<"("<<count++<<") nodeSize :"<<m_nodeSize<<endl;
 
     if (m_pRightNode)
     {
@@ -614,11 +624,11 @@ void TplNode<CItem,CKey>::Print(TInt32 etch,TInt32& count)
 template<class CItem,class CKey>
 TplNode<CItem,CKey> *TplNode<CItem,CKey>::FindNode(CKey& key)
 {
-    if (CItem::m_key == key)
+    if (CItem::GetKey() == key)
     {
         return this;
     }
-    if (CItem::m_key > key)
+    if (CItem::GetKey() > key)
     {
         if (m_pLeftNode)
         {
@@ -651,7 +661,7 @@ TplNode<CItem,CKey> *TplNode<CItem,CKey>::AddNode(TplNode *pNode)
         return NULL;
     }
     pNode->Init();
-    if (CItem::m_key == pNode->m_key)
+    if (CItem::GetKey() == pNode->GetKey())
     {
         //almost never happened!
         #ifdef _NEED_TREE_CHECK
@@ -660,7 +670,7 @@ TplNode<CItem,CKey> *TplNode<CItem,CKey>::AddNode(TplNode *pNode)
         return this;
     }
 #endif
-    if (CItem::m_key > pNode->m_key)
+    if (CItem::GetKey() > pNode->GetKey())
     {
         if (NeedRearrange(left_node))
         {
@@ -711,7 +721,7 @@ TplNode<CItem,CKey> *TplNode<CItem,CKey>::AddNode(TplNode *pNode)
             
             if (pNewRoot)
             {
-                if (pNewRoot->m_key > pNode->m_key)
+                if (pNewRoot->GetKey() > pNode->GetKey())
                 {
                     if (pNewRoot->m_pLeftNode)
                     {
@@ -738,14 +748,14 @@ TplNode<CItem,CKey> *TplNode<CItem,CKey>::AddNode(TplNode *pNode)
             /*
             TplNode<CItem,CKey>* pNewRoot = m_pLeftNode->GetBigest();
 
-            if ((pNode->m_key) > (pNewRoot->m_key))
+            if ((pNode->GetKey()) > (pNewRoot->GetKey()))
             {
                 //the new added node would be the root!
                 pNewRoot = pNode;
             }
             else
             {
-                m_pLeftNode = m_pLeftNode->ReleaseNode(pNewRoot->m_key);
+                m_pLeftNode = m_pLeftNode->ReleaseNode(pNewRoot->GetKey());
                 #ifdef _DEBUG
                 if (m_pLeftNode)
                 {
@@ -870,7 +880,7 @@ TplNode<CItem,CKey> *TplNode<CItem,CKey>::AddNode(TplNode *pNode)
         }
         if (pNewRoot)
         {
-            if (pNewRoot->m_key > pNode->m_key)
+            if (pNewRoot->GetKey() > pNode->GetKey())
             {
                 pNewRoot->m_pLeftNode = pNewRoot->m_pLeftNode->AddNode(pNode);
                 pNewRoot->AddLeftNodeNum();
@@ -895,14 +905,14 @@ TplNode<CItem,CKey> *TplNode<CItem,CKey>::AddNode(TplNode *pNode)
         return pNewRoot;
         /*
         TplNode<CItem,CKey>* pNewRoot = m_pRightNode->GetSmallest();
-        if ((pNode->m_key) < (pNewRoot->m_key))
+        if ((pNode->GetKey()) < (pNewRoot->GetKey()))
         {
             pNewRoot = pNode;
         }
         else
         {
             //BEGIN ADD 01-04-2009 s0032 TDS00037
-            m_pRightNode = m_pRightNode->ReleaseNode(pNewRoot->m_key);
+            m_pRightNode = m_pRightNode->ReleaseNode(pNewRoot->GetKey());
 
 #ifdef _DEBUG
             if (m_pRightNode)
@@ -980,7 +990,7 @@ TplNode<CItem,CKey> *TplNode<CItem,CKey>::ReleaseNode(CKey& key)
 {
     //make sure the key does existed!
     //TplNode *pResult = FindNode(key);
-    if (CItem::m_key == key)
+    if (CItem::GetKey() == key)
     {
         // release this node;
         //if this node is the leaf, than just release this node;
@@ -1019,7 +1029,7 @@ TplNode<CItem,CKey> *TplNode<CItem,CKey>::ReleaseNode(CKey& key)
         if (balanceNum < 0)
         {
             pNewRoot = m_pRightNode->GetSmallest();
-            m_pRightNode = m_pRightNode->ReleaseNode(pNewRoot->m_key);
+            m_pRightNode = m_pRightNode->ReleaseNode(pNewRoot->GetKey());
 #ifdef _NEED_TREE_CHECK
             if (m_pRightNode)
             {
@@ -1031,7 +1041,7 @@ TplNode<CItem,CKey> *TplNode<CItem,CKey>::ReleaseNode(CKey& key)
         else
         {
             pNewRoot = m_pLeftNode->GetBigest();
-            m_pLeftNode = m_pLeftNode->ReleaseNode(pNewRoot->m_key);
+            m_pLeftNode = m_pLeftNode->ReleaseNode(pNewRoot->GetKey());
 #ifdef _NEED_TREE_CHECK
             if (m_pLeftNode)
             {
@@ -1061,7 +1071,7 @@ TplNode<CItem,CKey> *TplNode<CItem,CKey>::ReleaseNode(CKey& key)
         //return the new root of this subtree.
     }
     //otherwist just release the node in the tree and return this itself, because the root is not changed.
-    if (CItem::m_key > key)
+    if (CItem::GetKey() > key)
     {
         //equals to minus left node num.
 
@@ -1085,7 +1095,7 @@ TplNode<CItem,CKey> *TplNode<CItem,CKey>::ReleaseNode(CKey& key)
             {
                 #endif
                 pNewRoot = m_pRightNode->GetSmallest();
-                m_pRightNode = m_pRightNode->ReleaseNode(pNewRoot->m_key);
+                m_pRightNode = m_pRightNode->ReleaseNode(pNewRoot->GetKey());
                 #ifdef _DEBUG
                 if (m_pRightNode)
                 {
@@ -1313,7 +1323,7 @@ public:
     friend class Iterator;
 private:
 public:
-    typedef TInt32 (CItem::*STD_PFMSG)(TInt32);
+    typedef TInt32 (CItem::*_PFMSG)(TInt32);
     //Begin是有效的
     TplNode<CItem,CKey> *Begin()
     {
@@ -1333,7 +1343,7 @@ public:
         return NULL;
     }
     
-    void RunOnTree(STD_PFMSG ptr,TInt32 arg)
+    void RunOnTree(_PFMSG ptr,TInt32 arg)
     {
 		if (m_pTree)
 		{
@@ -1350,8 +1360,14 @@ public:
     {
         m_tPool.Final();
     }
+    CItem *PrepareItem()
+    {
+        TplNode<CItem,CKey>*pItem = m_tPool.GetMem();
+        pItem->Init();
+        return pItem;
+    }
     //first get the Item
-    CItem        *GetItem(TInt32& result,CKey* pKey=NULL);
+    //CItem        *GetItem(TInt32& result,CKey* pKey=NULL);
 
     /*
     Iterator     Begin()
@@ -1371,11 +1387,11 @@ public:
                  }
     */
 
-    CItem        *FindItem(TInt32 idx);
+/*    CItem        *FindItem(TInt32 idx);*/
     TInt32          ReleaseItem(CItem * pItem);
     CKey         *GetItemKey(TInt32 idx);
 
-    TInt32      AddInTree(CItem* pItem, CKey* pKey);
+    TInt32      AddInTree(CItem* pItem);
 
     CItem   *GetItemByKey(CKey* pKey);
     TInt32         GetFreeSize()
@@ -1396,17 +1412,6 @@ public:
                     }
                     return SUCCESS;
                 }
-    TBool   IsFull()
-            {
-                if (m_pHead->m_pRightNode == m_pRear)
-                {
-                    return TRUE;
-                }
-                return FALSE;
-            }
-
-
-
 };
 
 template<class CItem, class CKey>
@@ -1421,58 +1426,58 @@ TInt32 TplMap<CItem,CKey>::Init(TInt32 size)
     m_pTree = NULL;
     return m_tPool.InitPool(size);
 }
-
-template<class CItem, class CKey>
-CItem *TplMap<CItem,CKey>::GetItem(TInt32& result,CKey* pKey)
-{
-    if (pKey)
-    {
-        if (GetItemByKey(pKey))
-        {
-            result = KEY_ALREADY_EXIST;
-            return NULL;
-        }
-    }
-    //get a new node;
-    TplNode<CItem,CKey>* pResult = m_tPool.GetMem();
-    if (pResult)
-    {
-        pResult->Init();
-    }
-    else
-    {
-        result = OUT_OF_MEM;
-        return NULL;
-    }
-    if (pKey)
-    {
-        pResult->m_key = *pKey;
-        if (m_pTree)
-        {
-            m_pTree = m_pTree->AddNode(pResult);
-        }
-        else
-        {
-            m_pTree = pResult;
-        }
-    }
-    result = SUCCESS;
-    return pResult;
-}
-
-
-
+// 
+// template<class CItem, class CKey>
+// CItem *TplMap<CItem,CKey>::GetItem(TInt32& result,CKey* pKey)
+// {
+// //     if (pKey)
+// //     {
+// //         if (GetItemByKey(pKey))
+// //         {
+// //             result = KEY_ALREADY_EXIST;
+// //             return NULL;
+// //         }
+// //     }
+//     //get a new node;
+//     TplNode<CItem,CKey>* pResult = m_tPool.GetMem();
+//     if (pResult)
+//     {
+//         pResult->Init();
+//     }
+//     else
+//     {
+//         result = OUT_OF_MEM;
+//         return NULL;
+//     }
+//     if (pKey)
+//     {
+//         pResult->GetKey() = *pKey;
+//         if (m_pTree)
+//         {
+//             
+//         }
+//         else
+//         {
+//             m_pTree = pResult;
+//         }
+//     }
+//     result = SUCCESS;
+//     return pResult;
+// }
+// 
 
 
-template<class CItem, class CKey>
-CItem *TplMap<CItem,CKey>::FindItem(TInt32 idx)
-{
-    if ((idx > (m_size - 1))||(idx < 0))
-    {
-        return NULL;
-    }
-    return m_pItem + idx;
-}
+
+
+// template<class CItem, class CKey>
+// CItem *TplMap<CItem,CKey>::FindItem(TInt32 idx)
+// {
+//     if ((idx > (m_size - 1))||(idx < 0))
+//     {
+//         return NULL;
+//     }
+//     return m_pItem + idx;
+// }
 
 template<class CItem, class CKey>
 TInt32 TplMap<CItem,CKey>::ReleaseItem(CItem * pItem)
@@ -1492,27 +1497,23 @@ TInt32 TplMap<CItem,CKey>::ReleaseItem(CItem * pItem)
 //         return NOT_BELONG_TO_THIS_CAPSULA;
 //     }
     //delete the pItem in the tree;
+    TInt32 nResult = SUCCESS;
     if (m_pTree)
     {
-        TplNode<CItem,CKey> *pInTree = m_pTree->FindNode(pNew->m_key);
-        //make sure it is the one!
-        if(pInTree == pNew)
-        {
-            //BEGIN ADD 01-04-2009 S0032 TDS00035
-            //m_pTree->ReleaseNode(pNew->m_key);
-            m_pTree = m_pTree->ReleaseNode(pNew->m_key);
-            //END ADD 01-04-2009 S0032 TDS00035
-        }
+        m_pTree = m_pTree->SafeReleaseNode(pNew,nResult);
+    }
+    if (nResult < SUCCESS)
+    {
+        return nResult;
     }
     //force upper casting, because we know it's ok.
-    pNew->UnInit();
     return m_tPool.ReleaseMem(pNew);
 }
 
 template<class CItem, class CKey>
-TInt32 TplMap<CItem,CKey>::AddInTree(CItem* pItem, CKey* pKey)
+TInt32 TplMap<CItem,CKey>::AddInTree(CItem* pItem)
 {
-    if ((NULL == pItem) || (NULL == pKey))
+    if ((NULL == pItem))
     {
         return NULL_POINTER;
     }
@@ -1525,19 +1526,10 @@ TInt32 TplMap<CItem,CKey>::AddInTree(CItem* pItem, CKey* pKey)
 //     {
 //         return NOT_BELONG_TO_THIS_CAPSULA;
 //     }
-    CItem *pExist = GetItemByKey(pKey);
-    if (pExist)
-    {
-        if (pExist = pNew)
-        {
-            return ITEM_ALREADY_IN_THE_TREE;
-        }
-        return KEY_ALREADY_EXIST;
-    }
-    pNew->m_key = *pKey;
+    TInt32 nResutl;
     if (m_pTree)
     {
-        m_pTree =  m_pTree->AddNode(pNew);
+        m_pTree = m_pTree->SafeAddNode(pNew,nResutl);
     }
     else
     {

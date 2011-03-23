@@ -15,13 +15,32 @@ private:
     class CPoolMem : public Mem
     {
     public:
-        CPoolMem    *m_pMemPoolNext;
-        CMemBlock   *m_pBelongsTo;
-    public:
-        void Init(CPoolMem *pNext,CListNode<CMemBlock>  *pBelongs2)
+#ifdef MEM_FIRST   
+        union //存一个就行了
         {
-            m_pMemPoolNext     = pNext;
-            m_pBelongsTo       = pBelongs2;
+#endif
+            CPoolMem    *m_pMemPoolNext;
+            CMemBlock   *m_pBelongsTo;
+#ifdef MEM_FIRST  
+        };
+#endif
+public:
+// #ifdef MEM_FIRST  
+//         void Init(CListNode<CMemBlock>  *pBelongs2)
+//         {
+//             m_pBelongsTo       = pBelongs2;
+//         }
+//         
+// #else
+//         void Init(CPoolMem *pNext,CListNode<CMemBlock>  *pBelongs2)
+//         {
+//             m_pMemPoolNext     = pNext;
+//             m_pBelongsTo       = pBelongs2;
+//         }
+// #endif
+        void ReleaseSelf()
+        {
+            m_pBelongsTo->m_pContainer->ReleaseMem(this);
         }
     };
     class CMemBlock
@@ -32,6 +51,7 @@ private:
         CPoolMem *m_pFree;
         int       m_nSize;
         int       m_nFree;
+        CPool    *m_pContainer;
         CList<CMemBlock> *m_pBelongsTo;
         bool Belongs2Me(CPoolMem *pPools)
         {
@@ -53,6 +73,7 @@ private:
             m_nSize = 0;
             m_pPools = NULL;
             m_pFree  = NULL;
+            m_pContainer = NULL;
             m_pBelongsTo = NULL;
         }
         ~CMemBlock()
@@ -62,7 +83,7 @@ private:
                 delete []m_pPools;
             }
         }
-        int Init(int nSize,CList<CMemBlock> *pBlongsTo)
+        int Init(int nSize,CList<CMemBlock> *pBlongsTo,CPool *pContainer)
         {
             try
             {
@@ -76,14 +97,17 @@ private:
             {
                 for (int i=0;i<nSize;++i)
                 {
-                    m_pPools[i].m_pMemPoolNext = m_pPools + i + 1;
+#ifndef MEM_FIRST  
                     m_pPools[i].m_pBelongsTo = this;
+#endif
+                    m_pPools[i].m_pMemPoolNext = m_pPools + i + 1;
                 }
                 m_pPools[nSize-1].m_pMemPoolNext = NULL;
                 m_pFree = m_pPools;
                 m_nSize = nSize;
                 m_nFree = nSize;
                 m_pBelongsTo = pBlongsTo;
+                m_pContainer = pContainer;
                 return nSize;
             }
             else
@@ -107,20 +131,27 @@ private:
                 m_pFree = m_pFree->m_pMemPoolNext;
                 pRtn->m_pMemPoolNext = NULL;
                 --m_nFree;
+#ifdef MEM_FIRST  
+                pRtn->m_pBelongsTo = this;
+#endif
                 return pRtn;
             }
             return NULL;
         }
         bool      ReleaseMem(CPoolMem *pRel)
         {
+#ifdef _DEBUG
             if(Belongs2Me(pRel))
             {
+#endif
                 pRel->m_pMemPoolNext = m_pFree;
                 m_pFree = pRel;
                 ++m_nFree;
                 return true;
+#ifdef _DEBUG
             }
             return false;
+#endif
         }
     };
     
@@ -153,7 +184,7 @@ public:
         {
             return OUT_OF_MEM;
         }
-        int nRet = pBlock->Init(size,&m_tUsingMemBlocks);
+        int nRet = pBlock->Init(size,&m_tUsingMemBlocks,this);
         if (nRet < SUCCESS)
         {
             return nRet;
@@ -268,7 +299,7 @@ public:
         }
         if (pBlock)
         {
-            if (pBlock->Init(((m_nInitSize>>1)+1),&m_tUsingMemBlocks) < SUCCESS)
+            if (pBlock->Init(((m_nInitSize>>1)+1),&m_tUsingMemBlocks,this) < SUCCESS)
             {
                 delete pBlock;
                 return NULL;
