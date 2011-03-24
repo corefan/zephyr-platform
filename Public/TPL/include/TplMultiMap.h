@@ -99,6 +99,7 @@ private:
         pSiblings->m_pRightNode = m_pSiblings;
         pSiblings->m_nodeSize = LIST_NODE_KEY;
         pSiblings->m_pParent = this;
+        pSiblings->m_pSiblings = pSiblings;
         if (m_pSiblings)
         {
             m_pSiblings->m_pLeftNode = pSiblings;
@@ -814,7 +815,7 @@ TplMultiKeyMapNode<CItem,CKey> *TplMultiKeyMapNode<CItem,CKey>::AddNode(TplMulti
 
         return NULL;
     }
-    pNode->Init();
+    //pNode->Init();
     if (CItem::GetKey() == pNode->GetKey())
     {
         //almost never happened!
@@ -1622,7 +1623,7 @@ TInt32 TplMultiKeyMap<CItem,CKey>::AddInTree(CItem* pItem)
 //     {
 //         return NOT_BELONG_TO_THIS_CAPSULA;
 //     }
-    
+    pNew->Init();
     if (m_pTree)
     {
         m_pTree = m_pTree->SafeAddNode(pNew);

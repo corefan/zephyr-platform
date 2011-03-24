@@ -84,7 +84,7 @@ int main()
                 //++num;
             }
         }
-        map.CheckTree();
+        //map.CheckTree();
         TplNode<CMapTest,unsigned int>::Iterator it = map.Begin();
         unsigned int last = 0;
         while(!it.IsNull())
@@ -126,7 +126,7 @@ int main()
             else
             {
                 map.ReleaseItem(p);
-                map.CheckTree();
+                //map.CheckTree();
             }
         }
         if (0 != num)
@@ -173,7 +173,7 @@ int main()
         ++testTimes;
         //if (0 == (testTimes%100))
         {
-            printf("Test %d times",testTimes);
+            printf("Test %d times \t \n",testTimes);
         }
     } while (1);
     return SUCCESS;

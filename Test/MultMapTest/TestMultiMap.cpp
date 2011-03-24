@@ -7,6 +7,8 @@
 #include <map>
 using namespace Zephyr;
 
+#define USE_STL_MAP
+
 class CTestClass
 {
 public:
@@ -15,6 +17,7 @@ public:
     {
         return m_nKey;
     }
+   
 
 };
 
@@ -33,10 +36,40 @@ int main(int argc,char *pArgv[])
     }
     TplMultiKeyMap<CTestClass,int> m_tMap;
     m_tMap.Init(nMaxTestTime);
+    int *pRand = new int[nMaxTestTime];
+    std::map<int,CTestClass> tMap;
+
+    for (int i =0;i<nMaxTestTime;++i)
+    {
+        bool bAgain = true;
+        while(bAgain)
+        {
+            if (nMaxTestTime > 10000)
+            {
+                pRand[i] = (rand()%(nMaxTestTime/10000))*10000;
+                pRand[i] += rand()%10000;
+            }
+            else
+            {
+                pRand[i] = rand();
+            }
+            std::map<int,CTestClass>::iterator it = tMap.find(pRand[i]);
+            if (it == tMap.end())
+            {
+                CTestClass t;
+                tMap[pRand[i]] = t;
+                bAgain = false;
+            }
+        }
+       
+    }
+    tMap.clear();
     unsigned int uLastTime = 0;
     unsigned int nTestTime = nMaxTestTime;
     unsigned long long nTotalTestTime = 0;
-
+    unsigned long long nLastInfoTime = 1000000;
+    unsigned int uLastShowTime = timeGetTime();
+    
     while (1)
     {
         if (nMaxTestTime > 10000)
@@ -44,30 +77,47 @@ int main(int argc,char *pArgv[])
             nTestTime = (rand() % (nMaxTestTime/10000));
             nTestTime *= 10000;
             nTestTime += (rand()%10000);
+            //Sleep(15);
         }
         else
         {
             nTestTime = (rand()%nMaxTestTime);
         }
-        
+        if (nMaxTestTime > 10000)
+        {
+            nTestTime = (rand()%(nMaxTestTime/10000))*10000;
+            nTestTime += rand()%10000;
+        }
+        else
+        {
+            nTestTime = rand() % nMaxTestTime;
+        }
+        if (nTestTime < (nMaxTestTime>>1))
+        {
+            nTestTime = (nMaxTestTime>>1);
+        }
         nTotalTestTime += nTestTime;
+        if (nTotalTestTime > nLastInfoTime)
+        {
+            unsigned int nTimeNow = timeGetTime();
+            unsigned int uGap = nTimeNow - uLastShowTime;
+            uLastShowTime = nTimeNow;
+            printf("Test %llu times!time is :%u\n\t",nTotalTestTime,uGap);
+            nLastInfoTime+=1000000;
+        }
         if (nTestTime < (nMaxTestTime>>1))
         {
             nTestTime = (nMaxTestTime>>1);
         }
         for (int i=0;i<nTestTime;++i)
         {
-            int n = rand()%nTestTime; 
-            if(0 == (i%1000))
-            {
-                unsigned int uTime = timeGetTime();
-                if (uTime != uLastTime)
-                {
-                    uLastTime = uTime;
-                    srand(uTime);
-                }
-            }
-            n += rand()%nTestTime;
+            int n = pRand[((i+nTotalTestTime)%nMaxTestTime)];
+#ifdef USE_STL_MAP
+            CTestClass tC;
+            tC.m_nKey = n;
+            tMap[n] = tC;
+            //ppStore[i] = &tMap[n];
+#else
             ppStore[i] = m_tMap.PrepareItem();
             if (ppStore[i])
             {
@@ -78,9 +128,15 @@ int main(int argc,char *pArgv[])
             {
                 printf("NULL !");
             }
+#endif
         }
+        //Sleep(15);
         for (int i=0;i<nTestTime;++i)
         {
+#ifdef USE_STL_MAP
+            int n = pRand[((i+nTotalTestTime)%nMaxTestTime)];
+            tMap.erase(n);
+#else
             int nRtn = m_tMap.ReleaseItem(ppStore[i]);
             if (nRtn < SUCCESS)
             {
@@ -96,11 +152,14 @@ int main(int argc,char *pArgv[])
 //                 }
 //             }
             ppStore[i] = NULL;
+#endif
         }
         if (m_tMap.GetFreeSize() != nMaxTestTime)
         {
             printf("something wrong!");
         }
+
+        //Sleep(15);
     }
     return 0;
 }
