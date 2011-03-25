@@ -63,7 +63,16 @@ public:
 #endif
     bool     IsTreeNode()
     {
-        return (m_nodeSize != LIST_NODE_KEY);
+        return (m_pSiblings != this);
+    }
+    //必须是树节点！返回的是兄弟数，也就是说如果同一个键值有两个实例，那么一个实例在树里，一个是兄弟，所以在树中的节点的兄弟数为1
+    TUInt32 GetSiblingsNr()
+    {
+        if (m_pSiblings)
+        {
+            return m_pSiblings->m_nodeSize;
+        }
+        return 0;
     }
     TplMultiKeyMapNode<CItem,CKey>* GetSiblings()
     {
@@ -97,12 +106,13 @@ private:
         pSiblings->Init();
         pSiblings->m_pLeftNode = this;
         pSiblings->m_pRightNode = m_pSiblings;
-        pSiblings->m_nodeSize = LIST_NODE_KEY;
-        pSiblings->m_pParent = this;
+        pSiblings->m_nodeSize = 1;
+        pSiblings->m_pParent = NULL;
         pSiblings->m_pSiblings = pSiblings;
         if (m_pSiblings)
         {
             m_pSiblings->m_pLeftNode = pSiblings;
+            pSiblings->m_nodeSize += m_pSiblings->m_nodeSize;
         }
         m_pSiblings = pSiblings;
     }
@@ -192,6 +202,7 @@ public:
     TplMultiKeyMapNode<CItem,CKey> *SafeAddNode(TplMultiKeyMapNode *pNode)
     {
             TplMultiKeyMapNode<CItem,CKey> *pResult = FindNode(pNode->GetKey());
+            pNode->Init();
             pNode->m_pSiblings = NULL;
             if (pResult) //存在
             {
@@ -223,10 +234,14 @@ public:
                 {
                     TplMultiKeyMapNode<CItem,CKey> *pReplacement = pRelease->m_pSiblings;
                     pReplacement->m_pSiblings = pReplacement->m_pRightNode;
-                    
+                    if (pReplacement->m_pRightNode)
+                    {
+                        pReplacement->m_pRightNode->m_nodeSize = pRelease->m_nodeSize - 1;
+                    }
                     pReplacement->m_pLeftNode  = pRelease->m_pLeftNode;
                     pReplacement->m_pRightNode = pRelease->m_pRightNode;
                     pReplacement->m_pParent    = pRelease->m_pParent;
+                    
                     pReplacement->m_nodeSize   = pRelease->m_nodeSize;
                     if (pRelease->m_pParent)
                     {
@@ -265,7 +280,7 @@ public:
             else //要删的就是兄弟节点
             {
 #ifdef _DEBUG
-                if (LIST_NODE_KEY != pRelease->m_nodeSize)
+                if (pRelease != pRelease->m_pSiblings)
                 {
                     printf("Incorrect erase !");
                     return this;
@@ -288,6 +303,7 @@ public:
                 }
                 if (pRelease->m_pRightNode)
                 {
+                    pRelease->m_pRightNode->m_nodeSize = pRelease->m_nodeSize - 1;
                     pRelease->m_pRightNode->m_pLeftNode = pRelease->m_pLeftNode;
                 }
                 pRelease->UnInit();
@@ -1546,7 +1562,7 @@ public:
         {
             TplMultiKeyMapNode<CItem,CKey> *pNode = (TplMultiKeyMapNode<CItem,CKey>*)pItem;
             m_pTree = m_pTree->SafeReleaseNode(pNode,nRtn);
-            pNode->UnInit();
+            //pNode->UnInit();
             //pNode->m_pSiblings = NULL;
             if (nRtn >= SUCCESS)
             {
@@ -1623,7 +1639,7 @@ TInt32 TplMultiKeyMap<CItem,CKey>::AddInTree(CItem* pItem)
 //     {
 //         return NOT_BELONG_TO_THIS_CAPSULA;
 //     }
-    pNew->Init();
+    //pNew->Init();
     if (m_pTree)
     {
         m_pTree = m_pTree->SafeAddNode(pNew);

@@ -7,7 +7,7 @@
 #include <map>
 using namespace Zephyr;
 
-#define USE_STL_MAP
+//#define USE_STL_MAP
 
 class CTestClass
 {
@@ -42,7 +42,9 @@ int main(int argc,char *pArgv[])
     for (int i =0;i<nMaxTestTime;++i)
     {
         bool bAgain = true;
+#ifdef USE_STL_MAP
         while(bAgain)
+#endif
         {
             if (nMaxTestTime > 10000)
             {
@@ -53,6 +55,7 @@ int main(int argc,char *pArgv[])
             {
                 pRand[i] = rand();
             }
+#ifdef USE_STL_MAP
             std::map<int,CTestClass>::iterator it = tMap.find(pRand[i]);
             if (it == tMap.end())
             {
@@ -60,6 +63,7 @@ int main(int argc,char *pArgv[])
                 tMap[pRand[i]] = t;
                 bAgain = false;
             }
+#endif
         }
        
     }
