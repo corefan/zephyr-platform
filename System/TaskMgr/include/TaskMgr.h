@@ -89,10 +89,14 @@ class CWorkerControler
 {
 public:
     volatile TUInt32 m_nSleepingNr;
+    TUInt32  m_nCpuNr;
+    TUInt32  m_nWorkerNr;
     CLock    m_tLock;
     CWorkerControler()
     {
         m_nSleepingNr = 0;
+        m_nCpuNr = 1;
+        m_nWorkerNr = 4;
     }
     CProduerAndConsumer m_tPAndC;
     void Sleep();

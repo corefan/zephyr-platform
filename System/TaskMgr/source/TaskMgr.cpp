@@ -59,6 +59,7 @@ void CWorkerControler::WakeUp()
 {
     if (m_nSleepingNr>0)
     {
+        if ((m_nCpuNr + m_nSleepingNr) > m_nWorkerNr)
         {
             m_tPAndC.OnProduced();
         }
