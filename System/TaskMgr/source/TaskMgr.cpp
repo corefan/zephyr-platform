@@ -44,6 +44,26 @@ TInt32 CTaskInfo::QuitTask()
 }
 
 
+void CWorkerControler::Sleep()
+{
+    m_tLock.Lock();
+    ++m_nSleepingNr;
+    m_tLock.Unlock();
+    m_tPAndC.RequireFetchProduct();
+    m_tLock.Lock();
+    --m_nSleepingNr;
+    m_tLock.Unlock();
+}
+
+void CWorkerControler::WakeUp()
+{
+    if (m_nSleepingNr>0)
+    {
+        {
+            m_tPAndC.OnProduced();
+        }
+    }
+}
 
 void  CTaskWorkers::Run(void *pArg)
 {
@@ -60,19 +80,21 @@ void CTaskWorkers::Loop()
     while (m_workerThreadHandle)
     {
         bool bIsAllTaskDone = true;
-        for (TInt32 i =0;i<MAX_TASK_NR_IN_MGR;i++)
+        for (TInt32 i =0;i<MAX_TASK_NR_IN_MGR;++i)
         {
             int taskIdx = (i+m_threadIdx)%MAX_TASK_NR_IN_MGR;
             if (TRUE == m_pTaskInfo[taskIdx].IsUsed())
             {
                 if (SUCCESS == m_pTaskInfo[taskIdx].ApplyTask(m_threadIdx))
                 {
-                    
-                    if (m_pTaskInfo[taskIdx].Run(m_threadIdx))
+                    TInt32 nUsedCnt = m_pTaskInfo[taskIdx].Run(m_threadIdx);
+                    m_pTaskInfo[taskIdx].QuitTask();
+                    if (nUsedCnt)
                     {
                         bIsAllTaskDone = false;
+                        m_pCenter->WakeUp();
                     }
-                    m_pTaskInfo[taskIdx].QuitTask();
+                    
                 }
             }
         }
@@ -80,17 +102,19 @@ void CTaskWorkers::Loop()
         {
             if(m_threadIdx)
             {
-                Sleep(m_threadSleepGap + MIN_SYSTEM_SLEEP_TIME);
+                m_pCenter->Sleep();
+                //Sleep(m_threadSleepGap + MIN_SYSTEM_SLEEP_TIME);
             }
         }
     }
     m_pTaskInfo = NULL;
 }
 
-TInt32  CTaskWorkers::Start(CTaskInfo *pInfo,TInt32 threadIdx,TInt32 sleepGap)
+TInt32  CTaskWorkers::Start(CTaskInfo *pInfo,TInt32 threadIdx,TInt32 sleepGap,CWorkerControler *pCenter)
 {
     m_pTaskInfo = pInfo;
     m_workerThreadHandle = 1;
+    m_pCenter = pCenter;
     
 	unsigned long p = _beginthread( CTaskWorkers::Run,(512*1024), (void*)this);  
 	
@@ -140,7 +164,7 @@ TInt32 CTaskMgr::StartWorking(TInt32 nrOfWorkersNeeded)
         TInt32 result = SUCCESS;
         for (TInt32 i=0;i<nrOfWorkersNeeded;i++)
         {
-            result = m_pWorkers[i].Start(m_taskList, i,  sleepGap);
+            result = m_pWorkers[i].Start(m_taskList, i,  sleepGap,&m_tWorkerControler);
             if (result != SUCCESS)
             {
                 for (TInt32 j=0;j<i;j++)

@@ -21,10 +21,10 @@ TBool    CProduerAndConsumer::OnProduced()
 #ifdef _WIN32
     return SetEvent(m_cond);
 #else
-    pthread_mutex_lock(&m_mutex);
+    pthread_mutex_lock(&m_mutex); //貌似这个可以不要，加快速度
     m_productsNr = 1;
     bool ret = pthread_cond_signal(&m_cond);
-    pthread_mutex_unlock(&m_mutex);
+    pthread_mutex_unlock(&m_mutex); //貌似这个可以不要
     return ret;
 #endif
 }

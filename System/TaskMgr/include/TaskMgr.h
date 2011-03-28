@@ -17,6 +17,7 @@
 #include "IfTaskMgr.h"
 #include "SysMacros.h"
 #include "Lock.h"
+#include "../../include/ProducerAndConsumer.h"
 
 namespace Zephyr
 {
@@ -84,6 +85,20 @@ public:
 
 };
 
+class CWorkerControler
+{
+public:
+    volatile TUInt32 m_nSleepingNr;
+    CLock    m_tLock;
+    CWorkerControler()
+    {
+        m_nSleepingNr = 0;
+    }
+    CProduerAndConsumer m_tPAndC;
+    void Sleep();
+    void WakeUp();
+};
+
 class CTaskWorkers
 {
 protected:
@@ -91,11 +106,12 @@ protected:
     CTaskInfo   *m_pTaskInfo;
     TInt32      m_threadIdx;
     TInt32      m_threadSleepGap;
+    CWorkerControler *m_pCenter;
 public:
     ~CTaskWorkers();
     static void Run(void *pArg);
     void Loop();
-    TInt32  Start(CTaskInfo *pInfo,TInt32 threadId,TInt32 sleepGap);
+    TInt32  Start(CTaskInfo *pInfo,TInt32 threadId,TInt32 sleepGap,CWorkerControler *pCenter);
     //this will block the thread as it will wait the Loop to stop.
     void    TryStop()
     {
@@ -113,6 +129,7 @@ protected:
     TUInt16 m_nrOfWorker;
     CLock      m_listLock;
     CTaskWorkers *m_pWorkers;
+    CWorkerControler m_tWorkerControler;
 public:
     //call in the following order.
     CTaskMgr();
