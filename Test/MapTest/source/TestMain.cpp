@@ -10,6 +10,7 @@
 #include <stdio.h> 
 #include <iostream> 
 #include <time.h> 
+#include <map>
 using namespace Zephyr;
 using namespace std;
 #define NUM_OF_TEST_TIME 10000
@@ -36,6 +37,8 @@ int main()
 //     }
 //     pTaskMgr->StopWorking();
 //     ReleaseTaskMgr(pTaskMgr);
+    std::map<int,int> tMapII;
+
     CMapTest **ppMap = new CMapTest *[NUM_OF_TEST_TIME];
     unsigned int *pRandNr = new unsigned int[NUM_OF_TEST_TIME];
     TplMap<CMapTest,unsigned int> map;

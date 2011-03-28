@@ -36,7 +36,7 @@ int main()
     pNetTester->OnInit();
     CAppConnection::SetAverageMsgLen(averageMsglen);
     pTaskMgr->AddTask(pNetTester);
-    pTaskMgr->StartWorking(4);
+    pTaskMgr->StartWorking(8,1);
     //CExceptionParser parser;
     char stop = 'n';
     while(('y' != stop) && ('Y' != stop))

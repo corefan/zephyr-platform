@@ -86,7 +86,7 @@ private:
     CCommunicator *GetIfComm(TUInt16 uSrvId)
     {
         //每个comm是16个service
-        uSrvId>>=4;
+        uSrvId /= MAX_SERVICE_NR_PER_COMM;
         if (uSrvId < m_nNrOfComm)
         {
             return m_pCommunicators + uSrvId;

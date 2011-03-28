@@ -65,13 +65,13 @@ int main()
     CCommTester* pCommTests = new CCommTester[nrOfTester];
     for (int i=0;i<nrOfTester;++i)
     {
-        initSendMsgDoid.m_srvId = i*16;
+        initSendMsgDoid.m_srvId = i*MAX_SERVICE_NR_PER_COMM;
         pCommTests[i].Init(pMgr,&initSendMsgDoid);
         pCommTests[i].OnStartTestOne(initSendMsgNr,initSendMsgLen,nrOfTester,2,1);
         pTaskMgr->AddTask(pCommTests+i);
     }
 
-    pTaskMgr->StartWorking(4);
+    pTaskMgr->StartWorking(1,1);
     char stop = 'n';
     while(('y' != stop) || ('Y' != stop))
     {

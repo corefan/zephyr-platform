@@ -41,7 +41,7 @@ int main()
     CExceptionParser::GetInstance()->AddFinalizer(CLoggerManager::Instance()->GetLogFinalizer());
     pTaskMgr->AddTask(pLoggerMgr,normal_task);
     
-    pTaskMgr->StartWorking(8);
+    pTaskMgr->StartWorking(8,1);
     //CExceptionParser parser;
     
     char stop = 'n';

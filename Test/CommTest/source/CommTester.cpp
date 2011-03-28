@@ -145,7 +145,7 @@ void CCommTester::OnStartTestOne(int nInitMsgNr,int nInitMsgLen,int srvNr,int nI
                         int offset = n*nIpNr*srvNr+ip*srvNr+i;
                         sm_pDoids[offset].m_nodeId = n;
                         sm_pDoids[offset].m_virtualIp = ip;
-                        sm_pDoids[offset].m_srvId = i;
+                        sm_pDoids[offset].m_srvId = i * MAX_SERVICE_NR_PER_COMM;
                         sm_pDoids[offset].m_objId = 0;
                     }
                 }
