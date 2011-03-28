@@ -139,7 +139,7 @@ public:
     CTaskMgr();
     
     TInt32 AddTask(IfTask *pTask,EnTaskPriority priority);
-    TInt32 StartWorking(TInt32 nrOfWorkersNeeded);
+    TInt32 StartWorking(TInt32 nrOfWorkersNeeded,TInt32 nCpuNr);
     TInt32 StopWorking();
     TInt32 ReleaseTask(IfTask *pTask);
 
