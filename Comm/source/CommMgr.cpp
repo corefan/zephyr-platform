@@ -182,7 +182,7 @@ TInt32 CCommMgr::Init(int nrOfWorkerThread,IfTaskMgr *pTaskMgr,IfLoggerManager *
 
 IfCommunicator *CCommMgr::RegisterWorker(TUInt16 srvId)
 {
-    int idx = srvId % m_nNrOfComm;
+    int idx = srvId / MAX_SERVICE_NR_PER_COMM;
     return m_pCommunicators + idx;
 }
 
