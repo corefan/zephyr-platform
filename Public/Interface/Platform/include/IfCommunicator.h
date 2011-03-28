@@ -7,7 +7,7 @@
 namespace Zephyr
 {
 
-#define MAX_SERVICE_NR 16
+#define MAX_SERVICE_NR_PER_COMM 256
 
 
 class IfCommunicator
