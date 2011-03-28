@@ -60,6 +60,7 @@ private:
     TInt16          m_maxPendingConnection;
     //改成动态new,因为连接应该很少发生，不会有很多.
     TplMap<CConnectingList,SOCKET>  m_pendingSocket;
+    CPool<TplNode<CConnectingList,SOCKET> > m_tPool;
     TInt32          m_connected;
     TInt32          m_failed;
     //IfNetApp        *m_pIfNetApp;

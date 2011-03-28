@@ -1440,8 +1440,9 @@ private:
 
     //TInt32                   m_nMaxSize;
     //TplMultiKeyMapNode<CItem,CKey>*     m_pItem;
-    CPool<TplMultiKeyMapNode<CItem,CKey> > m_tPool;
+    CPool<TplMultiKeyMapNode<CItem,CKey> > *m_pPool;
     TplMultiKeyMapNode<CItem,CKey>*        m_pTree;
+    TInt32                                 m_nTreeSize;
 private:
     
 public:
@@ -1461,7 +1462,7 @@ public:
 	{
 		if (m_pTree)
 		{
-			return (m_pTree->m_nodeSize + 1);
+			return m_nTreeSize;
 		}
 		return 0;
 	}
@@ -1521,20 +1522,29 @@ public:
 			m_pTree->RunOnTree(ptr, arg);
 		}
     }
-    TplMultiKeyMap(){};
+    TplMultiKeyMap()
+    {
+        m_nTreeSize = 0;
+        m_pPool = NULL;
+        m_pTree = NULL;
+    };
     ~TplMultiKeyMap()
     {
-        UnInit();
     }
-    TInt32 Init(TInt32 size);
+    TInt32 Init(CPool<TplMultiKeyMapNode<CItem,CKey> > *pPool)
+    {
+        m_pPool = pPool;
+        m_pTree = NULL;
+        m_nTreeSize = 0;
+        return SUCCESS;
+    }
     void UnInit()
     {
-        m_tPool.Final();
     }
     //first get the Item
     CItem        *PrepareItem()
     {
-        return m_tPool.GetMem();
+        return m_pPool->GetMem();
     }
 
     /*
@@ -1557,6 +1567,16 @@ public:
 
     TInt32          ReleaseItem(CItem * pItem)
     {
+       TplMultiKeyMapNode<CItem,CKey> *pNode = (TplMultiKeyMapNode<CItem,CKey> *)pNode;
+       if (m_pPool->ReleaseMem(pNode))
+       {
+           return SUCCESS;
+       }
+       return FAIL;    
+    }
+
+    TInt32          RemoveFromTreeItem(CItem * pItem)
+    {
         TInt32 nRtn;
         if (m_pTree)
         {
@@ -1564,10 +1584,6 @@ public:
             m_pTree = m_pTree->SafeReleaseNode(pNode,nRtn);
             //pNode->UnInit();
             //pNode->m_pSiblings = NULL;
-            if (nRtn >= SUCCESS)
-            {
-                m_tPool.ReleaseMem(pNode);
-            }
         }
         else
         {
@@ -1581,7 +1597,7 @@ public:
     CItem   *GetItemByKey(CKey* pKey);
     TInt32         GetFreeSize()
                 {
-                    return m_tPool.GetFreeNr();
+                    return m_pPool->GetFreeNr();
                 }
 
     TInt32         PrintTree()
@@ -1607,18 +1623,19 @@ public:
             }
 };
 
-template<class CItem, class CKey>
-TInt32 TplMultiKeyMap<CItem,CKey>::Init(TInt32 size)
-{
-    if (size < 0)
-    {
-        return INPUT_PARA_ERROR;
-    }
-    // 0 ~ 1G memory was used as system area.
-    //may have warnings, but it's ok.
-    m_pTree = NULL;
-    return m_tPool.InitPool(size);
-}
+// template<class CItem, class CKey>
+// TInt32 TplMultiKeyMap<CItem,CKey>::Init(TInt32 size)
+// {
+//     if (size < 0)
+//     {
+//         return INPUT_PARA_ERROR;
+//     }
+//     // 0 ~ 1G memory was used as system area.
+//     //may have warnings, but it's ok.
+//     m_pTree = NULL;
+// 
+//     return m_tPool.InitPool(size);
+// }
 
 
 

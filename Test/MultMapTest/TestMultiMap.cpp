@@ -35,7 +35,9 @@ int main(int argc,char *pArgv[])
         ppStore[i] = NULL;
     }
     TplMultiKeyMap<CTestClass,int> m_tMap;
-    m_tMap.Init(nMaxTestTime);
+    CPool<TplMultiKeyMapNode<CTestClass,int> > tPool;
+    tPool.InitPool(nMaxTestTime);
+    m_tMap.Init(&tPool);
     int *pRand = new int[nMaxTestTime];
     std::map<int,CTestClass> tMap;
 
@@ -141,6 +143,7 @@ int main(int argc,char *pArgv[])
             int n = pRand[((i+nTotalTestTime)%nMaxTestTime)];
             tMap.erase(n);
 #else
+            m_tMap.RemoveFromTreeItem(ppStore[i]);
             int nRtn = m_tMap.ReleaseItem(ppStore[i]);
             if (nRtn < SUCCESS)
             {

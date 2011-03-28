@@ -206,7 +206,8 @@ int CCommTester::Init(IfCommunicatorMgr *pMgr,CDoid *pSrvDoid)
 {
     m_tSvrDoid = * pSrvDoid;
     m_pCommMgr = pMgr;
-    m_pComms = pMgr->RegisterWorker(pSrvDoid->m_srvId);
+    TUInt16 nSrvBegin,nSrvEnd;
+    m_pComms = pMgr->GetComm(nSrvBegin,nSrvEnd,(pSrvDoid->m_srvId/MAX_SERVICE_NR_PER_COMM));
     if (!m_pComms)
     {
         printf("Register worker failed!");

@@ -1269,7 +1269,7 @@ private:
 
     //TInt32                   m_nMaxSize;
     //TplNode<CItem,CKey>*     m_pItem;
-    CPool<TplNode<CItem,CKey> > m_tPool;
+    CPool<TplNode<CItem,CKey> > *m_pPool;
     TplNode<CItem,CKey>*     m_pTree;
 private:
     
@@ -1350,19 +1350,26 @@ public:
 			m_pTree->RunOnTree(ptr, arg);
 		}
     }
-    TplMap(){};
+    TplMap()
+    {
+        m_pPool = NULL;
+        m_pTree = NULL;
+    };
     ~TplMap()
     {
         UnInit();
     }
-    TInt32 Init(TInt32 size);
+    TInt32 Init(CPool<TplNode<CItem,CKey> > *pPool)
+    {
+        m_pPool = pPool;
+        return SUCCESS;
+    }
     void UnInit()
     {
-        m_tPool.Final();
     }
     CItem *PrepareItem()
     {
-        TplNode<CItem,CKey>*pItem = m_tPool.GetMem();
+        TplNode<CItem,CKey>*pItem = m_pPool->GetMem();
         pItem->Init();
         return pItem;
     }
@@ -1388,9 +1395,18 @@ public:
     */
 
 /*    CItem        *FindItem(TInt32 idx);*/
-    TInt32          ReleaseItem(CItem * pItem);
-    CKey         *GetItemKey(TInt32 idx);
-
+    TInt32          ReleaseItem(CItem * pItem)
+    {
+        TplNode<CItem,CKey>* pNode = (TplNode<CItem,CKey>*)pItem;
+        if (m_pPool->ReleaseMem(pNode))
+        {
+            return SUCCESS;
+        }
+        return FAIL;
+    }
+    
+    //必须是从map来的
+    TInt32      RemoveFromTree(CItem *pItem);
     TInt32      AddInTree(CItem* pItem);
 
     CItem   *GetItemByKey(CKey* pKey);
@@ -1414,18 +1430,18 @@ public:
                 }
 };
 
-template<class CItem, class CKey>
-TInt32 TplMap<CItem,CKey>::Init(TInt32 size)
-{
-    if (size < 0)
-    {
-        return INPUT_PARA_ERROR;
-    }
-    // 0 ~ 1G memory was used as system area.
-    //may have warnings, but it's ok.
-    m_pTree = NULL;
-    return m_tPool.InitPool(size);
-}
+// template<class CItem, class CKey>
+// TInt32 TplMap<CItem,CKey>::Init(TInt32 size)
+// {
+//     if (size < 0)
+//     {
+//         return INPUT_PARA_ERROR;
+//     }
+//     // 0 ~ 1G memory was used as system area.
+//     //may have warnings, but it's ok.
+//     m_pTree = NULL;
+//     return m_tPool.InitPool(size);
+// }
 // 
 // template<class CItem, class CKey>
 // CItem *TplMap<CItem,CKey>::GetItem(TInt32& result,CKey* pKey)
@@ -1479,8 +1495,10 @@ TInt32 TplMap<CItem,CKey>::Init(TInt32 size)
 //     return m_pItem + idx;
 // }
 
+
+
 template<class CItem, class CKey>
-TInt32 TplMap<CItem,CKey>::ReleaseItem(CItem * pItem)
+TInt32 TplMap<CItem,CKey>::RemoveFromTree(CItem * pItem)
 {
     if (NULL == pItem)
     {
@@ -1507,7 +1525,7 @@ TInt32 TplMap<CItem,CKey>::ReleaseItem(CItem * pItem)
         return nResult;
     }
     //force upper casting, because we know it's ok.
-    return m_tPool.ReleaseMem(pNew);
+    return SUCCESS;
 }
 
 template<class CItem, class CKey>

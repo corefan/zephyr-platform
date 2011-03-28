@@ -180,10 +180,15 @@ TInt32 CCommMgr::Init(int nrOfWorkerThread,IfTaskMgr *pTaskMgr,IfLoggerManager *
     return SUCCESS;
 }
 
-IfCommunicator *CCommMgr::RegisterWorker(TUInt16 srvId)
+IfCommunicator *CCommMgr::GetComm(TUInt16& nSrvBegin,TUInt16& nSrvEnd,TInt32 nCommIdx)
 {
-    int idx = srvId / MAX_SERVICE_NR_PER_COMM;
-    return m_pCommunicators + idx;
+    if (nCommIdx < m_nNrOfComm)
+    {
+        nSrvBegin = nCommIdx * MAX_SERVICE_NR_PER_COMM;
+        nSrvEnd   = (nCommIdx + 1) * MAX_SERVICE_NR_PER_COMM - 1;
+        return m_pCommunicators + nCommIdx;
+    }
+    return NULL;
 }
 
 TInt32 CCommMgr::Run(const TInt32 threadId,const TInt32 runCnt)

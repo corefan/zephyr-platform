@@ -55,7 +55,11 @@ private:
 public:
     //taskMgr”…ServerContainer…˙≥….
     TInt32 Init(int nrOfWorkerThread,IfTaskMgr *pTaskMgr,IfLoggerManager *pIfLogMgr,const TChar *pConfigName=szDefaultCommConfigName);
-    virtual IfCommunicator *RegisterWorker(TUInt16 srvId);
+    virtual TInt32          GetNrOfComm()
+    {
+        return m_nNrOfComm;
+    }
+    virtual IfCommunicator *GetComm(TUInt16& nSrvBegin,TUInt16& nSrvEnd,TInt32 nCommIdx);
     CClock *GetClock()
     {
         return &m_tClock;

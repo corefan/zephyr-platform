@@ -35,7 +35,12 @@ TInt32 CConnector::Init(TInt32 maxPendingConnections,HANDLE completionPort,ItemC
     {
         return OUT_OF_RANGE;
     }
-    m_pendingSocket.Init(maxPendingConnections);
+    TInt32 nRet = m_tPool.InitPool(maxPendingConnections);
+    if (nRet < SUCCESS)
+    {
+        return nRet;
+    }
+    m_pendingSocket.Init(&m_tPool);
     m_hCompletionPort = completionPort;
     m_pParserFactory  = pParserFactory;
     m_pCryptorFactory = pCryptorFactory;
@@ -109,6 +114,7 @@ TInt32 CConnector::Run(const TUInt32 runCnt)
                     if (pCItem)
                     {
                         OnConnectionEstablish(pCItem->m_pConnection);
+                        m_pendingSocket.RemoveFromTree(pCItem);
                         m_pendingSocket.ReleaseItem(pCItem);
                     }
                     else
@@ -123,6 +129,7 @@ TInt32 CConnector::Run(const TUInt32 runCnt)
                     if (pCItem)
                     {
                         OnDisconnected(pCItem->m_pConnection);
+                        m_pendingSocket.RemoveFromTree(pCItem);
                         int ret = m_pendingSocket.ReleaseItem(pCItem);
                         if (ret < SUCCESS)
                         {

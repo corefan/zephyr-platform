@@ -42,7 +42,9 @@ int main()
     CMapTest **ppMap = new CMapTest *[NUM_OF_TEST_TIME];
     unsigned int *pRandNr = new unsigned int[NUM_OF_TEST_TIME];
     TplMap<CMapTest,unsigned int> map;
-    map.Init(NUM_OF_TEST_TIME+2);
+    CPool<TplNode<CMapTest,unsigned int> > tPool;
+    tPool.InitPool(NUM_OF_TEST_TIME+2);
+    map.Init(&tPool);
     int testTimes = 0;
     union
     {
@@ -128,6 +130,7 @@ int main()
             }
             else
             {
+                map.RemoveFromTree(p);
                 map.ReleaseItem(p);
                 //map.CheckTree();
             }
