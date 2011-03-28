@@ -59,6 +59,7 @@ void CWorkerControler::WakeUp()
 {
     if (m_nSleepingNr>0)
     {
+
         if ((m_nCpuNr + m_nSleepingNr) > m_nWorkerNr)
         {
             m_tPAndC.OnProduced();
@@ -152,7 +153,7 @@ CTaskMgr::CTaskMgr()
 }
 
 
-TInt32 CTaskMgr::StartWorking(TInt32 nrOfWorkersNeeded)
+TInt32 CTaskMgr::StartWorking(TInt32 nrOfWorkersNeeded,TInt32 nCpuNr)
 {
     if (!m_nrOfWorker)
     {
@@ -177,6 +178,8 @@ TInt32 CTaskMgr::StartWorking(TInt32 nrOfWorkersNeeded)
         }
     }
     m_nrOfWorker = nrOfWorkersNeeded;
+    m_tWorkerControler.m_nWorkerNr = nrOfWorkersNeeded;
+    m_tWorkerControler.m_nCpuNr = nCpuNr;
     return SUCCESS;
 }
 TInt32 CTaskMgr::StopWorking()
