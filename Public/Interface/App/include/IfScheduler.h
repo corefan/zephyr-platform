@@ -21,7 +21,7 @@ namespace Zephyr
 class IfScheduler
 {
 public:
-    virtual TInt32 OnScheduler(TUInt32 uTimer,TUInt32 nTimeNow) = 0;
+    virtual TInt32 OnScheduler(void *pTimer,TUInt64 nTimeNow) = 0;
 };
 
 }

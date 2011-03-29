@@ -50,6 +50,7 @@ public:
     TplMultiKeyMapNode<CItem,CKey>*    m_pParent;
     //如果是在树中的，则指向第一个兄弟节点,不是的话，为空
     TplMultiKeyMapNode<CItem,CKey>*    m_pSiblings;
+    void *                             m_pTree; //指向保存它的tree;
 #ifdef _DEBUG
     TUInt32               m_nodeSize:31;
     TUInt32               m_isActive:1;
@@ -219,7 +220,7 @@ private:
     //if return NULL, mean this node had already existed! U can't add again!
     TplMultiKeyMapNode<CItem,CKey> *AddNode(TplMultiKeyMapNode *pNode);
 public:
-    //释放所有key相符合的值.如果要删除一个，那就调用下面的接口，删除指定node
+    //释放所有key相符合的值.如果要删除一个，那就调用下面的接口，删除指定node,注意，调用的时候必须保证这个节点属于这个树！
     TplMultiKeyMapNode<CItem,CKey> *SafeReleaseNode(TplMultiKeyMapNode<CItem,CKey> *pRelease,TInt32 &result)
     {
         TplMultiKeyMapNode<CItem,CKey> *pResult = FindNode(pRelease->GetKey());
@@ -282,7 +283,7 @@ public:
 #ifdef _DEBUG
                 if (pRelease != pRelease->m_pSiblings)
                 {
-                    printf("Incorrect erase !");
+                    //printf("Incorrect erase !");
                     return this;
                 }
 #endif
@@ -1567,7 +1568,7 @@ public:
 
     TInt32          ReleaseItem(CItem * pItem)
     {
-       TplMultiKeyMapNode<CItem,CKey> *pNode = (TplMultiKeyMapNode<CItem,CKey> *)pNode;
+       TplMultiKeyMapNode<CItem,CKey> *pNode = (TplMultiKeyMapNode<CItem,CKey> *)pItem;
        if (m_pPool->ReleaseMem(pNode))
        {
            return SUCCESS;
@@ -1581,7 +1582,15 @@ public:
         if (m_pTree)
         {
             TplMultiKeyMapNode<CItem,CKey> *pNode = (TplMultiKeyMapNode<CItem,CKey>*)pItem;
-            m_pTree = m_pTree->SafeReleaseNode(pNode,nRtn);
+            if (pNode->m_pTree == (void*)this)
+            {
+                m_pTree = m_pTree->SafeReleaseNode(pNode,nRtn);
+                pNode->m_pTree = NULL;
+            }
+            else
+            {
+                return NOT_BELONG_TO_THIS_CAPSULA;
+            }
             //pNode->UnInit();
             //pNode->m_pSiblings = NULL;
         }
@@ -1657,6 +1666,7 @@ TInt32 TplMultiKeyMap<CItem,CKey>::AddInTree(CItem* pItem)
 //         return NOT_BELONG_TO_THIS_CAPSULA;
 //     }
     //pNew->Init();
+    pNew->m_pTree = (void*)this;
     if (m_pTree)
     {
         m_pTree = m_pTree->SafeAddNode(pNew);

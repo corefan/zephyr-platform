@@ -184,6 +184,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\include\Timer.h"
+				>
+			</File>
+			<File
 				RelativePath=".\include\TypeDef.h"
 				>
 			</File>
@@ -221,6 +225,10 @@
 			</File>
 			<File
 				RelativePath=".\source\TaskCenter.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\source\Timer.cpp"
 				>
 			</File>
 		</Filter>
