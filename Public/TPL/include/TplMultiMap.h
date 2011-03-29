@@ -39,6 +39,15 @@ namespace Zephyr
 
 #define NEED_SIBLINGS_NR 
 
+struct TTreeHolder
+{
+    void *m_pTree;
+    TTreeHolder()
+    {
+        m_pTree = NULL;
+    }
+};
+
 template<class CItem,class CKey>
 class TplMultiKeyMapNode : public CItem
 {
@@ -50,7 +59,7 @@ public:
     TplMultiKeyMapNode<CItem,CKey>*    m_pParent;
     //如果是在树中的，则指向第一个兄弟节点,不是的话，为空
     TplMultiKeyMapNode<CItem,CKey>*    m_pSiblings;
-    void *                             m_pTree; //指向保存它的tree;
+    TTreeHolder                        m_tTree; //指向保存它的tree;初始化为空
 #ifdef _DEBUG
     TUInt32               m_nodeSize:31;
     TUInt32               m_isActive:1;
@@ -1582,10 +1591,10 @@ public:
         if (m_pTree)
         {
             TplMultiKeyMapNode<CItem,CKey> *pNode = (TplMultiKeyMapNode<CItem,CKey>*)pItem;
-            if (pNode->m_pTree == (void*)this)
+            if (pNode->m_tTree.m_pTree == (void*)this)
             {
                 m_pTree = m_pTree->SafeReleaseNode(pNode,nRtn);
-                pNode->m_pTree = NULL;
+                pNode->m_tTree.m_pTree = NULL;
             }
             else
             {
@@ -1666,7 +1675,11 @@ TInt32 TplMultiKeyMap<CItem,CKey>::AddInTree(CItem* pItem)
 //         return NOT_BELONG_TO_THIS_CAPSULA;
 //     }
     //pNew->Init();
-    pNew->m_pTree = (void*)this;
+    if (pNew->m_tTree.m_pTree)
+    {
+        return ALREADY_IN_TREE;
+    }
+    pNew->m_tTree.m_pTree = (void*)this;
     if (m_pTree)
     {
         m_pTree = m_pTree->SafeAddNode(pNew);

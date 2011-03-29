@@ -53,6 +53,8 @@
 
 #define ALREADY_EXIST -5
 
+
+
 #define DOES_NOT_EXIST -6
 
 #define NOT_INIT_AS_LIST -7
@@ -109,6 +111,8 @@
 #define MSG_QUEUE_BLOCKED (-31)
 
 #define MEM_NOT_ALIGNED (-32)
+
+#define ALREADY_IN_TREE (-33)
 
 #define NR_OF_NET_WORKER (1)
 
