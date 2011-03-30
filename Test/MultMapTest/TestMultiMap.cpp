@@ -78,30 +78,33 @@ int main(int argc,char *pArgv[])
     
     while (1)
     {
-        if (nMaxTestTime > 10000)
-        {
-            nTestTime = (rand() % (nMaxTestTime/10000));
-            nTestTime *= 10000;
-            nTestTime += (rand()%10000);
-            //Sleep(15);
-        }
-        else
-        {
-            nTestTime = (rand()%nMaxTestTime);
-        }
-        if (nMaxTestTime > 10000)
-        {
-            nTestTime = (rand()%(nMaxTestTime/10000))*10000;
-            nTestTime += rand()%10000;
-        }
-        else
-        {
-            nTestTime = rand() % nMaxTestTime;
-        }
-        if (nTestTime < (nMaxTestTime>>1))
-        {
-            nTestTime = (nMaxTestTime>>1);
-        }
+//         if (nMaxTestTime > 10000)
+//         {
+//             nTestTime = (rand() % (nMaxTestTime/10000));
+//             nTestTime *= 10000;
+//             nTestTime += (rand()%10000);
+//             //Sleep(15);
+//         }
+//         else
+//         {
+//             nTestTime = (rand()%nMaxTestTime);
+//         }
+//         if (nMaxTestTime > 10000)
+//         {
+//             nTestTime = (rand()%(nMaxTestTime/10000))*10000;
+//             nTestTime += rand()%10000;
+//         }
+//         else
+//         {
+//             nTestTime = rand() % nMaxTestTime;
+//         }
+//         if (nTestTime < (nMaxTestTime>>1))
+//         {
+//             nTestTime = (nMaxTestTime>>1);
+//         }
+        int nTestTime = rand()%20 + 80;
+        nTestTime *= nMaxTestTime;
+        nTestTime /= 100;
         nTotalTestTime += nTestTime;
         if (nTotalTestTime > nLastInfoTime)
         {

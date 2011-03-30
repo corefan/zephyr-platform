@@ -227,7 +227,7 @@ public:
                     return (m_nodeSize + 1);
                 }
 private:
-    bool        NeedRearrange(EnNextAddNode nextAddNode)
+    bool        NeedRearrange(TBool bRightNode)
                 {
                     //return false;
                     TInt32 leftNodeSize = 0;
@@ -240,29 +240,48 @@ private:
                     {
                         rightNodeSize = m_pRightNode->GetTreeSize();
                     }
-                    TInt32 balance = 0;
-                    TInt32 totalNum = GetTreeSize();
-                    totalNum = totalNum>>2;
-                    totalNum += 4;
-                    if (left_node == nextAddNode)
+                    if (bRightNode)
                     {
-                        balance = leftNodeSize - rightNodeSize;
+                        /* balance = leftNodeSize - rightNodeSize;*/
+                        if ((rightNodeSize) > ((leftNodeSize+2)<<1))
+                        {
+                            return true;
+                        }
+                        return false;
                     }
                     else // the right node case
                     {
-                        balance = rightNodeSize - leftNodeSize;
+                        /* balance = rightNodeSize - leftNodeSize;*/
+
+                        if ((leftNodeSize) > ((rightNodeSize+2)<<1)) 
+                        {
+                            return true;
+                        }
+                        return false;
                     }
-                    /*
-                    if (balance > 64)
-                    {
-                        return true;
-                    }
-                    */
-                    if (balance > totalNum)
-                    {
-                        return true;
-                    }
-                    return false;
+//                     TInt32 balance = 0;
+//                     TInt32 totalNum = (GetTreeSize()>>2);
+//                     //totalNum = totalNum>>2;
+//                     totalNum += 4;
+//                     if (left_node == nextAddNode)
+//                     {
+//                         balance = leftNodeSize - rightNodeSize;
+//                     }
+//                     else // the right node case
+//                     {
+//                         balance = rightNodeSize - leftNodeSize;
+//                     }
+//                     /*
+//                     if (balance > 64)
+//                     {
+//                         return true;
+//                     }
+//                     */
+//                     if (balance > totalNum)
+//                     {
+//                         return true;
+//                     }
+//                     return false;
                 }
 
     void        AddLeftNodeNum()
@@ -672,8 +691,9 @@ TplNode<CItem,CKey> *TplNode<CItem,CKey>::AddNode(TplNode *pNode)
 #endif
     if (CItem::GetKey() > pNode->GetKey())
     {
-        if (NeedRearrange(left_node))
+        if (NeedRearrange(FALSE))
         {
+#ifdef _DEBUG
             if (NULL == m_pLeftNode)
             {
                 //sth wrong!! this should never happened!
@@ -685,6 +705,7 @@ TplNode<CItem,CKey> *TplNode<CItem,CKey>::AddNode(TplNode *pNode)
                 #endif
                 return this;
             }
+#endif
             //重新修整树
             TplNode<CItem,CKey>* pNewRoot = m_pLeftNode;
             m_pLeftNode    = m_pLeftNode->m_pRightNode;
@@ -834,8 +855,9 @@ TplNode<CItem,CKey> *TplNode<CItem,CKey>::AddNode(TplNode *pNode)
     }
 
     //add to right node.
-    if (NeedRearrange(right_node))
+    if (NeedRearrange(TRUE))
     {
+#ifdef _DEBUG
         if (NULL == m_pRightNode)
         {
 
@@ -846,6 +868,7 @@ TplNode<CItem,CKey> *TplNode<CItem,CKey>::AddNode(TplNode *pNode)
 #endif
             return this;
         }
+#endif
         //重新修正树
         TplNode<CItem,CKey>* pNewRoot = m_pRightNode;
         m_pRightNode    = m_pRightNode->m_pLeftNode;
@@ -1074,7 +1097,7 @@ TplNode<CItem,CKey> *TplNode<CItem,CKey>::ReleaseNode(CKey& key)
     if (CItem::GetKey() > key)
     {
         //equals to minus left node num.
-
+#ifdef _DEBUG
         // m_pLeftNode must be existed!
         if (NULL == m_pLeftNode)
         {
@@ -1085,9 +1108,10 @@ TplNode<CItem,CKey> *TplNode<CItem,CKey>::ReleaseNode(CKey& key)
         #endif
             return this;
         }
+#endif
         TplNode<CItem,CKey>*   pNewRoot = this;
         //minus a left node equals to add a right node
-        if (NeedRearrange(right_node))
+        if (NeedRearrange(TRUE))
         {
             /*
             #ifdef _DEBUG
@@ -1136,10 +1160,12 @@ TplNode<CItem,CKey> *TplNode<CItem,CKey>::ReleaseNode(CKey& key)
             }
             #endif
             */
+#ifdef _DEBUG
             if (NULL == m_pRightNode)
             {
                 return this;
             }
+#endif
             //重整树
             TplNode<CItem,CKey>* pNewRoot = m_pRightNode;
             m_pRightNode    = m_pRightNode->m_pLeftNode;
@@ -1197,9 +1223,10 @@ TplNode<CItem,CKey> *TplNode<CItem,CKey>::ReleaseNode(CKey& key)
             return this;
         }
         TplNode<CItem,CKey>*   pNewRoot = this;
-        //minus a left node equals to add a right node
-        if (NeedRearrange(left_node))
+        //minus a right node equals to add a left node
+        if (NeedRearrange(FALSE))
         {
+#ifdef _DEBUG
             if (NULL == m_pLeftNode)
             {
                 //sth wrong!! this should never happened!
@@ -1210,6 +1237,7 @@ TplNode<CItem,CKey> *TplNode<CItem,CKey>::ReleaseNode(CKey& key)
                 #endif
                 return this;
             }
+#endif
             //重整树
             TplNode<CItem,CKey>* pNewRoot = m_pLeftNode;
             m_pLeftNode    = m_pLeftNode->m_pRightNode;
