@@ -13,7 +13,7 @@
 #ifndef   __ZEPHYR_IF_TIMER_H__
 #define   __ZEPHYR_IF_TIMER_H__
 
-#include "../../include/TypeDef.h"
+#include "../../../include/TypeDef.h"
 #include "../../App/include/IfScheduler.h"
 namespace Zephyr
 {

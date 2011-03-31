@@ -13,14 +13,18 @@ namespace Zephyr
 
 CClock::CClock()
 {
+    m_timeIdx = 0;
 #ifdef _WIN32
-    m_timeBegin = (TUInt32)timeGetTime();
+    m_timeNow = (TUInt32)timeGetTime();
 #else
     timeval * tv;
     gettimeofday(tv, 0 );
-    m_timeBegin = tv->tv_usec + (tv->tv_sec * 1000);
+    m_timeNow = tv->tv_usec + (tv->tv_sec * 1000);
 #endif
-    m_nPlatformTime = 0;
+    for (int i=0;i<4;++i)
+    {
+        m_nPlatformTime[i] = 0;
+    }
 }
     
 void CClock::Update()
@@ -30,7 +34,7 @@ void CClock::Update()
 #else
     timeval * tv;
     gettimeofday(tv, 0 );
-    TUInt32 m_timeNow = (tv->tv_usec/1000) + (tv->tv_sec * 1000);
+    TUInt32 timeNow = (tv->tv_usec/1000) + (tv->tv_sec * 1000);
 #endif
     int gap;
     if (timeNow >= m_timeNow) //这儿不用存，因为就是这儿更新的
@@ -42,6 +46,44 @@ void CClock::Update()
         gap = (((TUInt32)0xFFFFFFFF) - m_timeNow) + timeNow;
     }
     m_timeNow = timeNow;
-    m_nPlatformTime += gap;
+    TUInt64 nT = m_nPlatformTime[m_timeIdx] + gap;
+    m_nPlatformTime[(m_timeIdx&0x00000003)] += nT;
+    ++m_timeIdx;
+}
+
+//解决64位数读取问题.
+TUInt64 CClock::GetPlatformTime() const
+{
+    TUInt32 nIdx = m_timeIdx;
+    TUInt64 uT = m_nPlatformTime[(nIdx&0x00000003)];
+    TUInt32 nIdxNow = m_timeIdx;
+    if (nIdxNow != nIdx)
+    {
+        TUInt32 nGap;
+        if (nIdxNow >= nIdx)
+        {
+            nGap = (nIdxNow - nIdx);
+        }
+        else
+        {
+            nGap = ((((TUInt32)0xFFFFFFFF) - nIdx) + nIdxNow);
+        }
+        while (nGap > 1)
+        {
+            nIdx = m_timeIdx;
+            uT = m_nPlatformTime[(nIdx&0x00000003)];
+            nIdxNow = m_timeIdx;
+
+            if (nIdxNow >= nIdx)
+            {
+                nGap = (nIdxNow - nIdx);
+            }
+            else
+            {
+                nGap = ((((TUInt32)0xFFFFFFFF) - nIdx) + nIdxNow);
+            }
+        }
+    }
+    return uT;
 }
 }

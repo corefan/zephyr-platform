@@ -12,7 +12,7 @@
 #ifndef __ZEPHYR_IF_SCHEDULER_H__
 #define __ZEPHYR_IF_SCHEDULER_H__
 
-#include "../../include/TypeDef.h"
+#include "../../../include/TypeDef.h"
 
 namespace Zephyr
 {

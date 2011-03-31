@@ -9,11 +9,15 @@ namespace Zephyr
 
 class CClock
 {
+private:
+    volatile TUInt64 m_nPlatformTime[4];
+    
 public:
-    TUInt32 m_timeBegin; //系统开启时间
+    volatile TUInt32 m_timeIdx; //系统开启时间
     volatile TUInt32 m_timeNow;
     //这个是全平台的统一时间，由Comm来同步，就是说无论在那个Comm上层，只要使用Comm都可能获得相同的m_nPlatformTime,希望能精确到40ms以内
-    volatile TUInt64 m_nPlatformTime;
+    
+    
 public:
     CClock();
     TUInt32 GetLocalTime() const
@@ -33,12 +37,12 @@ public:
             return  ((((TUInt32)0xFFFFFFFF) - nLast) + timeNow);
         }
     }
-    TUInt64 GetPlatformTime() const
-    {
-        return m_nPlatformTime;
-    }
+    TUInt64 GetPlatformTime() const;
     void Update();
+    
 };
+
+
 
 }
 #endif
