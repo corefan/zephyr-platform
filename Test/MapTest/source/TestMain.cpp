@@ -46,6 +46,7 @@ int main()
     tPool.InitPool(NUM_OF_TEST_TIME+2);
     map.Init(&tPool);
     int testTimes = 0;
+    unsigned int nTLast = timeGetTime();
     union
     {
         struct 
@@ -60,7 +61,8 @@ int main()
     do 
     {
         int num = 0;
-        srand(time(NULL));
+        unsigned int uTime = timeGetTime();
+        srand(uTime);
         int randTime = 0;
         while(num<NUM_OF_TEST_TIME)
         {
@@ -77,6 +79,7 @@ int main()
                     pMap->m_key = ran;
                     pRandNr[num] = ran;
                     map.AddInTree(pMap);
+                    //map.CheckTree();
                     ++num;
                 }
                 else
@@ -177,9 +180,12 @@ int main()
 //             map.CheckTree();
 //         }
         ++testTimes;
-        //if (0 == (testTimes%100))
+        if (0 == (testTimes%100))
         {
-            printf("Test %d times \t \n",testTimes);
+            unsigned int nTimeNow = timeGetTime();
+            
+            printf("Test %d times in %d ms \t \n",testTimes,(nTimeNow-nTLast));
+            nTLast = nTimeNow;
         }
     } while (1);
     return SUCCESS;

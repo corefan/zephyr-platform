@@ -7,7 +7,7 @@
 using namespace Zephyr;
 
 class CAppConnectionMgr;
-class CAppConnection : public IfConnectionCallBack
+class CAppConnection : virtual public IfConnectionCallBack
 {
 private:
     IfConnection*   m_pIfConnection;

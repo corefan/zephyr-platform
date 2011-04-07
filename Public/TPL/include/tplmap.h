@@ -10,6 +10,14 @@
       It looks like std::map, but more efficient,
       I take consider of the worst condition.
       And for the most important thing: U can read and debug it!
+      滞后平衡算法：
+      算法的核心思想是，不到逼不得已就不进行平衡，而且每次平衡只管自己的左右节点是否平衡，而不用管左右节点的子节点是否平衡。
+      如果1边比另一边大一倍，就进行子树平衡，子树只保证当前节点的左右节点平衡，但是不必保证其子节点的平衡，算法可以在O(1)时间完成，这样在最差情况下
+      每加一个节点，可以证明，如果左子树的子节点如果不平衡，那么有子树的子节点肯定会平衡，所以一次平衡，最差情况下最多会进行2Log(N)次平衡.所以整个算法的复杂度还是O(Log(N))
+      而且某个节点平衡后，是又进入大致平衡状态的，所以即使在最差情况下，平衡的频率也会很低（可以证明，严格小于2/9）
+      具体如果左子树大小是右子树的一倍，那么，如果还要向左子树插入节点，就回引起重平衡，但是如果向右节点加入节点，即使右节点加入之后，左子树还是大于右子树一倍，
+      还是不会进行重平衡。在向右平衡时，取左子树的右子树大小，如果左子树的右子树小于右子树，那么就把左子树的右子树和右子树组成新的右子树（以根节点为新的右子树节点）
+      如果大于，子取左子树的右子树的右子树(在取之前评断该操作是否会引起不平衡，如果会，则先平衡左子树左子树)，这步可能会引起左子树不平衡或者右子树不平衡。
   History:
 *************************************************/
 #ifndef _ZEPHYR_MAP_TEMPLATE_H_
@@ -74,6 +82,314 @@ private:
         left_node       = 0,
         right_node      = 1,
     };
+
+    TplNode *GetSubRightTree(TUInt32 nSize,TplNode*& pSubTree);
+    TplNode *GetSubLeftTree(TUInt32 nSize,TplNode *& pSubTree);
+    TplNode *MigrateRight2Left()
+    {
+#ifdef _DEBUG
+        if (m_pRightNode) //必须的，因为这个时候肯定是左子树大！bur
+        {
+#endif
+            //要从左子树删右节点，不平衡，先平衡
+            int nBalance = m_pRightNode->NeedBalance();
+            if (nBalance>0)
+            {
+                m_pRightNode = m_pRightNode->MigrateLeft2Right();
+            }
+            else if (nBalance < 0)
+            {
+                m_pRightNode  = m_pRightNode->MigrateRight2Left();
+            }
+            //可以了,左子树平衡了
+            //从左子树的右子树获取右子树.
+            TplNode *pNewRoot;
+            //如果左子树的右子树存在
+            TplNode *pRLNode = m_pRightNode->m_pLeftNode;
+            if (pRLNode)
+            {
+                //并且其大小小于1/2,
+                if (pRLNode->m_nodeSize <= (m_pRightNode->m_nodeSize >>1))
+                {
+                    pNewRoot = m_pRightNode;
+                    //直接删除整个左子树的右子树
+                    m_pRightNode->m_pLeftNode = this;
+                    m_pRightNode->m_pParent    = m_pParent;
+                    m_pRightNode->m_nodeSize   = m_nodeSize;
+                    if (m_pLeftNode)
+                    {
+                        m_nodeSize = m_pLeftNode->GetTreeSize();
+                        m_nodeSize += pRLNode->GetTreeSize();
+                    }
+                    else
+                    {
+                        m_nodeSize = pRLNode->GetTreeSize();
+                    }
+                    m_pParent = m_pRightNode;
+                    m_pRightNode = pRLNode;
+                    pRLNode->m_pParent = this; //完了！
+                    return pNewRoot;
+                }
+                else
+                {
+                    //平衡左子树的右子树的子节点
+                    int nBalance = pRLNode->NeedBalance();
+                    if (nBalance>0)
+                    {
+                        m_pRightNode->m_pLeftNode = pRLNode->MigrateLeft2Right();
+                        pRLNode = m_pRightNode->m_pLeftNode;
+                    }
+                    else if (nBalance < 0)
+                    {
+                        m_pRightNode->m_pLeftNode = pRLNode->MigrateRight2Left();
+                        pRLNode = m_pRightNode->m_pLeftNode;
+                    }
+                    //平衡了，使用左子树的右子树的右子树
+                    TplNode *pRLLNode = pRLNode->m_pLeftNode;//->m_pRightNode; //肯定是存在的
+                    if (pRLLNode)
+                    {
+                        pNewRoot = pRLNode;
+                        m_pRightNode->m_pLeftNode = pRLNode->m_pRightNode;
+                        if (pRLNode->m_pRightNode)
+                        {
+                            pRLNode->m_pRightNode->m_pParent = m_pRightNode;
+                        }
+                        m_pRightNode->m_nodeSize -= (pRLLNode->GetTreeSize()+1);
+                        m_pRightNode->m_pParent = pRLNode;
+
+                        pRLNode->m_pLeftNode = this;
+                        pRLNode->m_pParent    = m_pParent;
+                        pRLNode->m_nodeSize   = m_nodeSize;
+                        pRLNode->m_pRightNode  = m_pRightNode;
+
+                        pRLLNode->m_pParent = this;
+
+                        m_pRightNode = pRLLNode;
+                        if (m_pLeftNode)
+                        {
+                            m_nodeSize = m_pLeftNode->GetTreeSize();
+                            m_nodeSize += pRLLNode->GetTreeSize();
+                        }
+                        else
+                        {
+                            m_nodeSize =pRLLNode->GetTreeSize();
+                        }
+                        m_pParent = pRLNode;
+                        return pNewRoot;
+                    }
+                    else
+                    {
+                        pNewRoot = pRLNode;
+                        m_pRightNode->m_pLeftNode = pRLNode->m_pRightNode;
+                        if (pRLNode->m_pRightNode)
+                        {
+                            pRLNode->m_pRightNode->m_pParent = m_pRightNode;
+                        }
+                        --m_pRightNode->m_nodeSize ;
+                        m_pRightNode->m_pParent = pRLNode;
+
+                        pRLNode->m_pLeftNode = this;
+                        pRLNode->m_pParent    = m_pParent;
+                        pRLNode->m_nodeSize   = m_nodeSize;
+                        pRLNode->m_pRightNode  = m_pRightNode;
+
+                        //pRLLNode->m_pParent = this;
+
+                        m_pRightNode = NULL;
+                        if (m_pLeftNode)
+                        {
+                            m_nodeSize = m_pLeftNode->GetTreeSize();
+                        }
+                        else
+                        {
+                            m_nodeSize = 0;
+                        }
+                        m_pParent = pRLNode;
+                        return pNewRoot;
+                    }
+                    //以左子树的右子树的右子树,为迁出节点
+                }
+            }
+            else //if ((rightNodeSize) > ((leftNodeSize+1)<<1)) "+1"或者是叶节点 引起的
+            {
+                //直接平衡,把右子树提上来当root
+                pNewRoot = m_pRightNode;
+                m_pRightNode->m_pLeftNode = this;
+                m_pRightNode->m_pParent    = m_pParent;
+                m_pRightNode->m_nodeSize   = m_nodeSize;
+                if (m_pLeftNode)
+                {
+                    m_nodeSize = m_pLeftNode->GetTreeSize();
+                }
+                else
+                {
+                    m_nodeSize = 0;
+                }
+                m_pParent = m_pRightNode;
+                m_pRightNode = NULL;
+                return pNewRoot;
+            }
+            //得到了.
+#ifdef _DEBUG
+        }
+#endif
+    }
+    //将nSize个节点从左子树迁移到右子树，返回的是新的根,这个迁移之后树并不一定平衡
+    //但是我们可以肯定，其子树最差情况是1:3，所这个时候，
+    //再对不平衡子树进行平衡后，最差情况(递归子平衡后，3会分出的情况为1-4/3（==(2/3)*(2/3)）)，变成7:5
+    TplNode *MigrateLeft2Right() 
+    {
+#ifdef _DEBUG
+        if (m_pLeftNode) //必须的，因为这个时候肯定是左子树大！bur
+        {
+#endif
+            //要从左子树删右节点，不平衡，先平衡
+            int nBalance = m_pLeftNode->NeedBalance();
+            if (nBalance>0)
+            {
+                m_pLeftNode = m_pLeftNode->MigrateLeft2Right();
+            }
+            else if (nBalance < 0)
+            {
+                m_pLeftNode  = m_pLeftNode->MigrateRight2Left();
+            }
+            //可以了,左子树平衡了
+            //从左子树的右子树获取右子树.
+            TplNode *pNewRoot;
+            //如果左子树的右子树存在
+            TplNode *pLRNode = m_pLeftNode->m_pRightNode;
+            if (pLRNode)
+            {
+                //并且其大小小于1/2,
+                if (pLRNode->m_nodeSize <= (m_pLeftNode->m_nodeSize >>1))
+                {
+                    pNewRoot = m_pLeftNode;
+                    //直接删除整个左子树的右子树
+                    m_pLeftNode->m_pRightNode = this;
+                    m_pLeftNode->m_pParent    = m_pParent;
+                    m_pLeftNode->m_nodeSize   = m_nodeSize;
+                    if (m_pRightNode)
+                    {
+                        m_nodeSize = m_pRightNode->GetTreeSize();
+                        m_nodeSize += pLRNode->GetTreeSize();
+                    }
+                    else
+                    {
+                        m_nodeSize =pLRNode->GetTreeSize();
+                    }
+                    m_pParent = m_pLeftNode;
+                    m_pLeftNode = pLRNode;
+                    pLRNode->m_pParent = this; //完了！
+                    return pNewRoot;
+                }
+                else
+                {
+                    //平衡左子树的右子树的子节点
+                    int nBalance = pLRNode->NeedBalance();
+                    if (nBalance>0)
+                    {
+                        m_pLeftNode->m_pRightNode = pLRNode->MigrateLeft2Right();
+                        pLRNode = m_pLeftNode->m_pRightNode;
+                    }
+                    else if (nBalance < 0)
+                    {
+                        m_pLeftNode->m_pRightNode = pLRNode->MigrateRight2Left();
+                        pLRNode = m_pLeftNode->m_pRightNode;
+                    }
+                    //平衡了，使用左子树的右子树的右子树
+                    TplNode *pLRRNode = pLRNode->m_pRightNode;//->m_pRightNode; //肯定是存在的
+                    if (pLRRNode)
+                    {
+                        pNewRoot = pLRNode;
+                        m_pLeftNode->m_pRightNode = pLRNode->m_pLeftNode;
+                        if (pLRNode->m_pLeftNode)
+                        {
+                            pLRNode->m_pLeftNode->m_pParent = m_pLeftNode;
+                        }
+                        m_pLeftNode->m_nodeSize -= (pLRRNode->GetTreeSize()+1);
+                        m_pLeftNode->m_pParent = pLRNode;
+
+                        pLRNode->m_pRightNode = this;
+                        pLRNode->m_pParent    = m_pParent;
+                        pLRNode->m_nodeSize   = m_nodeSize;
+                        pLRNode->m_pLeftNode  = m_pLeftNode;
+
+                        pLRRNode->m_pParent = this;
+
+                        m_pLeftNode = pLRRNode;
+                        if (m_pRightNode)
+                        {
+                            m_nodeSize = m_pRightNode->GetTreeSize();
+                            m_nodeSize += pLRRNode->GetTreeSize();
+                        }
+                        else
+                        {
+                            m_nodeSize =pLRRNode->GetTreeSize();
+                        }
+                        m_pParent = pLRNode;
+                        
+                        
+                        return pNewRoot;
+                    }
+                    else
+                    {
+                        pNewRoot = pLRNode;
+                        m_pLeftNode->m_pRightNode = pLRNode->m_pLeftNode;
+                        if (pLRNode->m_pLeftNode)
+                        {
+                            pLRNode->m_pLeftNode->m_pParent = m_pLeftNode;
+                        }
+                        --m_pLeftNode->m_nodeSize;// -= (pLRRNode->GetTreeSize()+1);
+                        m_pLeftNode->m_pParent = pLRNode;
+
+                        pLRNode->m_pRightNode = this;
+                        pLRNode->m_pParent    = m_pParent;
+                        pLRNode->m_nodeSize   = m_nodeSize;
+                        pLRNode->m_pLeftNode  = m_pLeftNode;
+
+                        //pLRRNode->m_pParent = this;
+
+                        m_pLeftNode = NULL;
+                        if (m_pRightNode)
+                        {
+                            m_nodeSize = m_pRightNode->GetTreeSize();
+                        }
+                        else
+                        {
+                            m_nodeSize = 0;
+                        }
+                        m_pParent = pLRNode;
+                        return pNewRoot;
+                    }
+                    //以左子树的右子树的右子树,为迁出节点
+                }
+            }
+            else //if ((rightNodeSize) > ((leftNodeSize+1)<<1)) "+1"或者是叶节点 引起的
+            {
+                //直接平衡,把左子树提上来当root
+                pNewRoot = m_pLeftNode;
+                m_pLeftNode->m_pRightNode = this;
+                m_pLeftNode->m_pParent    = m_pParent;
+                m_pLeftNode->m_nodeSize   = m_nodeSize;
+                if (m_pRightNode)
+                {
+                    m_nodeSize = m_pRightNode->GetTreeSize();
+                }
+                else
+                {
+                    m_nodeSize = 0;
+                }
+                m_pParent = m_pLeftNode;
+                m_pLeftNode = NULL;
+                return pNewRoot;
+            }
+            //得到了.
+#ifdef _DEBUG
+        }
+#endif
+    }
+
+
 public:
 
     TplNode<CItem,CKey> *GetNextSmallFirst(TplNode<CItem,CKey> *pNow)
@@ -227,23 +543,63 @@ public:
                     return (m_nodeSize + 1);
                 }
 private:
-    bool        NeedRearrange(TBool bRightNode)
+                //如果为0，则子树平衡，>0,则需要向右迁移平衡，小于零需要向左迁移平衡.
+    int         NeedBalance()
                 {
-                    //return false;
-                    TInt32 leftNodeSize = 0;
-                    TInt32 rightNodeSize = 0;
+                    TInt32 leftNodeSize;
+                    TInt32 rightNodeSize;
                     if (m_pLeftNode)
                     {
                         leftNodeSize = m_pLeftNode->GetTreeSize();
+                    }
+                    else
+                    {
+                        leftNodeSize = 0;
                     }
                     if (m_pRightNode)
                     {
                         rightNodeSize = m_pRightNode->GetTreeSize();
                     }
+                    else
+                    {
+                        rightNodeSize = 0;
+                    }
+                    if ((rightNodeSize) > ((leftNodeSize+1)<<1))
+                    {
+                        return (-1);
+                    }
+                    if ((leftNodeSize) > ((rightNodeSize+1)<<1)) 
+                    {
+                        return 1;
+                    }
+                    return 0;
+                }
+
+    bool        NeedRearrange(TBool bRightNode)
+                {
+                    //return false;
+                    TInt32 leftNodeSize;
+                    TInt32 rightNodeSize;
+                    if (m_pLeftNode)
+                    {
+                        leftNodeSize = m_pLeftNode->GetTreeSize();
+                    }
+                    else
+                    {
+                        leftNodeSize = 0;
+                    }
+                    if (m_pRightNode)
+                    {
+                        rightNodeSize = m_pRightNode->GetTreeSize();
+                    }
+                    else
+                    {
+                        rightNodeSize = 0;
+                    }
                     if (bRightNode)
                     {
                         /* balance = leftNodeSize - rightNodeSize;*/
-                        if ((rightNodeSize) > ((leftNodeSize+2)<<1))
+                        if ((rightNodeSize) > ((leftNodeSize+1)<<1))
                         {
                             return true;
                         }
@@ -253,7 +609,7 @@ private:
                     {
                         /* balance = rightNodeSize - leftNodeSize;*/
 
-                        if ((leftNodeSize) > ((rightNodeSize+2)<<1)) 
+                        if ((leftNodeSize) > ((rightNodeSize+1)<<1)) 
                         {
                             return true;
                         }
@@ -376,6 +732,12 @@ private:
                 return FAIL;
             }
             totalNode += (m_pLeftNode->GetTreeSize());
+            if (m_pLeftNode->m_pParent != this)
+            {
+                printf("check tree failed, (m_pLeftNode->m_pParent in correct!!\n");
+                
+                return FAIL;
+            }
         }
         if (m_pRightNode)
         {
@@ -394,6 +756,11 @@ private:
                 return FAIL;
             }
             totalNode += (m_pRightNode->GetTreeSize());
+            if (m_pRightNode->m_pParent != this)
+            {
+                printf("check tree failed, m_pRightNode->m_pParent is incorrect!\n");
+                return FAIL;
+            }
         }
         if (totalNode != (GetTreeSize()-1))
         {
@@ -409,22 +776,22 @@ private:
                 printf("Check tree failed ,parent's key is the same to this!\n");
                 return FAIL;
             }
-            if (m_pParent->GetKey() > GetKey())
-            {
-                if (m_pParent->m_pLeftNode != this)
-                {
-                    printf("check tree failed ,the tree parent is incorrect!\n");
-                    return FAIL;
-                }
-            }
-            else
-            {
-                if (m_pParent->m_pRightNode != this)
-                {
-                    printf("check tree failed, the tree parent is incorrect!\n");
-                    return FAIL;
-                }
-            }
+//             if (m_pParent->GetKey() > GetKey())
+//             {
+//                 if (m_pParent->m_pLeftNode != this)
+//                 {
+//                     printf("check tree failed ,the tree parent is incorrect!\n");
+//                     return FAIL;
+//                 }
+//             }
+//             else
+//             {
+//                 if (m_pParent->m_pRightNode != this)
+//                 {
+//                     printf("check tree failed, the tree parent is incorrect!\n");
+//                     return FAIL;
+//                 }
+//             }
         }
         return SUCCESS;
     }
@@ -707,40 +1074,44 @@ TplNode<CItem,CKey> *TplNode<CItem,CKey>::AddNode(TplNode *pNode)
             }
 #endif
             //重新修整树
-            TplNode<CItem,CKey>* pNewRoot = m_pLeftNode;
-            m_pLeftNode    = m_pLeftNode->m_pRightNode;
-            pNewRoot->m_pRightNode = this;
-            m_nodeSize = 0;
-            
-            //修整m_pParent
-            pNewRoot->m_pParent = m_pParent;
-            this->m_pParent = pNewRoot;
-            if (m_pLeftNode)
-            {
-                m_pLeftNode->m_pParent = this;
-            }
-            //修整结束
-            
-            if(m_pLeftNode)
-            {
-                m_nodeSize += m_pLeftNode->GetTreeSize();
-            }
-            if (m_pRightNode)
-            {
-                m_nodeSize += m_pRightNode->GetTreeSize();
-            }
-            pNewRoot->m_nodeSize = 0;
-            if (pNewRoot->m_pLeftNode)
-            {
-                pNewRoot->m_nodeSize += pNewRoot->m_pLeftNode->GetTreeSize();
-            }
-            if (pNewRoot->m_pRightNode)
-            {
-                pNewRoot->m_nodeSize += pNewRoot->m_pRightNode->GetTreeSize();
-            }
-            //结束
-            
-            if (pNewRoot)
+               TplNode<CItem,CKey>* pNewRoot = MigrateLeft2Right();
+//             TplNode<CItem,CKey>* pNewRoot = m_pLeftNode;
+//             m_pLeftNode    = m_pLeftNode->m_pRightNode;
+//             pNewRoot->m_pRightNode = this;
+//             m_nodeSize = 0;
+//             
+//             //修整m_pParent
+//             pNewRoot->m_pParent = m_pParent;
+//             this->m_pParent = pNewRoot;
+//             if (m_pLeftNode)
+//             {
+//                 m_pLeftNode->m_pParent = this;
+//             }
+//             //修整结束
+//             
+//             if(m_pLeftNode)
+//             {
+//                 m_nodeSize += m_pLeftNode->GetTreeSize();
+//             }
+//             if (m_pRightNode)
+//             {
+//                 m_nodeSize += m_pRightNode->GetTreeSize();
+//             }
+//             pNewRoot->m_nodeSize = 0;
+//             if (pNewRoot->m_pLeftNode)
+//             {
+//                 pNewRoot->m_nodeSize += pNewRoot->m_pLeftNode->GetTreeSize();
+//             }
+//             if (pNewRoot->m_pRightNode)
+//             {
+//                 pNewRoot->m_nodeSize += pNewRoot->m_pRightNode->GetTreeSize();
+//             }
+//             //结束
+//             
+#ifdef _NEED_TREE_CHECK
+               pNewRoot->CheckTree();
+#endif
+//             //if (pNewRoot)
             {
                 if (pNewRoot->GetKey() > pNode->GetKey())
                 {
@@ -870,38 +1241,42 @@ TplNode<CItem,CKey> *TplNode<CItem,CKey>::AddNode(TplNode *pNode)
         }
 #endif
         //重新修正树
-        TplNode<CItem,CKey>* pNewRoot = m_pRightNode;
-        m_pRightNode    = m_pRightNode->m_pLeftNode;
-        pNewRoot->m_pLeftNode = this;
-        m_nodeSize = 0;
-        
-        //修整m_pParent
-        pNewRoot->m_pParent = m_pParent;
-        this->m_pParent = pNewRoot;
-        if (m_pRightNode)
-        {
-            m_pRightNode->m_pParent = this;
-        }
-        //修整结束
-        
-        if(m_pLeftNode)
-        {
-            m_nodeSize += m_pLeftNode->GetTreeSize();
-        }
-        if (m_pRightNode)
-        {
-            m_nodeSize += m_pRightNode->GetTreeSize();
-        }
-        pNewRoot->m_nodeSize = 0;
-        if (pNewRoot->m_pLeftNode)
-        {
-            pNewRoot->m_nodeSize += pNewRoot->m_pLeftNode->GetTreeSize();
-        }
-        if (pNewRoot->m_pRightNode)
-        {
-            pNewRoot->m_nodeSize += pNewRoot->m_pRightNode->GetTreeSize();
-        }
-        if (pNewRoot)
+        TplNode<CItem,CKey>* pNewRoot = MigrateRight2Left();
+//         TplNode<CItem,CKey>* pNewRoot = m_pRightNode;
+//         m_pRightNode    = m_pRightNode->m_pLeftNode;
+//         pNewRoot->m_pLeftNode = this;
+//         m_nodeSize = 0;
+//         
+//         //修整m_pParent
+//         pNewRoot->m_pParent = m_pParent;
+//         this->m_pParent = pNewRoot;
+//         if (m_pRightNode)
+//         {
+//             m_pRightNode->m_pParent = this;
+//         }
+//         //修整结束
+//         
+//         if(m_pLeftNode)
+//         {
+//             m_nodeSize += m_pLeftNode->GetTreeSize();
+//         }
+//         if (m_pRightNode)
+//         {
+//             m_nodeSize += m_pRightNode->GetTreeSize();
+//         }
+//         pNewRoot->m_nodeSize = 0;
+//         if (pNewRoot->m_pLeftNode)
+//         {
+//             pNewRoot->m_nodeSize += pNewRoot->m_pLeftNode->GetTreeSize();
+//         }
+//         if (pNewRoot->m_pRightNode)
+//         {
+//             pNewRoot->m_nodeSize += pNewRoot->m_pRightNode->GetTreeSize();
+//         }
+#ifdef _NEED_TREE_CHECK
+        pNewRoot->CheckTree();
+#endif
+        //if (pNewRoot)
         {
             if (pNewRoot->GetKey() > pNode->GetKey())
             {
@@ -1167,36 +1542,40 @@ TplNode<CItem,CKey> *TplNode<CItem,CKey>::ReleaseNode(CKey& key)
             }
 #endif
             //重整树
-            TplNode<CItem,CKey>* pNewRoot = m_pRightNode;
-            m_pRightNode    = m_pRightNode->m_pLeftNode;
-            pNewRoot->m_pLeftNode = this;
-            m_nodeSize = 0;
-            
-            //重整m_pParent
-            pNewRoot->m_pParent = m_pParent;
-            this->m_pParent = pNewRoot;
-            if (m_pRightNode)
-            {
-                m_pRightNode->m_pParent = this;
-            }
-            
-            if(m_pLeftNode)
-            {
-                m_nodeSize += m_pLeftNode->GetTreeSize();
-            }
-            if (m_pRightNode)
-            {
-                m_nodeSize += m_pRightNode->GetTreeSize();
-            }
-            pNewRoot->m_nodeSize = 0;
-            if (pNewRoot->m_pLeftNode)
-            {
-                pNewRoot->m_nodeSize += pNewRoot->m_pLeftNode->GetTreeSize();
-            }
-            if (pNewRoot->m_pRightNode)
-            {
-                pNewRoot->m_nodeSize += pNewRoot->m_pRightNode->GetTreeSize();
-            }
+            TplNode<CItem,CKey>* pNewRoot = MigrateRight2Left();
+//             TplNode<CItem,CKey>* pNewRoot = m_pRightNode;
+//             m_pRightNode    = m_pRightNode->m_pLeftNode;
+//             pNewRoot->m_pLeftNode = this;
+//             m_nodeSize = 0;
+//             
+//             //重整m_pParent
+//             pNewRoot->m_pParent = m_pParent;
+//             this->m_pParent = pNewRoot;
+//             if (m_pRightNode)
+//             {
+//                 m_pRightNode->m_pParent = this;
+//             }
+//             
+//             if(m_pLeftNode)
+//             {
+//                 m_nodeSize += m_pLeftNode->GetTreeSize();
+//             }
+//             if (m_pRightNode)
+//             {
+//                 m_nodeSize += m_pRightNode->GetTreeSize();
+//             }
+//             pNewRoot->m_nodeSize = 0;
+//             if (pNewRoot->m_pLeftNode)
+//             {
+//                 pNewRoot->m_nodeSize += pNewRoot->m_pLeftNode->GetTreeSize();
+//             }
+//             if (pNewRoot->m_pRightNode)
+//             {
+//                 pNewRoot->m_nodeSize += pNewRoot->m_pRightNode->GetTreeSize();
+//             }
+#ifdef _NEED_TREE_CHECK
+            pNewRoot->CheckTree();
+#endif
             pNewRoot = pNewRoot->ReleaseNode(key);
             #ifdef _NEED_TREE_CHECK
             pNewRoot->CheckTree();
@@ -1239,35 +1618,36 @@ TplNode<CItem,CKey> *TplNode<CItem,CKey>::ReleaseNode(CKey& key)
             }
 #endif
             //重整树
-            TplNode<CItem,CKey>* pNewRoot = m_pLeftNode;
-            m_pLeftNode    = m_pLeftNode->m_pRightNode;
-            pNewRoot->m_pRightNode = this;
-            m_nodeSize = 0;
-            //重整m_pParent
-            pNewRoot->m_pParent = m_pParent;
-            this->m_pParent = pNewRoot;
-            if (m_pLeftNode)
-            {
-                m_pLeftNode->m_pParent = this;
-            }
-            
-            if(m_pLeftNode)
-            {
-                m_nodeSize += m_pLeftNode->GetTreeSize();
-            }
-            if (m_pRightNode)
-            {
-                m_nodeSize += m_pRightNode->GetTreeSize();
-            }
-            pNewRoot->m_nodeSize = 0;
-            if (pNewRoot->m_pLeftNode)
-            {
-                pNewRoot->m_nodeSize += pNewRoot->m_pLeftNode->GetTreeSize();
-            }
-            if (pNewRoot->m_pRightNode)
-            {
-                pNewRoot->m_nodeSize += pNewRoot->m_pRightNode->GetTreeSize();
-            }
+            TplNode<CItem,CKey>* pNewRoot = MigrateLeft2Right();
+//             TplNode<CItem,CKey>* pNewRoot = m_pLeftNode;
+//             m_pLeftNode    = m_pLeftNode->m_pRightNode;
+//             pNewRoot->m_pRightNode = this;
+//             m_nodeSize = 0;
+//             //重整m_pParent
+//             pNewRoot->m_pParent = m_pParent;
+//             this->m_pParent = pNewRoot;
+//             if (m_pLeftNode)
+//             {
+//                 m_pLeftNode->m_pParent = this;
+//             }
+//             
+//             if(m_pLeftNode)
+//             {
+//                 m_nodeSize += m_pLeftNode->GetTreeSize();
+//             }
+//             if (m_pRightNode)
+//             {
+//                 m_nodeSize += m_pRightNode->GetTreeSize();
+//             }
+//             pNewRoot->m_nodeSize = 0;
+//             if (pNewRoot->m_pLeftNode)
+//             {
+//                 pNewRoot->m_nodeSize += pNewRoot->m_pLeftNode->GetTreeSize();
+//             }
+//             if (pNewRoot->m_pRightNode)
+//             {
+//                 pNewRoot->m_nodeSize += pNewRoot->m_pRightNode->GetTreeSize();
+//             }
             pNewRoot = pNewRoot->ReleaseNode(key);
             #ifdef _NEED_TREE_CHECK
             pNewRoot->CheckTree();
