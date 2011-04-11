@@ -23,8 +23,18 @@ public:
         return m_key;
     }
 };
+
+CMapTest &GetNullRef()
+{
+    CMapTest *pNullRef = NULL;
+    return *pNullRef;
+}
+
 int main()
 {
+    CMapTest &rNull = GetNullRef();
+    CMapTest *pNull = &rNull;
+    pNull->m_key = 0;
 //     IfTaskMgr *pTaskMgr = CreateTaskMgr();
 //     pTaskMgr->StartWorking(4);
 //     CExceptionParser parser;
@@ -92,7 +102,12 @@ int main()
                 //++num;
             }
         }
-        //map.CheckTree();
+        if (NUM_OF_TEST_TIME != map.GetActivedSize())
+        {
+            printf("Map size incorrect!");
+        }
+
+        map.CheckTree();
         TplNode<CMapTest,unsigned int>::Iterator it = map.Begin();
         unsigned int last = 0;
         while(!it.IsNull())

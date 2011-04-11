@@ -332,6 +332,57 @@ public:
     }
 };
 
+template <class ITEM_CLASS>
+class CArrayPoolNode : public ITEM_CLASS
+{
+public:
+    CList<CArrayPoolNode> *m_pListBelongsTo;
+
+    void InitInPoolList(CList<CArrayPoolNode> *pList)
+    {
+        m_pListBelongsTo = pList;
+    }
+};
+
+template <class ITEM_CLASS>
+class TplArrayPool
+{
+private:
+    
+    TUInt32 m_nMaxSize;
+    TUInt32 m_nUsedSize;
+    CList<CArrayPoolNode<ITEM_CLASS> >   m_tFree;
+    CListNode<CArrayPoolNode<ITEM_CLASS> > *m_pPool;
+public:
+   TUInt32 GetMaxSize()
+   {
+       return m_nMaxSize;
+   }
+    CListNode<CArrayPoolNode<ITEM_CLASS> > *GetMem()
+    {
+         CListNode<CArrayPoolNode<ITEM_CLASS> > *p = m_tFree.pop_front();
+         if (p)
+         {
+             p->m_pListBelongsTo = NULL;
+             ++m_nUsedSize;
+         }
+         return p;
+    }
+    CListNode<CArrayPoolNode<ITEM_CLASS> > *FindMem(int nIdx)
+    {
+        return m_pPool + (nIdx % m_nMaxSize);
+    }
+    void ReleaseMem(CListNode<CArrayPoolNode<ITEM_CLASS> > *pNode)
+    {
+        if (pNode->m_pListBelongsTo)
+        {
+            pNode->m_pListBelongsTo->Detach(pNode);
+        }
+        m_tFree.push_back(pNode);
+        --m_nUsedSize;
+        pNode->m_pListBelongsTo = &m_tFree;
+    }
+};
 
 template <class ITEM_CLASS>
 class ItemClassPool 
@@ -439,6 +490,10 @@ public:
             return m_pItemPool + idx;
         }
         return NULL;
+    }
+    TUInt32 GetSize()
+    {
+        return m_maxItemNum;
     }
 };
 

@@ -9,14 +9,19 @@
  Function List: 
  Histroy: 
  -------------------------------------------------------------*/
+#ifndef __ZEPHYR_SERVICE_CONTAINER_ORB_H__
+#define __ZEPHYR_SERVICE_CONTAINER_ORB_H__
 
 #include "../../Public/include/TypeDef.h"
-
+#include "../../Public/include/Clock.h"
 #include "../../Public/Interface/Platform/include/IfOrb.h"
 #include "../../Public/Interface/Platform/include/IfTask.h"
+#include "../../Public/Interface/Platform/include/IfCommunicator.h"
+#include "../../Public/tpl/include/TplPool.h"
+
 #include "Skeleton.h"
 
-
+#define MAX_SERVICE_NR 64
 
 namespace Zephyr
 {
@@ -35,19 +40,21 @@ private:
 
     TUInt16         m_nServiceNr;
     //按16位来循环使用objId
-    ItemClassPool<CSkeleton>    m_tSkeletonPool;
+    TplArrayPool<CSkeleton>    m_tSkeletonPool;
 
     const CClock * m_pClock;
     CSkeleton       *m_ppServiceSkeleton[MAX_SERVICE_NR];
+
+    //需要run的都放这里
+    CListNode<CArrayPoolNode<CSkeleton> > m_tRunning[4];
              
 public:
-    COrb(IfCommunicator *pIfCom,CDoid *pDoidBegin,TInt32 nStubNr)
+    COrb(IfCommunicator *pIfCom,CDoid *pDoidBegin,TInt32 nStubNr);
     virtual IfSkeleton* RegisterObj(IfObj *pObjSkeleton);
-    //注册特殊的ObjIdfx
-    virtual IfSkeleton* RegisterObj(IfObj *pObjSkeleton,TInt32 nObjIdx);
     //注销
     virtual void    UnRegisterObj(IfSkeleton *pStub);
 
+    //时间只能是1ms、10ms、100ms、1s四种
     virtual TInt32 RegisterRun(IfObj *pObj,TUInt32 nGapInMs);
     //时间相关
     virtual const CClock *GetClock();

@@ -25,7 +25,7 @@ class IfSkeleton
 public:
     virtual CDoid *GetMyDoid() = 0;
     //获得后自己初始化
-    virtual CMessageHeader *PrepareMsg(TInt32 bodyLength,TUInt32 methodId,CDoid srcId,CDoid* destDoid,TInt32 destDoidNum,bool bRearrangeDest)  = 0;
+    virtual CMessageHeader *PrepareMsg(TInt32 bodyLength,TUInt32 methodId,CDoid* destDoid,TInt32 destDoidNum,bool bRearrangeDest)  = 0;
     //发送消息
     virtual TInt32  SendMsg(CMessageHeader *pMsg) = 0;
 

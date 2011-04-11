@@ -564,11 +564,11 @@ private:
                     {
                         rightNodeSize = 0;
                     }
-                    if ((rightNodeSize) > ((leftNodeSize+1)<<1))
+                    if ((rightNodeSize) > ((leftNodeSize<<1)+2))
                     {
                         return (-1);
                     }
-                    if ((leftNodeSize) > ((rightNodeSize+1)<<1)) 
+                    if ((leftNodeSize) > ((rightNodeSize<<1)+2)) 
                     {
                         return 1;
                     }
@@ -599,7 +599,7 @@ private:
                     if (bRightNode)
                     {
                         /* balance = leftNodeSize - rightNodeSize;*/
-                        if ((rightNodeSize) > ((leftNodeSize+1)<<1))
+                        if ((rightNodeSize) > ((leftNodeSize<<1)+2))
                         {
                             return true;
                         }
@@ -609,7 +609,7 @@ private:
                     {
                         /* balance = rightNodeSize - leftNodeSize;*/
 
-                        if ((leftNodeSize) > ((rightNodeSize+1)<<1)) 
+                        if ((leftNodeSize) > ((rightNodeSize<<1)+2)) 
                         {
                             return true;
                         }

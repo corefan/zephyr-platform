@@ -36,7 +36,7 @@ public:
     void   OnReused(TUInt16 uStep);
     CDoid *GetMyDoid();
     //获得后自己初始化
-    virtual CMessageHeader *PrepareMsg(TInt32 bodyLength,TUInt32 methodId,CDoid srcId,CDoid* destDoid,TInt32 destDoidNum,bool bRearrangeDest) ;
+    virtual CMessageHeader *PrepareMsg(TInt32 bodyLength,TUInt32 methodId,CDoid* destDoid,TInt32 destDoidNum,bool bRearrangeDest) ;
     //发送消息
     virtual TInt32  SendMsg(CMessageHeader *pMsg);
 
