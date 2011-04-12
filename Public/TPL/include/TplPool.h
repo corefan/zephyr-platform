@@ -351,8 +351,11 @@ private:
     
     TUInt32 m_nMaxSize;
     TUInt32 m_nUsedSize;
-    CList<CArrayPoolNode<ITEM_CLASS> >   m_tFree;
+    
     CListNode<CArrayPoolNode<ITEM_CLASS> > *m_pPool;
+public:
+    //只用来判断是否为空闲
+    CList<CArrayPoolNode<ITEM_CLASS> >   m_tFree;
 public:
    TUInt32 GetMaxSize()
    {

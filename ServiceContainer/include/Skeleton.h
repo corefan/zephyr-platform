@@ -45,6 +45,10 @@ public:
     {
         return (pDoid->m_objId == m_tDoid.m_objId);
     }
+    TInt32  OnRecv(CMessageHeader *pMsg)
+    {
+        return m_pRegisteredObj->OnRecv(pMsg);
+    }
 };
 
 

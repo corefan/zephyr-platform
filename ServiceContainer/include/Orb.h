@@ -45,8 +45,9 @@ private:
     const CClock * m_pClock;
     CSkeleton       *m_ppServiceSkeleton[MAX_SERVICE_NR];
 
-    //需要run的都放这里
-    CListNode<CArrayPoolNode<CSkeleton> > m_tRunning[4];
+    //需要run的都放这里,40ms跑一次
+    TUInt32         m_nLastRunTime;
+    CList<CArrayPoolNode<CSkeleton> > m_tRunning;
              
 public:
     COrb(IfCommunicator *pIfCom,CDoid *pDoidBegin,TInt32 nStubNr);
