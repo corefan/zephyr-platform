@@ -344,6 +344,7 @@ CConnection::CConnection()
     m_pIfParser = NULL;
     m_pIfCryptor = NULL;
     m_pEventQueues = NULL;
+    m_socket = SOCKET_ERROR;
     m_pTimer = &m_uLastNetAppBlocked; //先这么着吧~
 }
 
@@ -353,13 +354,13 @@ void CConnection::CloseConnection()
     //默认成功,这儿不得不加个锁，以防应用层和网络层同时关闭socket,其实这也没啥事，closesocket是线程安全的
     //if(m_disconnectLock.TryLock())
     {
-        if (NULL != m_socket)
+        if (SOCKET_ERROR != m_socket)
         {
             TInt32 ret = closesocket(m_socket);
             //无论如何都关闭.
             //if (SUCCESS == ret)
             {
-                m_socket = NULL;
+                m_socket = SOCKET_ERROR;
                 //m_connectionState = connection_is_aborted;
             }
             m_seqNum ++;
@@ -408,6 +409,7 @@ TInt32 CConnection::OnFinal()
     m_pAppCallBack = NULL;
     m_pIfCryptor = NULL;
     m_pIfParser  = NULL;
+    m_socket = SOCKET_ERROR;
     return SUCCESS;
 }
 
