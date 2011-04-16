@@ -54,7 +54,7 @@ private:
     CConPair             m_cLoopBack;
 public:
     //taskMgr”…ServerContainer…˙≥….
-    TInt32 Init(int nrOfWorkerThread,IfTaskMgr *pTaskMgr,IfLoggerManager *pIfLogMgr,const TChar *pConfigName=szDefaultCommConfigName);
+    TInt32 Init(TInt32 nrOfWorkerThread,IfTaskMgr *pTaskMgr,IfLoggerManager *pIfLogMgr,const TChar *pConfigName=szDefaultCommConfigName);
     virtual TInt32          GetNrOfComm()
     {
         return m_nNrOfComm;

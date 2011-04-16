@@ -183,6 +183,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\source\ServiceContainerCfg.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\source\Skeleton.cpp"
 				>
 			</File>
@@ -202,6 +206,10 @@
 			</File>
 			<File
 				RelativePath=".\include\Service.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\ServiceContainerCfg.h"
 				>
 			</File>
 			<File

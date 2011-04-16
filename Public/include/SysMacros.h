@@ -146,6 +146,8 @@ const unsigned int REPLY_MSG			= 0x10000000;
 
 #define TIME_OUT (-30)
 
+#define CAN_NOT_OPEN_FILE (-31)
+
 #define MAX_IOCP_PACKET_DATA_LENGTH 1400
 
 #define SELECT_TIME_OUT (1)
