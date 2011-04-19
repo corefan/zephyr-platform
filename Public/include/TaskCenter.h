@@ -13,7 +13,7 @@
 #ifndef __ZEPHYR_TASK_CENTER_H__
 #define __ZEPHYR_TASK_CENTER_H__
 
-#include "IfTaskMgr.h"
+#include "../Interface/Platform/include/IfTaskMgr.h"
 namespace Zephyr
 {
 

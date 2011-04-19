@@ -23,7 +23,7 @@
 
 #include <Dbghelp.h>
 
-#include "IfFinalizer.h"
+#include "../../../Public/Interface/Platform/include/IfFinalizer.h"
 
 
 

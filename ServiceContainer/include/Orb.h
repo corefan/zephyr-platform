@@ -50,7 +50,7 @@ private:
     CList<CArrayPoolNode<CSkeleton> > m_tRunning;
              
 public:
-    COrb(IfCommunicator *pIfCom,CDoid *pDoidBegin,TInt32 nStubNr);
+    TInt32 Init(IfCommunicator *pIfCom,CDoid *pDoidBegin,TInt32 nStubNr);
     virtual IfSkeleton* RegisterObj(IfObj *pObjSkeleton);
     //×¢Ïú
     virtual void    UnRegisterObj(IfSkeleton *pStub);
