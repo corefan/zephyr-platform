@@ -18,10 +18,10 @@
 
 #include "../../include/SysMacros.h"
 #include "../../include/TypeDef.h"
-#ifdef _DEBUG
+
 #include <iostream>
 using namespace std;
-#endif
+
 
 
 #include "TplPool.h"
@@ -1252,7 +1252,7 @@ TplMultiKeyMapNode<CItem,CKey> *TplMultiKeyMapNode<CItem,CKey>::AddNode(TplMulti
             //             //½áÊø
             //             
 #ifdef _NEED_TREE_CHECK
-            pNewRoot->CheckTree();
+            //pNewRoot->CheckTree();
 #endif
             //             //if (pNewRoot)
 
@@ -1277,7 +1277,7 @@ TplMultiKeyMapNode<CItem,CKey> *TplMultiKeyMapNode<CItem,CKey>::AddNode(TplMulti
                 }
             }
             #ifdef _NEED_TREE_CHECK
-            pNewRoot->CheckTree();
+            //pNewRoot->CheckTree();
             #endif
             return pNewRoot;
             
@@ -1418,7 +1418,7 @@ TplMultiKeyMapNode<CItem,CKey> *TplMultiKeyMapNode<CItem,CKey>::AddNode(TplMulti
         //             pNewRoot->m_nodeSize += pNewRoot->m_pRightNode->GetTreeSize();
         //         }
 #ifdef _NEED_TREE_CHECK
-        pNewRoot->CheckTree();
+        //pNewRoot->CheckTree();
 #endif
         //if (pNewRoot)
         {
@@ -1442,7 +1442,7 @@ TplMultiKeyMapNode<CItem,CKey> *TplMultiKeyMapNode<CItem,CKey>::AddNode(TplMulti
             }
         }
         #ifdef _NEED_TREE_CHECK
-        pNewRoot->CheckTree();
+        //pNewRoot->CheckTree();
         #endif
         return pNewRoot;
         /*

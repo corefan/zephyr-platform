@@ -35,16 +35,39 @@ int main(int argc, char* argv[])
 
     //创建TaskMgr
     IfTaskMgr *pTaskMgr = CreateTaskMgr();
-
+    if (!pTaskMgr)
+    {
+        printf("Create TaskMgr failed!");
+        return OUT_OF_MEM;
+    }
 
     CExceptionParser parser;
 
     //创建LoggerMgr
     IfLoggerManager *pLogMgr = CreateLogSys(pTaskMgr);
+    if (!pLogMgr)
+    {
+        printf("Create LogMgr failed!");
+        return OUT_OF_MEM;
+    }
     //创建Comm
-    IfCommunicatorMgr *pMgr = CreateCommMgr(tRead.m_tCfg.m_nNrOfOrb,pTaskMgr,pLogMgr,&tRead.m_tCfg.m_pszCommConfigName);
+    IfCommunicatorMgr *pMgr = CreateCommMgr(tRead.m_tCfg.m_nNrOfOrb,pTaskMgr,pLogMgr,tRead.m_tCfg.m_pszCommConfigName);
+    if (pMgr)
+    {
+        printf("Create CommMgr failed!");
+        return OUT_OF_MEM;
+    }
     //创建Orb
-    COrb *pOrb = new COrb[tRead.m_tCfg.m_nNrOfOrb];
+    COrb *pOrb = NULL;
+    try 
+    {
+        pOrb = new COrb[tRead.m_tCfg.m_nNrOfOrb];
+    }
+    catch(...)
+    {
+        printf("Create Orb[%d] failed!",tRead.m_tCfg.m_nNrOfOrb);
+        return OUT_OF_MEM;
+    }
     for (int i=0;i<tRead.m_tCfg.m_nNrOfOrb;++i)
     {
         TUInt16 nSrvBegin,nSrvEnd;
@@ -56,9 +79,22 @@ int main(int argc, char* argv[])
             doid.m_srvId = nSrvBegin;
             doid.m_virtualIp = tRead.m_tCfg.m_nLocalIp;
             doid.m_nodeId    = tRead.m_tCfg.m_nLocalNodeId;
-            pOrb[i].Init(pIfComm,&doid,tRead.m_tCfg.m_pOrbs[i].m_nStubNr);
+            TInt32 nRet = pOrb[i].Init(pIfComm,&doid,tRead.m_tCfg.m_pOrbs[i].m_nStubNr);
+            if (nRet < SUCCESS)
+            {
+                printf("Orb[%d] init failed! stub nr:%d",i,tRead.m_tCfg.m_pOrbs[i].m_nStubNr);
+                return nRet;
+            }
+        }
+        else
+        {
+            printf("Get IfComm[%d] failed!",i);
+            return NULL_POINTER;
         }
     }
+    //加载ServiceMgr,这个再写好了
+
+
     //加载Service
 
     //完了

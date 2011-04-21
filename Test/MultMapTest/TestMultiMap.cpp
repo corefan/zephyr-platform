@@ -132,6 +132,7 @@ int main(int argc,char *pArgv[])
             {
                 ppStore[i]->m_nKey = n;
                 m_tMap.AddInTree(ppStore[i]);
+                m_tMap.CheckTree();
             }
             else
             {

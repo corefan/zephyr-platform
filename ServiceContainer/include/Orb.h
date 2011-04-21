@@ -38,7 +38,7 @@ private:
     //这个Orb的service从这个开始
     TUInt16         m_nLocalServiceId;
 
-    TUInt16         m_nServiceNr;
+    TUInt16         m_nLocalServiceIdEnd;
     //按16位来循环使用objId
     TplArrayPool<CSkeleton>    m_tSkeletonPool;
 
@@ -51,7 +51,11 @@ private:
              
 public:
     TInt32 Init(IfCommunicator *pIfCom,CDoid *pDoidBegin,TInt32 nStubNr);
-    virtual IfSkeleton* RegisterObj(IfObj *pObjSkeleton);
+    
+    //注册特定的Srv
+    virtual IfSkeleton* RegisterObj(IfObj *pObjSkeleton,TInt16 nSrvId);
+
+    virtual IfSkeleton* RegiterService(IfObj *pObj,TInt16 nSrvId);
     //注销
     virtual void    UnRegisterObj(IfSkeleton *pStub);
 
