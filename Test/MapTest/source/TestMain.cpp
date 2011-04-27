@@ -32,9 +32,6 @@ CMapTest &GetNullRef()
 
 int main()
 {
-    CMapTest &rNull = GetNullRef();
-    CMapTest *pNull = &rNull;
-    pNull->m_key = 0;
 //     IfTaskMgr *pTaskMgr = CreateTaskMgr();
 //     pTaskMgr->StartWorking(4);
 //     CExceptionParser parser;
