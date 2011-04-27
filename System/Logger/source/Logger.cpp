@@ -319,7 +319,7 @@ void CLogger::OnException(FILE *pDump /*= NULL*/)
     TInt32 tryTimes = 0;
     //
     printf("Exception go Sleep");
-    Sleep(100000);
+    Sleep(2000);
     
     TInt32 dataLen = m_pipe.GetDataLen();
     m_fileName[sizeof(m_fileName)-1] = '\0';

@@ -7,7 +7,6 @@ CSkeleton::CSkeleton()
 {
     m_pRegisteredObj = NULL;
     m_pIfComm = NULL;
-    m_pOrb  = NULL; //指向Orb，在注册时用
 }
 void CSkeleton::OnReused(TUInt16 uStep)
 {
@@ -31,12 +30,12 @@ TInt32 CSkeleton::SendMsg(CMessageHeader *pMsg)
 }
 
 
-void CSkeleton::Init(IfCommunicator *pIfComm,COrb *pOrb,CDoid *pDoid)
+TInt32 CSkeleton::Init(IfCommunicator *pIfComm)
 {
     m_pRegisteredObj = NULL;
     m_pIfComm = pIfComm;
-    m_pOrb = pOrb; //指向Orb，在注册时用
-    m_tDoid = *pDoid;
+    return SUCCESS;
 }
+
 
 }

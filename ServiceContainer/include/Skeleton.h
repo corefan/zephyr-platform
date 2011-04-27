@@ -29,10 +29,13 @@ private:
     
     IfObj           *m_pRegisteredObj;
     IfCommunicator  *m_pIfComm;
-    COrb            *m_pOrb; //指向Orb，在注册时用
     CDoid           m_tDoid;
 public:
     CSkeleton();
+    virtual ~CSkeleton()
+    {
+
+    }
     void   OnReused(TUInt16 uStep);
     CDoid *GetMyDoid();
     //获得后自己初始化
@@ -40,7 +43,12 @@ public:
     //发送消息
     virtual TInt32  SendMsg(CMessageHeader *pMsg);
 
-    void    Init(IfCommunicator *pIfComm,COrb *pOrb,CDoid *pDoid);
+    TInt32    Init(IfCommunicator *pIfComm);
+    
+    TInt32    OnInit(); 
+
+    void      OnFinal();
+
     TBool   IsMyMsg(CDoid *pDoid)
     {
         return (pDoid->m_objId == m_tDoid.m_objId);
