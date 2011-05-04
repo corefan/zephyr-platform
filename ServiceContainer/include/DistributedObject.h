@@ -22,7 +22,7 @@ namespace Zephyr
 
 class CObject : public IfObj
 {
-private:
+protected:
     IfSkeleton *m_pSkeleton;
     CMessageHeader *m_pCurrentMsg;
     //IfCommunicator  *m_pIfComm;
@@ -37,7 +37,7 @@ public:
     TInt32      OnInit();
     /*virtual TInt32  OnRecv(CMessageHeader *pMsg); //这些函数如果*/
 
-    //定时器到时了
+    //定时  器到时了
     virtual TInt32  OnTimer(TInt32 nTimerIdx,void *pData,TInt32 nTimeGap,TUInt32 nTimeNow)
     {
         return 0;

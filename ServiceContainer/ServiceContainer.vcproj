@@ -185,11 +185,19 @@
 				>
 			</File>
 			<File
+				RelativePath=".\source\Service.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\ServiceContainer.cpp"
 				>
 			</File>
 			<File
 				RelativePath=".\source\ServiceContainerCfg.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\source\Session.cpp"
 				>
 			</File>
 			<File
