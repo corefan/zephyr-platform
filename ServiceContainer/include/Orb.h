@@ -55,7 +55,7 @@ public:
     //注册特定的Srv
     virtual IfSkeleton* RegisterObj(IfObj *pObjSkeleton,TInt16 nSrvId);
 
-    virtual IfSkeleton* RegiterService(IfObj *pObj,TInt16 nSrvId);
+    IfSkeleton* RegiterService(IfObj *pObj,TInt16 nSrvId);
     //注销
     virtual void    UnRegisterObj(IfSkeleton *pStub);
 

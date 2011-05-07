@@ -3,11 +3,11 @@
 
 
 #include <stdio.h>
-#include "SysInc.h"
-#include "Pipe.h"
-#include "TypeDef.h"
-#include "Lock.h"
-#include "IfLogger.h"
+#include "../../include/SysInc.h"
+#include "../../../Public/include/Pipe.h"
+#include "../../../Public/include/TypeDef.h"
+#include "../../include/Lock.h"
+#include "../../../Public/Interface/Platform/include/IfLogger.h"
 
 #include <time.h>
 

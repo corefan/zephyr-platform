@@ -28,8 +28,8 @@ public:
     //注册特殊的ObjIdfx
     //注销
     virtual void    UnRegisterObj(IfSkeleton *pSkeleton) = 0;
-
-    virtual IfSkeleton* RegiterService(IfObj *pObj,TInt16 nSrvId) = 0;
+    //运行时不能再注册Service
+    //virtual IfSkeleton* RegiterService(IfObj *pObj,TInt16 nSrvId) = 0;
     //这是为Service准备的,每个comm就只能有一个.为服务器特殊设计.
     virtual TInt32 RegisterRun(IfObj *pObj,TUInt32 nGapInMs) = 0;
     //时间相关,获取一次就行了，这个不会变

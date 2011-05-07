@@ -1,10 +1,10 @@
 #ifndef __ZEPHYR_LOGGER_LOGGER_MANAGER_H__
 #define __ZEPHYR_LOGGER_LOGGER_MANAGER_H__
 #include "Logger.h"
-#include "IfFinalizer.h"
-#include "IfTask.h"
-#include "IfLoggerMgr.h"
-#include "Lock.h"
+#include "../../../Public/Interface/Platform/include/IfFinalizer.h"
+#include "../../../Public/Interface/Platform/include/IfTask.h"
+#include "../../../Public/Interface/Platform/include/IfLoggerMgr.h"
+#include "../../include/Lock.h"
 namespace Zephyr
 {
 

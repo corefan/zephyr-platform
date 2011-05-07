@@ -24,11 +24,7 @@ public:
         m_pService = pService;
     }
     
-    //只能由Service去注册.
-    void   SetSkeleton(IfSkeleton *pSkeleton)
-    {
-        m_pSkeleton = pSkeleton;
-    }
+    
 };
 
 }

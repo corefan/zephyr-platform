@@ -20,6 +20,10 @@ private:
 
 
 public:
+    TUInt16 GetServiceId()
+    {
+        return m_nServiceId;
+    }
     CService()
     {
         m_pClock = NULL;

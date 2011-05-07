@@ -15,6 +15,8 @@ TInt32 CServiceCfgRead::Read(TChar *pFileName)
         m_tCfg.m_pszCommConfigName = settings.GetString("MAIN","szCommConfigName","commConfig.ini");
         m_tCfg.m_nLocalNodeId = settings.GetInteger("MAIN","localNodeId",0);
         m_tCfg.m_nLocalIp     = settings.GetInteger("MAIN","localIp",0);
+        m_tCfg.m_nWorkerNr    = settings.GetInteger("MAIN","ThreadNr",(m_tCfg.m_nNrOfOrb+3));
+        m_tCfg.m_nCpuNr       = settings.GetInteger("MAIN","cpuNr",m_tCfg.m_nNrOfOrb);
         NEW(m_tCfg.m_pOrbs,TOrbConfig,m_tCfg.m_nNrOfOrb);
 
         if (!m_tCfg.m_pOrbs)

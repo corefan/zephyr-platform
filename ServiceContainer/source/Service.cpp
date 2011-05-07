@@ -25,11 +25,11 @@ TInt32 CService::Init(TInt32 nInitTimerNr,CClock *pClock,IfCommunicator *pIfComm
     m_pIfOrb = pOrb;
     m_nServiceId = pDoid->m_srvId;
     m_pIfComm = pIfComm;
-    m_pSkeleton = pOrb->RegiterService(this,m_nServiceId);
-    if (NULL == m_pSkeleton)
-    {
-        return OUT_OF_MEM;
-    }
+//     m_pSkeleton = pOrb->RegiterService(this,m_nServiceId);
+//     if (NULL == m_pSkeleton)
+//     {
+//         return OUT_OF_MEM;
+//     }
     return SUCCESS;
 }
 

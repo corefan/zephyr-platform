@@ -32,6 +32,11 @@ protected:
     TInt64      m_nMsgDroped;
     TInt64      m_nStartTime;
 public:
+    //只能由Service\ServiceContainer去注册.
+    void   SetSkeleton(IfSkeleton *pSkeleton)
+    {
+        m_pSkeleton = pSkeleton;
+    }
     CObject();
     TInt32 Init();
     TInt32      OnInit();
@@ -58,7 +63,7 @@ public:
     CMessageHeader *GetCurrentMsg()
     {
         return m_pCurrentMsg;
-    }
+    } 
 };
 
 }

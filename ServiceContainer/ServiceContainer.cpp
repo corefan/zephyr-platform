@@ -10,7 +10,59 @@
 #include "../Public/include/TaskCenter.h"
 #include "../System/ExceptionParser/include/ExceptionParser.h"
 #include "include/ServiceContainerCfg.h"
+#include "../System/Logger/include/LoggerManager.h"
+#include "./include/Service.h"
 using namespace Zephyr;
+
+
+
+#ifdef WIN32
+
+HMODULE LoadDynamicLib(const char * LibFileName)
+{
+    return LoadLibrary(LibFileName);
+}
+
+void ReleaseDynamicLib(HMODULE LibHandle)
+{
+    FreeLibrary(LibHandle);
+}
+
+void * GetDynamicLibFunction(HMODULE LibHandle,char * FunctionName)
+{
+    return GetProcAddress(LibHandle,FunctionName);
+}
+
+char * dlerror()
+{
+    static char ErrBuff[20];
+    sprintf(ErrBuff,"%d",GetLastError());
+    return ErrBuff;
+}
+
+#else
+
+
+void * LoadDynamicLib(const char * LibFileName)
+{
+    return dlopen(LibFileName,RTLD_NOW);
+}
+
+void ReleaseDynamicLib(void * LibHandle)
+{
+    dlclose(LibHandle);
+}
+
+void * GetDynamicLibFunction(void * LibHandle,char * FunctionName)
+{
+    return dlsym(LibHandle,FunctionName);
+}
+
+#endif
+
+
+
+
 int main(int argc, char* argv[])
 {
     //先读配置
@@ -96,7 +148,61 @@ int main(int argc, char* argv[])
 
 
     //加载Service
+    for (int i=0;i<tRead.m_tCfg.m_nNrOfOrb;++i)
+    {
+        for (int j=0;j<tRead.m_tCfg.m_pOrbs[i].m_nNrofService;++j)
+        {
+            tRead.m_tCfg.m_pOrbs[i].m_pServices->m_pPluginModuleHandle = LoadDynamicLib(tRead.m_tCfg.m_pOrbs[i].m_pServices->m_pszServiceDllName);
+            if (tRead.m_tCfg.m_pOrbs[i].m_pServices->m_pPluginModuleHandle)
+            {
 
+                tRead.m_tCfg.m_pOrbs[i].m_pServices->m_pInitFun = (SERVICE_INIT_FUN)GetDynamicLibFunction(tRead.m_tCfg.m_pOrbs[i].m_pServices->m_pPluginModuleHandle,SERVICE_INIT_FUN_NAME);
+                tRead.m_tCfg.m_pOrbs[i].m_pServices->m_pReleaseFun=(SERVICE_RELEASE_FUN)GetDynamicLibFunction(tRead.m_tCfg.m_pOrbs[i].m_pServices->m_pPluginModuleHandle,SERVICE_RELEASE_FUN_NAME);
+
+                printf("Plugin [%s] InitFun=%p ReleaseFun=%p",
+                    tRead.m_tCfg.m_pOrbs[i].m_pServices->m_pszServiceDllName,
+                    tRead.m_tCfg.m_pOrbs[i].m_pServices->m_pInitFun,
+                    tRead.m_tCfg.m_pOrbs[i].m_pServices->m_pReleaseFun);
+
+                if(tRead.m_tCfg.m_pOrbs[i].m_pServices->m_pInitFun&&tRead.m_tCfg.m_pOrbs[i].m_pServices->m_pReleaseFun)
+                {   
+                    TInt32 nRegisterSuccess = -1;
+                    CService *pService = (*(tRead.m_tCfg.m_pOrbs[i].m_pServices->m_pInitFun))(pOrb+i,pTaskMgr,pLogMgr);
+                    if(pService)
+                    {
+                        IfSkeleton *pSkeleton = pOrb[i].RegiterService(pService,pService->GetServiceId());
+                        if (pSkeleton)
+                        {
+                            pService->SetSkeleton(pSkeleton);
+                            printf("Init Plugin [%s] Succeed",tRead.m_tCfg.m_pOrbs[i].m_pServices->m_pszServiceDllName);
+                            nRegisterSuccess = pTaskMgr->AddTask(pOrb+i);
+                        }
+                    }
+                    
+                    if (nRegisterSuccess<SUCCESS)
+                    {
+                        printf("Init Plugin [%s] Failed",tRead.m_tCfg.m_pOrbs[i].m_pServices->m_pszServiceDllName);
+                        ReleaseDynamicLib(tRead.m_tCfg.m_pOrbs[i].m_pServices->m_pPluginModuleHandle);
+                        tRead.m_tCfg.m_pOrbs[i].m_pServices->m_pPluginModuleHandle = NULL;
+                    }
+                }
+                else
+                {
+                    printf("Invalid Plugin [%s]",tRead.m_tCfg.m_pOrbs[i].m_pServices->m_pszServiceDllName);
+                    ReleaseDynamicLib(tRead.m_tCfg.m_pOrbs[i].m_pServices->m_pPluginModuleHandle);
+                    tRead.m_tCfg.m_pOrbs[i].m_pServices->m_pPluginModuleHandle = NULL;
+                }
+
+
+            }
+            else
+            {
+                printf("Load DLL:%s failed!",tRead.m_tCfg.m_pOrbs[i].m_pServices->m_pszServiceDllName);
+            }
+        }
+    }
+    pTaskMgr->AddTask((CLoggerManager*)pLogMgr);
+    pTaskMgr->StartWorking(tRead.m_tCfg.m_nWorkerNr,tRead.m_tCfg.m_nCpuNr);  
     //完了
 	return 0;
 }
