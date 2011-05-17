@@ -1961,7 +1961,7 @@ TInt32 TplMap<CItem,CKey>::AddInTree(CItem* pItem)
     {
         m_pTree = pNew;
     }
-    return SUCCESS;
+    return nResutl;
 }
 
 template<class CItem, class CKey>
