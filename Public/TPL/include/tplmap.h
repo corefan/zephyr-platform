@@ -1960,6 +1960,7 @@ TInt32 TplMap<CItem,CKey>::AddInTree(CItem* pItem)
     else
     {
         m_pTree = pNew;
+        nResutl = SUCCESS;
     }
     return nResutl;
 }
