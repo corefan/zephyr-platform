@@ -175,7 +175,23 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath=".\source\baseElement.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\source\HeaderFile.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\source\InterfaceElement.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\source\main.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\source\MethodParameter.cpp"
 				>
 			</File>
 		</Filter>
