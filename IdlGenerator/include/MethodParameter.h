@@ -19,9 +19,7 @@
 namespace Zephyr
 {
 
-class CMethodParameter;
-
-class CMethodParameter
+class CMethodParameter : public CBaseElement
 {
 protected:
     
@@ -36,15 +34,17 @@ public:
     {
         return m_tParameterName;
     }
-    CMethodElement *GetMethod()
-    {
-        return m_pBelongs2;
-    }
+//     CMethodElement *GetMethod()
+//     {
+//         return m_pBelongs2;
+//     }
     int             GetIdx()
     {
         return m_nParameterIdx;
     }
     void Init(const char *pName,CBaseElement *pBaseElement, CMethodParameter *pBelongs2,int nIdx);
+
+    virtual int Process(char **ppElements,EnType *pTypes,int nProcess2,int nTotalEles) = 0;
 };
 
 }

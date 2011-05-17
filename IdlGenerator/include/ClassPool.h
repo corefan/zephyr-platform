@@ -19,7 +19,7 @@
 class CCLassPool
 {
 public:
-
+    CBaseElement *GetType(char )
 };
 
 #endif

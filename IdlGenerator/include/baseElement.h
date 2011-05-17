@@ -36,17 +36,37 @@ enum EnEleType
     en_operator_type,
 };
 
+enum EnType
+{
+    not_acceptable_type = 0,
+    enter_type          = 1,
+    divider_type        = 2,
+    operator_type       = 4,
+    alphabet_type       = 5,
+    num_type            = 6,
+};
+
 class CBaseElement
 {
 public:
     string m_szName; //
     int     m_nElmentType;
+
     string &GetKey()
     {
         return m_szName;
     }
-};
+public:
+    virtual ~CBaseElement()
+    {
 
+    }
+    //处理下一个字符组
+    virtual TInt32 Process(char **ppElements,EnType *pTypes,int nProcess2,int nTotalEles);
+
+    TInt32 IgnorType(char **ppElements,EnType *pTypes,int nProcess2,int nTotalEles,EnType eType);
+    TInt32 IgnorTypes(char **ppElements,EnType *pTypes,int nProcess2,int nTotalEles,int nrOfType,EnType eType[]);
+};
 }
 
 

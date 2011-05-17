@@ -29,6 +29,10 @@ public:
     CBaseElement *GetRetValueType();
     int           GetParameterNr();
 
+    virtual ~CBaseElement();
+    //处理下一个字符组,virtual + type + name ( type operator name , type  operator name) = 0;
+    virtual int Process(char **ppElements,int nProcess2,int nTotalEles);
+
 
 };
 

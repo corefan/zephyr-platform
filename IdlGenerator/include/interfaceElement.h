@@ -22,10 +22,36 @@ namespace Zephyr
 
 class CInterfaceElement : public CBaseElement
 {
+private:
+    
+    enum EnState
+    {
+        en_class_key_word,    //class
+        en_class_name,        //CName
+        en_class_name_risk,   //:
+        en_class_derive_virtual, //virtual 
+        en_class_derive_class_name, //CDerive 
+        en_class_right_brace,     //{
+        en_class_public_key_word,
+        en_class_public_key_risk,
+        en_class_protected_key_word,
+        en_class_protected_key_risk,
+        en_class_private_key_word,
+        en_class_private_key_risk,
+        en_class_type,
+        en_class_type_operator,
+        en_class_typeName,
+        en_class_typeName_right_bracket,
+        //º¯Êý¶¨Òå
+        en_class_typeName_semicolon,
+        en_class_friend_key_word,
+        en_class_left_brace,
+    };
 public:
-
-
-
+    //class Name {  public : method1 method2 ...} ;
+    virtual TInt32 Process(char **ppElements,EnType *pTypes,int nProcess2,int nTotalEles);
+    void OnError(int nProcess2);
+    EnState GetState(char *pAlphabets);
 };
 
 }
