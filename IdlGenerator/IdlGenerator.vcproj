@@ -190,10 +190,6 @@
 				RelativePath=".\source\main.cpp"
 				>
 			</File>
-			<File
-				RelativePath=".\source\MethodParameter.cpp"
-				>
-			</File>
 		</Filter>
 		<Filter
 			Name="include"
@@ -218,10 +214,6 @@
 			</File>
 			<File
 				RelativePath=".\include\interfaceElement.h"
-				>
-			</File>
-			<File
-				RelativePath=".\include\methodElement.h"
 				>
 			</File>
 			<File

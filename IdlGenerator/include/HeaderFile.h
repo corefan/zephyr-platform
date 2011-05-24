@@ -18,42 +18,15 @@
 
 namespace Zephyr
 {
-    
-class CHeaderFile
+
+
+class CHeaderFile : public CBaseElement
 {
 public:
-    static TplMap<CBaseElement,string> *sm_pBaseElements;
+    //static CPool<CBaseElement>                            *sm_pKeyWordsPool;
 
-    static TplMap<CBaseElement,string> *sm_pBaseKeyWords;
-    enum EnKeyWords
-    {
-        key_class       ,
-        key_namespace   ,
-        key_struct      ,
-        key_static      ,
-        key_const       ,
-        key_volatile    ,
-        key_mutable     ,
-        key_public      ,
-        key_protected   ,
-        key_private     ,
-        key_include     ,
-        key_pragma      ,
-        key_nr_define      ,
-        key_nr_ifdef       ,
-        key_nr_ifndef      ,
-        key_nr_endif       ,
-        key_nr_else        ,
-        key_while       ,
-        key_if          ,
-        key_else        ,
-        key_for         ,
-        key_break       ,
-        key_continue    ,
-        key_goto        ,
-        key_switch      ,
-        key_extern      ,
-    };
+
+    
 protected:
     CBaseElement **m_ppElements;
     char         **m_ppWords;
@@ -68,11 +41,16 @@ public:
     CHeaderFile();
     ~CHeaderFile();
     TInt32 GeneratorIdl(const char *pFileName);
+    
 private:
-    //读取文件
+    //读取文件 
     TInt32 ReadFile(const char *pFileName);
+
     //分词
     TInt32 DividIntoWords();
+
+    
+
     //第一次语法分析,确定每个词的类型
     TInt32 SyntaxCompile1st();
     //类型组合
@@ -85,8 +63,55 @@ private:
     TBool  IsOperator(char c);
     TBool  IsAlphabet(char c);
     TBool  IsNum(char c);
-    static TInt32   AddType(const char*pName);
-    static TInt32   AddKeyWords(const char *pName,EnKeyWords key);
+    TBool  IsSlashMark(char c)
+    {
+        if ('/'==c)
+        {
+            return TRUE;
+        }
+        return FALSE;
+    }
+    TBool IsBackSlash(char c)
+    {
+        if ('\\'==c)
+        {
+            return TRUE;
+        }
+        return FALSE;
+    }
+    TBool  IsStarMark(char c)
+    {
+        if ('*'==c)
+        {
+            return TRUE;
+        }
+        return FALSE;
+    }
+    TBool IsSingleQuote(char c)
+    {
+        if ('\''==c)
+        {
+            return TRUE;
+        }
+        return FALSE;
+    }
+    TBool IsQuote(char c)
+    {
+        if ('"'==c)
+        {
+            return TRUE;
+        }
+        return FALSE;
+    }
+    virtual TInt32 Process(char **ppElements,EnType *pTypes,int nProcess2,int nTotalEles);
+    virtual const char *GetHierachyName()
+    {   //什么都不需要
+        return "";
+    }
+    void RemoveAllNumLine(); //删除所有'#'
+    void RemoveAllCommentsAndMakeConstStr();
+    void RemoveAllType(EnType enType);
+    void MakeOneWords(char **ppWords,int nFrom,int nWordsNr);
 };
 
 }

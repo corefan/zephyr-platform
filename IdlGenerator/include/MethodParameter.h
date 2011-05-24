@@ -44,7 +44,7 @@ public:
     }
     void Init(const char *pName,CBaseElement *pBaseElement, CMethodParameter *pBelongs2,int nIdx);
 
-    virtual int Process(char **ppElements,EnType *pTypes,int nProcess2,int nTotalEles) = 0;
+    virtual TInt32 Process(char **ppElements,EnType *pTypes,int nProcess2,int nTotalEles);
 };
 
 }

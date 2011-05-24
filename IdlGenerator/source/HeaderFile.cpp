@@ -1,5 +1,4 @@
-#include "../include/HeaderFile.h"
-
+#include "../include/HeaderFile.h" 
 namespace Zephyr
 {
 
@@ -11,48 +10,50 @@ CHeaderFile::CHeaderFile()
     m_nNrOfWords = 0;
     m_nNrOfElements = 0;
     m_pszFile = NULL;
+
+    INIT_STATIC_POOL(CBaseElement,256);
+
     if (NULL == sm_pBaseElements)
     {
-        sm_pBaseElements = new TplMap<CBaseElement,string>;
-        CPool<TplNode<CBaseElement,string> > *pPool = new CPool<TplNode<CBaseElement,string> >;
+        sm_pBaseElements = new TplMap<TplPtPack<CBaseElement,string >,string>;
+        CPool<TplNode<TplPtPack<CBaseElement,string >,string> > *pPool = new CPool<TplNode<TplPtPack<CBaseElement,string >,string> >;
         pPool->InitPool(100);
-        sm_pBaseElements = new TplMap<CBaseElement,string>;
+        sm_pBaseElements = new TplMap<TplPtPack<CBaseElement,string >,string>;
         sm_pBaseElements->Init(pPool);
     }
     if (NULL == sm_pBaseKeyWords)
     {
-        sm_pBaseElements = new TplMap<CBaseElement,string>;
-        CPool<TplNode<CBaseElement,string> > *pPool = new CPool<TplNode<CBaseElement,string> >;
+        sm_pBaseElements = new TplMap<TplPtPack<CBaseElement,string >,string>;
+        CPool<TplNode<TplPtPack<CBaseElement,string >,string> > *pPool = new CPool<TplNode<TplPtPack<CBaseElement,string >,string> >;
         pPool->InitPool(100);
-        sm_pBaseKeyWords = new TplMap<CBaseElement,string>;
+        sm_pBaseKeyWords = new TplMap<TplPtPack<CBaseElement,string >,string>;
         sm_pBaseKeyWords->Init(pPool);
 
-        AddKeyWords("class",key_class);
-        AddKeyWords("namespace", key_namespace);
-        AddKeyWords("struct",key_struct);
-        AddKeyWords("static",key_static);
-        AddKeyWords("const",key_const );
-        AddKeyWords("volatile",key_volatile     );
-        AddKeyWords("mutable",key_mutable      );
-        AddKeyWords("public",key_public       );
-        AddKeyWords("protected",key_protected    );
-        AddKeyWords("private",key_private      );
-        AddKeyWords("include",key_include      );
-        AddKeyWords("pragma",key_pragma       );
-        AddKeyWords("nr_define",key_nr_define       );
-        AddKeyWords("nr_ifdef",key_nr_ifdef        );
-        AddKeyWords("nr_ifndef",key_nr_ifndef       );
-        AddKeyWords("nr_endif",key_nr_endif        );
-        AddKeyWords("nr_else",key_nr_else         );
-        AddKeyWords("while",key_while        );
-        AddKeyWords("if",key_if           );
-        AddKeyWords("else",key_else         );
-        AddKeyWords("for",key_for          );
-        AddKeyWords("break",key_break        );
-        AddKeyWords("continue",key_continue     );
-        AddKeyWords("goto",key_goto         );
-        AddKeyWords("switch",key_switch       );
-        AddKeyWords("extern",key_extern       );
+         AddKeyWords("class",key_class);
+         AddKeyWords("namespace", key_namespace);
+         AddKeyWords("struct",key_struct);
+         AddKeyWords("static",key_static);
+         AddKeyWords("const",key_const );
+         AddKeyWords("volatile",key_volatile     );
+         AddKeyWords("mutable",key_mutable      );
+         AddKeyWords("public",key_public       );
+         AddKeyWords("protected",key_protected    );
+         AddKeyWords("private",key_private      );
+         AddKeyWords("include",key_include      );
+         AddKeyWords("pragma",key_pragma       );
+         AddKeyWords("define",key_nr_define       );
+         AddKeyWords("ifdef",key_nr_ifdef        );
+         AddKeyWords("ifndef",key_nr_ifndef       );
+         AddKeyWords("endif",key_nr_endif        );
+         AddKeyWords("while",key_while        );
+         AddKeyWords("if",key_if           );
+         AddKeyWords("else",key_else         );
+         AddKeyWords("for",key_for          );
+         AddKeyWords("break",key_break        );
+         AddKeyWords("continue",key_continue     );
+         AddKeyWords("goto",key_goto         );
+         AddKeyWords("switch",key_switch       );
+         AddKeyWords("extern",key_extern       );
     }
 }
 
@@ -61,47 +62,30 @@ CHeaderFile::~CHeaderFile()
 
 }
 
-TplMap<CBaseElement,string> *CHeaderFile::sm_pBaseElements = NULL;
-TplMap<CBaseElement,string> *CHeaderFile::sm_pBaseKeyWords = NULL;
-
-TInt32   CHeaderFile::AddType(const char*pName)
-{
-    CBaseElement *pItem = sm_pBaseElements->PrepareItem();
-    if (pItem)
-    {
-        pItem->m_szName = pName;
-        int nRet = sm_pBaseElements->AddInTree(pItem);
-        if (nRet < SUCCESS)
-        {
-            sm_pBaseElements->ReleaseItem(pItem);
-            return nRet;
-        }
-        return SUCCESS;
-    }
-    return OUT_OF_MEM;
-}
-TInt32   CHeaderFile::AddKeyWords(const char *pName,EnKeyWords key)
-{
-    CBaseElement *pItem = sm_pBaseKeyWords->PrepareItem();
-    if (pItem)
-    {
-        pItem->m_szName = pName;
-        pItem->m_nElmentType = key;
-        int nRet = sm_pBaseKeyWords->AddInTree(pItem);
-        if (nRet < SUCCESS)
-        {
-            sm_pBaseKeyWords->ReleaseItem(pItem);
-            return nRet;
-        }
-        return SUCCESS;
-    }
-    return OUT_OF_MEM;
-}
+//CPool<CBaseElement> *CHeaderFile::sm_pKeyWordsPool = NULL;
 
 TInt32 CHeaderFile::GeneratorIdl(const char *pFileName)
 {
-    ReadFile(pFileName);
+    int nRet = ReadFile(pFileName);
+    if (nRet < SUCCESS)
+    {
+        printf("Can not open file:%s",pFileName);
+        return nRet;
+    }
     DividIntoWords();
+    nRet = Process(m_ppWords,m_pWordsTypes,0,m_nNrOfWords);
+    RemoveAllNumLine();
+    for (int i=0;i<m_nNrOfWords;++i)
+    {
+        if (enter_type == m_pWordsTypes[i])
+        {
+            printf("\n");
+        }
+        else
+        {
+            printf("@%s$",m_ppWords[i]);
+        }
+    }
     return SUCCESS;
 }
 
@@ -125,12 +109,325 @@ TInt32 CHeaderFile::ReadFile(const char *pFileName)
             }
         }
         fclose (pFile);
+        return SUCCESS;
     }
-    return SUCCESS;
+    return FAIL;
 }
+
+
+void CHeaderFile::RemoveAllType(EnType enType)
+{
+    int nCopy2 = 0;
+    for (int i=0;i<m_nNrOfWords;++i)
+    {
+        if (enType == m_pWordsTypes[i])
+        {
+            continue;
+        }
+        else
+        {
+            m_ppWords[nCopy2] = m_ppWords[i];
+            m_pWordsTypes[nCopy2] = m_pWordsTypes[i];
+            ++nCopy2;
+        }
+    }
+    m_nNrOfWords = nCopy2;
+}
+
+TInt32 CHeaderFile::Process(char **ppElements,EnType *pTypes,int nProcess2,int nTotalEles)
+{
+    //最后再处理一遍
+    RemoveAllCommentsAndMakeConstStr();
+    RemoveAllType(divider_type);
+    //IgnorType(m_ppWords,m_pWordsTypes,0,m_nNrOfWords,divider_type);
+    return 0;
+}
+
+void CHeaderFile::RemoveAllNumLine() //删除所有'#'
+{
+    enum EnTxtState
+    {
+        en_normal   = 0,
+        en_1st_num_mark_found ,
+        en_include_line ,
+        en_ifdef_line,
+        en_ifndef_line,
+        en_else_line,
+        en_endif_line,
+    };
+    EnTxtState enState= en_normal;
+    int nCopy2 = 0;
+    for (int i=0;i<m_nNrOfWords;++i)
+    {
+        switch(enState)
+        {
+        case en_normal:
+            {
+                if (operator_type==m_pWordsTypes[i])
+                {
+                    if ('#' == m_ppWords[i][0])
+                    {
+                        enState = en_1st_num_mark_found;
+                        break;
+                    }
+                }
+                m_ppWords[nCopy2] = m_ppWords[i];
+                m_pWordsTypes[nCopy2] = m_pWordsTypes[i];
+                ++nCopy2;
+            }
+            break;
+        case en_1st_num_mark_found:
+            {
+                if (alphabet_type == m_pWordsTypes[i])
+                {
+                    CBaseElement *pEle = IsKeyWords(m_ppWords[i]);
+                    if (pEle)
+                    {
+                        switch (pEle->m_nElmentType)
+                        {
+                        case key_nr_define:
+                        case key_nr_ifdef:
+                        case key_nr_ifndef:
+                        case key_nr_endif:
+                        case key_else:
+                        case key_include:
+                            {
+                                enState = en_ifndef_line;
+                            }
+                            break;
+                        }
+                        if (enState !=en_1st_num_mark_found)
+                        {
+                            break;
+                        }
+                    }
+                }
+                printf("Error, incorrect format after #");
+            }
+            break;
+        case en_ifndef_line:
+            {
+                if (enter_type == m_pWordsTypes[i])
+                {
+                    enState = en_normal;
+                }
+            }
+            break;
+        }
+    }
+    m_nNrOfWords = nCopy2;
+}
+
+void CHeaderFile::RemoveAllCommentsAndMakeConstStr()
+{
+    enum EnTxtState
+    {
+        en_normal   = 0,
+        en_1st_slash = 1, //第一个斜杠
+        en_2nd_slash = 2, //第二个斜杠
+        en_1st_start = 3, //一个斜杠后跟着的的第一个*
+        en_2nd_start = 4, //第二个*
+        en_1st_sigle_quote_mark = 5,
+        en_1st_sigle_quote_mark_back_slash_found  = 6,
+        en_1st_sigle_char_found=7,
+        en_1st_quote_mark = 8,
+    };
+    EnTxtState enState = en_normal;
+    int nCopy2 = 0;
+    int nPushed = 0;
+    for (int i=0;i<m_nNrOfWords;++i)
+    {
+        char *pElements = m_ppWords[i];
+        EnType enType = m_pWordsTypes[i];
+        switch (enState)
+        {
+        case en_normal:
+            {
+                
+                //查找第一个 /
+                if (slash_mark_type == enType)
+                {
+                    ++nPushed;
+                    enState = en_1st_slash;
+                }
+                else if(single_quotes_mark_type == enType)
+                {
+                    ++nPushed;
+                    enState = en_1st_sigle_quote_mark;
+                }
+                else if(quotes_mark_type == enType)
+                {
+                    ++nPushed;
+                    enState = en_1st_quote_mark;
+                }
+                else
+                {
+                    m_ppWords[nCopy2] = pElements;
+                    m_pWordsTypes[nCopy2] = enType;
+                    ++nCopy2;
+                }
+            }
+            break;
+        case en_1st_slash:
+            {
+                if (slash_mark_type == m_pWordsTypes[i])
+                {
+                    ++nPushed;
+                    enState = en_2nd_slash;
+                }
+                else if (star_mark_type == m_pWordsTypes[i])
+                {
+                    ++nPushed;
+                    enState = en_1st_start;
+                }
+                else
+                {
+                    enState = en_normal;
+                    //把push的偿还
+                    m_ppWords[nCopy2] = m_ppWords[i-1];
+                    m_pWordsTypes[nCopy2] = m_pWordsTypes[i-1];
+                    ++nCopy2;
+                    m_ppWords[nCopy2] = pElements;
+                    m_pWordsTypes[nCopy2] = enType;
+                    ++nCopy2;
+                    nPushed = 0;
+                }
+            }
+            break;
+        case en_2nd_slash:
+            {
+                if (enter_type == m_pWordsTypes[i])
+                {
+                    //MakeOneWords(m_ppWords,i-nPushed,nPushed+1);
+                    //m_ppWords[nCopy2] = m_ppWords[i-nPushed];
+                    //m_pWordsTypes[nCopy2] = m_pWordsTypes[i-nPushed];
+                    //++nCopy2;
+                    nPushed = 0;
+                    enState =  en_normal;
+                }
+                else
+                {
+                    ++nPushed;
+                }
+            }
+            break;
+        case en_1st_start:
+            {
+                if (star_mark_type == m_pWordsTypes[i])
+                {
+                    ++nPushed;
+                    enState = en_2nd_start;
+                }
+                else
+                {
+                    ++nPushed;
+                }
+            }
+            break;
+        case en_2nd_start:
+            {
+                if (slash_mark_type == m_pWordsTypes[i])
+                {
+                    //MakeOneWords(m_ppWords,i-nPushed,nPushed+1);
+                    //m_ppWords[nCopy2] = m_ppWords[i-nPushed];
+                    //m_pWordsTypes[nCopy2] = m_pWordsTypes[i-nPushed];
+                    //++nCopy2;
+                    nPushed = 0;
+                    enState = en_normal;
+                }
+                else if (star_mark_type == m_pWordsTypes[i])
+                {
+                    ++nPushed;
+                    enState = en_2nd_start;
+                }
+                else
+                {
+                    ++nPushed;
+                    enState = en_1st_start;
+                }
+            }
+            break;
+        case en_1st_sigle_quote_mark:
+            {
+                if (back_slash_mark_type == m_pWordsTypes[i])
+                {
+                    ++nPushed;
+                    enState = en_1st_sigle_quote_mark_back_slash_found;
+                }
+                else 
+                {
+                    ++nPushed;
+                    enState = en_1st_sigle_char_found;
+                }
+            }
+            break;            
+        case en_1st_sigle_quote_mark_back_slash_found:
+            {
+                //合并
+                ++nPushed;
+                enState = en_1st_sigle_char_found;
+            }
+            break;
+        case en_1st_sigle_char_found:
+            {
+                if (single_quotes_mark_type == m_pWordsTypes[i])
+                {
+                    MakeOneWords(m_ppWords,i-nPushed,nPushed+1);
+                    m_ppWords[nCopy2] = m_ppWords[i-nPushed];
+                    m_pWordsTypes[nCopy2] = m_pWordsTypes[i-nPushed];
+                    ++nCopy2;
+                    nPushed = 0;
+                    enState = en_normal;
+                }
+                else 
+                {
+                    printf("Error,incorrect format!");
+                    return;
+                }
+            }
+            break;
+        case en_1st_quote_mark :
+            {
+                if (quotes_mark_type == m_pWordsTypes[i])
+                {
+                    MakeOneWords(m_ppWords,i-nPushed,nPushed+1);
+                    m_ppWords[nCopy2] = m_ppWords[i-nPushed];
+                    m_pWordsTypes[nCopy2] = m_pWordsTypes[i-nPushed];
+                    ++nCopy2;
+                    nPushed = 0;
+                    enState = en_normal;
+                }
+                else
+                {
+                    ++nPushed;
+                }
+            }
+            break;
+        }
+    }
+    m_nNrOfWords = nCopy2;
+}
+
+void CHeaderFile::MakeOneWords(char **ppWords,int nFrom,int nWordsNr)
+{
+    if (nWordsNr>0)
+    {
+        --nWordsNr;
+        for (int i=1;i<nWordsNr;++i)
+        {
+            int nLen = strlen(ppWords[nFrom+i]);
+            memmove(ppWords[nFrom+i]-i,ppWords[nFrom+i],nLen);
+        }
+        int nLen = strlen(ppWords[nFrom+nWordsNr])+1;
+        memmove(ppWords[nFrom+nWordsNr]-nWordsNr,ppWords[nFrom+nWordsNr],nLen);
+    }
+}
+
+
     //分词
 TInt32 CHeaderFile::DividIntoWords()
 {
+    
     EnType cTypes[256];
     char c = 0;
     for (int i=0;i<256;++i)
@@ -154,6 +451,26 @@ TInt32 CHeaderFile::DividIntoWords()
         else if (IsNum(c))
         {
             cTypes[i] = num_type;
+        }
+        else if (IsSlashMark(c))
+        {
+            cTypes[i] = slash_mark_type;
+        }
+        else if (IsStarMark(c))
+        {
+            cTypes[i] = star_mark_type;
+        }
+        else if (IsSingleQuote(c))
+        {
+            cTypes[i] = single_quotes_mark_type;
+        }
+        else if (IsQuote(c))
+        {
+            cTypes[i] = quotes_mark_type;
+        }
+        else if (IsBackSlash(c))
+        {
+            cTypes[i] = back_slash_mark_type;
         }
         else
         {
@@ -179,11 +496,168 @@ TInt32 CHeaderFile::DividIntoWords()
         switch (nLastType)
         {
         case enter_type:
+            {
+                switch (cTypes[(unsigned int)(*pCur)])
+                {
+                case enter_type:
+                    {
+                        
+                    }
+                    break;
+                case divider_type:
+                    {
+                        memcpy(pRead2,m_pszFile+nLastWordIdx,i-nLastWordIdx);
+                        pRead2[(i-nLastWordIdx)] = 0;
+                        m_ppWords[m_nNrOfWords] = pRead2;
+
+                        m_pWordsTypes[m_nNrOfWords] = nLastType;
+                        ++m_nNrOfWords;
+                        pRead2 += ((i-nLastWordIdx)+1);
+                        nLastWordIdx = i;
+                        nLastType = divider_type;
+                    }
+                    break;
+                case operator_type:
+                    {
+                        memcpy(pRead2,m_pszFile+nLastWordIdx,i-nLastWordIdx);
+                        pRead2[(i-nLastWordIdx)] = 0;
+                        m_ppWords[m_nNrOfWords] = pRead2;
+
+                        m_pWordsTypes[m_nNrOfWords] = nLastType;
+                        ++m_nNrOfWords;
+                        pRead2 += ((i-nLastWordIdx)+1);
+                        nLastWordIdx = i;
+                        nLastType = operator_type;
+                    }
+                    break;
+                case alphabet_type:
+                    {
+                        memcpy(pRead2,m_pszFile+nLastWordIdx,i-nLastWordIdx);
+                        pRead2[(i-nLastWordIdx)] = 0;
+                        m_ppWords[m_nNrOfWords] = pRead2;
+                        m_pWordsTypes[m_nNrOfWords] = nLastType;
+                        ++m_nNrOfWords;
+                        pRead2 += ((i-nLastWordIdx)+1);
+                        nLastWordIdx = i;
+                        nLastType = alphabet_type;
+                    }
+                    break;
+                case num_type:
+                    {
+                        memcpy(pRead2,m_pszFile+nLastWordIdx,i-nLastWordIdx);
+                        pRead2[(i-nLastWordIdx)] = 0;
+                        m_ppWords[m_nNrOfWords] = pRead2;
+                        m_pWordsTypes[m_nNrOfWords] = nLastType;
+                        ++m_nNrOfWords;
+                        pRead2 += ((i-nLastWordIdx)+1);
+                        nLastWordIdx = i;
+                        nLastType = num_type;
+                    }
+                    break;
+                case slash_mark_type:
+                    {
+                        memcpy(pRead2,m_pszFile+nLastWordIdx,i-nLastWordIdx);
+                        pRead2[(i-nLastWordIdx)] = 0;
+                        m_ppWords[m_nNrOfWords] = pRead2;
+                        m_pWordsTypes[m_nNrOfWords] = nLastType;
+                        ++m_nNrOfWords;
+                        pRead2 += ((i-nLastWordIdx)+1);
+                        nLastWordIdx = i;
+                        nLastType = slash_mark_type;
+                    }
+                    break;
+                case back_slash_mark_type:
+                    {
+                        memcpy(pRead2,m_pszFile+nLastWordIdx,i-nLastWordIdx);
+                        pRead2[(i-nLastWordIdx)] = 0;
+                        m_ppWords[m_nNrOfWords] = pRead2;
+                        m_pWordsTypes[m_nNrOfWords] = nLastType;
+                        ++m_nNrOfWords;
+                        pRead2 += ((i-nLastWordIdx)+1);
+                        nLastWordIdx = i;
+                        nLastType = back_slash_mark_type;
+                    }
+                    break;
+                case star_mark_type:
+                    {
+                        memcpy(pRead2,m_pszFile+nLastWordIdx,i-nLastWordIdx);
+                        pRead2[(i-nLastWordIdx)] = 0;
+                        m_ppWords[m_nNrOfWords] = pRead2;
+                        m_pWordsTypes[m_nNrOfWords] = nLastType;
+                        ++m_nNrOfWords;
+                        pRead2 += ((i-nLastWordIdx)+1);
+                        nLastWordIdx = i;
+                        nLastType = star_mark_type;
+                    }
+                    break;
+                case single_quotes_mark_type:
+                    {
+                        memcpy(pRead2,m_pszFile+nLastWordIdx,i-nLastWordIdx);
+                        pRead2[(i-nLastWordIdx)] = 0;
+                        m_ppWords[m_nNrOfWords] = pRead2;
+                        m_pWordsTypes[m_nNrOfWords] = nLastType;
+                        ++m_nNrOfWords;
+                        pRead2 += ((i-nLastWordIdx)+1);
+                        nLastWordIdx = i;
+                        nLastType = single_quotes_mark_type;
+                    }
+                    break;
+                case quotes_mark_type:
+                    {
+                        memcpy(pRead2,m_pszFile+nLastWordIdx,i-nLastWordIdx);
+                        pRead2[(i-nLastWordIdx)] = 0;
+                        m_ppWords[m_nNrOfWords] = pRead2;
+                        m_pWordsTypes[m_nNrOfWords] = nLastType;
+                        ++m_nNrOfWords;
+                        pRead2 += ((i-nLastWordIdx)+1);
+                        nLastWordIdx = i;
+                        nLastType = quotes_mark_type;
+                    }
+                    break;
+                default:
+                    {
+                        if (((unsigned int)(*pCur))>0x80)
+                        {
+                            if (i < (m_nFileLength-1))
+                            {
+                                if (((unsigned int)m_pszFile[i+1])>0x80) //是个中文字符？！
+                                {
+                                    memcpy(pRead2,m_pszFile+nLastWordIdx,i-nLastWordIdx);
+                                    pRead2[(i-nLastWordIdx)] = 0;
+                                    m_ppWords[m_nNrOfWords] = pRead2;
+                                    m_pWordsTypes[m_nNrOfWords] = nLastType;
+                                    ++m_nNrOfWords;
+                                    pRead2 += ((i-nLastWordIdx)+1);
+                                    nLastWordIdx = i;
+                                    ++i; //再跳过一个字符
+                                    nLastType = alphabet_type;
+                                    break;
+                                }
+                            }
+                        }
+                        printf("find unacceptable char:%d",((int)m_pszFile[i]));
+                        return -1;
+                    }
+                }
+            }
+            break;
         case divider_type:
             {
                 switch (cTypes[(unsigned int)(*pCur)])
                 {
                 case enter_type:
+                    {
+                        memcpy(pRead2,m_pszFile+nLastWordIdx,i-nLastWordIdx);
+                        pRead2[(i-nLastWordIdx)] = 0;
+                        m_ppWords[m_nNrOfWords] = pRead2;
+
+                        m_pWordsTypes[m_nNrOfWords] = nLastType;
+                        ++m_nNrOfWords;
+                        pRead2 += ((i-nLastWordIdx)+1);
+                        nLastWordIdx = i;
+                        nLastType = enter_type;
+                    }
+                    break;
                 case divider_type:
                     {
                         //继续
@@ -224,6 +698,66 @@ TInt32 CHeaderFile::DividIntoWords()
                         pRead2 += ((i-nLastWordIdx)+1);
                         nLastWordIdx = i;
                         nLastType = num_type;
+                    }
+                    break;
+                case slash_mark_type:
+                    {
+                        memcpy(pRead2,m_pszFile+nLastWordIdx,i-nLastWordIdx);
+                        pRead2[(i-nLastWordIdx)] = 0;
+                        m_ppWords[m_nNrOfWords] = pRead2;
+                        m_pWordsTypes[m_nNrOfWords] = nLastType;
+                        ++m_nNrOfWords;
+                        pRead2 += ((i-nLastWordIdx)+1);
+                        nLastWordIdx = i;
+                        nLastType = slash_mark_type;
+                    }
+                    break;
+                case back_slash_mark_type:
+                    {
+                        memcpy(pRead2,m_pszFile+nLastWordIdx,i-nLastWordIdx);
+                        pRead2[(i-nLastWordIdx)] = 0;
+                        m_ppWords[m_nNrOfWords] = pRead2;
+                        m_pWordsTypes[m_nNrOfWords] = nLastType;
+                        ++m_nNrOfWords;
+                        pRead2 += ((i-nLastWordIdx)+1);
+                        nLastWordIdx = i;
+                        nLastType = back_slash_mark_type;
+                    }
+                    break;
+                case star_mark_type:
+                    {
+                        memcpy(pRead2,m_pszFile+nLastWordIdx,i-nLastWordIdx);
+                        pRead2[(i-nLastWordIdx)] = 0;
+                        m_ppWords[m_nNrOfWords] = pRead2;
+                        m_pWordsTypes[m_nNrOfWords] = nLastType;
+                        ++m_nNrOfWords;
+                        pRead2 += ((i-nLastWordIdx)+1);
+                        nLastWordIdx = i;
+                        nLastType = star_mark_type;
+                    }
+                    break;
+                case single_quotes_mark_type:
+                    {
+                        memcpy(pRead2,m_pszFile+nLastWordIdx,i-nLastWordIdx);
+                        pRead2[(i-nLastWordIdx)] = 0;
+                        m_ppWords[m_nNrOfWords] = pRead2;
+                        m_pWordsTypes[m_nNrOfWords] = nLastType;
+                        ++m_nNrOfWords;
+                        pRead2 += ((i-nLastWordIdx)+1);
+                        nLastWordIdx = i;
+                        nLastType = single_quotes_mark_type;
+                    }
+                    break;
+                case quotes_mark_type:
+                    {
+                        memcpy(pRead2,m_pszFile+nLastWordIdx,i-nLastWordIdx);
+                        pRead2[(i-nLastWordIdx)] = 0;
+                        m_ppWords[m_nNrOfWords] = pRead2;
+                        m_pWordsTypes[m_nNrOfWords] = nLastType;
+                        ++m_nNrOfWords;
+                        pRead2 += ((i-nLastWordIdx)+1);
+                        nLastWordIdx = i;
+                        nLastType = quotes_mark_type;
                     }
                     break;
                 default:
@@ -299,6 +833,66 @@ TInt32 CHeaderFile::DividIntoWords()
                         nLastType = num_type;
                     }
                     break;
+                case slash_mark_type:
+                    {
+                        memcpy(pRead2,m_pszFile+nLastWordIdx,i-nLastWordIdx);
+                        pRead2[(i-nLastWordIdx)] = 0;
+                        m_ppWords[m_nNrOfWords] = pRead2;
+                        m_pWordsTypes[m_nNrOfWords] = nLastType;
+                        ++m_nNrOfWords;
+                        pRead2 += ((i-nLastWordIdx)+1);
+                        nLastWordIdx = i;
+                        nLastType = slash_mark_type;
+                    }
+                    break;
+                case back_slash_mark_type:
+                    {
+                        memcpy(pRead2,m_pszFile+nLastWordIdx,i-nLastWordIdx);
+                        pRead2[(i-nLastWordIdx)] = 0;
+                        m_ppWords[m_nNrOfWords] = pRead2;
+                        m_pWordsTypes[m_nNrOfWords] = nLastType;
+                        ++m_nNrOfWords;
+                        pRead2 += ((i-nLastWordIdx)+1);
+                        nLastWordIdx = i;
+                        nLastType = back_slash_mark_type;
+                    }
+                    break;
+                case star_mark_type:
+                    {
+                        memcpy(pRead2,m_pszFile+nLastWordIdx,i-nLastWordIdx);
+                        pRead2[(i-nLastWordIdx)] = 0;
+                        m_ppWords[m_nNrOfWords] = pRead2;
+                        m_pWordsTypes[m_nNrOfWords] = nLastType;
+                        ++m_nNrOfWords;
+                        pRead2 += ((i-nLastWordIdx)+1);
+                        nLastWordIdx = i;
+                        nLastType = star_mark_type;
+                    }
+                    break;
+                case single_quotes_mark_type:
+                    {
+                        memcpy(pRead2,m_pszFile+nLastWordIdx,i-nLastWordIdx);
+                        pRead2[(i-nLastWordIdx)] = 0;
+                        m_ppWords[m_nNrOfWords] = pRead2;
+                        m_pWordsTypes[m_nNrOfWords] = nLastType;
+                        ++m_nNrOfWords;
+                        pRead2 += ((i-nLastWordIdx)+1);
+                        nLastWordIdx = i;
+                        nLastType = single_quotes_mark_type;
+                    }
+                    break;
+                case quotes_mark_type:
+                    {
+                        memcpy(pRead2,m_pszFile+nLastWordIdx,i-nLastWordIdx);
+                        pRead2[(i-nLastWordIdx)] = 0;
+                        m_ppWords[m_nNrOfWords] = pRead2;
+                        m_pWordsTypes[m_nNrOfWords] = nLastType;
+                        ++m_nNrOfWords;
+                        pRead2 += ((i-nLastWordIdx)+1);
+                        nLastWordIdx = i;
+                        nLastType = quotes_mark_type;
+                    }
+                    break;
                 default:
                     {
                         if (((unsigned int)(*pCur))>0x80)
@@ -365,6 +959,66 @@ TInt32 CHeaderFile::DividIntoWords()
                         //continue 
                     }
                     break;
+                case slash_mark_type:
+                    {
+                        memcpy(pRead2,m_pszFile+nLastWordIdx,i-nLastWordIdx);
+                        pRead2[(i-nLastWordIdx)] = 0;
+                        m_ppWords[m_nNrOfWords] = pRead2;
+                        m_pWordsTypes[m_nNrOfWords] = nLastType;
+                        ++m_nNrOfWords;
+                        pRead2 += ((i-nLastWordIdx)+1);
+                        nLastWordIdx = i;
+                        nLastType = slash_mark_type;
+                    }
+                    break;
+                case back_slash_mark_type:
+                    {
+                        memcpy(pRead2,m_pszFile+nLastWordIdx,i-nLastWordIdx);
+                        pRead2[(i-nLastWordIdx)] = 0;
+                        m_ppWords[m_nNrOfWords] = pRead2;
+                        m_pWordsTypes[m_nNrOfWords] = nLastType;
+                        ++m_nNrOfWords;
+                        pRead2 += ((i-nLastWordIdx)+1);
+                        nLastWordIdx = i;
+                        nLastType = back_slash_mark_type;
+                    }
+                    break;
+                case star_mark_type:
+                    {
+                        memcpy(pRead2,m_pszFile+nLastWordIdx,i-nLastWordIdx);
+                        pRead2[(i-nLastWordIdx)] = 0;
+                        m_ppWords[m_nNrOfWords] = pRead2;
+                        m_pWordsTypes[m_nNrOfWords] = nLastType;
+                        ++m_nNrOfWords;
+                        pRead2 += ((i-nLastWordIdx)+1);
+                        nLastWordIdx = i;
+                        nLastType = star_mark_type;
+                    }
+                    break;
+                case single_quotes_mark_type:
+                    {
+                        memcpy(pRead2,m_pszFile+nLastWordIdx,i-nLastWordIdx);
+                        pRead2[(i-nLastWordIdx)] = 0;
+                        m_ppWords[m_nNrOfWords] = pRead2;
+                        m_pWordsTypes[m_nNrOfWords] = nLastType;
+                        ++m_nNrOfWords;
+                        pRead2 += ((i-nLastWordIdx)+1);
+                        nLastWordIdx = i;
+                        nLastType = single_quotes_mark_type;
+                    }
+                    break;
+                case quotes_mark_type:
+                    {
+                        memcpy(pRead2,m_pszFile+nLastWordIdx,i-nLastWordIdx);
+                        pRead2[(i-nLastWordIdx)] = 0;
+                        m_ppWords[m_nNrOfWords] = pRead2;
+                        m_pWordsTypes[m_nNrOfWords] = nLastType;
+                        ++m_nNrOfWords;
+                        pRead2 += ((i-nLastWordIdx)+1);
+                        nLastWordIdx = i;
+                        nLastType = quotes_mark_type;
+                    }
+                    break;
                 default:
                     {
                         if (((unsigned int)(*pCur))>0x80)
@@ -424,6 +1078,66 @@ TInt32 CHeaderFile::DividIntoWords()
                         //继续
                     }
                     break;
+                case slash_mark_type:
+                    {
+                        memcpy(pRead2,m_pszFile+nLastWordIdx,i-nLastWordIdx);
+                        pRead2[(i-nLastWordIdx)] = 0;
+                        m_ppWords[m_nNrOfWords] = pRead2;
+                        m_pWordsTypes[m_nNrOfWords] = nLastType;
+                        ++m_nNrOfWords;
+                        pRead2 += ((i-nLastWordIdx)+1);
+                        nLastWordIdx = i;
+                        nLastType = slash_mark_type;
+                    }
+                    break;
+                case back_slash_mark_type:
+                    {
+                        memcpy(pRead2,m_pszFile+nLastWordIdx,i-nLastWordIdx);
+                        pRead2[(i-nLastWordIdx)] = 0;
+                        m_ppWords[m_nNrOfWords] = pRead2;
+                        m_pWordsTypes[m_nNrOfWords] = nLastType;
+                        ++m_nNrOfWords;
+                        pRead2 += ((i-nLastWordIdx)+1);
+                        nLastWordIdx = i;
+                        nLastType = back_slash_mark_type;
+                    }
+                    break;
+                case star_mark_type:
+                    {
+                        memcpy(pRead2,m_pszFile+nLastWordIdx,i-nLastWordIdx);
+                        pRead2[(i-nLastWordIdx)] = 0;
+                        m_ppWords[m_nNrOfWords] = pRead2;
+                        m_pWordsTypes[m_nNrOfWords] = nLastType;
+                        ++m_nNrOfWords;
+                        pRead2 += ((i-nLastWordIdx)+1);
+                        nLastWordIdx = i;
+                        nLastType = star_mark_type;
+                    }
+                    break;
+                case single_quotes_mark_type:
+                    {
+                        memcpy(pRead2,m_pszFile+nLastWordIdx,i-nLastWordIdx);
+                        pRead2[(i-nLastWordIdx)] = 0;
+                        m_ppWords[m_nNrOfWords] = pRead2;
+                        m_pWordsTypes[m_nNrOfWords] = nLastType;
+                        ++m_nNrOfWords;
+                        pRead2 += ((i-nLastWordIdx)+1);
+                        nLastWordIdx = i;
+                        nLastType = single_quotes_mark_type;
+                    }
+                    break;
+                case quotes_mark_type:
+                    {
+                        memcpy(pRead2,m_pszFile+nLastWordIdx,i-nLastWordIdx);
+                        pRead2[(i-nLastWordIdx)] = 0;
+                        m_ppWords[m_nNrOfWords] = pRead2;
+                        m_pWordsTypes[m_nNrOfWords] = nLastType;
+                        ++m_nNrOfWords;
+                        pRead2 += ((i-nLastWordIdx)+1);
+                        nLastWordIdx = i;
+                        nLastType = quotes_mark_type;
+                    }
+                    break;
                 default:
                     {
                         if (((unsigned int)(*pCur))>0x80)
@@ -444,6 +1158,776 @@ TInt32 CHeaderFile::DividIntoWords()
                 }
             }
             break;
+        case slash_mark_type:
+            {
+                switch (cTypes[(unsigned int)(*pCur)])
+                {
+                case enter_type:
+                    {
+                        memcpy(pRead2,m_pszFile+nLastWordIdx,i-nLastWordIdx);
+                        pRead2[(i-nLastWordIdx)] = 0;
+                        m_ppWords[m_nNrOfWords] = pRead2;
+
+                        m_pWordsTypes[m_nNrOfWords] = nLastType;
+                        ++m_nNrOfWords;
+                        pRead2 += ((i-nLastWordIdx)+1);
+                        nLastWordIdx = i;
+                        nLastType = enter_type;
+                    }
+                    break;
+                case divider_type:
+                    {
+                        memcpy(pRead2,m_pszFile+nLastWordIdx,i-nLastWordIdx);
+                        pRead2[(i-nLastWordIdx)] = 0;
+                        m_ppWords[m_nNrOfWords] = pRead2;
+
+                        m_pWordsTypes[m_nNrOfWords] = nLastType;
+                        ++m_nNrOfWords;
+                        pRead2 += ((i-nLastWordIdx)+1);
+                        nLastWordIdx = i;
+                        nLastType = divider_type;
+                    }
+                    break;
+                case operator_type:
+                    {
+                        memcpy(pRead2,m_pszFile+nLastWordIdx,i-nLastWordIdx);
+                        pRead2[(i-nLastWordIdx)] = 0;
+                        m_ppWords[m_nNrOfWords] = pRead2;
+
+                        m_pWordsTypes[m_nNrOfWords] = nLastType;
+                        ++m_nNrOfWords;
+                        pRead2 += ((i-nLastWordIdx)+1);
+                        nLastWordIdx = i;
+                        nLastType = operator_type;
+                    }
+                    break;
+                case alphabet_type:
+                    {
+                        memcpy(pRead2,m_pszFile+nLastWordIdx,i-nLastWordIdx);
+                        pRead2[(i-nLastWordIdx)] = 0;
+                        m_ppWords[m_nNrOfWords] = pRead2;
+                        m_pWordsTypes[m_nNrOfWords] = nLastType;
+                        ++m_nNrOfWords;
+                        pRead2 += ((i-nLastWordIdx)+1);
+                        nLastWordIdx = i;
+                        nLastType = alphabet_type;
+                    }
+                    break;
+                case num_type:
+                    {
+                        memcpy(pRead2,m_pszFile+nLastWordIdx,i-nLastWordIdx);
+                        pRead2[(i-nLastWordIdx)] = 0;
+                        m_ppWords[m_nNrOfWords] = pRead2;
+                        m_pWordsTypes[m_nNrOfWords] = nLastType;
+                        ++m_nNrOfWords;
+                        pRead2 += ((i-nLastWordIdx)+1);
+                        nLastWordIdx = i;
+                        nLastType = num_type;
+                    }
+                    break;
+                case slash_mark_type:
+                    {
+                        memcpy(pRead2,m_pszFile+nLastWordIdx,i-nLastWordIdx);
+                        pRead2[(i-nLastWordIdx)] = 0;
+                        m_ppWords[m_nNrOfWords] = pRead2;
+                        m_pWordsTypes[m_nNrOfWords] = nLastType;
+                        ++m_nNrOfWords;
+                        pRead2 += ((i-nLastWordIdx)+1);
+                        nLastWordIdx = i;
+                        nLastType = slash_mark_type;
+                    }
+                    break;
+                case back_slash_mark_type:
+                    {
+                        memcpy(pRead2,m_pszFile+nLastWordIdx,i-nLastWordIdx);
+                        pRead2[(i-nLastWordIdx)] = 0;
+                        m_ppWords[m_nNrOfWords] = pRead2;
+                        m_pWordsTypes[m_nNrOfWords] = nLastType;
+                        ++m_nNrOfWords;
+                        pRead2 += ((i-nLastWordIdx)+1);
+                        nLastWordIdx = i;
+                        nLastType = back_slash_mark_type;
+                    }
+                    break;
+                case star_mark_type:
+                    {
+                        memcpy(pRead2,m_pszFile+nLastWordIdx,i-nLastWordIdx);
+                        pRead2[(i-nLastWordIdx)] = 0;
+                        m_ppWords[m_nNrOfWords] = pRead2;
+                        m_pWordsTypes[m_nNrOfWords] = nLastType;
+                        ++m_nNrOfWords;
+                        pRead2 += ((i-nLastWordIdx)+1);
+                        nLastWordIdx = i;
+                        nLastType = star_mark_type;
+                    }
+                    break;
+                case single_quotes_mark_type:
+                    {
+                        memcpy(pRead2,m_pszFile+nLastWordIdx,i-nLastWordIdx);
+                        pRead2[(i-nLastWordIdx)] = 0;
+                        m_ppWords[m_nNrOfWords] = pRead2;
+                        m_pWordsTypes[m_nNrOfWords] = nLastType;
+                        ++m_nNrOfWords;
+                        pRead2 += ((i-nLastWordIdx)+1);
+                        nLastWordIdx = i;
+                        nLastType = single_quotes_mark_type;
+                    }
+                    break;
+                case quotes_mark_type:
+                    {
+                        memcpy(pRead2,m_pszFile+nLastWordIdx,i-nLastWordIdx);
+                        pRead2[(i-nLastWordIdx)] = 0;
+                        m_ppWords[m_nNrOfWords] = pRead2;
+                        m_pWordsTypes[m_nNrOfWords] = nLastType;
+                        ++m_nNrOfWords;
+                        pRead2 += ((i-nLastWordIdx)+1);
+                        nLastWordIdx = i;
+                        nLastType = quotes_mark_type;
+                    }
+                    break;
+                default:
+                    {
+                        if (((unsigned int)(*pCur))>0x80)
+                        {
+                            if (i < (m_nFileLength-1))
+                            {
+                                if (((unsigned int)m_pszFile[i+1])>0x80) //是个中文字符？！
+                                {
+                                    memcpy(pRead2,m_pszFile+nLastWordIdx,i-nLastWordIdx);
+                                    pRead2[(i-nLastWordIdx)] = 0;
+                                    m_ppWords[m_nNrOfWords] = pRead2;
+                                    m_pWordsTypes[m_nNrOfWords] = nLastType;
+                                    ++m_nNrOfWords;
+                                    pRead2 += ((i-nLastWordIdx)+1);
+                                    nLastWordIdx = i;
+                                    ++i; //再跳过一个字符
+                                    nLastType = alphabet_type;
+                                    break;
+                                }
+                            }
+                        }
+                        printf("find unacceptable char:%d",((int)m_pszFile[i]));
+                        return -1;
+                    }
+                }
+            }
+            break;
+        case star_mark_type:
+            {
+                switch (cTypes[(unsigned int)(*pCur)])
+                {
+                case enter_type:
+                    {
+                        memcpy(pRead2,m_pszFile+nLastWordIdx,i-nLastWordIdx);
+                        pRead2[(i-nLastWordIdx)] = 0;
+                        m_ppWords[m_nNrOfWords] = pRead2;
+
+                        m_pWordsTypes[m_nNrOfWords] = nLastType;
+                        ++m_nNrOfWords;
+                        pRead2 += ((i-nLastWordIdx)+1);
+                        nLastWordIdx = i;
+                        nLastType = enter_type;
+                    }
+                    break;
+                case divider_type:
+                    {
+                        memcpy(pRead2,m_pszFile+nLastWordIdx,i-nLastWordIdx);
+                        pRead2[(i-nLastWordIdx)] = 0;
+                        m_ppWords[m_nNrOfWords] = pRead2;
+
+                        m_pWordsTypes[m_nNrOfWords] = nLastType;
+                        ++m_nNrOfWords;
+                        pRead2 += ((i-nLastWordIdx)+1);
+                        nLastWordIdx = i;
+                        nLastType = divider_type;
+                    }
+                    break;
+                case operator_type:
+                    {
+                        memcpy(pRead2,m_pszFile+nLastWordIdx,i-nLastWordIdx);
+                        pRead2[(i-nLastWordIdx)] = 0;
+                        m_ppWords[m_nNrOfWords] = pRead2;
+
+                        m_pWordsTypes[m_nNrOfWords] = nLastType;
+                        ++m_nNrOfWords;
+                        pRead2 += ((i-nLastWordIdx)+1);
+                        nLastWordIdx = i;
+                        nLastType = operator_type;
+                    }
+                    break;
+                case alphabet_type:
+                    {
+                        memcpy(pRead2,m_pszFile+nLastWordIdx,i-nLastWordIdx);
+                        pRead2[(i-nLastWordIdx)] = 0;
+                        m_ppWords[m_nNrOfWords] = pRead2;
+                        m_pWordsTypes[m_nNrOfWords] = nLastType;
+                        ++m_nNrOfWords;
+                        pRead2 += ((i-nLastWordIdx)+1);
+                        nLastWordIdx = i;
+                        nLastType = alphabet_type;
+                    }
+                    break;
+                case num_type:
+                    {
+                        memcpy(pRead2,m_pszFile+nLastWordIdx,i-nLastWordIdx);
+                        pRead2[(i-nLastWordIdx)] = 0;
+                        m_ppWords[m_nNrOfWords] = pRead2;
+                        m_pWordsTypes[m_nNrOfWords] = nLastType;
+                        ++m_nNrOfWords;
+                        pRead2 += ((i-nLastWordIdx)+1);
+                        nLastWordIdx = i;
+                        nLastType = num_type;
+                    }
+                    break;
+                case slash_mark_type:
+                    {
+                        memcpy(pRead2,m_pszFile+nLastWordIdx,i-nLastWordIdx);
+                        pRead2[(i-nLastWordIdx)] = 0;
+                        m_ppWords[m_nNrOfWords] = pRead2;
+                        m_pWordsTypes[m_nNrOfWords] = nLastType;
+                        ++m_nNrOfWords;
+                        pRead2 += ((i-nLastWordIdx)+1);
+                        nLastWordIdx = i;
+                        nLastType = slash_mark_type;
+                    }
+                    break;
+                case back_slash_mark_type:
+                    {
+                        memcpy(pRead2,m_pszFile+nLastWordIdx,i-nLastWordIdx);
+                        pRead2[(i-nLastWordIdx)] = 0;
+                        m_ppWords[m_nNrOfWords] = pRead2;
+                        m_pWordsTypes[m_nNrOfWords] = nLastType;
+                        ++m_nNrOfWords;
+                        pRead2 += ((i-nLastWordIdx)+1);
+                        nLastWordIdx = i;
+                        nLastType = back_slash_mark_type;
+                    }
+                    break;
+                case star_mark_type:
+                    {
+                        memcpy(pRead2,m_pszFile+nLastWordIdx,i-nLastWordIdx);
+                        pRead2[(i-nLastWordIdx)] = 0;
+                        m_ppWords[m_nNrOfWords] = pRead2;
+                        m_pWordsTypes[m_nNrOfWords] = nLastType;
+                        ++m_nNrOfWords;
+                        pRead2 += ((i-nLastWordIdx)+1);
+                        nLastWordIdx = i;
+                        nLastType = star_mark_type;
+                    }
+                    break;
+                case single_quotes_mark_type:
+                    {
+                        memcpy(pRead2,m_pszFile+nLastWordIdx,i-nLastWordIdx);
+                        pRead2[(i-nLastWordIdx)] = 0;
+                        m_ppWords[m_nNrOfWords] = pRead2;
+                        m_pWordsTypes[m_nNrOfWords] = nLastType;
+                        ++m_nNrOfWords;
+                        pRead2 += ((i-nLastWordIdx)+1);
+                        nLastWordIdx = i;
+                        nLastType = single_quotes_mark_type;
+                    }
+                    break;
+                case quotes_mark_type:
+                    {
+                        memcpy(pRead2,m_pszFile+nLastWordIdx,i-nLastWordIdx);
+                        pRead2[(i-nLastWordIdx)] = 0;
+                        m_ppWords[m_nNrOfWords] = pRead2;
+                        m_pWordsTypes[m_nNrOfWords] = nLastType;
+                        ++m_nNrOfWords;
+                        pRead2 += ((i-nLastWordIdx)+1);
+                        nLastWordIdx = i;
+                        nLastType = quotes_mark_type;
+                    }
+                    break;
+                default:
+                    {
+                        if (((unsigned int)(*pCur))>0x80)
+                        {
+                            if (i < (m_nFileLength-1))
+                            {
+                                if (((unsigned int)m_pszFile[i+1])>0x80) //是个中文字符？！
+                                {
+                                    memcpy(pRead2,m_pszFile+nLastWordIdx,i-nLastWordIdx);
+                                    pRead2[(i-nLastWordIdx)] = 0;
+                                    m_ppWords[m_nNrOfWords] = pRead2;
+                                    m_pWordsTypes[m_nNrOfWords] = nLastType;
+                                    ++m_nNrOfWords;
+                                    pRead2 += ((i-nLastWordIdx)+1);
+                                    nLastWordIdx = i;
+                                    ++i; //再跳过一个字符
+                                    nLastType = alphabet_type;
+                                    break;
+                                }
+                            }
+                        }
+                        printf("find unacceptable char:%d",((int)m_pszFile[i]));
+                        return -1;
+                    }
+                }
+            }
+            break;
+        case single_quotes_mark_type:
+            {
+                switch (cTypes[(unsigned int)(*pCur)])
+                {
+                case enter_type:
+                    {
+                        memcpy(pRead2,m_pszFile+nLastWordIdx,i-nLastWordIdx);
+                        pRead2[(i-nLastWordIdx)] = 0;
+                        m_ppWords[m_nNrOfWords] = pRead2;
+
+                        m_pWordsTypes[m_nNrOfWords] = nLastType;
+                        ++m_nNrOfWords;
+                        pRead2 += ((i-nLastWordIdx)+1);
+                        nLastWordIdx = i;
+                        nLastType = enter_type;
+                    }
+                    break;
+                case divider_type:
+                    {
+                        memcpy(pRead2,m_pszFile+nLastWordIdx,i-nLastWordIdx);
+                        pRead2[(i-nLastWordIdx)] = 0;
+                        m_ppWords[m_nNrOfWords] = pRead2;
+
+                        m_pWordsTypes[m_nNrOfWords] = nLastType;
+                        ++m_nNrOfWords;
+                        pRead2 += ((i-nLastWordIdx)+1);
+                        nLastWordIdx = i;
+                        nLastType = divider_type;
+                    }
+                    break;
+                case operator_type:
+                    {
+                        memcpy(pRead2,m_pszFile+nLastWordIdx,i-nLastWordIdx);
+                        pRead2[(i-nLastWordIdx)] = 0;
+                        m_ppWords[m_nNrOfWords] = pRead2;
+
+                        m_pWordsTypes[m_nNrOfWords] = nLastType;
+                        ++m_nNrOfWords;
+                        pRead2 += ((i-nLastWordIdx)+1);
+                        nLastWordIdx = i;
+                        nLastType = operator_type;
+                    }
+                    break;
+                case alphabet_type:
+                    {
+                        memcpy(pRead2,m_pszFile+nLastWordIdx,i-nLastWordIdx);
+                        pRead2[(i-nLastWordIdx)] = 0;
+                        m_ppWords[m_nNrOfWords] = pRead2;
+                        m_pWordsTypes[m_nNrOfWords] = nLastType;
+                        ++m_nNrOfWords;
+                        pRead2 += ((i-nLastWordIdx)+1);
+                        nLastWordIdx = i;
+                        nLastType = alphabet_type;
+                    }
+                    break;
+                case num_type:
+                    {
+                        memcpy(pRead2,m_pszFile+nLastWordIdx,i-nLastWordIdx);
+                        pRead2[(i-nLastWordIdx)] = 0;
+                        m_ppWords[m_nNrOfWords] = pRead2;
+                        m_pWordsTypes[m_nNrOfWords] = nLastType;
+                        ++m_nNrOfWords;
+                        pRead2 += ((i-nLastWordIdx)+1);
+                        nLastWordIdx = i;
+                        nLastType = num_type;
+                    }
+                    break;
+                case slash_mark_type:
+                    {
+                        memcpy(pRead2,m_pszFile+nLastWordIdx,i-nLastWordIdx);
+                        pRead2[(i-nLastWordIdx)] = 0;
+                        m_ppWords[m_nNrOfWords] = pRead2;
+                        m_pWordsTypes[m_nNrOfWords] = nLastType;
+                        ++m_nNrOfWords;
+                        pRead2 += ((i-nLastWordIdx)+1);
+                        nLastWordIdx = i;
+                        nLastType = slash_mark_type;
+                    }
+                    break;
+                case back_slash_mark_type:
+                    {
+                        memcpy(pRead2,m_pszFile+nLastWordIdx,i-nLastWordIdx);
+                        pRead2[(i-nLastWordIdx)] = 0;
+                        m_ppWords[m_nNrOfWords] = pRead2;
+                        m_pWordsTypes[m_nNrOfWords] = nLastType;
+                        ++m_nNrOfWords;
+                        pRead2 += ((i-nLastWordIdx)+1);
+                        nLastWordIdx = i;
+                        nLastType = back_slash_mark_type;
+                    }
+                    break;
+                case star_mark_type:
+                    {
+                        memcpy(pRead2,m_pszFile+nLastWordIdx,i-nLastWordIdx);
+                        pRead2[(i-nLastWordIdx)] = 0;
+                        m_ppWords[m_nNrOfWords] = pRead2;
+                        m_pWordsTypes[m_nNrOfWords] = nLastType;
+                        ++m_nNrOfWords;
+                        pRead2 += ((i-nLastWordIdx)+1);
+                        nLastWordIdx = i;
+                        nLastType = star_mark_type;
+                    }
+                    break;
+                case single_quotes_mark_type:
+                    {
+                        memcpy(pRead2,m_pszFile+nLastWordIdx,i-nLastWordIdx);
+                        pRead2[(i-nLastWordIdx)] = 0;
+                        m_ppWords[m_nNrOfWords] = pRead2;
+                        m_pWordsTypes[m_nNrOfWords] = nLastType;
+                        ++m_nNrOfWords;
+                        pRead2 += ((i-nLastWordIdx)+1);
+                        nLastWordIdx = i;
+                        nLastType = single_quotes_mark_type;
+                    }
+                    break;
+                case quotes_mark_type:
+                    {
+                        memcpy(pRead2,m_pszFile+nLastWordIdx,i-nLastWordIdx);
+                        pRead2[(i-nLastWordIdx)] = 0;
+                        m_ppWords[m_nNrOfWords] = pRead2;
+                        m_pWordsTypes[m_nNrOfWords] = nLastType;
+                        ++m_nNrOfWords;
+                        pRead2 += ((i-nLastWordIdx)+1);
+                        nLastWordIdx = i;
+                        nLastType = quotes_mark_type;
+                    }
+                    break;
+                default:
+                    {
+                        if (((unsigned int)(*pCur))>0x80)
+                        {
+                            if (i < (m_nFileLength-1))
+                            {
+                                if (((unsigned int)m_pszFile[i+1])>0x80) //是个中文字符？！
+                                {
+                                    memcpy(pRead2,m_pszFile+nLastWordIdx,i-nLastWordIdx);
+                                    pRead2[(i-nLastWordIdx)] = 0;
+                                    m_ppWords[m_nNrOfWords] = pRead2;
+                                    m_pWordsTypes[m_nNrOfWords] = nLastType;
+                                    ++m_nNrOfWords;
+                                    pRead2 += ((i-nLastWordIdx)+1);
+                                    nLastWordIdx = i;
+                                    ++i; //再跳过一个字符
+                                    nLastType = alphabet_type;
+                                    break;
+                                }
+                            }
+                        }
+                        printf("find unacceptable char:%d",((int)m_pszFile[i]));
+                        return -1;
+                    }
+                }
+            }
+            break;
+        case quotes_mark_type:
+            {
+                switch (cTypes[(unsigned int)(*pCur)])
+                {
+                case enter_type:
+                    {
+                        memcpy(pRead2,m_pszFile+nLastWordIdx,i-nLastWordIdx);
+                        pRead2[(i-nLastWordIdx)] = 0;
+                        m_ppWords[m_nNrOfWords] = pRead2;
+
+                        m_pWordsTypes[m_nNrOfWords] = nLastType;
+                        ++m_nNrOfWords;
+                        pRead2 += ((i-nLastWordIdx)+1);
+                        nLastWordIdx = i;
+                        nLastType = enter_type;
+                    }
+                    break;
+                case divider_type:
+                    {
+                        memcpy(pRead2,m_pszFile+nLastWordIdx,i-nLastWordIdx);
+                        pRead2[(i-nLastWordIdx)] = 0;
+                        m_ppWords[m_nNrOfWords] = pRead2;
+
+                        m_pWordsTypes[m_nNrOfWords] = nLastType;
+                        ++m_nNrOfWords;
+                        pRead2 += ((i-nLastWordIdx)+1);
+                        nLastWordIdx = i;
+                        nLastType = divider_type;
+                    }
+                    break;
+                case operator_type:
+                    {
+                        memcpy(pRead2,m_pszFile+nLastWordIdx,i-nLastWordIdx);
+                        pRead2[(i-nLastWordIdx)] = 0;
+                        m_ppWords[m_nNrOfWords] = pRead2;
+
+                        m_pWordsTypes[m_nNrOfWords] = nLastType;
+                        ++m_nNrOfWords;
+                        pRead2 += ((i-nLastWordIdx)+1);
+                        nLastWordIdx = i;
+                        nLastType = operator_type;
+                    }
+                    break;
+                case alphabet_type:
+                    {
+                        memcpy(pRead2,m_pszFile+nLastWordIdx,i-nLastWordIdx);
+                        pRead2[(i-nLastWordIdx)] = 0;
+                        m_ppWords[m_nNrOfWords] = pRead2;
+                        m_pWordsTypes[m_nNrOfWords] = nLastType;
+                        ++m_nNrOfWords;
+                        pRead2 += ((i-nLastWordIdx)+1);
+                        nLastWordIdx = i;
+                        nLastType = alphabet_type;
+                    }
+                    break;
+                case num_type:
+                    {
+                        memcpy(pRead2,m_pszFile+nLastWordIdx,i-nLastWordIdx);
+                        pRead2[(i-nLastWordIdx)] = 0;
+                        m_ppWords[m_nNrOfWords] = pRead2;
+                        m_pWordsTypes[m_nNrOfWords] = nLastType;
+                        ++m_nNrOfWords;
+                        pRead2 += ((i-nLastWordIdx)+1);
+                        nLastWordIdx = i;
+                        nLastType = num_type;
+                    }
+                    break;
+                case slash_mark_type:
+                    {
+                        memcpy(pRead2,m_pszFile+nLastWordIdx,i-nLastWordIdx);
+                        pRead2[(i-nLastWordIdx)] = 0;
+                        m_ppWords[m_nNrOfWords] = pRead2;
+                        m_pWordsTypes[m_nNrOfWords] = nLastType;
+                        ++m_nNrOfWords;
+                        pRead2 += ((i-nLastWordIdx)+1);
+                        nLastWordIdx = i;
+                        nLastType = slash_mark_type;
+                    }
+                    break;
+                case back_slash_mark_type:
+                    {
+                        memcpy(pRead2,m_pszFile+nLastWordIdx,i-nLastWordIdx);
+                        pRead2[(i-nLastWordIdx)] = 0;
+                        m_ppWords[m_nNrOfWords] = pRead2;
+                        m_pWordsTypes[m_nNrOfWords] = nLastType;
+                        ++m_nNrOfWords;
+                        pRead2 += ((i-nLastWordIdx)+1);
+                        nLastWordIdx = i;
+                        nLastType = back_slash_mark_type;
+                    }
+                    break;
+                case star_mark_type:
+                    {
+                        memcpy(pRead2,m_pszFile+nLastWordIdx,i-nLastWordIdx);
+                        pRead2[(i-nLastWordIdx)] = 0;
+                        m_ppWords[m_nNrOfWords] = pRead2;
+                        m_pWordsTypes[m_nNrOfWords] = nLastType;
+                        ++m_nNrOfWords;
+                        pRead2 += ((i-nLastWordIdx)+1);
+                        nLastWordIdx = i;
+                        nLastType = star_mark_type;
+                    }
+                    break;
+                case single_quotes_mark_type:
+                    {
+                        memcpy(pRead2,m_pszFile+nLastWordIdx,i-nLastWordIdx);
+                        pRead2[(i-nLastWordIdx)] = 0;
+                        m_ppWords[m_nNrOfWords] = pRead2;
+                        m_pWordsTypes[m_nNrOfWords] = nLastType;
+                        ++m_nNrOfWords;
+                        pRead2 += ((i-nLastWordIdx)+1);
+                        nLastWordIdx = i;
+                        nLastType = single_quotes_mark_type;
+                    }
+                    break;
+                case quotes_mark_type:
+                    {
+                        memcpy(pRead2,m_pszFile+nLastWordIdx,i-nLastWordIdx);
+                        pRead2[(i-nLastWordIdx)] = 0;
+                        m_ppWords[m_nNrOfWords] = pRead2;
+                        m_pWordsTypes[m_nNrOfWords] = nLastType;
+                        ++m_nNrOfWords;
+                        pRead2 += ((i-nLastWordIdx)+1);
+                        nLastWordIdx = i;
+                        nLastType = quotes_mark_type;
+                    }
+                    break;
+                default:
+                    {
+                        if (((unsigned int)(*pCur))>0x80)
+                        {
+                            if (i < (m_nFileLength-1))
+                            {
+                                if (((unsigned int)m_pszFile[i+1])>0x80) //是个中文字符？！
+                                {
+                                    memcpy(pRead2,m_pszFile+nLastWordIdx,i-nLastWordIdx);
+                                    pRead2[(i-nLastWordIdx)] = 0;
+                                    m_ppWords[m_nNrOfWords] = pRead2;
+                                    m_pWordsTypes[m_nNrOfWords] = nLastType;
+                                    ++m_nNrOfWords;
+                                    pRead2 += ((i-nLastWordIdx)+1);
+                                    nLastWordIdx = i;
+                                    ++i; //再跳过一个字符
+                                    nLastType = alphabet_type;
+                                    break;
+                                }
+                            }
+                        }
+                        printf("find unacceptable char:%d",((int)m_pszFile[i]));
+                        return -1;
+                    }
+                }
+            }
+            break;
+        case back_slash_mark_type:
+            {
+                switch (cTypes[(unsigned int)(*pCur)])
+                {
+                case enter_type:
+                    {
+                        memcpy(pRead2,m_pszFile+nLastWordIdx,i-nLastWordIdx);
+                        pRead2[(i-nLastWordIdx)] = 0;
+                        m_ppWords[m_nNrOfWords] = pRead2;
+
+                        m_pWordsTypes[m_nNrOfWords] = nLastType;
+                        ++m_nNrOfWords;
+                        pRead2 += ((i-nLastWordIdx)+1);
+                        nLastWordIdx = i;
+                        nLastType = enter_type;
+                    }
+                    break;
+                case divider_type:
+                    {
+                        memcpy(pRead2,m_pszFile+nLastWordIdx,i-nLastWordIdx);
+                        pRead2[(i-nLastWordIdx)] = 0;
+                        m_ppWords[m_nNrOfWords] = pRead2;
+
+                        m_pWordsTypes[m_nNrOfWords] = nLastType;
+                        ++m_nNrOfWords;
+                        pRead2 += ((i-nLastWordIdx)+1);
+                        nLastWordIdx = i;
+                        nLastType = divider_type;
+                    }
+                    break;
+                case operator_type:
+                    {
+                        memcpy(pRead2,m_pszFile+nLastWordIdx,i-nLastWordIdx);
+                        pRead2[(i-nLastWordIdx)] = 0;
+                        m_ppWords[m_nNrOfWords] = pRead2;
+
+                        m_pWordsTypes[m_nNrOfWords] = nLastType;
+                        ++m_nNrOfWords;
+                        pRead2 += ((i-nLastWordIdx)+1);
+                        nLastWordIdx = i;
+                        nLastType = operator_type;
+                    }
+                    break;
+                case alphabet_type:
+                    {
+                        memcpy(pRead2,m_pszFile+nLastWordIdx,i-nLastWordIdx);
+                        pRead2[(i-nLastWordIdx)] = 0;
+                        m_ppWords[m_nNrOfWords] = pRead2;
+                        m_pWordsTypes[m_nNrOfWords] = nLastType;
+                        ++m_nNrOfWords;
+                        pRead2 += ((i-nLastWordIdx)+1);
+                        nLastWordIdx = i;
+                        nLastType = alphabet_type;
+                    }
+                    break;
+                case num_type:
+                    {
+                        memcpy(pRead2,m_pszFile+nLastWordIdx,i-nLastWordIdx);
+                        pRead2[(i-nLastWordIdx)] = 0;
+                        m_ppWords[m_nNrOfWords] = pRead2;
+                        m_pWordsTypes[m_nNrOfWords] = nLastType;
+                        ++m_nNrOfWords;
+                        pRead2 += ((i-nLastWordIdx)+1);
+                        nLastWordIdx = i;
+                        nLastType = num_type;
+                    }
+                    break;
+                case slash_mark_type:
+                    {
+                        memcpy(pRead2,m_pszFile+nLastWordIdx,i-nLastWordIdx);
+                        pRead2[(i-nLastWordIdx)] = 0;
+                        m_ppWords[m_nNrOfWords] = pRead2;
+                        m_pWordsTypes[m_nNrOfWords] = nLastType;
+                        ++m_nNrOfWords;
+                        pRead2 += ((i-nLastWordIdx)+1);
+                        nLastWordIdx = i;
+                        nLastType = slash_mark_type;
+                    }
+                    break;
+                case back_slash_mark_type:
+                    {
+                        memcpy(pRead2,m_pszFile+nLastWordIdx,i-nLastWordIdx);
+                        pRead2[(i-nLastWordIdx)] = 0;
+                        m_ppWords[m_nNrOfWords] = pRead2;
+                        m_pWordsTypes[m_nNrOfWords] = nLastType;
+                        ++m_nNrOfWords;
+                        pRead2 += ((i-nLastWordIdx)+1);
+                        nLastWordIdx = i;
+                        nLastType = back_slash_mark_type;
+                    }
+                    break;
+                case star_mark_type:
+                    {
+                        memcpy(pRead2,m_pszFile+nLastWordIdx,i-nLastWordIdx);
+                        pRead2[(i-nLastWordIdx)] = 0;
+                        m_ppWords[m_nNrOfWords] = pRead2;
+                        m_pWordsTypes[m_nNrOfWords] = nLastType;
+                        ++m_nNrOfWords;
+                        pRead2 += ((i-nLastWordIdx)+1);
+                        nLastWordIdx = i;
+                        nLastType = star_mark_type;
+                    }
+                    break;
+                case single_quotes_mark_type:
+                    {
+                        memcpy(pRead2,m_pszFile+nLastWordIdx,i-nLastWordIdx);
+                        pRead2[(i-nLastWordIdx)] = 0;
+                        m_ppWords[m_nNrOfWords] = pRead2;
+                        m_pWordsTypes[m_nNrOfWords] = nLastType;
+                        ++m_nNrOfWords;
+                        pRead2 += ((i-nLastWordIdx)+1);
+                        nLastWordIdx = i;
+                        nLastType = single_quotes_mark_type;
+                    }
+                    break;
+                case quotes_mark_type:
+                    {
+                        memcpy(pRead2,m_pszFile+nLastWordIdx,i-nLastWordIdx);
+                        pRead2[(i-nLastWordIdx)] = 0;
+                        m_ppWords[m_nNrOfWords] = pRead2;
+                        m_pWordsTypes[m_nNrOfWords] = nLastType;
+                        ++m_nNrOfWords;
+                        pRead2 += ((i-nLastWordIdx)+1);
+                        nLastWordIdx = i;
+                        nLastType = quotes_mark_type;
+                    }
+                    break;
+                default:
+                    {
+                        if (((unsigned int)(*pCur))>0x80)
+                        {
+                            if (i < (m_nFileLength-1))
+                            {
+                                if (((unsigned int)m_pszFile[i+1])>0x80) //是个中文字符？！
+                                {
+                                    memcpy(pRead2,m_pszFile+nLastWordIdx,i-nLastWordIdx);
+                                    pRead2[(i-nLastWordIdx)] = 0;
+                                    m_ppWords[m_nNrOfWords] = pRead2;
+                                    m_pWordsTypes[m_nNrOfWords] = nLastType;
+                                    ++m_nNrOfWords;
+                                    pRead2 += ((i-nLastWordIdx)+1);
+                                    nLastWordIdx = i;
+                                    ++i; //再跳过一个字符
+                                    nLastType = alphabet_type;
+                                    break;
+                                }
+                            }
+                        }
+                        printf("find unacceptable char:%d",((int)m_pszFile[i]));
+                        return -1;
+                    }
+                }
+            }
+            break;
         default:
             {
                 printf("Find incoorect type!");
@@ -451,10 +1935,18 @@ TInt32 CHeaderFile::DividIntoWords()
             }
         }
     }
-    for (int i=0;i<m_nNrOfWords;++i)
-    {
-        printf("%s ",m_ppWords[i]);
-    }
+    //RemoveType(divider_type);
+//     for (int i=0;i<m_nNrOfWords;++i)
+//     {
+//         if (enter_type == m_pWordsTypes[i])
+//         {
+//             printf("\n");
+//         }
+//         else
+//         {
+//             printf("@%s$",m_ppWords[i]);
+//         }
+//     }
     return SUCCESS;
 }
 
@@ -493,21 +1985,6 @@ TBool CHeaderFile::IsOperator(char c)
     switch(c)
     {
     case ';':
-        {
-
-        }
-        break;
-        case '\'':
-        {
-
-        }
-        break;
-    case '\"':
-        {
-
-        }
-        break;
-    case '*':
         {
 
         }
@@ -569,16 +2046,6 @@ TBool CHeaderFile::IsOperator(char c)
     case '#':
         {
 
-        }
-        break;
-    case '\\':
-        {
-
-        }
-        break;
-    case '/':
-        {
-            
         }
         break;
     case ',':

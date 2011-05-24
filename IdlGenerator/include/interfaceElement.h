@@ -16,14 +16,17 @@
 #include "baseElement.h"
 
 
-
+class CHeaderFile;
 namespace Zephyr
 {
 
 class CInterfaceElement : public CBaseElement
 {
+public:
+    DECLARE_STATIC_CLASS_POOL(CInterfaceElement);
 private:
-    
+    CHeaderFile *m_pOwner;
+
     enum EnState
     {
         en_class_key_word,    //class
@@ -50,6 +53,7 @@ private:
 public:
     //class Name {  public : method1 method2 ...} ;
     virtual TInt32 Process(char **ppElements,EnType *pTypes,int nProcess2,int nTotalEles);
+    virtual const char *GetHierachyName(void);
     void OnError(int nProcess2);
     EnState GetState(char *pAlphabets);
 };

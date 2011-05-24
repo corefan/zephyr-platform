@@ -503,5 +503,25 @@ public:
 
 }
 
+#define DECLARE_STATIC_CLASS_POOL(CLASS_NAME) \
+    static CPool<CLASS_NAME>  sm_tPool; \
+    static TInt32 InitPool(TInt32 nPoolSize);
+
+#define IMPLEMENT_STATIC_CLASS_POOL(CLASS_NAME) \
+    CPool<CLASS_NAME>  CLASS_NAME::sm_tPool; \
+    TInt32 CLASS_NAME::InitPool(TInt32 nPoolSize) \
+    { \
+         return sm_tPool.InitPool(nPoolSize); \
+    }
+
+#define INIT_STATIC_POOL(CLASS_NAME,N_SIZE) CLASS_NAME::InitPool(N_SIZE);
+
+#define CREATE_FROM_STATIC_POOL(CLASS_NAME) \
+    CLASS_NAME::sm_tPool.GetMem();
+
+#define RELEASE_INTO_STATIC_POOL(CLASS_NAME,PT) \
+CLASS_NAME::sm_tPool.ReleaseMem(PT); \
+PT = NULL;
+
 
 #endif
