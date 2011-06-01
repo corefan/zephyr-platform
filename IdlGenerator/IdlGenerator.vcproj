@@ -190,6 +190,10 @@
 				RelativePath=".\source\main.cpp"
 				>
 			</File>
+			<File
+				RelativePath=".\include\namespace.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="include"
@@ -205,10 +209,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\include\dividerElement.h"
-				>
-			</File>
-			<File
 				RelativePath=".\include\HeaderFile.h"
 				>
 			</File>
@@ -217,7 +217,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\include\MethodParameter.h"
+				RelativePath=".\include\Method.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\nameSpace.h"
 				>
 			</File>
 		</Filter>

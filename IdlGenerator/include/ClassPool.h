@@ -1,10 +1,10 @@
 /*-------------------------------------------------------------
  Copyright (C)| 
- File: methodParamterElement.h
+ File: ClassPool.h
  Author: Zephyr Shannon
  Date: 2010-3-2 10:31:50
  Version: 
- Description: 编译使用的接口类
+ Description: 所有类的池
  Others: 
  Function List: 
  Histroy: 

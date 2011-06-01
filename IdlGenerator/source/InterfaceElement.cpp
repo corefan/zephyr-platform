@@ -29,28 +29,26 @@ TInt32 CInterfaceElement::Process(char **ppElements,EnType *pTypes,int nProcess2
         EnState   m_enType;
     };
     vector<char*> pHeap;
+    int nOld = nProcess2;
     while (nProcess2 < nTotalEles)
     {
         //忽律所有
-
-        int nRet = IgnorType(ppElements,pTypes,nProcess2,nTotalEles,divider_type);
-        nProcess2 += nRet;
         switch (enLastState)
         {
         case en_class_key_word:
             {
                 if (pTypes[nProcess2] == alphabet_type)
                 {
-                    m_szName.clear();
-                    if (m_pFather)
-                    {
-                        const char *pFathersName = m_pFather->GetName();
-                        if (pFathersName)
-                        {
-                            m_szName = pFathersName;
-                        }
-                    }
-                    m_szName += ppElements[nProcess2];
+//                     m_szName.clear();
+//                     if (m_pFather)
+//                     {
+//                         const char *pFathersName = m_pFather->GetName();
+//                         if (pFathersName)
+//                         {
+//                             m_szName = pFathersName;
+//                         }
+//                     }
+                    m_szName = ppElements[nProcess2];
                     enLastState = en_class_name;
                     ++nProcess2;
                 }
@@ -73,10 +71,6 @@ TInt32 CInterfaceElement::Process(char **ppElements,EnType *pTypes,int nProcess2
                     }
                     else
                     {
-                        
-                        int nRet = IgnorTypes(ppElements,pTypes,nProcess2,nTotalEles,2,enterAndDividerTypes);
-                        nProcess2 += nRet;
-                        
                         if (pTypes[nProcess2] == operator_type)
                         {
                             if (ppElements[nProcess2][0] == ';') //只是个声明
@@ -121,9 +115,28 @@ TInt32 CInterfaceElement::Process(char **ppElements,EnType *pTypes,int nProcess2
                     }
                     else
                     {
-                        //derived class
-                        enLastState = en_class_derive_class_name;
-                        ++nProcess2;
+                        if (0 == strcmp("public",ppElements[nProcess2]))
+                        {
+                            ++nProcess2;
+                        }
+                        else if (0 == strcmp("protected",ppElements[nProcess2]))
+                        {
+                            ++nProcess2;
+                        }
+                        else if (0 == strcmp("private",ppElements[nProcess2]))
+                        {
+                            ++nProcess2;
+                        }
+                        if (pTypes[nProcess2] == alphabet_type)
+                        {
+                            enLastState = en_class_derive_class_name; //去掉名字
+                            ++nProcess2;
+                        }
+                        else
+                        {
+                            printf("Incorrect line, a class name expected");
+                            return -1;
+                        }
                     }
                 }
                 else
@@ -149,8 +162,6 @@ TInt32 CInterfaceElement::Process(char **ppElements,EnType *pTypes,int nProcess2
             break;
         case         en_class_derive_class_name: //CDerive 
             {
-                int nRet = IgnorTypes(ppElements,pTypes,nProcess2,nTotalEles,2,enterAndDividerTypes);
-                nProcess2 += nRet;
                 if (operator_type == pTypes[nProcess2])
                 {
                     if (ppElements[nProcess2][0] == '{')
@@ -168,8 +179,8 @@ TInt32 CInterfaceElement::Process(char **ppElements,EnType *pTypes,int nProcess2
             break;
         case         en_class_right_brace:     //{ 这个时候需要的是一个type类型，或者 virtual \ pubic \ protected \private \ class \enum \struct \const \static \volatile \mutal 
             {
-                int nRet = IgnorTypes(ppElements,pTypes,nProcess2,nTotalEles,2,enterAndDividerTypes); //
-                nProcess2 += nRet;
+//                 int nRet = IgnorTypes(ppElements,pTypes,nProcess2,nTotalEles,2,enterAndDividerTypes); //
+//                 nProcess2 += nRet;
                 switch(pTypes[nProcess2])
                 {
                 case operator_type:
@@ -177,8 +188,8 @@ TInt32 CInterfaceElement::Process(char **ppElements,EnType *pTypes,int nProcess2
                         if (ppElements[nProcess2][0]=='}')//结束了
                         {
                             ++nProcess2;
-                            nRet = IgnorTypes(ppElements,pTypes,nProcess2,nTotalEles,2,enterAndDividerTypes); //
-                            nProcess2 += nRet;
+//                             nRet = IgnorTypes(ppElements,pTypes,nProcess2,nTotalEles,2,enterAndDividerTypes); //
+//                             nProcess2 += nRet;
                             if (operator_type == pTypes[nProcess2])
                             {
                                 if (ppElements[nProcess2][0]==';')//结束了
@@ -440,9 +451,9 @@ TInt32 CInterfaceElement::Process(char **ppElements,EnType *pTypes,int nProcess2
         }
     }
     
-    if (0 == strcmp(ppElements[nProcess2],"virtual"))
+    if (0 == strcmp(ppElements[nProcess2],";"))
     {
-        
+        return nProcess2 - nOld + 1;
     }
     return 0;
 }

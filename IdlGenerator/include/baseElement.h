@@ -54,6 +54,8 @@ enum EnType
     num_type                ,
     const_string            ,
     const_char              ,
+    blanket_type_1          , //'('
+    blanket_type_2          , //')'
 };
 
 enum EnKeyWords
@@ -162,11 +164,7 @@ public:
 
     void SetName(const char* pName)
     {
-        if (m_pFather)
-        {
-            m_szName = m_pFather->GetName();
-        }
-        m_szName += pName;
+        m_szName = pName;
     }
     const char* GetName()
     {
@@ -184,7 +182,12 @@ public:
     static CBaseElement *IsKeyWords(const char *psz);
 
     void   AddChildElement(CBaseElement *pElement,const char *pSubType,const char* pszName);
+    void MakeOneWords(char **ppWords,int nFrom,int nWordsNr);
+
+    bool IsBracesBegin(char *pStr,EnType nType);
+    bool IsBracesEnd(char *pStr,EnType nType);
 };
+
 }
 
 

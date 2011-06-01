@@ -23,10 +23,7 @@ namespace Zephyr
 class CHeaderFile : public CBaseElement
 {
 public:
-    //static CPool<CBaseElement>                            *sm_pKeyWordsPool;
-
-
-    
+    DECLARE_STATIC_CLASS_POOL(CHeaderFile);
 protected:
     CBaseElement **m_ppElements;
     char         **m_ppWords;
@@ -103,6 +100,22 @@ private:
         }
         return FALSE;
     }
+    TBool IsBlanket1(char c)
+    {
+        if('('==c)
+        {
+            return TRUE;
+        }
+        return FALSE;
+    }
+    TBool IsBlanket2(char c)
+    {
+        if (')'==c)
+        {
+            return TRUE;
+        }
+        return FALSE;
+    }
     virtual TInt32 Process(char **ppElements,EnType *pTypes,int nProcess2,int nTotalEles);
     virtual const char *GetHierachyName()
     {   //什么都不需要
@@ -111,7 +124,7 @@ private:
     void RemoveAllNumLine(); //删除所有'#'
     void RemoveAllCommentsAndMakeConstStr();
     void RemoveAllType(EnType enType);
-    void MakeOneWords(char **ppWords,int nFrom,int nWordsNr);
+    
 };
 
 }

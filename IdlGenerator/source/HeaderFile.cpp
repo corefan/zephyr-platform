@@ -1,7 +1,10 @@
 #include "../include/HeaderFile.h" 
+#include "../include/interfaceElement.h"
+#include "../include/nameSpace.h"
 namespace Zephyr
 {
 
+IMPLEMENT_STATIC_CLASS_POOL(CHeaderFile);
 
 CHeaderFile::CHeaderFile()
 {
@@ -18,12 +21,10 @@ CHeaderFile::CHeaderFile()
         sm_pBaseElements = new TplMap<TplPtPack<CBaseElement,string >,string>;
         CPool<TplNode<TplPtPack<CBaseElement,string >,string> > *pPool = new CPool<TplNode<TplPtPack<CBaseElement,string >,string> >;
         pPool->InitPool(100);
-        sm_pBaseElements = new TplMap<TplPtPack<CBaseElement,string >,string>;
         sm_pBaseElements->Init(pPool);
     }
     if (NULL == sm_pBaseKeyWords)
     {
-        sm_pBaseElements = new TplMap<TplPtPack<CBaseElement,string >,string>;
         CPool<TplNode<TplPtPack<CBaseElement,string >,string> > *pPool = new CPool<TplNode<TplPtPack<CBaseElement,string >,string> >;
         pPool->InitPool(100);
         sm_pBaseKeyWords = new TplMap<TplPtPack<CBaseElement,string >,string>;
@@ -73,8 +74,11 @@ TInt32 CHeaderFile::GeneratorIdl(const char *pFileName)
         return nRet;
     }
     DividIntoWords();
-    nRet = Process(m_ppWords,m_pWordsTypes,0,m_nNrOfWords);
+    
+    RemoveAllCommentsAndMakeConstStr();
+    RemoveAllType(divider_type);
     RemoveAllNumLine();
+    RemoveAllType(enter_type);
     for (int i=0;i<m_nNrOfWords;++i)
     {
         if (enter_type == m_pWordsTypes[i])
@@ -86,6 +90,7 @@ TInt32 CHeaderFile::GeneratorIdl(const char *pFileName)
             printf("@%s$",m_ppWords[i]);
         }
     }
+    nRet = Process(m_ppWords,m_pWordsTypes,0,m_nNrOfWords);
     return SUCCESS;
 }
 
@@ -137,10 +142,60 @@ void CHeaderFile::RemoveAllType(EnType enType)
 TInt32 CHeaderFile::Process(char **ppElements,EnType *pTypes,int nProcess2,int nTotalEles)
 {
     //最后再处理一遍
-    RemoveAllCommentsAndMakeConstStr();
-    RemoveAllType(divider_type);
+    int nNr=nProcess2;
+    while(nNr < nTotalEles )
+    {
+        CBaseElement *pBase = IsKeyWords(ppElements[nNr]);
+        if (pBase)
+        {
+            switch (pBase->m_nElmentType)
+            {
+            case key_class:
+                {
+                    CInterfaceElement *pInterface = CREATE_FROM_STATIC_POOL(CInterfaceElement);
+                    if (pInterface)
+                    {
+                        int nRet = pInterface->Process(ppElements,pTypes,(nNr),nTotalEles);
+                        if (nRet <= 0)
+                        {
+                            return nRet;
+                        }
+                        nNr += nRet;
+                    }
+                }
+                break;
+            case key_namespace:
+                {
+                    CNamespace *pInterface = CREATE_FROM_STATIC_POOL(CNamespace);
+                    if (pInterface)
+                    {
+                        ++nNr;
+                        int nRet = pInterface->Process(ppElements,pTypes,(nNr),nTotalEles);
+                        if (nRet <= 0)
+                        {
+                            return nRet;
+                        }
+                        nNr += nRet;
+                    }
+                }
+                break;
+            case key_struct:
+                {
+
+                }
+                break;
+            }
+        }
+        else
+        {
+            //process a line!
+        }
+    }
+    
+    
+    
     //IgnorType(m_ppWords,m_pWordsTypes,0,m_nNrOfWords,divider_type);
-    return 0;
+    return (nNr - nProcess2);
 }
 
 void CHeaderFile::RemoveAllNumLine() //删除所有'#'
@@ -217,6 +272,8 @@ void CHeaderFile::RemoveAllNumLine() //删除所有'#'
     }
     m_nNrOfWords = nCopy2;
 }
+
+
 
 void CHeaderFile::RemoveAllCommentsAndMakeConstStr()
 {
@@ -408,20 +465,6 @@ void CHeaderFile::RemoveAllCommentsAndMakeConstStr()
     m_nNrOfWords = nCopy2;
 }
 
-void CHeaderFile::MakeOneWords(char **ppWords,int nFrom,int nWordsNr)
-{
-    if (nWordsNr>0)
-    {
-        --nWordsNr;
-        for (int i=1;i<nWordsNr;++i)
-        {
-            int nLen = strlen(ppWords[nFrom+i]);
-            memmove(ppWords[nFrom+i]-i,ppWords[nFrom+i],nLen);
-        }
-        int nLen = strlen(ppWords[nFrom+nWordsNr])+1;
-        memmove(ppWords[nFrom+nWordsNr]-nWordsNr,ppWords[nFrom+nWordsNr],nLen);
-    }
-}
 
 
     //分词
@@ -432,7 +475,15 @@ TInt32 CHeaderFile::DividIntoWords()
     char c = 0;
     for (int i=0;i<256;++i)
     {
-        if (IsEnter(c))
+        if (IsBlanket1(c))
+        {
+            cTypes[i] = blanket_type_1;
+        }
+        else if (IsBlanket2(c))
+        {
+            cTypes[i] = blanket_type_2;
+        }
+        else if (IsEnter(c))
         {
             cTypes[i] = enter_type;
         }
@@ -504,6 +555,8 @@ TInt32 CHeaderFile::DividIntoWords()
                         
                     }
                     break;
+                case blanket_type_1:
+                case blanket_type_2:
                 case divider_type:
                     {
                         memcpy(pRead2,m_pszFile+nLastWordIdx,i-nLastWordIdx);
@@ -514,7 +567,7 @@ TInt32 CHeaderFile::DividIntoWords()
                         ++m_nNrOfWords;
                         pRead2 += ((i-nLastWordIdx)+1);
                         nLastWordIdx = i;
-                        nLastType = divider_type;
+                        nLastType = cTypes[(unsigned int)(*pCur)];
                     }
                     break;
                 case operator_type:
@@ -645,6 +698,8 @@ TInt32 CHeaderFile::DividIntoWords()
             {
                 switch (cTypes[(unsigned int)(*pCur)])
                 {
+                case blanket_type_1:
+                case blanket_type_2:
                 case enter_type:
                     {
                         memcpy(pRead2,m_pszFile+nLastWordIdx,i-nLastWordIdx);
@@ -655,7 +710,7 @@ TInt32 CHeaderFile::DividIntoWords()
                         ++m_nNrOfWords;
                         pRead2 += ((i-nLastWordIdx)+1);
                         nLastWordIdx = i;
-                        nLastType = enter_type;
+                        nLastType = cTypes[(unsigned int)(*pCur)];
                     }
                     break;
                 case divider_type:
@@ -791,6 +846,8 @@ TInt32 CHeaderFile::DividIntoWords()
             {
                 switch (cTypes[(unsigned int)(*pCur)])
                 {
+                case blanket_type_1:
+                case blanket_type_2:
                 case enter_type:
                 case divider_type:
                     {
@@ -807,6 +864,32 @@ TInt32 CHeaderFile::DividIntoWords()
                 case operator_type:
                     {
                         //继续
+                        switch (*pCur)
+                        {
+                        case '&':
+                        case '|':
+                        case '-':
+                        case '+':
+                        case '=':
+                            {
+                                if (i == nLastWordIdx+1)
+                                {
+                                    unsigned char *pPre = pCur-1;
+                                    if (*pCur == *pPre)
+                                    {
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                        memcpy(pRead2,m_pszFile+nLastWordIdx,i-nLastWordIdx);
+                        pRead2[(i-nLastWordIdx)] = 0;
+                        m_ppWords[m_nNrOfWords] = pRead2;
+                        m_pWordsTypes[m_nNrOfWords] = nLastType;
+                        ++m_nNrOfWords;
+                        pRead2 += ((i-nLastWordIdx)+1);
+                        nLastWordIdx = i;
+                        nLastType = cTypes[(unsigned int)(*pCur)];
                     }
                     break;
                 case alphabet_type:
@@ -924,6 +1007,8 @@ TInt32 CHeaderFile::DividIntoWords()
             {
                 switch (cTypes[(unsigned int)(*pCur)])
                 {
+                case blanket_type_1:
+                case blanket_type_2:
                 case enter_type:
                 case divider_type:
                     {
@@ -1028,6 +1113,7 @@ TInt32 CHeaderFile::DividIntoWords()
                                 if (((unsigned int)pCur[1])>0x80) //是个中文字符？！
                                 {
                                     ++i; //再跳过一个字符
+                                    nLastType = alphabet_type;
                                     break;
                                 }
                             }
@@ -1042,6 +1128,8 @@ TInt32 CHeaderFile::DividIntoWords()
             {
                 switch (cTypes[(unsigned int)(*pCur)])
                 {
+                case blanket_type_1:
+                case blanket_type_2:
                 case enter_type:
                 case divider_type:
                     {
@@ -1162,6 +1250,8 @@ TInt32 CHeaderFile::DividIntoWords()
             {
                 switch (cTypes[(unsigned int)(*pCur)])
                 {
+                case blanket_type_1:
+                case blanket_type_2:
                 case enter_type:
                     {
                         memcpy(pRead2,m_pszFile+nLastWordIdx,i-nLastWordIdx);
@@ -1172,7 +1262,7 @@ TInt32 CHeaderFile::DividIntoWords()
                         ++m_nNrOfWords;
                         pRead2 += ((i-nLastWordIdx)+1);
                         nLastWordIdx = i;
-                        nLastType = enter_type;
+                        nLastType = cTypes[(unsigned int)(*pCur)];
                     }
                     break;
                 case divider_type:
@@ -1316,6 +1406,8 @@ TInt32 CHeaderFile::DividIntoWords()
             {
                 switch (cTypes[(unsigned int)(*pCur)])
                 {
+                case blanket_type_1:
+                case blanket_type_2:
                 case enter_type:
                     {
                         memcpy(pRead2,m_pszFile+nLastWordIdx,i-nLastWordIdx);
@@ -1326,7 +1418,7 @@ TInt32 CHeaderFile::DividIntoWords()
                         ++m_nNrOfWords;
                         pRead2 += ((i-nLastWordIdx)+1);
                         nLastWordIdx = i;
-                        nLastType = enter_type;
+                        nLastType = cTypes[(unsigned int)(*pCur)];
                     }
                     break;
                 case divider_type:
@@ -1470,6 +1562,8 @@ TInt32 CHeaderFile::DividIntoWords()
             {
                 switch (cTypes[(unsigned int)(*pCur)])
                 {
+                case blanket_type_1:
+                case blanket_type_2:
                 case enter_type:
                     {
                         memcpy(pRead2,m_pszFile+nLastWordIdx,i-nLastWordIdx);
@@ -1480,7 +1574,7 @@ TInt32 CHeaderFile::DividIntoWords()
                         ++m_nNrOfWords;
                         pRead2 += ((i-nLastWordIdx)+1);
                         nLastWordIdx = i;
-                        nLastType = enter_type;
+                        nLastType = cTypes[(unsigned int)(*pCur)];
                     }
                     break;
                 case divider_type:
@@ -1624,6 +1718,8 @@ TInt32 CHeaderFile::DividIntoWords()
             {
                 switch (cTypes[(unsigned int)(*pCur)])
                 {
+                case blanket_type_1:
+                case blanket_type_2:
                 case enter_type:
                     {
                         memcpy(pRead2,m_pszFile+nLastWordIdx,i-nLastWordIdx);
@@ -1634,7 +1730,7 @@ TInt32 CHeaderFile::DividIntoWords()
                         ++m_nNrOfWords;
                         pRead2 += ((i-nLastWordIdx)+1);
                         nLastWordIdx = i;
-                        nLastType = enter_type;
+                        nLastType = cTypes[(unsigned int)(*pCur)];
                     }
                     break;
                 case divider_type:
@@ -1778,6 +1874,8 @@ TInt32 CHeaderFile::DividIntoWords()
             {
                 switch (cTypes[(unsigned int)(*pCur)])
                 {
+                case blanket_type_1:
+                case blanket_type_2:
                 case enter_type:
                     {
                         memcpy(pRead2,m_pszFile+nLastWordIdx,i-nLastWordIdx);
@@ -1788,7 +1886,7 @@ TInt32 CHeaderFile::DividIntoWords()
                         ++m_nNrOfWords;
                         pRead2 += ((i-nLastWordIdx)+1);
                         nLastWordIdx = i;
-                        nLastType = enter_type;
+                        nLastType = cTypes[(unsigned int)(*pCur)];
                     }
                     break;
                 case divider_type:
@@ -1928,9 +2026,28 @@ TInt32 CHeaderFile::DividIntoWords()
                 }
             }
             break;
+        case blanket_type_1:
+        case blanket_type_2:
+            {
+                memcpy(pRead2,m_pszFile+nLastWordIdx,i-nLastWordIdx);
+                pRead2[(i-nLastWordIdx)] = 0;
+                m_ppWords[m_nNrOfWords] = pRead2;
+
+                m_pWordsTypes[m_nNrOfWords] = nLastType;
+                ++m_nNrOfWords;
+                pRead2 += ((i-nLastWordIdx)+1);
+                nLastWordIdx = i;
+                nLastType = cTypes[(unsigned int)(*pCur)]; 
+            }
+            break;
         default:
             {
-                printf("Find incoorect type!");
+                if (((unsigned int)(*pCur))>0x80)
+                {
+                    nLastType = alphabet_type;
+                    break;
+                }
+                printf("find unacceptable char:%d",((int)m_pszFile[i]));
                 return -1;
             }
         }
@@ -2018,14 +2135,6 @@ TBool CHeaderFile::IsOperator(char c)
         }
         break;
     case '!':
-        {
-        }
-        break;
-    case '(':
-        {
-        }
-        break;
-    case ')':
         {
         }
         break;
