@@ -15,27 +15,34 @@
 
 #include "baseElement.h"
 #include "../../Public/tpl/include/TplPool.h"
+#include "./FullTypeClass.h"
 
 namespace Zephyr
 {
 
 class CMethod : public CBaseElement
 {
-protected:
-    
-    CBaseElement    *m_pTypePointer;
-
 public:
-    std::string &GetParameterName()
+    DECLARE_STATIC_CLASS_POOL(CMethod);
+protected:
+    int              m_nIsVirtual;  //0 不是，1是虚的，2是纯虚
+    //name
+    CFullTypeDef    *m_pFullRetType;;
+public:
+    CMethod()
     {
-        return m_tParameterName;
+        m_nIsVirtual = 0;
+        m_pFullRetType = NULL; 
     }
 //     CMethodElement *GetMethod()
 //     {
 //         return m_pBelongs2;
 //     }
 
-
+    void SetRtnType(CFullTypeDef *p)
+    {
+        m_pFullRetType;
+    }
     virtual TInt32 Process(char **ppElements,EnType *pTypes,int nProcess2,int nTotalEles);
 };
 

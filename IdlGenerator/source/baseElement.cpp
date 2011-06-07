@@ -26,6 +26,29 @@ TInt32   CBaseElement::AddType(CBaseElement *pBaseElement)
     }
     return OUT_OF_MEM;
 }
+
+TInt32   CBaseElement::AddBaseType(const char *psz)
+{
+    CBaseElement *pBase = CREATE_FROM_STATIC_POOL(CBaseElement);
+    if (!pBase)
+    {
+        return OUT_OF_MEM;
+    }
+    pBase->SetName(psz);
+    return AddType(pBase);
+}
+
+CBaseElement *CBaseElement::IsOneType(const char *psz)
+{
+    string key = psz;
+    TplPtPack<CBaseElement,string > *pElePack = sm_pBaseElements->GetItemByKey(&key);
+    if (pElePack)
+    {
+        return pElePack->m_pPt;
+    }
+    return NULL;
+}
+
 TInt32   CBaseElement::AddKeyWords(const char *pName,EnKeyWords key)
 {
     TplPtPack<CBaseElement,string > *pItem = sm_pBaseKeyWords->PrepareItem();
@@ -127,13 +150,10 @@ TInt32 CBaseElement::IgnorTypes(char **ppElements,EnType *pTypes,int nProcess2,i
     return nRet;
 }
 
-void CBaseElement::AddChildElement(CBaseElement *pElement,const char *pSubType,const char* pszName)
+void CBaseElement::AddChildElement(CBaseElement *pElement)
 {
-    CInstance t;
-    t.m_tType.m_pPt = pElement;
-    t.m_szInstanceName = pszName;
-    strncpy(t.m_nSubType,pSubType,4);
-    t.m_nSubType[3] = 0;
+    TplPtPack<CBaseElement,string> t;
+    t.m_pPt = pElement;
     m_tChilds.push_back(t);
 }
 
@@ -148,6 +168,7 @@ bool CBaseElement::IsBracesBegin(char *pStr,EnType nType)
     }
     return false;
 }
+
 bool CBaseElement::IsBracesEnd(char *pStr,EnType nType)
 {
     if (operator_type == nType)
@@ -158,6 +179,12 @@ bool CBaseElement::IsBracesEnd(char *pStr,EnType nType)
         }
     }
     return false;
+}
+
+
+void CBaseElement::OnError(TInt32 nErr)
+{
+    printf("OnError %d",nErr);
 }
 
 }

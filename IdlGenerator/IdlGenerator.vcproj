@@ -179,6 +179,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\source\FullTypeClass.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\source\HeaderFile.cpp"
 				>
 			</File>
@@ -191,7 +195,15 @@
 				>
 			</File>
 			<File
+				RelativePath=".\source\Method.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\include\namespace.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\source\Parameter.cpp"
 				>
 			</File>
 		</Filter>
@@ -205,11 +217,15 @@
 				>
 			</File>
 			<File
-				RelativePath=".\include\ClassPool.h"
+				RelativePath=".\include\FullTypeClass.h"
 				>
 			</File>
 			<File
 				RelativePath=".\include\HeaderFile.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\IdlGeneratorErrorCode.h"
 				>
 			</File>
 			<File
@@ -222,6 +238,10 @@
 			</File>
 			<File
 				RelativePath=".\include\nameSpace.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\Parameter.h"
 				>
 			</File>
 		</Filter>

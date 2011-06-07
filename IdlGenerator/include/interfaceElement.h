@@ -16,9 +16,11 @@
 #include "baseElement.h"
 
 
-class CHeaderFile;
 namespace Zephyr
 {
+
+
+class CHeaderFile;
 
 class CInterfaceElement : public CBaseElement
 {
@@ -34,20 +36,7 @@ private:
         en_class_name_risk,   //:
         en_class_derive_virtual, //virtual 
         en_class_derive_class_name, //CDerive 
-        en_class_right_brace,     //{
-        en_class_public_key_word,
-        en_class_public_key_risk,
-        en_class_protected_key_word,
-        en_class_protected_key_risk,
-        en_class_private_key_word,
-        en_class_private_key_risk,
-        en_class_type,
-        en_class_type_operator,
-        en_class_typeName,
-        en_class_typeName_right_bracket,
-        //º¯Êý¶¨Òå
-        en_class_typeName_semicolon,
-        en_class_friend_key_word,
+        en_class_right_brace,     //
         en_class_left_brace,
     };
 public:

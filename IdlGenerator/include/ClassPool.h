@@ -13,7 +13,7 @@
 #ifndef __ZEPHYR_SERVICE_CONTANER_IDL_GENERATOR_METHOD_CLASS_POOL_H__
 #define __ZEPHYR_SERVICE_CONTANER_IDL_GENERATOR_METHOD_CLASS_POOL_H__
 #include "./methodElement.h"
-#include "./MethodParameter.h"
+#include "./MethodParamet.h"
 #include "./interfaceElement.h"
 
 class CCLassPool

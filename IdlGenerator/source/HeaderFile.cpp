@@ -22,6 +22,18 @@ CHeaderFile::CHeaderFile()
         CPool<TplNode<TplPtPack<CBaseElement,string >,string> > *pPool = new CPool<TplNode<TplPtPack<CBaseElement,string >,string> >;
         pPool->InitPool(100);
         sm_pBaseElements->Init(pPool);
+        AddBaseType("TInt32");
+        AddBaseType("TInt16");
+        AddBaseType("TInt8");
+        AddBaseType("TInt64");
+        AddBaseType("TFloat");
+        AddBaseType("TDouble");
+        AddBaseType("TBool");
+        AddBaseType("TChar");
+        AddBaseType("TUInt32");
+        AddBaseType("TUInt16");
+        AddBaseType("TUInt8");
+        AddBaseType("TUInt64");
     }
     if (NULL == sm_pBaseKeyWords)
     {
@@ -174,6 +186,10 @@ TInt32 CHeaderFile::Process(char **ppElements,EnType *pTypes,int nProcess2,int n
                         if (nRet <= 0)
                         {
                             return nRet;
+                        }
+                        else
+                        {
+                            AddChildElement(pInterface);
                         }
                         nNr += nRet;
                     }
@@ -475,7 +491,11 @@ TInt32 CHeaderFile::DividIntoWords()
     char c = 0;
     for (int i=0;i<256;++i)
     {
-        if (IsBlanket1(c))
+        if (IsSemicolon(c))
+        {
+            cTypes[i] = semicolon_type;
+        }
+        else if (IsBlanket1(c))
         {
             cTypes[i] = blanket_type_1;
         }
@@ -527,6 +547,7 @@ TInt32 CHeaderFile::DividIntoWords()
         {
             cTypes[i] = not_acceptable_type;
         }
+
         ++c;
     }
     //¿Õ¸ñ 0 ·ûºÅ 1 ×ÖÄ¸ 2 Êý×Ö 3 
@@ -557,6 +578,7 @@ TInt32 CHeaderFile::DividIntoWords()
                     break;
                 case blanket_type_1:
                 case blanket_type_2:
+                case semicolon_type:
                 case divider_type:
                     {
                         memcpy(pRead2,m_pszFile+nLastWordIdx,i-nLastWordIdx);
@@ -700,6 +722,7 @@ TInt32 CHeaderFile::DividIntoWords()
                 {
                 case blanket_type_1:
                 case blanket_type_2:
+                case semicolon_type:
                 case enter_type:
                     {
                         memcpy(pRead2,m_pszFile+nLastWordIdx,i-nLastWordIdx);
@@ -848,6 +871,7 @@ TInt32 CHeaderFile::DividIntoWords()
                 {
                 case blanket_type_1:
                 case blanket_type_2:
+                case semicolon_type:
                 case enter_type:
                 case divider_type:
                     {
@@ -1010,6 +1034,7 @@ TInt32 CHeaderFile::DividIntoWords()
                 case blanket_type_1:
                 case blanket_type_2:
                 case enter_type:
+                case semicolon_type:
                 case divider_type:
                     {
                         memcpy(pRead2,m_pszFile+nLastWordIdx,i-nLastWordIdx);
@@ -1131,6 +1156,7 @@ TInt32 CHeaderFile::DividIntoWords()
                 case blanket_type_1:
                 case blanket_type_2:
                 case enter_type:
+                case semicolon_type:
                 case divider_type:
                     {
                         memcpy(pRead2,m_pszFile+nLastWordIdx,i-nLastWordIdx);
@@ -1252,6 +1278,7 @@ TInt32 CHeaderFile::DividIntoWords()
                 {
                 case blanket_type_1:
                 case blanket_type_2:
+                case semicolon_type:
                 case enter_type:
                     {
                         memcpy(pRead2,m_pszFile+nLastWordIdx,i-nLastWordIdx);
@@ -1408,6 +1435,7 @@ TInt32 CHeaderFile::DividIntoWords()
                 {
                 case blanket_type_1:
                 case blanket_type_2:
+                case semicolon_type:
                 case enter_type:
                     {
                         memcpy(pRead2,m_pszFile+nLastWordIdx,i-nLastWordIdx);
@@ -1564,6 +1592,7 @@ TInt32 CHeaderFile::DividIntoWords()
                 {
                 case blanket_type_1:
                 case blanket_type_2:
+                case semicolon_type:
                 case enter_type:
                     {
                         memcpy(pRead2,m_pszFile+nLastWordIdx,i-nLastWordIdx);
@@ -1720,6 +1749,7 @@ TInt32 CHeaderFile::DividIntoWords()
                 {
                 case blanket_type_1:
                 case blanket_type_2:
+                case semicolon_type:
                 case enter_type:
                     {
                         memcpy(pRead2,m_pszFile+nLastWordIdx,i-nLastWordIdx);
@@ -1876,6 +1906,7 @@ TInt32 CHeaderFile::DividIntoWords()
                 {
                 case blanket_type_1:
                 case blanket_type_2:
+                case semicolon_type:
                 case enter_type:
                     {
                         memcpy(pRead2,m_pszFile+nLastWordIdx,i-nLastWordIdx);
@@ -2028,6 +2059,7 @@ TInt32 CHeaderFile::DividIntoWords()
             break;
         case blanket_type_1:
         case blanket_type_2:
+        case semicolon_type:
             {
                 memcpy(pRead2,m_pszFile+nLastWordIdx,i-nLastWordIdx);
                 pRead2[(i-nLastWordIdx)] = 0;
@@ -2101,11 +2133,6 @@ TBool CHeaderFile::IsOperator(char c)
 
     switch(c)
     {
-    case ';':
-        {
-
-        }
-        break;
     case '&':
         {
 

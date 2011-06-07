@@ -1,5 +1,8 @@
 #include "../include/HeaderFile.h"
 #include "../include/interfaceElement.h"
+#include "../include/FullTypeClass.h"
+#include "../include/IdlGeneratorErrorCode.h"
+#include "../include/Method.h"
 #include <vector>
 
 
@@ -30,6 +33,7 @@ TInt32 CInterfaceElement::Process(char **ppElements,EnType *pTypes,int nProcess2
     };
     vector<char*> pHeap;
     int nOld = nProcess2;
+    
     while (nProcess2 < nTotalEles)
     {
         //忽律所有
@@ -58,7 +62,7 @@ TInt32 CInterfaceElement::Process(char **ppElements,EnType *pTypes,int nProcess2
                     return -1;
                 }
             }
-            break;
+            break; //case en_class_key_word:
         case         en_class_name:        //CName
             {
                 
@@ -102,7 +106,7 @@ TInt32 CInterfaceElement::Process(char **ppElements,EnType *pTypes,int nProcess2
                     OnError(nProcess2);
                     return -1;
                 }
-            }
+            } //case         en_class_name: 
             break;
         case         en_class_name_risk:   //:
             {
@@ -144,7 +148,7 @@ TInt32 CInterfaceElement::Process(char **ppElements,EnType *pTypes,int nProcess2
                     OnError(nProcess2);
                     return -1;
                 }
-            }
+            } //case         en_class_name_risk:   //:
             break;
         case         en_class_derive_virtual://virtual 
             {
@@ -158,7 +162,7 @@ TInt32 CInterfaceElement::Process(char **ppElements,EnType *pTypes,int nProcess2
                     OnError(nProcess2);
                     return -1;
                 }
-            }
+            }  //case         en_class_derive_virtual://virtual 
             break;
         case         en_class_derive_class_name: //CDerive 
             {
@@ -175,7 +179,7 @@ TInt32 CInterfaceElement::Process(char **ppElements,EnType *pTypes,int nProcess2
                         return -1;
                     }
                 }
-            }
+            } //
             break;
         case         en_class_right_brace:     //{ 这个时候需要的是一个type类型，或者 virtual \ pubic \ protected \private \ class \enum \struct \const \static \volatile \mutal 
             {
@@ -220,11 +224,12 @@ TInt32 CInterfaceElement::Process(char **ppElements,EnType *pTypes,int nProcess2
                     {
                         //if ()
                         CBaseElement *pEle = m_pOwner->IsKeyWords(ppElements[nProcess2]);
+                        bool bNeedHandle = true;
                         if (pEle)
                         {
+                            bNeedHandle = false;
                             switch (pEle->m_nElmentType)
                             {
-                            case key_static: //相同处理
                             case key_class:
                                 {
                                     //新的 class
@@ -265,188 +270,106 @@ TInt32 CInterfaceElement::Process(char **ppElements,EnType *pTypes,int nProcess2
                                     return FAIL;
                                 }
                                 break;
-                            case key_const       :
-                                {
-                                    //pHeap.push_back();
-                                }
-                                break;
-                            case key_volatile    :
-                                {
-
-                                }
-                                break;
-                            case key_mutable     :
-                                {
-
-                                }
-                                break;
                             case key_public      :
-                                {
-
-                                }
-                                break;
                             case key_protected   :
-                                {
-
-                                }
-                                break;
                             case key_private     :
                                 {
-
+                                    ++nProcess2;
+                                    if (operator_type == pTypes[nProcess2])
+                                    {
+                                        if (':' !=ppElements[nProcess2][0])
+                                        {
+                                            OnError(nProcess2);
+                                            return -1;
+                                        }
+                                        else
+                                        {
+                                            ++nProcess2;
+                                        }
+                                    }
                                 }
                                 break;
-                            case key_include     :
+                            default:
                                 {
-
+                                    bNeedHandle = true;
                                 }
-                                break;
-                            case key_pragma      :
-                                {
-
-                                }
-                                break;
-                            case key_nr_define      :
-                                {
-
-                                }
-                                break;
-                            case key_nr_ifdef       :
-                                {
-
-                                }
-                                break;
-                            case key_nr_ifndef      :
-                                {
-
-                                }
-                                break;
-                            case key_nr_endif       :
-                                {
-
-                                }
-                                break;
-                            case key_nr_else        :
-                                {
-
-                                }
-                                break;
-                            case key_while       :
-                                {
-
-                                }
-                                break;
-                            case key_if          :
-                                {
-
-                                }
-                                break;
-                            case key_else        :
-                                {
-
-                                }
-                                break;
-                            case key_for         :
-                                {
-
-                                }
-                                break;
-                            case key_break       :
-                                {
-
-                                }
-                                break;
-                            case key_continue    :
-                                {
-
-                                }
-                                break;
-                            case key_goto        :
-                                {
-
-                                }
-                                break;
-                            case key_switch      :
-                                {
-
-                                }
-                                break;
-                            case key_extern      :
-                                {
-
-                                }
-                                break;
                             }
                         }
-
+                        if (bNeedHandle) //没有
+                        {
+                            //处理构造函数和析构函数
+                            CFullTypeDef *pFullType = CREATE_FROM_STATIC_POOL(CFullTypeDef);
+                            if (!pFullType)
+                            {
+                                OnError(nProcess2);
+                                return OUT_OF_MEM;
+                            }
+                            int nRet = pFullType->Process(ppElements,pTypes,nProcess2,nTotalEles);
+                            if (nRet > SUCCESS) //必须有
+                            {
+                                nProcess2 += nRet;
+                            }
+                            else
+                            {
+                                OnError(nProcess2);
+                                return nRet;
+                            }
+                            //find a name
+                            if (nProcess2 >= nTotalEles)
+                            {
+                                OnError(nProcess2);
+                                return INCORRECT_END;
+                            }
+                            if(alphabet_type == pTypes[nProcess2])
+                            {
+                                //a name;
+                                char *pName = ppElements[nProcess2];
+                                ++nProcess2;
+                                if (nProcess2 >= nTotalEles)
+                                {
+                                    OnError(nProcess2);
+                                    return INCORRECT_END;
+                                }
+                                if (blanket_type_1 == pTypes[nProcess2])
+                                {
+                                    CMethod *pMethod = CREATE_FROM_STATIC_POOL(CMethod);
+                                    if (!pMethod)
+                                    {
+                                        OnError(nProcess2);
+                                        return OUT_OF_MEM;
+                                    }
+                                    nRet = pMethod->Process(ppElements,pTypes,nProcess2,nTotalEles);
+                                    if (nRet > SUCCESS)
+                                    {
+                                        pMethod->SetName(pName);
+                                        pMethod->SetRtnType(pFullType);
+                                    }
+                                }
+                                else
+                                {
+                                    //处理数组？ 
+                                    printf("Find a menber of the class!");
+                                    while(semicolon_type != pTypes[nProcess2])
+                                    {
+                                        ++nProcess2;
+                                        if (nProcess2 >= nTotalEles)
+                                        {
+                                            OnError(nProcess2);
+                                            return INCORRECT_END;
+                                        }
+                                    }
+                                    ++nProcess2; //处理一个
+                                }
+                            }
+                            else
+                            {
+                                OnError(nProcess2);
+                                return -1;
+                            }
+                        }
                     }
                 }
-            }
-            break;
-        case  en_class_public_key_word:
-            {
-
-            }
-            break;
-        case  en_class_public_key_risk:
-            {
-
-            }
-            break;
-        case en_class_protected_key_word:
-            {
-
-            }
-            break;
-        case en_class_protected_key_risk:
-            {
-
-            }
-            break;
-        case en_class_private_key_word:
-            {
-
-            }
-            break;
-        case en_class_private_key_risk:
-            {
-
-            }
-            break;
-        case en_class_type:
-            {
-
-            }
-            break;
-        case en_class_type_operator:
-            {
-
-            }
-            break;
-        case en_class_typeName:
-            {
-
-            }
-            break;
-        case en_class_typeName_right_bracket:
-            {
-
-            }
-            break;
-                //函数定义
-        case en_class_typeName_semicolon:
-            {
-
-            }
-            break;
-        case en_class_friend_key_word:
-            {
-
-            }
-            break;
-        case en_class_left_brace:
-            {
-
-            }
+            } //case         en_class_right_brace:
             break;
         }
     }

@@ -56,6 +56,7 @@ enum EnType
     const_char              ,
     blanket_type_1          , //'('
     blanket_type_2          , //')'
+    semicolon_type          , //;
 };
 
 enum EnKeyWords
@@ -126,26 +127,22 @@ public:
     int     m_nElmentType;
     CBaseElement *m_pFather;
 
-    struct CInstance
-    {
-        TplPtPack<CBaseElement,string> m_tType;
-        enum EnSubType
-        {
-            en_orignal_type,
-            en_member_type,
-            en_pointer_type,
-            en_pointer_pointer_type,
-            en_pointer_p_p_type,
-            en_ref_type,
-            en_pointer_ref_type,
-            en_pointer_p_ref_type,
-        };
-
-        char                          m_nSubType[4];
-        string                        m_szInstanceName;
-
-    };
-    vector<CInstance> m_tChilds;
+//     struct CInstance
+//     {
+//         TplPtPack<CBaseElement,string> m_tType;
+//         enum EnSubType
+//         {
+//             en_orignal_type,
+//             en_member_type,
+//             en_pointer_type,
+//             en_pointer_pointer_type,
+//             en_pointer_p_p_type,
+//             en_ref_type,
+//             en_pointer_ref_type,
+//             en_pointer_p_ref_type,
+//         };
+//     };
+    vector<TplPtPack<CBaseElement,string> > m_tChilds;
     string &GetKey()
     {
         return m_szName;
@@ -181,11 +178,16 @@ public:
     static TInt32   AddKeyWords(const char *pName,EnKeyWords key);
     static CBaseElement *IsKeyWords(const char *psz);
 
-    void   AddChildElement(CBaseElement *pElement,const char *pSubType,const char* pszName);
+    static CBaseElement *IsOneType(const char *psz);
+
+    static TInt32   AddBaseType(const char *psz);
+    void   AddChildElement(CBaseElement *pElement);
     void MakeOneWords(char **ppWords,int nFrom,int nWordsNr);
 
     bool IsBracesBegin(char *pStr,EnType nType);
     bool IsBracesEnd(char *pStr,EnType nType);
+    
+    void OnError(TInt32 nErr);
 };
 
 }
