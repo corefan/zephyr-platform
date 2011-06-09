@@ -87,8 +87,33 @@ enum EnKeyWords
     key_goto        ,
     key_switch      ,
     key_extern      ,
+    key_virtual     ,
 };
 
+
+enum EnRawTypes
+{
+    raw_not_acceptable   = 0,
+    raw_base_element_type,
+    raw_TInt32_type,
+    raw_TInt16_type,
+    raw_TInt8_type,
+    raw_TInt64_type,
+    raw_TFloat_type,
+    raw_TDouble_type,
+    raw_TBool_type,
+    raw_TChar_type,
+    raw_TUInt32_type,
+    raw_TUInt16_type,
+    raw_TUInt8_type,
+    raw_TUInt64_type,
+    raw_namespace_type,
+    raw_interface_type,
+    raw_method_type,
+    raw_parameter_type,
+    raw_full_type_type,
+    raw_header_file_type,
+};
 
 template <class T,class KEY>
 class TplPtPack
@@ -151,7 +176,7 @@ public:
 public:
     CBaseElement()
     {
-        m_nElmentType = 0;
+        m_nElmentType = raw_base_element_type;
         m_pFather = NULL;
     }
     virtual ~CBaseElement()
@@ -180,14 +205,15 @@ public:
 
     static CBaseElement *IsOneType(const char *psz);
 
-    static TInt32   AddBaseType(const char *psz);
+    static TInt32   AddBaseType(const char *psz,int nType);
     void   AddChildElement(CBaseElement *pElement);
+    CBaseElement *GetLastElement();
     void MakeOneWords(char **ppWords,int nFrom,int nWordsNr);
 
     bool IsBracesBegin(char *pStr,EnType nType);
     bool IsBracesEnd(char *pStr,EnType nType);
     
-    void OnError(TInt32 nErr);
+    void OnError(const char *pWord);
 };
 
 }

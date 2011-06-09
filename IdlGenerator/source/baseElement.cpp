@@ -27,7 +27,7 @@ TInt32   CBaseElement::AddType(CBaseElement *pBaseElement)
     return OUT_OF_MEM;
 }
 
-TInt32   CBaseElement::AddBaseType(const char *psz)
+TInt32   CBaseElement::AddBaseType(const char *psz,int nType)
 {
     CBaseElement *pBase = CREATE_FROM_STATIC_POOL(CBaseElement);
     if (!pBase)
@@ -35,6 +35,7 @@ TInt32   CBaseElement::AddBaseType(const char *psz)
         return OUT_OF_MEM;
     }
     pBase->SetName(psz);
+    pBase->m_nElmentType = nType;
     return AddType(pBase);
 }
 
@@ -152,11 +153,15 @@ TInt32 CBaseElement::IgnorTypes(char **ppElements,EnType *pTypes,int nProcess2,i
 
 void CBaseElement::AddChildElement(CBaseElement *pElement)
 {
+    pElement->m_pFather = this;
     TplPtPack<CBaseElement,string> t;
     t.m_pPt = pElement;
     m_tChilds.push_back(t);
 }
-
+CBaseElement *CBaseElement::GetLastElement()
+{
+    return m_tChilds[m_tChilds.size()-1].m_pPt;
+}
 bool CBaseElement::IsBracesBegin(char *pStr,EnType nType)
 {
     if (operator_type == nType)
@@ -182,9 +187,16 @@ bool CBaseElement::IsBracesEnd(char *pStr,EnType nType)
 }
 
 
-void CBaseElement::OnError(TInt32 nErr)
+void CBaseElement::OnError(const char *pWord)
 {
-    printf("OnError %d",nErr);
+    if (pWord)
+    {
+        printf("OnError at %s",pWord);
+    }
+    else
+    {
+        printf("OnError at end");
+    }
 }
 
 }

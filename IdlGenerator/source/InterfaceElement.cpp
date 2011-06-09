@@ -3,6 +3,7 @@
 #include "../include/FullTypeClass.h"
 #include "../include/IdlGeneratorErrorCode.h"
 #include "../include/Method.h"
+#include "../include/Parameter.h"
 #include <vector>
 
 
@@ -12,10 +13,11 @@ namespace Zephyr
 IMPLEMENT_STATIC_CLASS_POOL(CInterfaceElement)
 
 
-void CInterfaceElement::OnError(int nProcess2)
+CInterfaceElement::CInterfaceElement()
 {
-    return;
+    m_nElmentType = raw_interface_type;
 }
+
 
 CInterfaceElement::EnState CInterfaceElement::GetState(char *pAlphabets)
 {
@@ -58,7 +60,12 @@ TInt32 CInterfaceElement::Process(char **ppElements,EnType *pTypes,int nProcess2
                 }
                 else
                 {
-                    OnError(nProcess2);
+                    char *pAt =NULL;
+                    if (nProcess2 < nTotalEles)
+                    {
+                        pAt = ppElements[nTotalEles];
+                    }
+                    OnError(pAt);
                     return -1;
                 }
             }
@@ -90,20 +97,35 @@ TInt32 CInterfaceElement::Process(char **ppElements,EnType *pTypes,int nProcess2
                             }
                             else
                             {
-                                OnError(nProcess2);
+                                char *pAt =NULL;
+                                if (nProcess2 < nTotalEles)
+                                {
+                                    pAt = ppElements[nTotalEles];
+                                }
+                                OnError(pAt);
                                 return -1;
                             }
                         }
                         else
                         {
-                            OnError(nProcess2);
+                            char *pAt =NULL;
+                            if (nProcess2 < nTotalEles)
+                            {
+                                pAt = ppElements[nTotalEles];
+                            }
+                            OnError(pAt);
                             return -1;
                         }
                     }
                 }
                 else
                 {
-                    OnError(nProcess2);
+                    char *pAt =NULL;
+                    if (nProcess2 < nTotalEles)
+                    {
+                        pAt = ppElements[nTotalEles];
+                    }
+                    OnError(pAt);
                     return -1;
                 }
             } //case         en_class_name: 
@@ -145,7 +167,12 @@ TInt32 CInterfaceElement::Process(char **ppElements,EnType *pTypes,int nProcess2
                 }
                 else
                 {
-                    OnError(nProcess2);
+                    char *pAt =NULL;
+                    if (nProcess2 < nTotalEles)
+                    {
+                        pAt = ppElements[nTotalEles];
+                    }
+                    OnError(pAt);
                     return -1;
                 }
             } //case         en_class_name_risk:   //:
@@ -159,7 +186,12 @@ TInt32 CInterfaceElement::Process(char **ppElements,EnType *pTypes,int nProcess2
                 }
                 else
                 {
-                    OnError(nProcess2);
+                    char *pAt =NULL;
+                    if (nProcess2 < nTotalEles)
+                    {
+                        pAt = ppElements[nTotalEles];
+                    }
+                    OnError(pAt);
                     return -1;
                 }
             }  //case         en_class_derive_virtual://virtual 
@@ -175,7 +207,12 @@ TInt32 CInterfaceElement::Process(char **ppElements,EnType *pTypes,int nProcess2
                     }
                     else
                     {
-                        OnError(nProcess2);
+                        char *pAt =NULL;
+                        if (nProcess2 < nTotalEles)
+                        {
+                            pAt = ppElements[nTotalEles];
+                        }
+                        OnError(pAt);
                         return -1;
                     }
                 }
@@ -194,17 +231,22 @@ TInt32 CInterfaceElement::Process(char **ppElements,EnType *pTypes,int nProcess2
                             ++nProcess2;
 //                             nRet = IgnorTypes(ppElements,pTypes,nProcess2,nTotalEles,2,enterAndDividerTypes); //
 //                             nProcess2 += nRet;
-                            if (operator_type == pTypes[nProcess2])
+                            if (semicolon_type == pTypes[nProcess2])
                             {
-                                if (ppElements[nProcess2][0]==';')//结束了
+                                //if (ppElements[nProcess2][0]==';')//结束了
                                 {
                                     ++nProcess2;
-                                    return nProcess2;
+                                    return (nProcess2-nOld);
                                 }
                             }
                             else
                             {
-                                OnError(nProcess2);
+                                char *pAt =NULL;
+                                if (nProcess2 < nTotalEles)
+                                {
+                                    pAt = ppElements[nTotalEles];
+                                }
+                                OnError(pAt);
                                 return FAIL;
                             }
                         }
@@ -214,7 +256,12 @@ TInt32 CInterfaceElement::Process(char **ppElements,EnType *pTypes,int nProcess2
                         }
                         else
                         {
-                            OnError(nProcess2);
+                            char *pAt =NULL;
+                            if (nProcess2 < nTotalEles)
+                            {
+                                pAt = ppElements[nTotalEles];
+                            }
+                            OnError(pAt);
                             return FAIL;
                         }
                        
@@ -250,7 +297,12 @@ TInt32 CInterfaceElement::Process(char **ppElements,EnType *pTypes,int nProcess2
                                     }
                                     else
                                     {
-                                        OnError(nProcess2);
+                                        char *pAt =NULL;
+                                        if (nProcess2 < nTotalEles)
+                                        {
+                                            pAt = ppElements[nTotalEles];
+                                        }
+                                        OnError(pAt);
                                         return OUT_OF_MEM; 
                                     }
                                     ++nProcess2;
@@ -259,14 +311,24 @@ TInt32 CInterfaceElement::Process(char **ppElements,EnType *pTypes,int nProcess2
                             case key_namespace   :
                                 {
                                     //不该有
-                                    OnError(nProcess2);
+                                    char *pAt =NULL;
+                                    if (nProcess2 < nTotalEles)
+                                    {
+                                        pAt = ppElements[nTotalEles];
+                                    }
+                                    OnError(pAt);
                                     return FAIL;
                                 }
                                 break;
                             case key_struct      :
                                 {
                                     //暂时不处理   
-                                    OnError(nProcess2);
+                                    char *pAt =NULL;
+                                    if (nProcess2 < nTotalEles)
+                                    {
+                                        pAt = ppElements[nTotalEles];
+                                    }
+                                    OnError(pAt);
                                     return FAIL;
                                 }
                                 break;
@@ -279,12 +341,42 @@ TInt32 CInterfaceElement::Process(char **ppElements,EnType *pTypes,int nProcess2
                                     {
                                         if (':' !=ppElements[nProcess2][0])
                                         {
-                                            OnError(nProcess2);
+                                            char *pAt =NULL;
+                                            if (nProcess2 < nTotalEles)
+                                            {
+                                                pAt = ppElements[nTotalEles];
+                                            }
+                                            OnError(pAt);
                                             return -1;
                                         }
                                         else
                                         {
                                             ++nProcess2;
+                                        }
+                                    }
+                                }
+                                break;
+                            case key_virtual:
+                                {
+                                    ++nProcess2;
+                                    //后面肯定是一个函数
+                                    if (HandleAStatement(ppElements,pTypes,nProcess2,nTotalEles) <= SUCCESS)
+                                    {
+                                        char *pAt =NULL;
+                                        if (nProcess2 < nTotalEles)
+                                        {
+                                            pAt = ppElements[nTotalEles];
+                                        }
+                                        OnError(pAt);
+                                        return -1;
+                                    }
+                                    else
+                                    {
+                                        CMethod *pMethod = dynamic_cast<CMethod *>(GetLastElement());
+                                        if (pMethod)
+                                        {
+                                            //CParamerter *pPar = ( CParamerter *)pMethod->GetLastElement();
+                                            pMethod->AddVirtualDeg();
                                         }
                                     }
                                 }
@@ -298,73 +390,10 @@ TInt32 CInterfaceElement::Process(char **ppElements,EnType *pTypes,int nProcess2
                         if (bNeedHandle) //没有
                         {
                             //处理构造函数和析构函数
-                            CFullTypeDef *pFullType = CREATE_FROM_STATIC_POOL(CFullTypeDef);
-                            if (!pFullType)
+                            int nRet = HandleAStatement(ppElements,pTypes,nProcess2,nTotalEles);
+                            if (nRet < SUCCESS)
                             {
-                                OnError(nProcess2);
-                                return OUT_OF_MEM;
-                            }
-                            int nRet = pFullType->Process(ppElements,pTypes,nProcess2,nTotalEles);
-                            if (nRet > SUCCESS) //必须有
-                            {
-                                nProcess2 += nRet;
-                            }
-                            else
-                            {
-                                OnError(nProcess2);
                                 return nRet;
-                            }
-                            //find a name
-                            if (nProcess2 >= nTotalEles)
-                            {
-                                OnError(nProcess2);
-                                return INCORRECT_END;
-                            }
-                            if(alphabet_type == pTypes[nProcess2])
-                            {
-                                //a name;
-                                char *pName = ppElements[nProcess2];
-                                ++nProcess2;
-                                if (nProcess2 >= nTotalEles)
-                                {
-                                    OnError(nProcess2);
-                                    return INCORRECT_END;
-                                }
-                                if (blanket_type_1 == pTypes[nProcess2])
-                                {
-                                    CMethod *pMethod = CREATE_FROM_STATIC_POOL(CMethod);
-                                    if (!pMethod)
-                                    {
-                                        OnError(nProcess2);
-                                        return OUT_OF_MEM;
-                                    }
-                                    nRet = pMethod->Process(ppElements,pTypes,nProcess2,nTotalEles);
-                                    if (nRet > SUCCESS)
-                                    {
-                                        pMethod->SetName(pName);
-                                        pMethod->SetRtnType(pFullType);
-                                    }
-                                }
-                                else
-                                {
-                                    //处理数组？ 
-                                    printf("Find a menber of the class!");
-                                    while(semicolon_type != pTypes[nProcess2])
-                                    {
-                                        ++nProcess2;
-                                        if (nProcess2 >= nTotalEles)
-                                        {
-                                            OnError(nProcess2);
-                                            return INCORRECT_END;
-                                        }
-                                    }
-                                    ++nProcess2; //处理一个
-                                }
-                            }
-                            else
-                            {
-                                OnError(nProcess2);
-                                return -1;
                             }
                         }
                     }
@@ -374,11 +403,136 @@ TInt32 CInterfaceElement::Process(char **ppElements,EnType *pTypes,int nProcess2
         }
     }
     
-    if (0 == strcmp(ppElements[nProcess2],";"))
+    if (semicolon_type == pTypes[nProcess2])
     {
         return nProcess2 - nOld + 1;
     }
     return 0;
+}
+
+
+int CInterfaceElement::HandleAStatement(char **ppElements,EnType *pTypes,int& nProcess2,int nTotalEles)
+{
+    CFullTypeDef *pFullType = CREATE_FROM_STATIC_POOL(CFullTypeDef);
+    if (!pFullType)
+    {
+        char *pAt =NULL;
+        if (nProcess2 < nTotalEles)
+        {
+            pAt = ppElements[nTotalEles];
+        }
+        OnError(pAt);
+        return OUT_OF_MEM;
+    }
+    int nRet = pFullType->Process(ppElements,pTypes,nProcess2,nTotalEles);
+    if (nRet > SUCCESS) //必须有
+    {
+        nProcess2 += nRet;
+    }
+    else
+    {
+        char *pAt =NULL;
+        if (nProcess2 < nTotalEles)
+        {
+            pAt = ppElements[nTotalEles];
+        }
+        OnError(pAt);
+        return nRet;
+    }
+    //find a name
+    if (nProcess2 >= nTotalEles)
+    {
+        char *pAt =NULL;
+        if (nProcess2 < nTotalEles)
+        {
+            pAt = ppElements[nTotalEles];
+        }
+        OnError(pAt);
+        return INCORRECT_END;
+    }
+    if(alphabet_type == pTypes[nProcess2])
+    {
+        //a name;
+        char *pName = ppElements[nProcess2];
+        ++nProcess2;
+        if (nProcess2 >= nTotalEles)
+        {
+            char *pAt =NULL;
+            if (nProcess2 < nTotalEles)
+            {
+                pAt = ppElements[nTotalEles];
+            }
+            OnError(pAt);
+            return INCORRECT_END;
+        }
+        if (blanket_type_1 == pTypes[nProcess2])
+        {
+            CMethod *pMethod = CREATE_FROM_STATIC_POOL(CMethod);
+            if (!pMethod)
+            {
+                char *pAt =NULL;
+                if (nProcess2 < nTotalEles)
+                {
+                    pAt = ppElements[nTotalEles];
+                }
+                OnError(pAt);
+                return OUT_OF_MEM;
+            }
+            nRet = pMethod->Process(ppElements,pTypes,nProcess2,nTotalEles);
+            if (nRet > SUCCESS)
+            {
+                pMethod->SetName(pName);
+                pMethod->SetRtnType(pFullType);
+                AddChildElement(pMethod);
+                nProcess2 += nRet;
+                return 1;
+            }
+            //肯定是
+            OnError(ppElements[nProcess2]);
+            return -1;
+        }
+        else
+        {
+            //处理数组？ 
+            printf("Find a menber of the class!");
+            while(semicolon_type != pTypes[nProcess2])
+            {
+                ++nProcess2;
+                if (nProcess2 >= nTotalEles)
+                {
+                    char *pAt =NULL;
+                    if (nProcess2 < nTotalEles)
+                    {
+                        pAt = ppElements[nTotalEles];
+                    }
+                    OnError(pAt);
+                    return INCORRECT_END;
+                }
+            }
+            CParamerter *pPar = CREATE_FROM_STATIC_POOL(CParamerter);
+            if (!pPar)
+            {
+                OnError(ppElements[nProcess2]);
+                return OUT_OF_MEM;
+            }
+            ++nProcess2; //处理一个
+            pPar->SetType(pFullType);
+            pPar->SetName(pName);
+            AddChildElement(pPar);
+            //忽略成員.
+            return 0;
+        }
+    }
+    else
+    {
+        char *pAt =NULL;
+        if (nProcess2 < nTotalEles)
+        {
+            pAt = ppElements[nTotalEles];
+        }
+        OnError(pAt);
+        return -1;
+    }
 }
 
 const char *CInterfaceElement::GetHierachyName(void)

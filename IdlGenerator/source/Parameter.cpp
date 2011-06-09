@@ -12,7 +12,12 @@ TInt32 CParamerter::Process(char **ppElements,EnType *pTypes,int nProcess2,int n
     CFullTypeDef *pFullType = CREATE_FROM_STATIC_POOL(CFullTypeDef);
     if (!pFullType)
     {
-        OnError(nProcess2);
+        char *pAt =NULL;
+        if (nProcess2 < nTotalEles)
+        {
+            pAt = ppElements[nTotalEles];
+        }
+        OnError(pAt);
         return OUT_OF_MEM;
     }
     int nRet = pFullType->Process(ppElements,pTypes,nProcess2,nTotalEles);
@@ -36,6 +41,7 @@ TInt32 CParamerter::Process(char **ppElements,EnType *pTypes,int nProcess2,int n
         sprintf(szBuff,"nonName%d",szBuff);
         SetName(szBuff);
     }
+    m_pFullType = pFullType;
     return (nProcess2-nOld);
     //再找到一个名字
 }

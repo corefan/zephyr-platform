@@ -24,6 +24,10 @@ class CNamespace : public CBaseElement
 public:
     DECLARE_STATIC_CLASS_POOL(CNamespace);
 public:
+    CNamespace()
+    {
+        m_nElmentType = raw_namespace_type;
+    }
     virtual TInt32 Process(char **ppElements,EnType *pTypes,int nProcess2,int nTotalEles);
 
     //¿Ï¶¨ÊÇ Type + [&|*] + name +['('+[Type+[*|&]+[NAME+[=+(Num|Str|Char)]]]+[,+TYPE+[&|*]+[NAME]]+')'] + ';'

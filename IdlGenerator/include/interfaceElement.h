@@ -40,11 +40,13 @@ private:
         en_class_left_brace,
     };
 public:
+    CInterfaceElement();
     //class Name {  public : method1 method2 ...} ;
     virtual TInt32 Process(char **ppElements,EnType *pTypes,int nProcess2,int nTotalEles);
     virtual const char *GetHierachyName(void);
-    void OnError(int nProcess2);
+    //void OnError(int nProcess2);
     EnState GetState(char *pAlphabets);
+    int HandleAStatement(char **ppElements,EnType *pTypes,int& nProcess2,int nTotalEles);
 };
 
 }

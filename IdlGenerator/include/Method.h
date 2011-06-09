@@ -33,15 +33,20 @@ public:
     {
         m_nIsVirtual = 0;
         m_pFullRetType = NULL; 
+        m_nElmentType = raw_method_type;
     }
 //     CMethodElement *GetMethod()
 //     {
 //         return m_pBelongs2;
 //     }
+    void AddVirtualDeg()
+    {
+        ++m_nIsVirtual;
+    }
 
     void SetRtnType(CFullTypeDef *p)
     {
-        m_pFullRetType;
+        m_pFullRetType = p;
     }
     virtual TInt32 Process(char **ppElements,EnType *pTypes,int nProcess2,int nTotalEles);
 };

@@ -13,7 +13,8 @@ CHeaderFile::CHeaderFile()
     m_nNrOfWords = 0;
     m_nNrOfElements = 0;
     m_pszFile = NULL;
-
+    m_nElmentType = raw_header_file_type;
+    
     INIT_STATIC_POOL(CBaseElement,256);
 
     if (NULL == sm_pBaseElements)
@@ -22,18 +23,18 @@ CHeaderFile::CHeaderFile()
         CPool<TplNode<TplPtPack<CBaseElement,string >,string> > *pPool = new CPool<TplNode<TplPtPack<CBaseElement,string >,string> >;
         pPool->InitPool(100);
         sm_pBaseElements->Init(pPool);
-        AddBaseType("TInt32");
-        AddBaseType("TInt16");
-        AddBaseType("TInt8");
-        AddBaseType("TInt64");
-        AddBaseType("TFloat");
-        AddBaseType("TDouble");
-        AddBaseType("TBool");
-        AddBaseType("TChar");
-        AddBaseType("TUInt32");
-        AddBaseType("TUInt16");
-        AddBaseType("TUInt8");
-        AddBaseType("TUInt64");
+        AddBaseType("TInt32",raw_TInt32_type);
+        AddBaseType("TInt16",raw_TInt16_type);
+        AddBaseType("TInt8",raw_TInt8_type);
+        AddBaseType("TInt64",raw_TInt64_type);
+        AddBaseType("TFloat",raw_TFloat_type);
+        AddBaseType("TDouble",raw_TDouble_type);
+        AddBaseType("TBool",raw_TBool_type);
+        AddBaseType("TChar",raw_TChar_type);
+        AddBaseType("TUInt32",raw_TUInt32_type);
+        AddBaseType("TUInt16",raw_TUInt16_type);
+        AddBaseType("TUInt8",raw_TUInt8_type);
+        AddBaseType("TUInt64",raw_TUInt64_type);
     }
     if (NULL == sm_pBaseKeyWords)
     {
@@ -67,6 +68,7 @@ CHeaderFile::CHeaderFile()
          AddKeyWords("goto",key_goto         );
          AddKeyWords("switch",key_switch       );
          AddKeyWords("extern",key_extern       );
+         AddKeyWords("virtual",key_virtual);
     }
 }
 
@@ -103,6 +105,18 @@ TInt32 CHeaderFile::GeneratorIdl(const char *pFileName)
         }
     }
     nRet = Process(m_ppWords,m_pWordsTypes,0,m_nNrOfWords);
+    if (nRet == m_nNrOfWords)
+    {
+        printf("Parser Txt success, we got whole syntax tree!");
+    }
+    else
+    {
+        printf("Syntax incorrect! at %d",nRet);
+        printf("press any key to continue");
+        char c;
+        cin>>c;
+    }
+    
     return SUCCESS;
 }
 
@@ -173,6 +187,7 @@ TInt32 CHeaderFile::Process(char **ppElements,EnType *pTypes,int nProcess2,int n
                             return nRet;
                         }
                         nNr += nRet;
+                        AddChildElement(pInterface);
                     }
                 }
                 break;

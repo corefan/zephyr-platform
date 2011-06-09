@@ -43,6 +43,7 @@ CFullTypeDef::CFullTypeDef()
     m_uPrefix = 0;
     m_pType = NULL;
     m_szFull.clear();
+    m_nElmentType = raw_full_type_type;
     for (int i=0;i<4;++i)
     {
         m_tOprs[i] = 0;
@@ -155,7 +156,12 @@ TInt32 CFullTypeDef::Process(char **ppElements,EnType *pTypes,int nProcess2,int 
                 break;
             default:
                 {
-                    OnError(nProcess2);
+                    char *pAt =NULL;
+                    if (nProcess2 < nTotalEles)
+                    {
+                        pAt = ppElements[nTotalEles];
+                    }
+                    OnError(pAt);
                     return -1;
                 }
             }

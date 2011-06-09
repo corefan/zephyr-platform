@@ -235,6 +235,7 @@ TInt32 CNamespace::Process(char **ppElements,EnType *pTypes,int nProcess2,int nT
                             if (nRet >= 0)
                             {
                                 nNr += nRet;
+                                AddChildElement(pTmp);
                                 continue;
                             }
                             else
@@ -258,6 +259,7 @@ TInt32 CNamespace::Process(char **ppElements,EnType *pTypes,int nProcess2,int nT
                             if (nRet >= 0)
                             {
                                 nNr += nRet;
+                                AddChildElement(pTmp);
                                 continue;
                             }
                             else
