@@ -27,7 +27,7 @@ TInt32   CBaseElement::AddType(CBaseElement *pBaseElement)
     return OUT_OF_MEM;
 }
 
-TInt32   CBaseElement::AddBaseType(const char *psz,int nType)
+TInt32   CBaseElement::AddBaseType(const char *psz,EnRawTypes nType)
 {
     CBaseElement *pBase = CREATE_FROM_STATIC_POOL(CBaseElement);
     if (!pBase)
@@ -50,7 +50,7 @@ CBaseElement *CBaseElement::IsOneType(const char *psz)
     return NULL;
 }
 
-TInt32   CBaseElement::AddKeyWords(const char *pName,EnKeyWords key)
+TInt32   CBaseElement::AddKeyWords(const char *pName,EnRawTypes key)
 {
     TplPtPack<CBaseElement,string > *pItem = sm_pBaseKeyWords->PrepareItem();
     if (pItem)

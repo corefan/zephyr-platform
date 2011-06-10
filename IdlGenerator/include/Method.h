@@ -28,7 +28,12 @@ protected:
     int              m_nIsVirtual;  //0 不是，1是虚的，2是纯虚
     //name
     CFullTypeDef    *m_pFullRetType;;
+    string          m_szFullName;
 public:
+    void InitFullName(const char* psz)
+    {
+        m_szFullName = psz;
+    }
     CMethod()
     {
         m_nIsVirtual = 0;
@@ -49,6 +54,7 @@ public:
         m_pFullRetType = p;
     }
     virtual TInt32 Process(char **ppElements,EnType *pTypes,int nProcess2,int nTotalEles);
+    virtual const char *GetHierachyName();
 };
 
 }

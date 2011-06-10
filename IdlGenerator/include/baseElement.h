@@ -59,8 +59,11 @@ enum EnType
     semicolon_type          , //;
 };
 
-enum EnKeyWords
+
+
+enum EnRawTypes
 {
+    raw_not_acceptable   = 0,
     key_class       ,
     key_namespace   ,
     key_struct      ,
@@ -88,13 +91,7 @@ enum EnKeyWords
     key_switch      ,
     key_extern      ,
     key_virtual     ,
-};
-
-
-enum EnRawTypes
-{
-    raw_not_acceptable   = 0,
-    raw_base_element_type,
+    raw_base_element_type,    //这个是未知类型.
     raw_TInt32_type,
     raw_TInt16_type,
     raw_TInt8_type,
@@ -149,7 +146,7 @@ public:
     static TplMap<TplPtPack<CBaseElement,string >,string> *sm_pBaseKeyWords;
 
     string m_szName; //
-    int     m_nElmentType;
+    EnRawTypes     m_nElmentType;
     CBaseElement *m_pFather;
 
 //     struct CInstance
@@ -195,17 +192,18 @@ public:
     //处理下一个字符组
     virtual TInt32 Process(char **ppElements,EnType *pTypes,int nProcess2,int nTotalEles);
     virtual const char *GetHierachyName();
+    
 
     TInt32 IgnorType(char **ppElements,EnType *pTypes,int nProcess2,int nTotalEles,EnType eType);
     TInt32 IgnorTypes(char **ppElements,EnType *pTypes,int nProcess2,int nTotalEles,int nrOfType,EnType eType[]);
 
     static TInt32   AddType(CBaseElement *pBaseElement);
-    static TInt32   AddKeyWords(const char *pName,EnKeyWords key);
+    static TInt32   AddKeyWords(const char *pName,EnRawTypes key);
     static CBaseElement *IsKeyWords(const char *psz);
 
     static CBaseElement *IsOneType(const char *psz);
 
-    static TInt32   AddBaseType(const char *psz,int nType);
+    static TInt32   AddBaseType(const char *psz,EnRawTypes nType);
     void   AddChildElement(CBaseElement *pElement);
     CBaseElement *GetLastElement();
     void MakeOneWords(char **ppWords,int nFrom,int nWordsNr);

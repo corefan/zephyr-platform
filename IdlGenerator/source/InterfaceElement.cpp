@@ -478,11 +478,12 @@ int CInterfaceElement::HandleAStatement(char **ppElements,EnType *pTypes,int& nP
                 OnError(pAt);
                 return OUT_OF_MEM;
             }
+            pMethod->SetName(pName);
+            pMethod->InitFullName(pName);
+            pMethod->SetRtnType(pFullType);
             nRet = pMethod->Process(ppElements,pTypes,nProcess2,nTotalEles);
             if (nRet > SUCCESS)
             {
-                pMethod->SetName(pName);
-                pMethod->SetRtnType(pFullType);
                 AddChildElement(pMethod);
                 nProcess2 += nRet;
                 return 1;

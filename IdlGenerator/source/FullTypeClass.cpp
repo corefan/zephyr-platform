@@ -15,22 +15,22 @@ void CFullTypeDef::AddPrefix(EnPrefix enPrefix)
         {
         case en_const_prefix:
             {
-                m_szFull += "const ";
+                m_szFull += "const_";
             }
             break;
         case en_static_prefix:
             {
-                m_szFull += "static ";
+                m_szFull += "static_";
             }
             break;
         case en_mutable_prefix:
             {
-                m_szFull += "mutable ";
+                m_szFull += "mutable_";
             }
             break;
         case en_volatile_prefix:
             {
-                m_szFull += "volatile ";
+                m_szFull += "volatile_";
             }
             break;
         }
@@ -60,13 +60,13 @@ void CFullTypeDef::AddOpr(EnOperator enOpr)
             {
             case en_star_operator: 
                 {
-                    m_szFull += "* ";
+                    m_szFull += "_star";
                     m_tOprs[i] = en_star_operator;
                 }
                 break;
             case en_ref_operator:
                 {
-                    m_szFull += "& ";
+                    m_szFull += "_ref";
                     m_tOprs[i] = en_ref_operator;
                 }
                 break;
@@ -170,6 +170,11 @@ TInt32 CFullTypeDef::Process(char **ppElements,EnType *pTypes,int nProcess2,int 
         ++nProcess2;
     }
     return (nProcess2 - nOld);
+}
+
+const char *CFullTypeDef::GetHierachyName()
+{
+    return m_szFull.c_str();
 }
 
 }

@@ -36,7 +36,8 @@ public:
     void AddPrefix(EnPrefix);
     void AddOpr(EnOperator enOpr);
 
-    TInt32 Process(char **ppElements,EnType *pTypes,int nProcess2,int nTotalEles);
+    virtual TInt32 Process(char **ppElements,EnType *pTypes,int nProcess2,int nTotalEles);
+    virtual const char *GetHierachyName();
 };
 
 }

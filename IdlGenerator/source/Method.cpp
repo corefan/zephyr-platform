@@ -52,6 +52,8 @@ TInt32 CMethod::Process(char **ppElements,EnType *pTypes,int nProcess2,int nTota
                 nProcess2 += nRet;
                 ++nNrOfParameter;
                 AddChildElement(pParameter);
+                m_szFullName += "_";
+                m_szFullName += pParameter->m_pFullType->GetHierachyName();
             }
             else
             {
@@ -102,6 +104,11 @@ TInt32 CMethod::Process(char **ppElements,EnType *pTypes,int nProcess2,int nTota
     }
     OnError("incorrect end!");
     return -1;
+}
+
+const char *CMethod::GetHierachyName()
+{
+    return m_szFullName.c_str();
 }
 
 }
