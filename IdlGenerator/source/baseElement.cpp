@@ -191,12 +191,42 @@ void CBaseElement::OnError(const char *pWord)
 {
     if (pWord)
     {
-        printf("OnError at %s",pWord);
+        printf("OnError at %s \n",pWord);
     }
     else
     {
-        printf("OnError at end");
+        printf("OnError at end \n");
     }
+}
+
+TInt32 CBaseElement::GenerateSkeleton(const char *pPath)
+{
+    int n = m_tChilds.size();
+    int nTotalSize = 0;
+    for(int i=0;i<n;++i)
+    {
+        int nRet = m_tChilds[i]->GenerateSkeleton(pPath);
+        if (nRet < SUCCESS)
+        {
+            nTotalSize += nRet;
+        }
+    }
+    return nTotalSize;
+}
+
+TInt32 CBaseElement::GenerateStub(const char *pPath)
+{
+    int n = m_tChilds.size();
+    int nTotalSize = 0;
+    for(int i=0;i<n;++i)
+    {
+        int nRet = m_tChilds[i]->GenerateStub(pPath);
+        if (nRet < SUCCESS)
+        {
+            nTotalSize += nRet;
+        }
+    }
+    return nTotalSize;
 }
 
 }

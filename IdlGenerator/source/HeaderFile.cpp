@@ -2277,20 +2277,67 @@ TBool  CHeaderFile::IsNum(char c)
     return FALSE;
 }
 
-    //第一次语法分析,确定每个词的类
-TInt32 CHeaderFile::SyntaxCompile1st()
-{
-    return SUCCESS;
-}
-    //类型组合
-TInt32 CHeaderFile::SyntaxCompile2nd()
-{
-    return SUCCESS;
-}
-    //生成Idl代码
 TInt32 CHeaderFile::GeneratorIdlCode()
 {
     return SUCCESS;
+}
+
+TInt32 CHeaderFile::GenerateSkeleton(const char *pPath)
+{
+    int n = m_tChilds.size();
+    int nTotalSize = 0;
+    for(int i=0;i<n;++i)
+    {
+        CBaseElement *p = m_tChilds[i].m_pPt;
+        switch (p->m_nElmentType)
+        {
+        case raw_interface_type:
+        case raw_namespace_type:
+        case raw_method_type:
+            {
+                int nRet = p->GenerateSkeleton(pPath);
+                if (nRet < SUCCESS)
+                {
+                    nTotalSize += nRet;
+                }
+            }
+            break;
+        default:
+            {
+                
+            }
+        }
+    }
+    return nTotalSize;
+}
+
+TInt32 CHeaderFile::GenerateStub(const char *pPath)
+{
+    int n = m_tChilds.size();
+    int nTotalSize = 0;
+    for(int i=0;i<n;++i)
+    {
+        CBaseElement *p = m_tChilds[i].m_pPt;
+        switch (p->m_nElmentType)
+        {
+        case raw_interface_type:
+        case raw_namespace_type:
+        case raw_method_type:
+            {
+                int nRet = p->GenerateStub(pPath);
+                if (nRet < SUCCESS)
+                {
+                    nTotalSize += nRet;
+                }
+            }
+            break;
+        default:
+            {
+
+            }
+        }
+    }
+    return nTotalSize;
 }
 
 }

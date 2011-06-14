@@ -44,9 +44,16 @@ public:
     //class Name {  public : method1 method2 ...} ;
     virtual TInt32 Process(char **ppElements,EnType *pTypes,int nProcess2,int nTotalEles);
     virtual const char *GetHierachyName(void);
+
+    virtual TInt32 GenerateSkeleton(const char *pPath);
+    virtual TInt32 GenerateStub(const char *pPath);
+
     //void OnError(int nProcess2);
     EnState GetState(char *pAlphabets);
     int HandleAStatement(char **ppElements,EnType *pTypes,int& nProcess2,int nTotalEles);
+private:
+    TInt32 GenerateStubHeaderFile(const char *pPath);
+    TInt32 GeterateStubSourceFile(const char *pPath);
 };
 
 }

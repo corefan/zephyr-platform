@@ -16,21 +16,25 @@ void CFullTypeDef::AddPrefix(EnPrefix enPrefix)
         case en_const_prefix:
             {
                 m_szFull += "const_";
+                m_szRawTxt += "const ";
             }
             break;
         case en_static_prefix:
             {
                 m_szFull += "static_";
+                m_szRawTxt += "static ";
             }
             break;
         case en_mutable_prefix:
             {
                 m_szFull += "mutable_";
+                m_szRawTxt += "mutable ";
             }
             break;
         case en_volatile_prefix:
             {
                 m_szFull += "volatile_";
+                m_szRawTxt += "volatile ";
             }
             break;
         }
@@ -60,13 +64,15 @@ void CFullTypeDef::AddOpr(EnOperator enOpr)
             {
             case en_star_operator: 
                 {
-                    m_szFull += "_star";
+                    m_szFull += "_pt";
+                    m_szRawTxt += "*";
                     m_tOprs[i] = en_star_operator;
                 }
                 break;
             case en_ref_operator:
                 {
                     m_szFull += "_ref";
+                    m_szRawTxt += "&";
                     m_tOprs[i] = en_ref_operator;
                 }
                 break;
@@ -135,6 +141,7 @@ TInt32 CFullTypeDef::Process(char **ppElements,EnType *pTypes,int nProcess2,int 
         }
         m_pType = pFoundType;
         m_szFull += ppElements[nProcess2];
+        m_szRawTxt += ppElements[nProcess2];
         ++nProcess2;
     }
     while((operator_type == pTypes[nProcess2])||(star_mark_type == pTypes[nProcess2]))

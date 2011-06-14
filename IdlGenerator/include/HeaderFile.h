@@ -47,12 +47,6 @@ private:
     TInt32 DividIntoWords();
 
     
-
-    //第一次语法分析,确定每个词的类型
-    TInt32 SyntaxCompile1st();
-    //类型组合
-    TInt32 SyntaxCompile2nd();
-    //生成Idl代码
     TInt32 GeneratorIdlCode();
 
     TBool  IsDivider(char c);
@@ -129,6 +123,9 @@ private:
     {   //什么都不需要
         return "";
     }
+    virtual TInt32 GenerateSkeleton(const char *pPath);
+    virtual TInt32 GenerateStub(const char *pPaht);
+
     void RemoveAllNumLine(); //删除所有'#'
     void RemoveAllCommentsAndMakeConstStr();
     void RemoveAllType(EnType enType);

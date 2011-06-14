@@ -55,6 +55,8 @@ public:
     }
     virtual TInt32 Process(char **ppElements,EnType *pTypes,int nProcess2,int nTotalEles);
     virtual const char *GetHierachyName();
+    TInt32 GetFullMethodTxt(char *pszBuff,int nLength);
+    TInt32 GenerateStubSourceCode(char *pszBuff,int nLength);
 };
 
 }

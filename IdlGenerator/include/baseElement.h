@@ -121,9 +121,9 @@ public:
         m_pPt = NULL;
     }
     T   *m_pPt;
-    T& operator->()
+    T *operator->()
     {
-        return *m_pPt;
+        return m_pPt;
     }
     KEY &GetKey()
     {
@@ -192,7 +192,8 @@ public:
     //处理下一个字符组
     virtual TInt32 Process(char **ppElements,EnType *pTypes,int nProcess2,int nTotalEles);
     virtual const char *GetHierachyName();
-    
+    virtual TInt32 GenerateSkeleton(const char *pPath);
+    virtual TInt32 GenerateStub(const char *pPath);
 
     TInt32 IgnorType(char **ppElements,EnType *pTypes,int nProcess2,int nTotalEles,EnType eType);
     TInt32 IgnorTypes(char **ppElements,EnType *pTypes,int nProcess2,int nTotalEles,int nrOfType,EnType eType[]);

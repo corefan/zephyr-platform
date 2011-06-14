@@ -4,6 +4,8 @@
 #include "../include/IdlGeneratorErrorCode.h"
 #include "../include/Method.h"
 #include "../include/Parameter.h"
+#include "../include/nameSpace.h"
+
 #include <vector>
 
 
@@ -539,6 +541,269 @@ int CInterfaceElement::HandleAStatement(char **ppElements,EnType *pTypes,int& nP
 const char *CInterfaceElement::GetHierachyName(void)
 {
     return m_szName.c_str();
+}
+
+
+TInt32 CInterfaceElement::GenerateSkeleton(const char *pPath)
+{
+    //生成一个skeleton , 一个stub.
+    int nRet = 0;
+    //stub 名字
+    std::string szFileName = m_szName;
+    szFileName += "Stub.h";
+    FILE *pFile = fopen(szFileName.c_str(),"a");
+    int nLength = 2*1024*1024;
+    char *pBuff = NULL;
+    NEW(pBuff,char,nLength);
+    if (!pBuff)
+    {
+        return OUT_OF_MEM;
+    }
+    int nUsed = 0;
+    if (pFile)
+    {
+        int nBegin = 10000;
+        int n = sprintf_s(pBuff+nBegin,1000,"%s_STUB_H__",m_szName.c_str());
+        
+        for (int i=0;i<n;++i)
+        {
+            pBuff[nBegin] = toupper(pBuff[nBegin]);
+            ++nBegin;
+        }
+        n = sprintf_s(pBuff,nLength,"#ifndef %s \n #define %s\n",(pBuff+nBegin),(pBuff+nBegin));
+        nUsed += n;
+        nLength -= n;
+        n = sprintf_s(pBuff+nUsed,nLength,"class %sSkeleton \n");
+        
+        //sprintf_s()
+        fclose (pFile);
+        return SUCCESS;
+    }
+    //一个skeleton\stub
+    
+    return nRet;
+}
+
+TInt32 CInterfaceElement::GenerateStub(const char *pPath)
+{
+    //生成一个skeleton , 一个stub.
+    int nFileNr = 0;
+    int nRet = GenerateStubHeaderFile(pPath);
+    if (nRet > SUCCESS)
+    {
+        ++nFileNr;
+    }
+    //一个skeleton\stub
+
+    return nFileNr;
+}
+
+TInt32 CInterfaceElement::GenerateStubHeaderFile(const char *pPath)
+{
+    int nRet = 0;
+    //stub 名字
+    std::string szFileName = m_szName;
+    szFileName += pPath;
+    szFileName += "Stub.h";
+    FILE *pFile = fopen(szFileName.c_str(),"a");
+    int nLength = 2*1024*1024;
+    char *pBuff = NULL;
+    NEW(pBuff,char,nLength);
+    if (!pBuff)
+    {
+        return OUT_OF_MEM;
+    }
+    int nUsed = 0;
+    if (pFile)
+    {
+        int nBegin = 10000;
+        int n = sprintf_s(pBuff+nBegin,1000,"%s_STUB_H__",m_szName.c_str());
+
+        for (int i=0;i<n;++i)
+        {
+            pBuff[nBegin] = toupper(pBuff[nBegin]);
+            ++nBegin;
+        }
+
+        n = sprintf_s(pBuff,nLength,"#ifndef %s \n #define %s\n",(pBuff+10000),(pBuff+10000));
+        nUsed += n;
+        nLength -= n;
+
+//         n = sprintf_s(pBuff+nUsed,nLength,"#include \"%s\";\n",m_szName.c_str());
+//         nUsed += n;
+//         nLength -= n;
+
+        //加namespace
+        if (m_pFather)
+        {
+            if (raw_namespace_type == m_pFather->m_nElmentType)
+            {
+                CNamespace *pNS = dynamic_cast<CNamespace *>(m_pFather);
+                n = pNS->GenerateNamespaceCode(pBuff+nUsed,nLength);
+                nUsed += n;
+                nLength -= n;
+            }
+        }
+
+        n = sprintf_s(pBuff+nUsed,nLength,"class %sStub : public %s\n"
+            "{\n"
+            "public:\n"
+            "IfSkeleton *m_pOnwerObj;\n"
+            "CDoid  m_tTarget;\n"
+            ,m_szName.c_str(),m_szName.c_str());
+        nUsed += n;
+        nLength -= n;
+
+
+        for (int i=0;i<m_tChilds.size();++i)
+        {
+            CBaseElement *p = m_tChilds[i].m_pPt;
+            switch (p->m_nElmentType)
+            {
+            case raw_method_type:
+                {
+                    //只能加method
+                    //sprintf_s(pBuff+nUsed,nLength,"%s %s(")
+                    CMethod *pMethod = dynamic_cast<CMethod *>(p);
+                    n = pMethod->GetFullMethodTxt(pBuff+nUsed,nLength);
+                    if (n<SUCCESS)
+                    {
+                        return n;
+                    }
+                    else
+                    {
+                        nUsed += n;
+                        nLength -= n;
+                    }
+                    //加一个回车
+                    pBuff[nUsed]='\n';
+                    ++nUsed;
+                }
+                break;
+            }
+        }
+        n = sprintf_s(pBuff+nUsed,nLength,"};\n");
+        nUsed += n;
+        nLength -= n;
+
+        if (m_pFather)
+        {
+            if (raw_namespace_type == m_pFather->m_nElmentType)
+            {
+                CNamespace *pNS = dynamic_cast<CNamespace *>(m_pFather);
+                n = pNS->GenerateNamespaceCodeEnd(pBuff+nUsed,nLength);
+                nUsed += n;
+                nLength -= n;
+            }
+        }
+
+        fwrite(pBuff,1,nUsed,pFile);
+        //sprintf_s()
+        fclose (pFile);
+        return nUsed;
+    }
+    //一个skeleton\stub
+    return nRet;
+}
+TInt32 CInterfaceElement::GeterateStubSourceFile(const char *pPath)
+{
+    int nRet = 0;
+    //stub 名字
+    std::string szFileName = pPath;
+    szFileName +=m_szName;
+    szFileName += "Stub.cpp";
+    FILE *pFile = fopen(szFileName.c_str(),"a");
+    int nLength = 2*1024*1024;
+    char *pBuff = NULL;
+    NEW(pBuff,char,nLength);
+    if (!pBuff)
+    {
+        return OUT_OF_MEM;
+    }
+    int nUsed = 0;
+    if (pFile)
+    {
+        szFileName = pPath;
+        szFileName +=m_szName;
+        szFileName += "Stub.h";
+
+         int n = sprintf_s(pBuff,nLength,"#include \"%s\"",);
+         nUsed += n;
+         nLength -= n;
+
+//         n = sprintf_s(pBuff+nUsed,nLength,"public:\n",m_szName.c_str(),m_szName.c_str());
+//         nUsed += n;
+//         nLength -= n;
+        if (m_pFather)
+        {
+            if (raw_namespace_type == m_pFather->m_nElmentType)
+            {
+                CNamespace *pNS = dynamic_cast<CNamespace *>(m_pFather);
+                n = pNS->GenerateNamespaceCode(pBuff+nUsed,nLength);
+                nUsed += n;
+                nLength -= n;
+            }
+        }
+
+        n = sprintf_s(pBuff+nUsed,nLength,"class %sStub : public %s\n"
+            "{\n"
+            "public:\n"
+            "IfSkeleton *m_pOnwerObj;\n"
+            "CDoid  m_tTarget;\n"
+            ,m_szName.c_str(),m_szName.c_str());
+        nUsed += n;
+        nLength -= n;
+
+
+        for (int i=0;i<m_tChilds.size();++i)
+        {
+            CBaseElement *p = m_tChilds[i].m_pPt;
+            switch (p->m_nElmentType)
+            {
+            case raw_method_type:
+                {
+                    //只能加method
+                    //sprintf_s(pBuff+nUsed,nLength,"%s %s(")
+                    CMethod *pMethod = dynamic_cast<CMethod *>(p);
+                    n = pMethod->GetFullMethodTxt(pBuff+nUsed,nLength);
+                    if (n<SUCCESS)
+                    {
+                        return n;
+                    }
+                    else
+                    {
+                        nUsed += n;
+                        nLength -= n;
+                    }
+                    //加一个回车
+                    pBuff[nUsed]='\n';
+                    ++nUsed;
+                }
+                break;
+            }
+        }
+        n = sprintf_s(pBuff+nUsed,nLength,"};\n");
+        nUsed += n;
+        nLength -= n;
+
+        if (m_pFather)
+        {
+            if (raw_namespace_type == m_pFather->m_nElmentType)
+            {
+                CNamespace *pNS = dynamic_cast<CNamespace *>(m_pFather);
+                n = pNS->GenerateNamespaceCodeEnd(pBuff+nUsed,nLength);
+                nUsed += n;
+                nLength -= n;
+            }
+        }
+        fwrite(pBuff,1,nUsed,pFile);
+        //sprintf_s()
+        fclose (pFile);
+        return nUsed;
+    }
+    //一个skeleton\stub
+
+    return nRet;
 }
 
 }

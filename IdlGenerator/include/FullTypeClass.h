@@ -30,7 +30,12 @@ public:
     unsigned char m_tOprs[4]; //4¸ö
     CBaseElement *m_pType;
     std::string  m_szFull;
+    std::string  m_szRawTxt;
 public:
+    std::string &GetRawTxt()
+    {
+        return m_szRawTxt;
+    }
     CFullTypeDef();
 
     void AddPrefix(EnPrefix);

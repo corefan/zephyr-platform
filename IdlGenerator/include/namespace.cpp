@@ -344,5 +344,109 @@ TInt32 CNamespace::Process(char **ppElements,EnType *pTypes,int nProcess2,int nT
     }
 }
 
+TInt32 CNamespace::GenerateSkeleton(const char *pPath)
+{
+    int n = m_tChilds.size();
+    int nTotalSize = 0;
+    for(int i=0;i<n;++i)
+    {
+        CBaseElement *p = m_tChilds[i].m_pPt;
+        switch (p->m_nElmentType)
+        {
+        case raw_interface_type:
+        case raw_namespace_type:
+        case raw_method_type:
+            {
+                int nRet = p->GenerateSkeleton(pPath);
+                if (nRet < SUCCESS)
+                {
+                    nTotalSize += nRet;
+                }
+            }
+            break;
+        default:
+            {
+
+            }
+        }
+    }
+    return nTotalSize;
+}
+
+TInt32 CNamespace::GenerateStub(const char *pPath)
+{
+    int n = m_tChilds.size();
+    int nTotalSize = 0;
+    for(int i=0;i<n;++i)
+    {
+        CBaseElement *p = m_tChilds[i].m_pPt;
+        switch (p->m_nElmentType)
+        {
+        case raw_interface_type:
+        case raw_namespace_type:
+        case raw_method_type:
+            {
+                int nRet = p->GenerateStub(pPath);
+                if (nRet < SUCCESS)
+                {
+                    nTotalSize += nRet;
+                }
+            }
+            break;
+        default:
+            {
+
+            }
+        }
+    }
+    return nTotalSize;
+}
+
+TInt32 CNamespace::GenerateNamespaceCode(char *pBuff,int nLength)
+{
+    int n = 0;
+    int nUsed = 0;
+    if (m_pFather)
+    {
+        if (raw_namespace_type == m_pFather->m_nElmentType)
+        {
+            CNamespace *pNS = dynamic_cast<CNamespace *>(m_pFather);
+            if (pNS)
+            {
+                n = pNS->GenerateNamespaceCode(pBuff,nLength);
+                nUsed += n;
+                nLength -= n;
+            }
+        }
+    }
+    n = sprintf_s(pBuff+nUsed,nLength,"namespace %s \n{\n",m_szName.c_str());
+    nUsed += n;
+    nLength -= n;
+    return nUsed;
+}
+
+TInt32 CNamespace::GenerateNamespaceCodeEnd(char *pBuff,int nLength)
+{
+    int n = 0;
+    int nUsed = 0;
+    if (m_pFather)
+    {
+        if (raw_namespace_type == m_pFather->m_nElmentType)
+        {
+            CNamespace *pNS = dynamic_cast<CNamespace *>(m_pFather);
+            if (pNS)
+            {
+                n = pNS->GenerateNamespaceCodeEnd(pBuff,nLength);
+                nUsed += n;
+                nLength -= n;
+            }
+        }
+    }
+    n = sprintf_s(pBuff+nUsed,nLength,"}\n");
+    nUsed += n;
+    nLength -= n;
+    return nUsed;
+}
+
 }
 

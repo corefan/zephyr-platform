@@ -111,4 +111,84 @@ const char *CMethod::GetHierachyName()
     return m_szFullName.c_str();
 }
 
+TInt32 CMethod::GetFullMethodTxt(char *pszBuff,int nLength)
+{
+    int nRet = sprintf_s(pszBuff,nLength,"%s %s(",m_pFullRetType->m_szRawTxt.c_str(),m_szName.c_str());
+    int nUsed = nRet;
+    nLength -= nRet;
+    for (int i=0;i<m_tChilds.size();++i)
+    {
+        CBaseElement *p = m_tChilds[i].m_pPt;
+        if (raw_parameter_type == p->m_nElmentType)
+        {
+            char *pFormat;
+            if (i)
+            {
+                pFormat = ",%s %s";
+            }
+            else
+            {
+                pFormat = "%s %s";
+            }
+            CParamerter *pPar = dynamic_cast<CParamerter *>(p);
+            nRet = sprintf_s(pszBuff+nUsed,nLength,pFormat,pPar->m_pFullType->m_szRawTxt.c_str(),pPar->m_szName);
+            nUsed += nRet;
+            nLength -= nRet;
+        }
+        else
+        {
+            return -1;
+        }
+    }
+    nRet = sprintf_s(pszBuff+nUsed,nLength,");");
+    return nUsed;
+}
+
+TInt32 CMethod::GenerateStubSourceCode(char *pszBuff,int nLength)
+{
+    int nUsed = 0;
+    int nRet = 0;
+    
+    if ((m_pFather)&&(raw_interface_type == m_pFather->m_nElmentType))
+    {
+        CInterfaceElement *pIf = dynamic_cast<CInterfaceElement*>(m_pFather);
+        nRet = sprintf_s(pszBuff,nLength,"%s %s::%s(",m_pFullRetType->m_szRawTxt.c_str(),pIf->m_szName.c_str(),m_szName.c_str());
+        nUsed += nRet;
+        nLength -= nRet;
+    }
+    else
+    {
+        nRet = sprintf_s(pszBuff,nLength,"%s %s(",m_pFullRetType->m_szRawTxt.c_str(),m_szName.c_str());
+        nUsed += nRet;
+        nLength -= nRet;
+    }
+    for (int i=0;i<m_tChilds.size();++i)
+    {
+        CBaseElement *p = m_tChilds[i].m_pPt;
+        if (raw_parameter_type == p->m_nElmentType)
+        {
+            char *pFormat;
+            if (i)
+            {
+                pFormat = ",%s %s";
+            }
+            else
+            {
+                pFormat = "%s %s";
+            }
+            CParamerter *pPar = dynamic_cast<CParamerter *>(p);
+            nRet = sprintf_s(pszBuff+nUsed,nLength,pFormat,pPar->m_pFullType->m_szRawTxt.c_str(),pPar->m_szName);
+            nUsed += nRet;
+            nLength -= nRet;
+        }
+        else
+        {
+            return -1;
+        }
+    }
+    nRet = sprintf_s(pszBuff+nUsed,nLength,")\n{\n");
+    //¿ªÊ¼Ð´ÄÚÈÝ
+
+}
+
 }

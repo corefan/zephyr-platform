@@ -30,6 +30,9 @@ public:
     }
     virtual TInt32 Process(char **ppElements,EnType *pTypes,int nProcess2,int nTotalEles);
 
+    virtual TInt32 GenerateSkeleton(const char *pPath);
+    virtual TInt32 GenerateStub(const char *pPaht);
+
     //肯定是 Type + [&|*] + name +['('+[Type+[*|&]+[NAME+[=+(Num|Str|Char)]]]+[,+TYPE+[&|*]+[NAME]]+')'] + ';'
     //Type =  [const|volatile|static]+[(NAMESPACE|CLASSNAME)+::]+name
     int findAType(char **ppElements,EnType *pTypes,int nProcess2,int nTotalEles);//Type;
@@ -39,7 +42,9 @@ public:
     int findMethod(char **ppElements,EnType *pTypes,int nProcess2,int nTotalEles); //[(+[Type+[*|&]+[NAME+[=[Num|Str|Char]]]]+[,+TYPE+[&|*]+[NAME]])];
     int findADefaultValue(char **ppElements,EnType *pTypes,int nProcess2,int nTotalEles); //[=[Num|Str|Char]];
     
-
+    //其实nLength其实没啥用
+    TInt32 GenerateNamespaceCode(char *pBuff,int nLength);
+    TInt32 GenerateNamespaceCodeEnd(char *pBuff,int nLength);
 };
 
 }
