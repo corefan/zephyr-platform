@@ -593,6 +593,11 @@ TInt32 CInterfaceElement::GenerateStub(const char *pPath)
     {
         ++nFileNr;
     }
+    nRet = GenerateStubSourceFile(pPath);
+    if (nRet > SUCCESS)
+    {
+        ++nFileNr;
+    }
     //一个skeleton\stub
 
     return nFileNr;
@@ -705,7 +710,7 @@ TInt32 CInterfaceElement::GenerateStubHeaderFile(const char *pPath)
     //一个skeleton\stub
     return nRet;
 }
-TInt32 CInterfaceElement::GeterateStubSourceFile(const char *pPath)
+TInt32 CInterfaceElement::GenerateStubSourceFile(const char *pPath)
 {
     int nRet = 0;
     //stub 名字
@@ -727,7 +732,7 @@ TInt32 CInterfaceElement::GeterateStubSourceFile(const char *pPath)
         szFileName +=m_szName;
         szFileName += "Stub.h";
 
-         int n = sprintf_s(pBuff,nLength,"#include \"%s\"",);
+         int n = sprintf_s(pBuff,nLength,"#include \"%s\"",szFileName.c_str());
          nUsed += n;
          nLength -= n;
 
@@ -744,16 +749,16 @@ TInt32 CInterfaceElement::GeterateStubSourceFile(const char *pPath)
                 nLength -= n;
             }
         }
-
-        n = sprintf_s(pBuff+nUsed,nLength,"class %sStub : public %s\n"
-            "{\n"
-            "public:\n"
-            "IfSkeleton *m_pOnwerObj;\n"
-            "CDoid  m_tTarget;\n"
-            ,m_szName.c_str(),m_szName.c_str());
-        nUsed += n;
-        nLength -= n;
-
+// 
+//         n = sprintf_s(pBuff+nUsed,nLength,"class %sStub : public %s\n"
+//             "{\n"
+//             "public:\n"
+//             "IfSkeleton *m_pOnwerObj;\n"
+//             "CDoid  m_tTarget;\n"
+//             ,m_szName.c_str(),m_szName.c_str());
+//         nUsed += n;
+//         nLength -= n;
+// 
 
         for (int i=0;i<m_tChilds.size();++i)
         {
@@ -765,7 +770,7 @@ TInt32 CInterfaceElement::GeterateStubSourceFile(const char *pPath)
                     //只能加method
                     //sprintf_s(pBuff+nUsed,nLength,"%s %s(")
                     CMethod *pMethod = dynamic_cast<CMethod *>(p);
-                    n = pMethod->GetFullMethodTxt(pBuff+nUsed,nLength);
+                    n = pMethod->GenerateStubSourceCode(pBuff+nUsed,nLength);
                     if (n<SUCCESS)
                     {
                         return n;
@@ -782,9 +787,6 @@ TInt32 CInterfaceElement::GeterateStubSourceFile(const char *pPath)
                 break;
             }
         }
-        n = sprintf_s(pBuff+nUsed,nLength,"};\n");
-        nUsed += n;
-        nLength -= n;
 
         if (m_pFather)
         {
@@ -796,13 +798,26 @@ TInt32 CInterfaceElement::GeterateStubSourceFile(const char *pPath)
                 nLength -= n;
             }
         }
+
         fwrite(pBuff,1,nUsed,pFile);
         //sprintf_s()
         fclose (pFile);
+        delete [] pBuff;
+        pBuff = NULL;
         return nUsed;
     }
     //一个skeleton\stub
+    return nRet;
+}
 
+TInt32 CInterfaceElement::GetMethodIdStr(char *pBuff)
+{
+    char szBuff[512];
+    int nRet = sprintf_s(szBuff,"%s_ID",m_szName.c_str());
+    for (int i=0;i<nRet;++i)
+    {
+        szBuff[i] = toupper(szBuff[i]);
+    }
     return nRet;
 }
 

@@ -57,6 +57,11 @@ public:
     virtual const char *GetHierachyName();
     TInt32 GetFullMethodTxt(char *pszBuff,int nLength);
     TInt32 GenerateStubSourceCode(char *pszBuff,int nLength);
+//     TInt32 GeneratePresenterHeaderFile(char *pPath); //这个其实没必要的，
+//     TInt32 GeneratePresenterSourceFile(char *pPath);
+
+    TInt32 GetMethodIdStr(char *pBuff);
+
 };
 
 }
