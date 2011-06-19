@@ -30,6 +30,10 @@ protected:
     CFullTypeDef    *m_pFullRetType;;
     string          m_szFullName;
 public:
+    CFullTypeDef *GetFullRetType()
+    {
+        return m_pFullRetType;
+    }
     void InitFullName(const char* psz)
     {
         m_szFullName = psz;
@@ -56,11 +60,15 @@ public:
     virtual TInt32 Process(char **ppElements,EnType *pTypes,int nProcess2,int nTotalEles);
     virtual const char *GetHierachyName();
     TInt32 GetFullMethodTxt(char *pszBuff,int nLength);
+    
+    TInt32 GetFullSkeletonMethodTxt(char *pszBuff,int nLength);
+    TInt32 GetMethodFunPtTxt(char *pszBuff,int nLength);
     TInt32 GenerateStubSourceCode(char *pszBuff,int nLength);
+    TInt32 GenerateSkeletonSourceCode(char *pszBuff,int nLength);
 //     TInt32 GeneratePresenterHeaderFile(char *pPath); //这个其实没必要的，
 //     TInt32 GeneratePresenterSourceFile(char *pPath);
 
-    TInt32 GetMethodIdStr(char *pBuff);
+    TInt32 GetMethodIdStr(char *pBuff,int nlength);
 
 };
 

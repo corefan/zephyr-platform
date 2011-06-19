@@ -1,6 +1,7 @@
 #include "../include/HeaderFile.h" 
 #include "../include/interfaceElement.h"
 #include "../include/nameSpace.h"
+#include<iostream>
 namespace Zephyr
 {
 
@@ -114,8 +115,10 @@ TInt32 CHeaderFile::GeneratorIdl(const char *pFileName)
         printf("Syntax incorrect! at %d",nRet);
         printf("press any key to continue");
         char c;
-        cin>>c;
+        std::cin>>c;
     }
+    GenerateStub("./");
+    GenerateSkeleton("./");
     
     return SUCCESS;
 }

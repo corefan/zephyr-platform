@@ -51,10 +51,12 @@ public:
     //void OnError(int nProcess2);
     EnState GetState(char *pAlphabets);
     int HandleAStatement(char **ppElements,EnType *pTypes,int& nProcess2,int nTotalEles);
-    TInt32 GetMethodIdStr(char *pBuff);
+    TInt32 GetMethodIdStr(char *pBuff,int nLength);
 private:
     TInt32 GenerateStubHeaderFile(const char *pPath);
     TInt32 GenerateStubSourceFile(const char *pPath);
+    TInt32 GenerateSkeletonHeaderFile(const char *pPath);
+    TInt32 GenerateSkeletonSourceFile(const char *pPath);
 };
 
 }

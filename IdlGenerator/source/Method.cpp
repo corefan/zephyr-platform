@@ -132,7 +132,7 @@ TInt32 CMethod::GetFullMethodTxt(char *pszBuff,int nLength)
                 pFormat = "%s %s";
             }
             CParamerter *pPar = dynamic_cast<CParamerter *>(p);
-            nRet = sprintf_s(pszBuff+nUsed,nLength,pFormat,pPar->m_pFullType->m_szRawTxt.c_str(),pPar->m_szName);
+            nRet = sprintf_s(pszBuff+nUsed,nLength,pFormat,pPar->m_pFullType->m_szRawTxt.c_str(),pPar->m_szName.c_str());
             nUsed += nRet;
             nLength -= nRet;
         }
@@ -142,8 +142,77 @@ TInt32 CMethod::GetFullMethodTxt(char *pszBuff,int nLength)
         }
     }
     nRet = sprintf_s(pszBuff+nUsed,nLength,");");
+    nUsed += nRet;
+    //nLength-=nRet;
     return nUsed;
 }
+
+TInt32 CMethod::GetFullSkeletonMethodTxt(char *pszBuff,int nLength)
+{
+    return sprintf_s(pszBuff,nLength,"Handle%s(CMessageHeader *pMsg);",m_szFullName.c_str());
+}
+
+
+TInt32 CMethod::GetMethodFunPtTxt(char *pszBuff,int nLength)
+{
+    if ((m_pFather)&&(raw_interface_type == m_pFather->m_nElmentType))
+    {
+        CBaseElement *pBase = m_pFather;
+        CInterfaceElement *pIf = dynamic_cast<CInterfaceElement*>(pBase);
+        int nUsed = sprintf_s(pszBuff,nLength,"{(");
+        if (nUsed>0)
+        {
+            nLength -= nUsed;
+        }
+        else
+        {
+            return nUsed;
+        }
+        int n = pIf->GetMethodIdStr(pszBuff+nUsed,nLength);
+        if (n > SUCCESS)
+        {
+            nUsed += n;
+            nLength -= n;
+        }
+        else
+        {
+            return n;
+        }
+        pszBuff[nUsed] = '|';
+        ++nUsed;
+        --nLength;
+        n = GetMethodIdStr(pszBuff+nUsed,nLength);
+        if (n > SUCCESS)
+        {
+            nUsed += n;
+            nLength -= n;
+        }
+        else
+        {
+            return n;
+        }
+        n = sprintf_s(pszBuff+nUsed,nLength,"), &%sSkeleton::Handle%s}",pIf->m_szName.c_str(),m_szFullName.c_str());
+        if (n > SUCCESS)
+        {
+            nUsed += n;
+            nLength -= n;
+        }
+//         else
+//         {
+//             return n;
+//         }
+        return nUsed;
+        //%s|%s), &%s::Handle%s},\n",)
+    }
+    else
+    {
+        printf("Only interface method supported!!");
+        return -1;
+    }
+    
+}
+
+
 
 TInt32 CMethod::GenerateStubSourceCode(char *pszBuff,int nLength)
 {
@@ -153,7 +222,7 @@ TInt32 CMethod::GenerateStubSourceCode(char *pszBuff,int nLength)
     if ((m_pFather)&&(raw_interface_type == m_pFather->m_nElmentType))
     {
         pIf = dynamic_cast<CInterfaceElement*>(m_pFather);
-        nRet = sprintf_s(pszBuff,nLength,"%s %s::%s(",m_pFullRetType->m_szRawTxt.c_str(),pIf->m_szName.c_str(),m_szName.c_str());
+        nRet = sprintf_s(pszBuff,nLength,"%s %sStub::%s(",m_pFullRetType->m_szRawTxt.c_str(),pIf->m_szName.c_str(),m_szName.c_str());
         nUsed += nRet;
         nLength -= nRet;
     }
@@ -177,7 +246,7 @@ TInt32 CMethod::GenerateStubSourceCode(char *pszBuff,int nLength)
                 pFormat = "%s %s";
             }
             CParamerter *pPar = dynamic_cast<CParamerter *>(p);
-            nRet = sprintf_s(pszBuff+nUsed,nLength,pFormat,pPar->m_pFullType->m_szRawTxt.c_str(),pPar->m_szName);
+            nRet = sprintf_s(pszBuff+nUsed,nLength,pFormat,pPar->m_pFullType->m_szRawTxt.c_str(),pPar->m_szName.c_str());
             nUsed += nRet;
             nLength -= nRet;
         }
@@ -190,7 +259,7 @@ TInt32 CMethod::GenerateStubSourceCode(char *pszBuff,int nLength)
     nUsed += nRet;
     nLength -= nRet;
     
-    nRet = sprintf_s(pszBuff+nUsed,nLength, "TInt32 nLen = ;//开始计算包长度"
+    nRet = sprintf_s(pszBuff+nUsed,nLength, "    TInt32 nLen = "
                                             ,pIf->m_szName.c_str(),m_szFullName.c_str()); 
     nUsed += nRet;
     nLength -= nRet;
@@ -204,11 +273,11 @@ TInt32 CMethod::GenerateStubSourceCode(char *pszBuff,int nLength)
                 char *pFormat;
                 if (i)
                 {
-                    pFormat = "sizeof(%s)";
+                    pFormat = "+sizeof(%s)";
                 }
                 else
                 {
-                    pFormat = "+sizeof(%s)";
+                    pFormat = "sizeof(%s)";
                 }
                 CParamerter *pPar = dynamic_cast<CParamerter *>(p);
                 nRet = sprintf_s(pszBuff+nUsed,nLength,pFormat,pPar->m_pFullType->m_pType->m_szName.c_str());
@@ -229,26 +298,30 @@ TInt32 CMethod::GenerateStubSourceCode(char *pszBuff,int nLength)
     }
     
     
-    nRet = sprintf_s(pszBuff+nUsed,nLength, "CMessageHeader *pMsg = m_pOnwerObj->PrepareMsg(nLen,(");
+    nRet = sprintf_s(pszBuff+nUsed,nLength, ";\n    CMessageHeader *pMsg = m_pOnwerObj->PrepareMsg(nLen,(");
     nUsed += nRet;
     nLength -= nRet;
-    nRet = GetMethodIdStr(pszBuff+nUsed);
+    nRet = GetMethodIdStr(pszBuff+nUsed,nLength);
     nUsed += nRet;
     nLength -= nRet;
 
     pszBuff[nUsed] = '|';
-    pIf->GetMethodIdStr(pszBuff+nUsed);
+    ++nUsed;
+    ++nLength;
+    nRet = pIf->GetMethodIdStr(pszBuff+nUsed,nLength);
     nUsed += nRet;
     nLength -= nRet;
-    nRet = sprintf_s(pszBuff+nUsed,nLength,",&m_tTarget,1,false);\n"
-                                            "if (NULL == pMsg)\n"
-                                            "{\n"
-                                            "return OUT_OF_MEM;\n"
-                                            "}\n"
-                                            "TUInt32 nUsed=0;\n"
-                                            "TInt32 nRet=0;\n"
-                                            "TUChar *pBuffer = pMsg->GetBody()"
+    nRet = sprintf_s(pszBuff+nUsed,nLength,"),&m_tTarget,1,false);\n"
+                                            "    if (NULL == pMsg)\n"
+                                            "    {\n"
+                                            "        return OUT_OF_MEM;\n"
+                                            "    }\n"
+                                            "    TUInt32 nUsed=0;\n"
+                                            "    TInt32 nRet=0;\n"
+                                            "    TUChar *pBuffer = pMsg->GetBody();\n"
                                             );
+    nUsed += nRet;
+    nLength -= nRet;
     //打包
     for (int i=0;i<m_tChilds.size();++i)
     {
@@ -256,13 +329,13 @@ TInt32 CMethod::GenerateStubSourceCode(char *pszBuff,int nLength)
         if (raw_parameter_type == p->m_nElmentType)
         {
             CParamerter *pPar = dynamic_cast<CParamerter *>(p);
-            nRet = sprintf_s(pszBuff+nUsed,nLength,"nRet = Marshall(pBuffer+nUsed,%s,nLen);\n"
-                                                   "if (nRet < SUCCESS)\n"
-                                                   "{\n"
-                                                        "return nRet;\n"
-                                                   "}\n"
-                                                   "nUsed += nRet;\n"
-                                                   "nLen-=nRet;\n"
+            nRet = sprintf_s(pszBuff+nUsed,nLength,"    nRet = Marshall(pBuffer+nUsed,nLen,%s);\n"
+                                                   "    if (nRet < SUCCESS)\n"
+                                                   "    {\n"
+                                                   "        return nRet;\n"
+                                                   "    }\n"
+                                                   "    nUsed += nRet;\n"
+                                                   "    nLen-=nRet;\n"
                                                    ,pPar->m_szName.c_str());
             nUsed += nRet;
             nLength -= nRet;
@@ -271,29 +344,35 @@ TInt32 CMethod::GenerateStubSourceCode(char *pszBuff,int nLength)
         {
             return -1;
         }
+        nRet = sprintf_s(pszBuff+nUsed,nLength,"    if (nRet < SUCCESS)\n"
+            "    {\n"
+            "        return nRet;\n"
+            "    }\n"
+            );
+        nUsed += nRet;
+        nLength -= nRet;
     }
-    nRet = sprintf_s(pszBuff+nUsed,nLength,"if (nRet < SUCCESS)\n"
-                                            "{\n"
-                                            "return nRet;\n"
-                                            "}\n"
-                                            "pMsg->ResetBodyLength(nUsed);"
-                                            "return m_pOnwerObj->SendMsg(pMsg);\n"
-                                            "}\n"
-                                             );
+
+    if (m_tChilds.size())
+    {
+        nRet = sprintf_s(pszBuff+nUsed,nLength,"    pMsg->ResetBodyLength(nUsed);\n");
+        nUsed += nRet;
+        nLength -= nRet;
+    }
+    
+    nRet = sprintf_s(pszBuff+nUsed,nLength,"    return m_pOnwerObj->SendMsg(pMsg);\n}\n");
     nUsed += nRet;
     nLength -= nRet;
     return nUsed;
     //开始写内容
-    
 }
 
-TInt32 CMethod::GetMethodIdStr(char *pBuff)
+TInt32 CMethod::GetMethodIdStr(char *pBuff,int nLength)
 {
-    char szBuff[512];
-    int nRet = sprintf_s(szBuff,"%s_ID",m_szFullName.c_str());
+    int nRet = sprintf_s(pBuff,nLength,"%s_ID",m_szFullName.c_str());
     for (int i=0;i<nRet;++i)
     {
-        szBuff[i] = toupper(szBuff[i]);
+        pBuff[i] = toupper(pBuff[i]);
     }
     return nRet;
 }
@@ -410,6 +489,97 @@ TInt32 CMethod::GetMethodIdStr(char *pBuff)
 // {
 //     return SUCCESS;
 // }
+TInt32 CMethod::GenerateSkeletonSourceCode(char *pszBuff,int nLength)
+{
+    int nUsed = 0;
+    int nRet = 0;
+    CInterfaceElement *pIf = NULL;
+    if ((m_pFather)&&(raw_interface_type == m_pFather->m_nElmentType))
+    {
+        pIf = dynamic_cast<CInterfaceElement*>(m_pFather);
+        nRet = sprintf_s(pszBuff,nLength,"%s %sSkeleton::%s(CMessageHeader *pMsg)\n"
+                                         "{\n"
+                                         "    TInt32 nLen = pMsg->GetBodyLength();\n"
+                                         ,m_pFullRetType->m_szRawTxt.c_str(),pIf->m_szName.c_str(),m_szFullName.c_str());
+        nUsed += nRet;
+        nLength -= nRet;
+    }
+    else
+    {
+        printf("Normal method not supported!");
+        return -1;
+    }
+    if (m_tChilds.size())
+    {
+        nRet = sprintf_s(pszBuff+nUsed,nLength,"    TUChar *pBuff=pMsg->GetBody();\n"
+                                               "    TInt32 n;\n");
+        nUsed += nRet;
+        nLength -= nRet;
+        for (int i=0;i<m_tChilds.size();++i)
+        {
+            CBaseElement *p = m_tChilds[i].m_pPt;
+            if (raw_parameter_type == p->m_nElmentType)
+            {
+                CParamerter *pPar = dynamic_cast<CParamerter *>(p);
+                nRet = sprintf_s(pszBuff+nUsed,nLength,"    %s %s;\n"
+                                                       "    n=Unmarshall(pszBuff,nLen,%s);\n"
+                                                       "    if (n<SUCCESS)\n"
+                                                       "    {\n"
+                                                       "        pBuff += n;\n"
+                                                       "        nLen -= n;\n"
+                                                       "    }\n"
+                                                       "    else\n"
+                                                       "    {\n"
+                                                       "        return n;\n"
+                                                       "    }\n"
+                                                       ,pPar->m_pFullType->m_szRawTxt.c_str(),pPar->m_szName.c_str(),pPar->m_szName.c_str());
+                nUsed += nRet;
+                nLength -= nRet;
+            }
+            else
+            {
+                return -1;
+            }
+        }
+    }
+    nRet = sprintf_s(pszBuff+nUsed,nLength,"m_pImplementObj->%s(",
+                                            m_szFullName.c_str());
+    nUsed += nRet;
+    nLength-=nRet;
+    
+    for (int i=0;i<m_tChilds.size();++i)
+    {
+        CBaseElement *p = m_tChilds[i].m_pPt;
+        if (raw_parameter_type == p->m_nElmentType)
+        {
+            CParamerter *pPar = dynamic_cast<CParamerter *>(p);
+            char *pFormat;
+            if (i)
+            {
+                pFormat = ",%s";
+            }
+            else
+            {
+                pFormat = "%s";
+            }
+            nRet = sprintf_s(pszBuff+nUsed,nLength,pFormat,pPar->m_szName.c_str());
+            nUsed += nRet;
+            nLength -= nRet;
+        }
+        else
+        {
+            return -1;
+        }
+    }
+
+    nRet = sprintf_s(pszBuff+nUsed,nLength,");\n"
+        "return SUCCESS;\n"
+        "}");
+    nUsed += nRet;
+    //nLength -= nRet;
+    return nUsed;
+}
+
 
 
 }
