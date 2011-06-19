@@ -542,7 +542,7 @@ TInt32 CMethod::GenerateSkeletonSourceCode(char *pszBuff,int nLength)
             }
         }
     }
-    nRet = sprintf_s(pszBuff+nUsed,nLength,"m_pImplementObj->%s(",
+    nRet = sprintf_s(pszBuff+nUsed,nLength,"    m_pImplementObj->%s(",
                                             m_szFullName.c_str());
     nUsed += nRet;
     nLength-=nRet;
@@ -573,7 +573,7 @@ TInt32 CMethod::GenerateSkeletonSourceCode(char *pszBuff,int nLength)
     }
 
     nRet = sprintf_s(pszBuff+nUsed,nLength,");\n"
-        "return SUCCESS;\n"
+        "    return SUCCESS;\n"
         "}");
     nUsed += nRet;
     //nLength -= nRet;
