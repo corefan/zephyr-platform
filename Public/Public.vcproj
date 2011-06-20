@@ -160,6 +160,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\include\IdlHeaderFile.h"
+				>
+			</File>
+			<File
 				RelativePath=".\include\LogCenter.h"
 				>
 			</File>

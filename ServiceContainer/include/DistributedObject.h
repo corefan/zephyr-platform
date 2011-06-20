@@ -37,6 +37,10 @@ public:
     {
         m_pSkeleton = pSkeleton;
     }
+    IfSkeleton *GetSkeleton()
+    {
+        return m_pSkeleton;
+    }
     CObject();
     TInt32 Init();
     TInt32      OnInit();

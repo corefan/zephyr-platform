@@ -511,8 +511,8 @@ TInt32 CMethod::GenerateSkeletonSourceCode(char *pszBuff,int nLength)
     }
     if (m_tChilds.size())
     {
-        nRet = sprintf_s(pszBuff+nUsed,nLength,"    TUChar *pBuff=pMsg->GetBody();\n"
-                                               "    TInt32 n;\n");
+        nRet = sprintf_s(pszBuff+nUsed,nLength,"    TUChar *pBuffer =pMsg->GetBody();\n"
+                                               "    TInt32 nRet;\n");
         nUsed += nRet;
         nLength -= nRet;
         for (int i=0;i<m_tChilds.size();++i)
@@ -522,17 +522,17 @@ TInt32 CMethod::GenerateSkeletonSourceCode(char *pszBuff,int nLength)
             {
                 CParamerter *pPar = dynamic_cast<CParamerter *>(p);
                 nRet = sprintf_s(pszBuff+nUsed,nLength,"    %s %s;\n"
-                                                       "    n=Unmarshall(pszBuff,nLen,%s);\n"
-                                                       "    if (n<SUCCESS)\n"
+                                                       "    nRet = Unmarshall(pBuffer,nLen,%s);\n"
+                                                       "    if (nRet<SUCCESS)\n"
                                                        "    {\n"
-                                                       "        pBuff += n;\n"
-                                                       "        nLen -= n;\n"
+                                                       "        pBuffer += nRet;\n"
+                                                       "        nLen -= nRet;\n"
                                                        "    }\n"
                                                        "    else\n"
                                                        "    {\n"
-                                                       "        return n;\n"
+                                                       "        return nRet;\n"
                                                        "    }\n"
-                                                       ,pPar->m_pFullType->m_szRawTxt.c_str(),pPar->m_szName.c_str(),pPar->m_szName.c_str());
+                                                       ,pPar->m_pFullType->m_szRawNoPrefix.c_str(),pPar->m_szName.c_str(),pPar->m_szName.c_str());
                 nUsed += nRet;
                 nLength -= nRet;
             }
@@ -543,7 +543,7 @@ TInt32 CMethod::GenerateSkeletonSourceCode(char *pszBuff,int nLength)
         }
     }
     nRet = sprintf_s(pszBuff+nUsed,nLength,"    m_pImplementObj->%s(",
-                                            m_szFullName.c_str());
+                                            m_szName.c_str());
     nUsed += nRet;
     nLength-=nRet;
     

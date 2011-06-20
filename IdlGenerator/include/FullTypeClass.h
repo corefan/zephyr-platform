@@ -31,6 +31,7 @@ public:
     CBaseElement *m_pType;
     std::string  m_szFull;
     std::string  m_szRawTxt;
+    std::string  m_szRawNoPrefix;
 public:
     std::string &GetRawTxt()
     {

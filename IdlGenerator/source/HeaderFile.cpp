@@ -80,7 +80,7 @@ CHeaderFile::~CHeaderFile()
 
 //CPool<CBaseElement> *CHeaderFile::sm_pKeyWordsPool = NULL;
 
-TInt32 CHeaderFile::GeneratorIdl(const char *pFileName)
+TInt32 CHeaderFile::GeneratorIdl(const char *pFileName,const char *pPath)
 {
     int nRet = ReadFile(pFileName);
     if (nRet < SUCCESS)
@@ -117,8 +117,8 @@ TInt32 CHeaderFile::GeneratorIdl(const char *pFileName)
         char c;
         std::cin>>c;
     }
-    GenerateStub("./");
-    GenerateSkeleton("./");
+    GenerateStub(pPath);
+    GenerateSkeleton(pPath);
     
     return SUCCESS;
 }

@@ -609,9 +609,13 @@ TInt32 CInterfaceElement::GenerateSkeletonHeaderFile(const char *pPath)
                                           "{\n"
                                           "public:\n"
                                           "    %s *m_pImplementObj;\n"
+                                          "    %sSkeleton(%s *pIfObj)\n"
+                                          "    {\n"
+                                          "        m_pImplementObj = pIfObj;\n"
+                                          "    }\n"
                                           "    TInt32 HandleMsg(CMessageHeader *pMsg);\n"
-                                          "    TBool  IsMine(CMessageHeader *pMsg); //是否属于这个接口\n"
-                                          ,m_szName.c_str(),m_szName.c_str());
+                                          "    static TBool  IsMine(CMessageHeader *pMsg); //是否属于这个接口\n"
+                                          ,m_szName.c_str(),m_szName.c_str(),m_szName.c_str(),m_szName.c_str());
         nUsed +=n;
         nLength -= n;
 
@@ -777,9 +781,8 @@ TInt32 CInterfaceElement::GenerateSkeletonSourceFile(const char *pPath)
         }
         
         n = sprintf_s(pBuff+nUsed,nLength,"    };\n"
-                                      "    TInt32 nrOfEntries = %u;\n"
                                       "    TInt32 nBegin = 0;\n"
-                                      "    TInt32 nEnd = 0;\n"
+                                      "    TInt32 nEnd = %u;\n"
                                       "    TUInt32 nMethodId = pMsg->GetMethodId();\n"
                                       "    _PFMSG pPfMsg = NULL;\n"
                                       "    while((nBegin < nEnd)\n"
@@ -790,7 +793,7 @@ TInt32 CInterfaceElement::GenerateSkeletonSourceFile(const char *pPath)
                                       "            {\n"
                                       "                pPfMsg=sMsgMapEntries[nBegin].m_pHandlerFunc;\n"
                                       "            }\n"
-                                      "            else if (sMsgMapEntries[nEnd].m_uMsgID == nMethodId)"
+                                      "            else if (sMsgMapEntries[nEnd].m_uMsgID == nMethodId)\n"
                                       "            {\n"
                                       "                pPfMsg=sMsgMapEntries[nEnd].m_pHandlerFunc;\n"
                                       "            }\n"
@@ -945,6 +948,11 @@ TInt32 CInterfaceElement::GenerateStubHeaderFile(const char *pPath)
             "public:\n"
             "    IfSkeleton *m_pOnwerObj;\n"
             "    CDoid  m_tTarget;\n"
+            "    void Init(IfSkeleton *pSkeleton,CDoid *pDoid)\n"
+            "    {\n"
+            "        m_pOnwerObj = pSkeleton;\n"
+            "        m_tTarget = *pDoid;\n"
+            "    }\n"
             ,m_szName.c_str(),m_szName.c_str());
         nUsed += n;
         nLength -= n;

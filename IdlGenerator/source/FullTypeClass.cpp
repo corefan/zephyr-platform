@@ -1,5 +1,5 @@
 #include "../include/FullTypeClass.h"
-
+#include <algorithm>
 namespace Zephyr
 {
 
@@ -66,6 +66,7 @@ void CFullTypeDef::AddOpr(EnOperator enOpr)
                 {
                     m_szFull += "_pt";
                     m_szRawTxt += "*";
+                    m_szRawNoPrefix += "*";
                     m_tOprs[i] = en_star_operator;
                 }
                 break;
@@ -142,6 +143,7 @@ TInt32 CFullTypeDef::Process(char **ppElements,EnType *pTypes,int nProcess2,int 
         m_pType = pFoundType;
         m_szFull += ppElements[nProcess2];
         m_szRawTxt += ppElements[nProcess2];
+        m_szRawNoPrefix += ppElements[nProcess2];
         ++nProcess2;
     }
     while((operator_type == pTypes[nProcess2])||(star_mark_type == pTypes[nProcess2]))
@@ -183,5 +185,6 @@ const char *CFullTypeDef::GetHierachyName()
 {
     return m_szFull.c_str();
 }
+
 
 }

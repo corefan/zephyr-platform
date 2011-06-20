@@ -10,10 +10,27 @@
 
 using namespace Zephyr;
 
+using namespace std;
+
 #define TEST_CONST 6
 
 int main(int argc,char *pArgv[])
 {
+    char szFileName[128];
+    char szPath[256];
+    if (argc != 3)
+    {
+        cout<<"Input Interface fileName";
+        cin>>szFileName;
+        cout<<"Input outPut path:";
+        cin>>szPath;
+        return -1;
+    }
+    else
+    {
+        strncpy(szFileName,pArgv[1],sizeof(szFileName));
+        strncpy(szPath,pArgv[2],sizeof(szPath));
+    }
     CHeaderFile file;
     int t = TEST_CONST - 1;
     INIT_STATIC_POOL(CBaseElement,64);
@@ -24,6 +41,6 @@ int main(int argc,char *pArgv[])
     INIT_STATIC_POOL(CNamespace,16);
     INIT_STATIC_POOL(CParamerter,16);
 
-    file.GeneratorIdl("test.h");
+    file.GeneratorIdl(szFileName,szPath);
     return t;
 }

@@ -37,7 +37,7 @@ protected:
 public:
     CHeaderFile();
     ~CHeaderFile();
-    TInt32 GeneratorIdl(const char *pFileName);
+    TInt32 GeneratorIdl(const char *pFileName,const char *pPath);
     
 private:
     //╤ах║нд╪Ч 
