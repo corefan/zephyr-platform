@@ -47,7 +47,7 @@ void CClock::Update()
     }
     m_timeNow = timeNow;
     TUInt64 nT = m_nPlatformTime[m_timeIdx] + gap;
-    m_nPlatformTime[(m_timeIdx&0x00000003)] += nT;
+    m_nPlatformTime[(m_timeIdx&0x00000003)] = nT;
     ++m_timeIdx;
 }
 

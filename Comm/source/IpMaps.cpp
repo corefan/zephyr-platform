@@ -20,8 +20,10 @@ CIpMap::CIpMap()
     m_nNrOfMapItem = 0;
 }
 
-int CIpMap::ReadIpMapItem(void *pFile,char *pMain,CIpMapItem *pItem)
+int CIpMap::ReadIpMapItem4Node(void *pFile,int nVip,CIpMapItem *pItem)
 {
+    char pMain[16];
+    sprintf(pMain,"NODE%d",nVip);
     CSettingFile &file = *((CSettingFile*)pFile);
     const char* pIp = file.GetString(pMain,"myIp");
     unsigned int myIp = 0;
@@ -95,52 +97,67 @@ TInt32 CIpMap::Init(const TChar *pConfigName,IfConnection *pSelf)
     }
     m_pListening = new TUInt16[m_nNrOfMapItem];
     m_nNrOfLisenting = 0;
-    char buff[64];
+    
+    TUInt32 uRemoteIp;
+    TUInt32 uMyIp;
+    TUInt16 uMyPort;
+    TUInt16 uRemotePort;
+    char szMain[16];
+    sprintf(szMain,"VIP%d",m_localVirtualIp);
+    const char* pIp = settingFile.GetString(szMain,"ip");
+   
+    if (pIp)
+    {
+        uMyIp = inet_addr(pIp);
+    }
+    else
+    {
+        return -1;
+    }
+    unsigned short uLocalPort = settingFile.GetInteger(szMain,"port");
+
+    m_pListening[m_nNrOfLisenting] = uLocalPort;
+    ++m_nNrOfLisenting;
+    
     for (int i=0;i<m_nrOfVirtualIp;++i)
     {
-        sprintf(buff,"VIP%d",i);
-        if (ReadIpMapItem(&settingFile,buff,&m_pVirtualIps[i]) < 0)
+        char szMain[16];
+        sprintf(szMain,"VIP%d",m_localVirtualIp);
+
+        m_pVirtualIps[i].m_nNodeId = m_localNodeId;
+        m_pVirtualIps[i].m_nVirtualIp = i;
+        CConPair &iPair = m_pVirtualIps[i].m_tKey;
+        pIp = settingFile.GetString(szMain,"ip");
+        if (pIp)
+        {
+            uRemoteIp = inet_addr(pIp);
+        }
+        else
         {
             return -1;
         }
-        m_pVirtualIps[i].m_nNodeId = m_localNodeId;
-        m_pVirtualIps[i].m_nVirtualIp = i;
-        //if (i)
-        if (!IsPostive(i))
+        if (IsPostive(i)) //是我主動連對端
         {
-            if (FALSE == IsListeningExisted(&m_pVirtualIps[i],(i)))
-            {
-                m_pListening[m_nNrOfLisenting] = i;
-                ++m_nNrOfLisenting;
-            }
+            //所以端口號是對端的監聽端口
+            char szRemoteMain[16];
+            sprintf(szRemoteMain,"VIP%d",i);
+            uRemotePort = settingFile.GetInteger(szRemoteMain,"port");
+            uMyPort     = uRemotePort + m_localVirtualIp - i;
         }
+        else //是我被動
+        {
+            uMyPort   = uLocalPort;
+            uRemotePort = uLocalPort + i - m_localVirtualIp;
+        }
+        iPair.Init(uRemoteIp,uMyIp,uRemotePort,uMyPort);
+        //if (i)
+        //只监听一个
     }
     int usedNode = 0;
 
     //获取我的node信息
     if (m_nrOfNodes > 1)
     {
-//         sprintf(buff,"NODE%d",m_localNodeId);
-// 
-//         //if (m_localVirtualIp == settingFile.GetInteger(buff,"localVIP"))
-//         unsigned int realIp = 0;
-//         unsigned short myPort = 0;
-//         unsigned short remotePort = 0;
-//         {
-//             
-//             const char* pIp = settingFile.GetString(buff,"nodeGatewayIp");
-//             unsigned int realIp;
-//             if (pIp)
-//             {
-//                 realIp = inet_addr(pIp);
-//             }
-//             else
-//             {
-//                 return NULL_POINTER;
-//             }
-//             bindPort = settingFile.GetInteger(buff,"bindPort",0);
-//         }
-
         m_pRoutes = new TUInt32[m_nrOfNodes];
         memset(m_pRoutes,0,(sizeof(TUInt32)*m_nrOfNodes));
         m_pRoutes[m_localNodeId] = m_localVirtualIp; 
@@ -151,57 +168,26 @@ TInt32 CIpMap::Init(const TChar *pConfigName,IfConnection *pSelf)
                 m_pRoutes[i] = 0;
                 continue;
             }
+            char buff[32];
             sprintf(buff,"NODE%d",i);
 
             if (m_localVirtualIp == settingFile.GetInteger(buff,"localVIP"))
             {
                 m_pRoutes[i] = m_nrOfVirtualIp + usedNode;
-                if (ReadIpMapItem(&settingFile,buff,&m_pVirtualIps[m_pRoutes[i]]) < 0)
+                if (ReadIpMapItem4Node(&settingFile,i,&m_pVirtualIps[m_pRoutes[i]]) < 0)
                 {
                     return -1;
                 }
                 m_pVirtualIps[m_pRoutes[i]].m_nNodeId = i;
                 m_pVirtualIps[m_pRoutes[i]].m_nVirtualIp = 0;
-                if (FALSE == IsListeningExisted(&m_pVirtualIps[m_pRoutes[i]],(m_pRoutes[i])))
+                if (i > m_localNodeId)
                 {
-                    m_pListening[m_nNrOfLisenting] = m_pRoutes[i];
-                    ++m_nNrOfLisenting;
+                    if (FALSE == IsListeningExisted(&m_pVirtualIps[m_pRoutes[i]],(m_pRoutes[i])))
+                    {
+                        m_pListening[m_nNrOfLisenting] = m_pRoutes[i];
+                        ++m_nNrOfLisenting;
+                    }
                 }
-//                 const char* pIp = settingFile.GetString(buff,"remoteIp");
-//                 if (pIp)
-//                 -1
-//                     m_pVirtualIps[m_pRoutes[i]].m_tKey.m_remoteIp = inet_addr(pIp);
-//                 }
-//                 else
-//                 {
-//                     return NULL_POINTER;
-//                 }
-//                 pIp = settingFile.GetString(buff,"myIp");
-//                 if (pIp)
-//                 {
-//                     m_pVirtualIps[m_pRoutes[i]].m_tKey.m_myIp = inet_addr(pIp);
-//                 }
-//                 else
-//                 {
-//                     return NULL_POINTER;
-//                 }
-// 
-//                 if (i < m_localNodeId)
-//                 {
-//                     m_pVirtualIps[m_pRoutes[i]].m_tKey.m_nMyPort = bindPort + i;
-//                 }
-//                 else
-//                 {
-//                     m_pVirtualIps[m_pRoutes[i]].m_tKey.m_bindPort = settingFile.GetInteger(buff,"bindPort",0) + m_localNodeId;
-//                 }
-//                 m_pVirtualIps[m_pRoutes[i]].m_tKey.m_listenPort = settingFile.GetInteger(buff,"listenPort",0);
-//                 if (0 == m_pVirtualIps[m_pRoutes[i]].m_tKey.m_listenPort)
-//                 {
-//                     return NULL_POINTER;
-//                 }
-//                 m_pVirtualIps[m_pRoutes[i]].m_nNodeId = i;
-//                 m_pVirtualIps[m_pRoutes[i]].m_nVirtualIp = settingFile.GetInteger(buff,"remoteVIP",0);
-                //m_pVirtualIps[m_pRoutes[i]]
                 ++usedNode;
             }
             else
@@ -216,37 +202,6 @@ TInt32 CIpMap::Init(const TChar *pConfigName,IfConnection *pSelf)
     delete [] m_pListening;
     m_pListening = pN;
     
-//     if (m_nrOfNodes > 1)
-//     {
-//         m_pRoutes = new TUInt32[m_nrOfNodes];
-//         for (int i=0;i<m_nrOfNodes;++i)
-//         {
-//             char buff[64];
-//             sprintf(buff,"NODE%d",i);
-//             m_pRoutes[i] = settingFile.GetInteger(buff,"nodeGatewayIp");
-//             if (m_pRoutes[i] == m_localVirtualIp)
-//             {
-//                 m_redirectIdx = m_nrOfVirtualIp;
-//                 const char *pIp = settingFile.GetString(buff,"ip");
-//                 if (pIp)
-//                 {
-//                     m_connectedNodeInfo.m_realIp = atoi(pIp);
-//                 }
-//                 else
-//                 {
-//                     return NULL_POINTER;
-//                 }
-//                 m_connectedNodeInfo.m_bindPort = settingFile.GetInteger(buff,"bindPort",0);
-//                 m_connectedNodeInfo.m_listenPort = settingFile.GetInteger(buff,"listenPort",0);
-//             }
-//         }
-//     }
-//     else
-//     {
-//         m_pRoutes = NULL;
-//         m_redirectIdx = -1;
-//         m_connectedNodeInfo.m_key = 0xFFFFFFFFFFFFFFFF;
-//     }
     m_pVirtualIps[m_localVirtualIp].m_pIfConnection = pSelf;
     return SUCCESS;
 }

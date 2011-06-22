@@ -1,6 +1,6 @@
 /*************************************************
   Copyright (C), 1988-1999
-  File name:      tplMap.h
+  File name:      SettingFile.h
   Author:         Â½Ö¾»ª
   Version:        V1.2
   Date:           12-22-2009

@@ -245,7 +245,7 @@ TInt32 CCommMgr::Run(const TInt32 threadId,const TInt32 runCnt)
                 else
                 {
                     //重连
-                    if (pItem->m_pConnection)
+                    if (pItem->m_pCommConnection)
                     {
                         //正在重连？！
                         continue;

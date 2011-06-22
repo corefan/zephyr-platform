@@ -29,7 +29,7 @@ public:
         m_nNodeId = 0;
         m_nVirtualIp = 0;
         m_uLastUsedTime = 0;
-        m_pConnection = 0;
+        m_pCommConnection = 0;
         m_pIfConnection = 0;
         m_pListeningItem = 0;
     }
@@ -39,26 +39,26 @@ public:
     TUInt16             m_nNodeId;
     TUInt16             m_nVirtualIp;
     TUInt32             m_uLastUsedTime;
-    CCommConnection     *m_pConnection;
+    CCommConnection     *m_pCommConnection;
     IfConnection        *m_pIfConnection;
     void                *m_pListeningItem;
     void OnConnecting(CCommConnection *pCon,TUInt32 uTimeNow)
     {
-        m_pConnection = pCon;
+        m_pCommConnection = pCon;
         m_uLastUsedTime = uTimeNow;
     }
     //被动连接的调用这个，返回上一个CCommConnection
     CCommConnection *OnConnected(CCommConnection *pConnection,TUInt32 uTimeNow)
     {
-        CCommConnection *pOld = m_pConnection;
-        m_pConnection = pConnection;
+        CCommConnection *pOld = m_pCommConnection;
+        m_pCommConnection = pConnection;
         m_pIfConnection = pConnection->GetIfConnection();
         m_uLastUsedTime = uTimeNow;
         return pOld;
     }
     void OnDisconnected(TUInt32 uTimeNow)
     {
-        m_pConnection = NULL;
+        m_pCommConnection = NULL;
         m_pIfConnection = NULL;
         m_uLastUsedTime = uTimeNow;
     }
@@ -146,7 +146,7 @@ public:
         m_pVirtualIps[m_pRoutes[pCommConnection->GetNodeId()]].OnDisconnected(uTimeNow);
     }
     
-    int CIpMap::ReadIpMapItem(void *pFile,char *pMain,CIpMapItem *pItem);
+    int ReadIpMapItem4Node(void *pFile,int i,CIpMapItem *pItem);
 
     //返回
     CIpMapItem *GetConnection(TUInt32 nIdx)
