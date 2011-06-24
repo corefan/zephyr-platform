@@ -52,7 +52,7 @@ void CClock::Update()
     
     if (nNew >=4)
     {
-        nNew = 0;
+        nNew = 0; 
     }
     m_timeIdx = nNew;
 }
