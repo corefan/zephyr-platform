@@ -16,7 +16,6 @@ CIpMap::CIpMap()
     m_localVirtualIp = 0;
     m_pVirtualIps = NULL;
     m_pRoutes = NULL;
-    m_pListening = NULL;
     m_nNrOfMapItem = 0;
 }
 
@@ -49,7 +48,7 @@ int CIpMap::ReadIpMapItem4Node(void *pFile,int nVip,CIpMapItem *pItem)
     unsigned short remotePort = 0;
     myPort = file.GetInteger(pMain,"myPort");
     remotePort = file.GetInteger(pMain,"remotePort");
-    if (!(remotePort && myPort))
+    if ((remotePort == myPort)&&(remoteIp==myIp))
     {
         return -1;
     }
@@ -95,8 +94,6 @@ TInt32 CIpMap::Init(const TChar *pConfigName,IfConnection *pSelf)
             return OUT_OF_MEM;
         }
     }
-    m_pListening = new TUInt16[m_nNrOfMapItem];
-    m_nNrOfLisenting = 0;
     
     TUInt32 uRemoteIp;
     TUInt32 uMyIp;
@@ -116,8 +113,7 @@ TInt32 CIpMap::Init(const TChar *pConfigName,IfConnection *pSelf)
     }
     unsigned short uLocalPort = settingFile.GetInteger(szMain,"port");
 
-    m_pListening[m_nNrOfLisenting] = uLocalPort;
-    ++m_nNrOfLisenting;
+    
     
     for (int i=0;i<m_nrOfVirtualIp;++i)
     {
@@ -150,6 +146,11 @@ TInt32 CIpMap::Init(const TChar *pConfigName,IfConnection *pSelf)
             uRemotePort = uLocalPort + i - m_localVirtualIp;
         }
         iPair.Init(uRemoteIp,uMyIp,uRemotePort,uMyPort);
+
+        if (i == m_localVirtualIp)
+        {
+            AddListeningExisted(&m_pVirtualIps[i],i);
+        }
         //if (i)
         //只监听一个
     }
@@ -180,30 +181,21 @@ TInt32 CIpMap::Init(const TChar *pConfigName,IfConnection *pSelf)
                 }
                 m_pVirtualIps[m_pRoutes[i]].m_nNodeId = i;
                 m_pVirtualIps[m_pRoutes[i]].m_nVirtualIp = 0;
-                if (i > m_localNodeId)
-                {
-                    if (FALSE == IsListeningExisted(&m_pVirtualIps[m_pRoutes[i]],(m_pRoutes[i])))
-                    {
-                        m_pListening[m_nNrOfLisenting] = m_pRoutes[i];
-                        ++m_nNrOfLisenting;
-                    }
-                }
+                
                 ++usedNode;
             }
             else
             {
                 m_pRoutes[i] = settingFile.GetInteger(buff,"localVIP");
             }
+            AddListeningExisted(&m_pVirtualIps[m_pRoutes[i]],m_pRoutes[i]);
         }
     }
     //不try了
-    TUInt16 *pN = new TUInt16[m_nNrOfLisenting];
-    memcpy(pN,m_pListening,sizeof(TUInt16)*m_nNrOfLisenting);
-    delete [] m_pListening;
-    m_pListening = pN;
     
     m_pVirtualIps[m_localVirtualIp].m_pIfConnection = pSelf;
     return SUCCESS;
 }
+
 
 }

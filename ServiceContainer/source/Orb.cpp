@@ -59,9 +59,9 @@ TInt32 COrb::Init(IfCommunicator *pIfCom,CDoid *pDoidBegin,TInt32 nStubNr)
     m_tSkeletonPool;
 }
 
-TInt32 COrb::RegisterRun(IfObj *pObj,TUInt32 nGapInMs)
+TInt32 COrb::RegisterRun(IfSkeleton *pIfSkeleton,TUInt32 nGapInMs)
 {
-    CListNode<CArrayPoolNode<CSkeleton> > *pSk = (CListNode<CArrayPoolNode<CSkeleton> >*)pSk;
+    CListNode<CArrayPoolNode<CSkeleton> > *pSk = (CListNode<CArrayPoolNode<CSkeleton> >*)pIfSkeleton;
     if (pSk->m_pListBelongsTo)
     {
         pSk->m_pListBelongsTo->Detach(pSk);

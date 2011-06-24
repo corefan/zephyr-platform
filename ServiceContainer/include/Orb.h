@@ -60,7 +60,7 @@ public:
     virtual void    UnRegisterObj(IfSkeleton *pStub);
 
     //时间只能是1ms、10ms、100ms、1s四种
-    virtual TInt32 RegisterRun(IfObj *pObj,TUInt32 nGapInMs);
+    virtual TInt32 RegisterRun(IfSkeleton *pObj,TUInt32 nGapInMs);
     //时间相关
     virtual const CClock *GetClock();
 

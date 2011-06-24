@@ -15,6 +15,7 @@
 #include "Typedef.h"
 #include "CommConnection.h"
 #include "Doid.h"
+#include <vector>
 
 namespace Zephyr
 {
@@ -84,10 +85,7 @@ public:
     TUInt32              m_nNrOfMapItem;
     //转发路由表,发向不同的node.
     TUInt32              *m_pRoutes;
-
-    TUInt16              *m_pListening;
-    TUInt32              m_nNrOfLisenting;
-    
+    std::vector<TUInt16> m_vListening;
     //CCommConnection      *m_pLocalConnections;
 public:
     CIpMap();
@@ -194,18 +192,19 @@ public:
         return NULL;
     }
 private:
-    TBool IsListeningExisted(CIpMapItem *pItem,TInt32 nMax)
+    TBool AddListeningExisted(CIpMapItem *pItem,int nIdx)
     {
-        for (TInt32 i=0;i<nMax;++i)
+        for (TInt32 i=0;i<m_vListening.size();++i)
         {
-            if (m_pVirtualIps[i].m_tKey.GetMyIp() == pItem->m_tKey.GetMyIp())
+            if (m_pVirtualIps[m_vListening[i]].m_tKey.GetMyIp() == pItem->m_tKey.GetMyIp())
             {
-                if (m_pVirtualIps[i].m_tKey.GetMyPort() == pItem->m_tKey.GetMyPort())
+                if (m_pVirtualIps[m_vListening[i]].m_tKey.GetMyPort() == pItem->m_tKey.GetMyPort())
                 {
                     return TRUE;
                 }
             }
         }
+        m_vListening.push_back(nIdx);
         return FALSE;
     }
 };

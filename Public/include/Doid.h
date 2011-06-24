@@ -6,6 +6,10 @@
  Version: 
  Description:  分布式对象地址
  Others: virtualIp = 0用来作为中心节点，负责节点间通信\命名服务器\管理服务器.
+         一个node就是一个内部节点，一般在一个网段内，这些机器之间是全练级，
+         共同提供某项服务，一个节点由大约254台机器机器构成，这些再多的话没必要提供直接的全连接，
+         同时可以有65534个node，这些Node之间可以试全连接，也可以是弱连接，
+         即需要通过中间节点的转发而连接,连接和转发算法类似ip..
  Function List: 
  Histroy: 
  -------------------------------------------------------------*/
@@ -24,23 +28,30 @@ class CDoid
 {
 
 public:
+#ifdef _USE_BIG_DOID
+    TUInt32 m_objId;                   //obj idx;
+    TUInt32  m_srvId;             //srv id, decide the port,每个虚拟ip上可以跑多个service.
 
-	TUInt16 m_objId;                   //obj idx;
-    TUInt16 m_srvId;             //srv id, decide the port,每个虚拟ip上可以跑多个service.
+    TUInt32  m_virtualIp;               //一组服务器内的虚拟ip
+    TUInt32  m_nodeId;           //一组服务器为1个节点
+#else
+    TUInt32 m_objId;                   //obj idx;
+    TUInt8  m_srvId;             //srv id, decide the port,每个虚拟ip上可以跑多个service.
 
-    TUInt16 m_virtualIp;               //一组服务器内的虚拟ip
+    TUInt8  m_virtualIp;               //一组服务器内的虚拟ip
     TUInt16 m_nodeId;           //一组服务器为1个节点
+#endif
 public:
 	CDoid()
 	{
  #ifdef _DEBUG
         m_nodeId = 0xFFFF; 
-        m_virtualIp = 0xFFFF;
-        m_srvId = 0xFFFF;
-        m_objId = 0xFFFF;
+        m_virtualIp = 0xFF;
+        m_srvId = 0xFF;
+        m_objId = 0xFFFFFFFF;
  #endif
 	}
-    CDoid(TUInt16 nNodeId,TUInt16 nVip,TUInt16 nSrvId,TUInt16 nObjId)
+    CDoid(TUInt16 nNodeId,TUInt8 nVip,TUInt8 nSrvId,TUInt32 nObjId)
     {
         m_nodeId = nNodeId;
         m_virtualIp = nVip;

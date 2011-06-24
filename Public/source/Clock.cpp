@@ -48,7 +48,13 @@ void CClock::Update()
     m_timeNow = timeNow;
     TUInt64 nT = m_nPlatformTime[m_timeIdx] + gap;
     m_nPlatformTime[(m_timeIdx&0x00000003)] = nT;
-    ++m_timeIdx;
+    TUInt32 nNew = m_timeIdx + 1;
+    
+    if (nNew >=4)
+    {
+        nNew = 0;
+    }
+    m_timeIdx = nNew;
 }
 
 //解决64位数读取问题.

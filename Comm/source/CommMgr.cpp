@@ -161,9 +161,9 @@ TInt32 CCommMgr::Init(TInt32 nrOfWorkerThread,IfTaskMgr *pTaskMgr,IfLoggerManage
                 }
             }
         }
-        for (TUInt32 i=0;i<m_ipMaps.m_nNrOfLisenting;++i)
+        for (TUInt32 i=0;i<m_ipMaps.m_vListening.size();++i)
         {
-            CIpMapItem *pIpMap = m_ipMaps.GetConnection(m_ipMaps.m_pListening[i]);
+            CIpMapItem *pIpMap = m_ipMaps.GetConnection(m_ipMaps.m_vListening[i]);
             TChar pIps[64];
             
             pIpMap->m_pListeningItem = m_pNet->Listen(pIpMap->m_tKey.GetMyIp(),pIpMap->m_tKey.GetMyPort(),32,((IfListenerCallBack*)this));
@@ -591,7 +591,6 @@ void   CCommMgr::OnDisconnected(CCommConnection *pConnection,TBool bIsNegative)
 
 IfConnectionCallBack *CCommMgr::OnNewConnection(CConPair *pPair)
 {
-    TUInt16 uNode,uVip;
     CIpMapItem *pItem = GetIpMapInfo(pPair);
     if (!pItem)
     {
