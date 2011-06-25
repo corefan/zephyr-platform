@@ -262,7 +262,7 @@ void CCommTester::CheckAll()
 
 void CCommTester::OnRecv(CDoid *pSrcDoid)
 {
-    int nIdx = pSrcDoid->m_nodeId * m_nNodeNr* m_nIpNr + pSrcDoid->m_virtualIp*m_nIpNr+pSrcDoid->m_srvId;
+    int nIdx = pSrcDoid->m_nodeId * m_nNodeNr* m_nIpNr + pSrcDoid->m_virtualIp*m_nIpNr+(pSrcDoid->m_srvId/MAX_SERVICE_NR_PER_COMM);
     if (0 == m_pMsgRecords[nIdx])
     {
         m_pMsgRecords[nIdx] = 1;
