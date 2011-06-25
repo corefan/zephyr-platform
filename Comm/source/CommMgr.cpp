@@ -13,6 +13,12 @@ TInt32 CCommMgr::Init(TInt32 nrOfWorkerThread,IfTaskMgr *pTaskMgr,IfLoggerManage
     //初始化网络底层
     
     //先读取配置
+    if (MAX_COMM_NR < nrOfWorkerThread)
+    {
+        //也就是32个
+        printf("Max %d comm for one CommMgr",MAX_COMM_NR);
+        return OUT_OF_RANGE;
+    }
     TInt32 ret = m_ipMaps.Init(pConfigName,this);
     m_tClock.Update();
     m_uLastCheckTime = m_tClock.GetLocalTime();

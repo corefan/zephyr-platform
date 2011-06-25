@@ -26,25 +26,26 @@ TInt32 CCommTester::Run(const TInt32 threadId,const TInt32 runCnt)
     {
         if (event.m_nEvent == en_connection_is_established_event)
         {
-            m_bIsConnected = 1;
+            ++m_bIsConnected;
         }
         else
         {
             //断链了
-            m_bIsConnected = 0;
+            --m_bIsConnected = 0;
+            m_nSendTime = 0;
         }
         ++usedCnt;
         eventNr = m_pComms->GetNetEvent(event);
     }
-    if (!m_bIsConnected)
+    if (m_bIsConnected < m_nIpNr)
     {
         return usedCnt;
     }
-    if (1 == m_bIsConnected) //最新连接，要发初始消息
+    if (0 == m_nSendTime) //最新连接，要发初始消息
     {
         m_nLastGetAllRespTime = m_pComms->GetClock()->GetLocalTime();
         SendAllMessage();
-        ++m_bIsConnected;
+        ++m_nSendTime;
     }
     
     for (int i=usedCnt;i<runCnt;++i)
