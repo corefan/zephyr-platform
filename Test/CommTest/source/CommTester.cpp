@@ -74,8 +74,7 @@ TInt32 CCommTester::Run(const TInt32 threadId,const TInt32 runCnt)
                     }
                 }
             }
-            
-            ++m_nMsgReced;
+            OnRecv(pMsg->GetSrcDoid());
 
             ++usedCnt;
             
@@ -155,6 +154,9 @@ void CCommTester::OnStartTestOne(int nInitMsgNr,int nInitMsgLen,int srvNr,int nI
         m_nDoidNr = totalNr;
     }
    
+
+    m_pMsgRecords = new unsigned char[m_nDoidNr];
+    memset(m_pMsgRecords,0,m_nDoidNr);
     m_nInitSendMgrNr = nInitMsgNr;
     m_nInitSendMgrLen  = nInitMsgLen;
     m_nSrvNr = srvNr;
@@ -221,7 +223,7 @@ int CCommTester::Init(IfCommunicatorMgr *pMgr,CDoid *pSrvDoid)
     m_nInitSendMgrLen = 0;
     m_nMsgReced = 0;
     m_nLastSendTime = 0;
-    m_bIsConnected = 0;
+    m_bIsConnected = 1; 
     m_nLastSendTime = m_pComms->GetClock()->GetLocalTime();
     m_nLastGetAllRespTime = 0;
     m_nMinSendGap = 10000000;
@@ -245,6 +247,7 @@ void CCommTester::SendAllMessage()
         }
         m_pComms->SendMsg(pMsg);
         m_nLastSendTime = m_pComms->GetClock()->GetLocalTime();
+        memset(m_pMsgRecords,0,m_nDoidNr);
     }
 }
 
@@ -254,5 +257,15 @@ void CCommTester::CheckAll()
     {
         m_nLastSendTime = m_pComms->GetClock()->GetLocalTime();
         SendAllMessage();
+    }
+}
+
+void CCommTester::OnRecv(CDoid *pSrcDoid)
+{
+    int nIdx = pSrcDoid->m_nodeId * m_nNodeNr* m_nIpNr + pSrcDoid->m_virtualIp*m_nIpNr+pSrcDoid->m_srvId;
+    if (0 == m_pMsgRecords[nIdx])
+    {
+        m_pMsgRecords[nIdx] = 1;
+        m_nMsgReced += 1;
     }
 }

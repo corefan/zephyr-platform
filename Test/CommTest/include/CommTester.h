@@ -40,6 +40,7 @@ protected:
     unsigned int        m_nMaxSendGap;
     unsigned int        m_nSendTime;
     unsigned int  m_nTotalSendGap;
+    unsigned char *m_pMsgRecords;
 public:
     int Init(IfCommunicatorMgr *pMgr,CDoid *pSrvDoid);
     void OnStartTestOne(int nInitMsgNr,int nInitMsgLen,int srvNr);
@@ -56,6 +57,7 @@ public:
 private:
     void SendAllMessage();
     void CheckAll(); //1分钟肯定重发一次
+    void OnRecv(CDoid *pSrcDoid);
 };
 
 #endif
