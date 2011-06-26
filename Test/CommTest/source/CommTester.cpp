@@ -26,11 +26,17 @@ TInt32 CCommTester::Run(const TInt32 threadId,const TInt32 runCnt)
     {
         if (event.m_nEvent == en_connection_is_established_event)
         {
+            char szBuffer[64];
+            m_tSvrDoid.ToStr(szBuffer);
+            printf("connected from(%s) to (%u,%u)\n\r",szBuffer,(TUInt32)event.m_nNodeId,(TUInt32)event.m_nVip);
             ++m_bIsConnected;
         }
         else
         {
             //¶ÏÁ´ÁË
+            char szBuffer[64];
+            m_tSvrDoid.ToStr(szBuffer);
+            printf("connection breaked from(%s) to (%u,%u)\n\r",szBuffer,(TUInt32)event.m_nNodeId,(TUInt32)event.m_nVip);
             --m_bIsConnected;
             m_nSendTime = 0;
         }
@@ -237,6 +243,7 @@ int CCommTester::Init(IfCommunicatorMgr *pMgr,CDoid *pSrvDoid)
 
 void CCommTester::SendAllMessage()
 {
+    //return;
     CMessageHeader *pMsg = m_pComms->PrepareMsg(m_nInitSendMgrLen,m_nInitSendMgrLen,m_tSvrDoid,sm_pDoids,m_nDoidNr,true);
     if (pMsg)
     {
