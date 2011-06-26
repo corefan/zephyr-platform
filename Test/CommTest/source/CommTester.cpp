@@ -31,7 +31,7 @@ TInt32 CCommTester::Run(const TInt32 threadId,const TInt32 runCnt)
         else
         {
             //断链了
-            --m_bIsConnected = 0;
+            --m_bIsConnected;
             m_nSendTime = 0;
         }
         ++usedCnt;
@@ -108,7 +108,7 @@ TInt32 CCommTester::Run(const TInt32 threadId,const TInt32 runCnt)
         }
         //是m_nSrvNr就群发
     }
-    CheckAll();
+    //CheckAll();
     return usedCnt;
 }
 
@@ -248,6 +248,7 @@ void CCommTester::SendAllMessage()
         m_pComms->SendMsg(pMsg);
         m_nLastSendTime = m_pComms->GetClock()->GetLocalTime();
         memset(m_pMsgRecords,0,m_nDoidNr);
+        m_nMsgReced = 0;
     }
 }
 
@@ -262,7 +263,7 @@ void CCommTester::CheckAll()
 
 void CCommTester::OnRecv(CDoid *pSrcDoid)
 {
-    int nIdx = pSrcDoid->m_nodeId * m_nNodeNr* m_nIpNr + pSrcDoid->m_virtualIp*m_nIpNr+(pSrcDoid->m_srvId/MAX_SERVICE_NR_PER_COMM);
+    int nIdx = pSrcDoid->m_nodeId * m_nIpNr* m_nSrvNr + pSrcDoid->m_virtualIp*m_nSrvNr+(pSrcDoid->m_srvId/MAX_SERVICE_NR_PER_COMM);
     if (0 == m_pMsgRecords[nIdx])
     {
         m_pMsgRecords[nIdx] = 1;

@@ -41,6 +41,7 @@ int main()
     CDoid initSendMsgDoid;
     CSettingFile setting;
     int nrOfTester = 0;
+    int nrOfServiceContainer = 0;
     if (setting.LoadFromFile("CommTestConfig.ini"))
     {
         initSendMsgNr = setting.GetInteger("MAIN","initSendMsgNr",0);
@@ -49,7 +50,8 @@ int main()
         initSendMsgDoid.m_virtualIp = setting.GetInteger("MAIN","m_virtualIp",0);
         initSendMsgDoid.m_srvId    = setting.GetInteger("MAIN","m_srvId",0);
         initSendMsgDoid.m_objId  = setting.GetInteger("MAIN","m_objId",0);
-        nrOfTester   = setting.GetInteger("MAIN","num",1);
+        nrOfTester   = setting.GetInteger("MAIN","testCommNum",1);
+        nrOfServiceContainer = setting.GetInteger("MAIN","serviceCommNum",2);
     }
     else
     {
@@ -67,11 +69,11 @@ int main()
     {
         initSendMsgDoid.m_srvId = i*MAX_SERVICE_NR_PER_COMM;
         pCommTests[i].Init(pMgr,&initSendMsgDoid);
-        pCommTests[i].OnStartTestOne(initSendMsgNr,initSendMsgLen,nrOfTester,2,1);
+        pCommTests[i].OnStartTestOne(initSendMsgNr,initSendMsgLen,nrOfTester,nrOfServiceContainer,1);
         pTaskMgr->AddTask(pCommTests+i);
     }
 
-    pTaskMgr->StartWorking(1,1);
+    pTaskMgr->StartWorking(4,2);
     char stop = 'n';
     while(('y' != stop) || ('Y' != stop))
     {
