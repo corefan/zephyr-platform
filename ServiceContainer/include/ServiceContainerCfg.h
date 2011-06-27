@@ -3,6 +3,7 @@
 
 #include "../../Public/include/TypeDef.h"
 #include "../../Public/include/SysMacros.h"
+#include <string>
 
 #ifdef _WIN32
 #include <windows.h>
@@ -27,7 +28,7 @@ class CService;
 struct TServiceConfig
 {
     //Õâ¸öServiceµÄdll
-    const TChar *m_pszServiceDllName;
+    std::string m_pszServiceDllName;
 #ifdef _WIN32
     HMODULE				m_pPluginModuleHandle;
 #else
@@ -35,6 +36,13 @@ struct TServiceConfig
 #endif
     SERVICE_INIT_FUN	    m_pInitFun;
     SERVICE_RELEASE_FUN	    m_pReleaseFun;
+
+    TServiceConfig()
+    {
+        m_pPluginModuleHandle = NULL;
+        m_pInitFun = NULL;
+        m_pReleaseFun = NULL;
+    }
 };
 
 
@@ -44,6 +52,7 @@ struct TOrbConfig
     TOrbConfig()
     {
         m_nNrofService = 0;
+        m_nSkeleton = 0;
         m_pServices = NULL;
     }
     ~TOrbConfig()
@@ -55,7 +64,7 @@ struct TOrbConfig
         }
     }
     TInt32 m_nNrofService;
-    TUInt32 m_nStubNr;
+    TUInt32 m_nSkeleton;
     TServiceConfig *m_pServices; 
 };
 
@@ -64,8 +73,12 @@ struct TServiceContainerCfg
     TServiceContainerCfg()
     {
         m_nNrOfOrb = 0;
-        m_pOrbs = NULL;
+        m_nLocalIp= 0;
+        m_nLocalNodeId = 0;
         m_pszCommConfigName = NULL;
+        m_pOrbs = NULL;
+        m_nWorkerNr = 0;
+        m_nCpuNr = 0;
     }
     ~TServiceContainerCfg()
     {
@@ -74,11 +87,12 @@ struct TServiceContainerCfg
             delete [] m_pOrbs;
         }
     }
+
+    const TChar *m_pszCommConfigName;
+    TOrbConfig *m_pOrbs;
     TInt32 m_nNrOfOrb;
     TInt16  m_nLocalIp;
     TInt16  m_nLocalNodeId;
-    const TChar *m_pszCommConfigName;
-    TOrbConfig *m_pOrbs;
     TInt16  m_nWorkerNr;
     TInt16  m_nCpuNr;
 };

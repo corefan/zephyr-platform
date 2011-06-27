@@ -48,7 +48,7 @@ void    COrb::UnRegisterObj(IfSkeleton *pIfSkel)
     m_tSkeletonPool.ReleaseMem(pSk);
 }
 
-TInt32 COrb::Init(IfCommunicator *pIfCom,CDoid *pDoidBegin,TInt32 nStubNr)
+TInt32 COrb::Init(IfCommunicator *pIfCom,CDoid *pDoidBegin,TInt32 nSkeletonNr)
 {
     m_pClock = pIfCom->GetClock();
     if (!m_pClock)

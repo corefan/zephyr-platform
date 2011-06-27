@@ -68,9 +68,9 @@ int main(int argc, char* argv[])
     //ÏÈ¶ÁÅäÖÃ
     CServiceCfgRead tRead;
     
-    if (argc)
+    if (argc>1)
     {
-        if (tRead.Read(argv[0]) < SUCCESS)
+        if (tRead.Read(argv[1]) < SUCCESS)
         {
             printf("Read ServiceContainer Config:%s failed",argv[0]);
             return FAIL;
@@ -104,7 +104,7 @@ int main(int argc, char* argv[])
     }
     //´´½¨Comm
     IfCommunicatorMgr *pMgr = CreateCommMgr(tRead.m_tCfg.m_nNrOfOrb,pTaskMgr,pLogMgr,tRead.m_tCfg.m_pszCommConfigName);
-    if (pMgr)
+    if (!pMgr)
     {
         printf("Create CommMgr failed!");
         return OUT_OF_MEM;
@@ -131,10 +131,10 @@ int main(int argc, char* argv[])
             doid.m_srvId = nSrvBegin;
             doid.m_virtualIp = tRead.m_tCfg.m_nLocalIp;
             doid.m_nodeId    = tRead.m_tCfg.m_nLocalNodeId;
-            TInt32 nRet = pOrb[i].Init(pIfComm,&doid,tRead.m_tCfg.m_pOrbs[i].m_nStubNr);
+            TInt32 nRet = pOrb[i].Init(pIfComm,&doid,tRead.m_tCfg.m_pOrbs[i].m_nSkeleton);
             if (nRet < SUCCESS)
             {
-                printf("Orb[%d] init failed! stub nr:%d",i,tRead.m_tCfg.m_pOrbs[i].m_nStubNr);
+                printf("Orb[%d] init failed! stub nr:%d",i,tRead.m_tCfg.m_pOrbs[i].m_nSkeleton);
                 return nRet;
             }
         }
@@ -152,7 +152,7 @@ int main(int argc, char* argv[])
     {
         for (int j=0;j<tRead.m_tCfg.m_pOrbs[i].m_nNrofService;++j)
         {
-            tRead.m_tCfg.m_pOrbs[i].m_pServices->m_pPluginModuleHandle = LoadDynamicLib(tRead.m_tCfg.m_pOrbs[i].m_pServices->m_pszServiceDllName);
+            tRead.m_tCfg.m_pOrbs[i].m_pServices->m_pPluginModuleHandle = LoadDynamicLib(tRead.m_tCfg.m_pOrbs[i].m_pServices->m_pszServiceDllName.c_str());
             if (tRead.m_tCfg.m_pOrbs[i].m_pServices->m_pPluginModuleHandle)
             {
 

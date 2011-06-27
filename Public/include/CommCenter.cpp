@@ -11,4 +11,13 @@ IfCommunicatorMgr *CreateCommMgr(TInt32 nrOfWorkerThread,IfTaskMgr *pTaskMgr,IfL
     pCommMgr->Init(nrOfWorkerThread,pTaskMgr,pLoggerMgr,pConfigName);
     return pCommMgr;
 }
+
+IfCommunicatorMgr *CreateCommMgrWithConfig(TInt32 nrOfWorkerThread,IfTaskMgr *pTaskMgr,IfLoggerManager *pLoggerMgr,const TChar *pConfigStr)
+{
+    CCommMgr *pCommMgr = new CCommMgr();
+    pCommMgr->InitWithConfig(nrOfWorkerThread,pTaskMgr,pLoggerMgr,pConfigStr);
+    return pCommMgr;
+}
+
+
 }

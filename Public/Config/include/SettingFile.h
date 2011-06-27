@@ -52,6 +52,49 @@ public:
 	{
 		m_FileChannel=FileChannel;
 	}
+    bool LoadFromFile(const char * FileName,unsigned long long uPwd1,unsigned long long uPwd2)
+    {
+        FILE * pFile=NULL;
+        pFile=fopen(FileName,"rb");
+        if(NULL == pFile)
+        {
+            fprintf(stderr, "Open logfile failed:%s ", strerror(errno));
+        }
+
+
+        if(pFile)
+        {
+            fseek(pFile,0,SEEK_END);
+            int nFileSize=(int)ftell(pFile);
+            nFileSize += 8;
+            nFileSize <<= 3;
+            nFileSize >>= 3;
+
+            char * pStr=new char[nFileSize];
+            memset(pStr,0,nFileSize);
+            fseek(pFile,0,SEEK_SET);
+            fread(pStr,1,nFileSize,pFile);
+            fclose(pFile);
+            for (int i=0;i<(nFileSize);i+=8)
+            {
+                unsigned long long *pRaw = (unsigned long long *)(pStr+i);
+                *pRaw ^= uPwd2;
+                uPwd2 ^= *pRaw;
+            }
+            for (int i=0;i<(nFileSize);i+=8)
+            {
+                unsigned long long *pRaw = (unsigned long long *)pStr+i;
+                *pRaw ^= uPwd1;
+                uPwd1 ^= *pRaw;
+            }
+            pStr[nFileSize]=0;
+            bool ret=Load(pStr);
+            delete[] pStr;
+            return ret;
+        }
+        return false;
+    }
+
 	bool LoadFromFile(const char * FileName)
 	{
 		FILE * pFile=NULL;

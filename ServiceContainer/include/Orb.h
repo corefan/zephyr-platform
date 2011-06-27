@@ -50,7 +50,7 @@ private:
     CList<CArrayPoolNode<CSkeleton> > m_tRunning;
              
 public:
-    TInt32 Init(IfCommunicator *pIfCom,CDoid *pDoidBegin,TInt32 nStubNr);
+    TInt32 Init(IfCommunicator *pIfCom,CDoid *pDoidBegin,TInt32 nSkeletonNr);
     
     //×¢²áÌØ¶¨µÄSrv
     virtual IfSkeleton* RegisterObj(IfObj *pObjSkeleton,TInt16 nSrvId);

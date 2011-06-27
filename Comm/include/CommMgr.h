@@ -55,6 +55,7 @@ private:
 public:
     //taskMgr”…ServerContainer…˙≥….
     TInt32 Init(TInt32 nrOfWorkerThread,IfTaskMgr *pTaskMgr,IfLoggerManager *pIfLogMgr,const TChar *pConfigName=szDefaultCommConfigName);
+    TInt32 InitWithConfig(TInt32 nrOfWorkerThread,IfTaskMgr *pTaskMgr,IfLoggerManager *pIfLogMgr,const TChar *pConfigStr);
     virtual TInt32          GetNrOfComm()
     {
         return m_nNrOfComm;

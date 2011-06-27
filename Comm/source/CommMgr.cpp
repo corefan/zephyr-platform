@@ -186,6 +186,184 @@ TInt32 CCommMgr::Init(TInt32 nrOfWorkerThread,IfTaskMgr *pTaskMgr,IfLoggerManage
     return SUCCESS;
 }
 
+
+TInt32 CCommMgr::InitWithConfig(TInt32 nrOfWorkerThread,IfTaskMgr *pTaskMgr,IfLoggerManager *pIfLogMgr,const TChar *pConfigStr)
+{
+    //先读取配置
+    if (MAX_COMM_NR < nrOfWorkerThread)
+    {
+        //也就是32个
+        printf("Max %d comm for one CommMgr",MAX_COMM_NR);
+        return OUT_OF_RANGE;
+    }
+    TInt32 ret = m_ipMaps.InitWithConfig(pConfigStr,this);
+    m_tClock.Update();
+    m_uLastCheckTime = m_tClock.GetLocalTime();
+    if (SUCCESS > ret)
+    {
+        return ret;
+    }
+    try
+    {
+        m_pParserFactory = new CMsgParserFactory(m_ipMaps.m_nrOfVirtualIp + 5);
+    }
+    catch (...)
+    {
+    }
+    if (!m_pParserFactory)
+    {
+#ifdef _DEBUG
+        printf("Can not allocate mem for m_pParserFactory!");
+#endif
+        return OUT_OF_MEM;
+    }
+    CSettingFile settingFile;
+    TInt32 inPipeSize = 128*1024;
+    TInt32 outPipeSize = 256*1024;
+    TInt32 maxMsgSize = 256*1024;
+    if (!settingFile.LoadFromFile("commSetting.ini"))
+    {
+
+    }
+    else
+    {
+        inPipeSize = settingFile.GetInteger("MAIN","inPipeSize",inPipeSize);
+        outPipeSize = settingFile.GetInteger("MAIN","outPipeSize",outPipeSize);
+        maxMsgSize = settingFile.GetInteger("MAIN","maxMsgSize",maxMsgSize);
+    }
+    m_pNet = CreateNet(pTaskMgr,m_pParserFactory,NULL,(m_ipMaps.m_nNrOfMapItem+1),outPipeSize,inPipeSize/*多加5个*/);
+    if (!m_pNet)
+    {
+#ifdef _DEBUG
+        printf("Create m_pNet Failed!");
+#endif
+        return OUT_OF_MEM;
+    }
+    int nRet = m_connectionPool.InitPool(m_ipMaps.m_nrOfVirtualIp + m_ipMaps.m_nrOfNodes);
+    if (nRet)
+    {
+
+    }
+
+
+    NEW(m_pBuff,TUChar,maxMsgSize);
+    if (!m_pBuff)
+    {
+#ifdef _DEBUG
+        printf("Can not allocated memory for m_pBuff");
+#endif
+        return OUT_OF_MEM;
+    }
+
+
+    //再看是否需要主动连接外node.
+    m_pLoggerMgr = pIfLogMgr;
+    ret = m_pLoggerMgr->AddLogger("CommLogger",-1);
+    if (ret < SUCCESS)
+    {
+        return ret;
+    }
+    m_pLogger = m_pLoggerMgr->GetLogger(ret);
+    g_pCommLogger = m_pLogger;
+    pTaskMgr->AddTask(this);
+
+    m_nNrOfComm = nrOfWorkerThread;
+    NEW(m_pCommunicators,CCommunicator,nrOfWorkerThread);
+    if (!m_pCommunicators)
+    {
+#ifdef _DEBUG
+        printf("Allocate mem 4 m_pCommunicators Failed!");
+#endif
+        //OnFinal();
+        return OUT_OF_MEM;
+    }
+
+    for (int i=0;i<nrOfWorkerThread;++i)
+    {
+        int ret = m_pCommunicators[i].Init(&m_tClock,inPipeSize,outPipeSize,maxMsgSize);
+        m_pCommunicators[i].InitEventPool(m_ipMaps.m_nrOfVirtualIp);
+        if (ret < SUCCESS)
+        {
+#ifdef _DEBUG
+            printf("Can not init Communicator %d",i);
+#endif
+            return ret;
+        }
+    }
+
+
+
+    //     NEW(m_ppConnections,CCommConnection*,m_ipMaps.m_nrOfVirtualIp + 5);
+    //     if (!m_ppConnections)
+    //     {
+    // #ifdef _DEBUG
+    //         printf("Can not allocate memory for m_ppConnections");
+    // #endif
+    //         return OUT_OF_MEM;
+    //     }
+    //开始监听一个port
+
+    //主动连接vip比自己小的所有机器，每台机器重启后都是这个顺序.并且只尝试重连比自己vip小的机器
+    //if (m_ipMaps.m_nrOfNodes > 1)
+    {
+        for (TUInt32 i = 0;i<m_ipMaps.m_nNrOfMapItem;++i)
+        {
+            if (m_ipMaps.IsPostive(i))
+            {
+                CCommConnection *pConnection = m_connectionPool.GetMem();
+                if (!pConnection)
+                {
+#ifdef _DEBUG
+                    printf("Can not get Comm Connection");
+#endif
+                    return OUT_OF_MEM;
+                }
+                CIpMapItem *pIp = m_ipMaps.GetConnection(i);
+                TInt32 rtn = m_pNet->Connect(pIp->m_tKey.GetRemoteIp(),pIp->m_tKey.GetMyIp(),pIp->m_tKey.GetRemotePort(),pIp->m_tKey.GetMyPort(),pConnection);
+                if (rtn < SUCCESS)
+                {
+#ifdef _DEBUG
+                    printf("Connection Failed!");
+#endif
+                    m_connectionPool.ReleaseMem(pConnection);
+                    return rtn;
+                }
+                //m_ppConnections[i] = pConnection;
+                pConnection->SetAllInfo(this,pIp);
+                pIp->OnConnecting(pConnection,m_tClock.GetLocalTime());
+                //解决同时连接过多的问题
+                if (0 == (i % 32))
+                {
+                    printf("Connecting...");
+#ifdef _WIN32
+                    Sleep(50);
+#else  
+                    usleep(15000);
+#endif
+                    m_pNet->Run(128);
+                }
+            }
+        }
+        for (TUInt32 i=0;i<m_ipMaps.m_vListening.size();++i)
+        {
+            CIpMapItem *pIpMap = m_ipMaps.GetConnection(m_ipMaps.m_vListening[i]);
+            TChar pIps[64];
+
+            pIpMap->m_pListeningItem = m_pNet->Listen(pIpMap->m_tKey.GetMyIp(),pIpMap->m_tKey.GetMyPort(),32,((IfListenerCallBack*)this));
+            if (!pIpMap->m_pListeningItem)
+            {
+                printf("Listening to %u:%d failed!",pIpMap->m_tKey.GetMyIp(),(int)pIpMap->m_tKey.GetMyPort());
+            }
+        }
+    }
+
+
+    //读取配置，看有几个Service, 需要启动几个工作Service.
+
+    return SUCCESS;
+}
+
+
 IfCommunicator *CCommMgr::GetComm(TUInt16& nSrvBegin,TUInt16& nSrvEnd,TInt32 nCommIdx)
 {
     if (nCommIdx < m_nNrOfComm)
