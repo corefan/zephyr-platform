@@ -12,6 +12,7 @@
 #include "include/ServiceContainerCfg.h"
 #include "../System/Logger/include/LoggerManager.h"
 #include "./include/Service.h"
+#include "../System/include/SysInc.h"
 using namespace Zephyr;
 
 
@@ -59,8 +60,6 @@ void * GetDynamicLibFunction(void * LibHandle,char * FunctionName)
 }
 
 #endif
-
-
 
 
 int main(int argc, char* argv[])
@@ -152,57 +151,79 @@ int main(int argc, char* argv[])
     {
         for (int j=0;j<tRead.m_tCfg.m_pOrbs[i].m_nNrofService;++j)
         {
-            tRead.m_tCfg.m_pOrbs[i].m_pServices->m_pPluginModuleHandle = LoadDynamicLib(tRead.m_tCfg.m_pOrbs[i].m_pServices->m_pszServiceDllName.c_str());
-            if (tRead.m_tCfg.m_pOrbs[i].m_pServices->m_pPluginModuleHandle)
+            bool bSuccessfull = false;
+            tRead.m_tCfg.m_pOrbs[i].m_pServices[j].m_pPluginModuleHandle = LoadDynamicLib(tRead.m_tCfg.m_pOrbs[i].m_pServices[j].m_pszServiceDllName.c_str());
+            if (tRead.m_tCfg.m_pOrbs[i].m_pServices[j].m_pPluginModuleHandle)
             {
-
-                tRead.m_tCfg.m_pOrbs[i].m_pServices->m_pInitFun = (SERVICE_INIT_FUN)GetDynamicLibFunction(tRead.m_tCfg.m_pOrbs[i].m_pServices->m_pPluginModuleHandle,SERVICE_INIT_FUN_NAME);
-                tRead.m_tCfg.m_pOrbs[i].m_pServices->m_pReleaseFun=(SERVICE_RELEASE_FUN)GetDynamicLibFunction(tRead.m_tCfg.m_pOrbs[i].m_pServices->m_pPluginModuleHandle,SERVICE_RELEASE_FUN_NAME);
-
-                printf("Plugin [%s] InitFun=%p ReleaseFun=%p",
-                    tRead.m_tCfg.m_pOrbs[i].m_pServices->m_pszServiceDllName,
-                    tRead.m_tCfg.m_pOrbs[i].m_pServices->m_pInitFun,
-                    tRead.m_tCfg.m_pOrbs[i].m_pServices->m_pReleaseFun);
-
-                if(tRead.m_tCfg.m_pOrbs[i].m_pServices->m_pInitFun&&tRead.m_tCfg.m_pOrbs[i].m_pServices->m_pReleaseFun)
-                {   
-                    TInt32 nRegisterSuccess = -1;
-                    CService *pService = (*(tRead.m_tCfg.m_pOrbs[i].m_pServices->m_pInitFun))(pOrb+i,pTaskMgr,pLogMgr);
-                    if(pService)
-                    {
-                        IfSkeleton *pSkeleton = pOrb[i].RegiterService(pService,pService->GetServiceId());
-                        if (pSkeleton)
-                        {
-                            pService->SetSkeleton(pSkeleton);
-                            printf("Init Plugin [%s] Succeed",tRead.m_tCfg.m_pOrbs[i].m_pServices->m_pszServiceDllName);
-                            nRegisterSuccess = pTaskMgr->AddTask(pOrb+i);
-                        }
-                    }
-                    
-                    if (nRegisterSuccess<SUCCESS)
-                    {
-                        printf("Init Plugin [%s] Failed",tRead.m_tCfg.m_pOrbs[i].m_pServices->m_pszServiceDllName);
-                        ReleaseDynamicLib(tRead.m_tCfg.m_pOrbs[i].m_pServices->m_pPluginModuleHandle);
-                        tRead.m_tCfg.m_pOrbs[i].m_pServices->m_pPluginModuleHandle = NULL;
-                    }
-                }
-                else
+                tRead.m_tCfg.m_pOrbs[i].m_pServices[j].m_pInitFun = (SERVICE_INIT_FUN)GetDynamicLibFunction(tRead.m_tCfg.m_pOrbs[i].m_pServices[j].m_pPluginModuleHandle,SERVICE_INIT_FUN_NAME);
+                tRead.m_tCfg.m_pOrbs[i].m_pServices[j].m_pReleaseFun=(SERVICE_RELEASE_FUN)GetDynamicLibFunction(tRead.m_tCfg.m_pOrbs[i].m_pServices[j].m_pPluginModuleHandle,SERVICE_RELEASE_FUN_NAME);
+                if ((tRead.m_tCfg.m_pOrbs[i].m_pServices[j].m_pInitFun)&&(tRead.m_tCfg.m_pOrbs[i].m_pServices[j].m_pReleaseFun))
                 {
-                    printf("Invalid Plugin [%s]",tRead.m_tCfg.m_pOrbs[i].m_pServices->m_pszServiceDllName);
-                    ReleaseDynamicLib(tRead.m_tCfg.m_pOrbs[i].m_pServices->m_pPluginModuleHandle);
-                    tRead.m_tCfg.m_pOrbs[i].m_pServices->m_pPluginModuleHandle = NULL;
+                    printf("Plugin [%s] InitFun=%p ReleaseFun=%p",
+                        tRead.m_tCfg.m_pOrbs[i].m_pServices->m_pszServiceDllName,
+                        tRead.m_tCfg.m_pOrbs[i].m_pServices->m_pInitFun,
+                        tRead.m_tCfg.m_pOrbs[i].m_pServices->m_pReleaseFun);
+                    bSuccessfull = true;
                 }
-
-
             }
-            else
+            if (!bSuccessfull)
             {
                 printf("Load DLL:%s failed!",tRead.m_tCfg.m_pOrbs[i].m_pServices->m_pszServiceDllName);
             }
         }
     }
+    for (int i=0;i<tRead.m_tCfg.m_nNrOfOrb;++i)
+    {
+        TInt32 nRegisterSuccess = SUCCESS;
+        for (int j=0;j<tRead.m_tCfg.m_pOrbs[i].m_nNrofService;++j)
+        {
+            CService *pService = (*(tRead.m_tCfg.m_pOrbs[i].m_pServices[j].m_pInitFun))(pOrb+i,pTaskMgr,pLogMgr);
+            if(pService)
+            {
+                tRead.m_tCfg.m_pOrbs[i].m_pServices[j].m_pService = pService;
+                IfSkeleton *pSkeleton = pOrb[i].RegiterService(pService,pService->GetServiceId());
+                if (pSkeleton)
+                {
+                    pService->SetSkeleton(pSkeleton);
+                    printf_s("Init Plugin [%s] Succeed",tRead.m_tCfg.m_pOrbs[i].m_pServices[j].m_pszServiceDllName);
+                }
+            }
+            else
+            {
+                return FAIL; //所有资源由系统释放
+            }
+        }
+        nRegisterSuccess = pTaskMgr->AddTask(pOrb+i);
+    }
     pTaskMgr->AddTask((CLoggerManager*)pLogMgr);
-    pTaskMgr->StartWorking(tRead.m_tCfg.m_nWorkerNr,tRead.m_tCfg.m_nCpuNr);  
+    pTaskMgr->StartWorking(tRead.m_tCfg.m_nWorkerNr,tRead.m_tCfg.m_nCpuNr);
+    TChar cStop = 'n';
+    while((cStop!='y')&&(cStop!='Y'))
+    {
+        printf_s("Starting wait 4 Net...\n\r");
+        SleepT(15000);
+        printf_s("Do U wanna stop? press (y)");
+        std::cin>>cStop;
+    }
+    printf("Stopping the workers!\n\r");
+    pTaskMgr->StopWorking();
+    printf("All Worker Stopped! Now Finalize the Services!\n\r");
+    for (int i=0;i<tRead.m_tCfg.m_nNrOfOrb;++i)
+    {
+        TInt32 nRegisterSuccess = SUCCESS;
+        for (int j=0;j<tRead.m_tCfg.m_pOrbs[i].m_nNrofService;++j)
+        {
+            if (tRead.m_tCfg.m_pOrbs[i].m_pServices[j].m_pService)
+            {
+                CService *pService = (CService *)tRead.m_tCfg.m_pOrbs[i].m_pServices[j].m_pService;
+                pService->OnFinal();
+                (*(tRead.m_tCfg.m_pOrbs[i].m_pServices[j].m_pReleaseFun))();
+                ReleaseDynamicLib(tRead.m_tCfg.m_pOrbs[i].m_pServices[j].m_pPluginModuleHandle);
+                tRead.m_tCfg.m_pOrbs[i].m_pServices[j].m_pPluginModuleHandle = NULL;
+            }
+        }
+    }
+
     //完了
 	return 0;
 }

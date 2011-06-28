@@ -43,7 +43,8 @@ public:
     }
     CObject();
     TInt32 Init();
-    TInt32      OnInit();
+    virtual TInt32      OnInit();
+    virtual TInt32      OnFinal();
     /*virtual TInt32  OnRecv(CMessageHeader *pMsg); //这些函数如果*/
 
     //定时  器到时了

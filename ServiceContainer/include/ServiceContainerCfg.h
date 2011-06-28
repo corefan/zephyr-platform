@@ -36,12 +36,13 @@ struct TServiceConfig
 #endif
     SERVICE_INIT_FUN	    m_pInitFun;
     SERVICE_RELEASE_FUN	    m_pReleaseFun;
-
+    void *                  m_pService;
     TServiceConfig()
     {
         m_pPluginModuleHandle = NULL;
         m_pInitFun = NULL;
         m_pReleaseFun = NULL;
+        m_pService = NULL;
     }
 };
 

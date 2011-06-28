@@ -20,5 +20,10 @@ TInt32      CObject::OnInit()
     return SUCCESS;
 }
 
+TInt32 CObject::OnFinal()
+{
+    return SUCCESS;
+}
+
 
 }
