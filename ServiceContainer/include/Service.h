@@ -16,11 +16,11 @@ private:
     IfOrb   *m_pIfOrb;
     IfCommunicator *m_pIfComm;
    
-    TUInt16 m_nServiceId;
+    TUInt32 m_nServiceId;
 
 
 public:
-    TUInt16 GetServiceId()
+    TUInt32 GetServiceId()
     {
         return m_nServiceId;
     }

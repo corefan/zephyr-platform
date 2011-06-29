@@ -205,9 +205,8 @@ int main(int argc, char* argv[])
         printf_s("Do U wanna stop? press (y)");
         std::cin>>cStop;
     }
-    printf("Stopping the workers!\n\r");
-    pTaskMgr->StopWorking();
-    printf("All Worker Stopped! Now Finalize the Services!\n\r");
+    printf("Stopping the Service!\n\r");
+    
     for (int i=0;i<tRead.m_tCfg.m_nNrOfOrb;++i)
     {
         TInt32 nRegisterSuccess = SUCCESS;
@@ -216,14 +215,15 @@ int main(int argc, char* argv[])
             if (tRead.m_tCfg.m_pOrbs[i].m_pServices[j].m_pService)
             {
                 CService *pService = (CService *)tRead.m_tCfg.m_pOrbs[i].m_pServices[j].m_pService;
-                pService->OnFinal();
+                pOrb[j].StopService(pService->GetServiceId());
                 (*(tRead.m_tCfg.m_pOrbs[i].m_pServices[j].m_pReleaseFun))();
                 ReleaseDynamicLib(tRead.m_tCfg.m_pOrbs[i].m_pServices[j].m_pPluginModuleHandle);
                 tRead.m_tCfg.m_pOrbs[i].m_pServices[j].m_pPluginModuleHandle = NULL;
             }
         }
     }
-
+    pTaskMgr->StopWorking();
+    printf("All Worker Stopped! Now Finalize the Services!\n\r");
     //อ๊มห
 	return 0;
 }

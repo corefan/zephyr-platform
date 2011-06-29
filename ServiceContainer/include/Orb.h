@@ -30,7 +30,7 @@ class COrb : public IfOrb , public IfTask
 {
 private:
     IfCommunicator *m_pIfComm;
-    IfObj          *m_pRunObj;
+    //IfObj          *m_pRunObj;
     TUInt32         m_nRunGapInMs;
     TUInt32         m_nLastCheckTime;
     TUInt16         m_nLocalNodeId;
@@ -49,7 +49,9 @@ private:
     TUInt32         m_nLastRunTime;
     CList<CArrayPoolNode<CSkeleton> > m_tRunning;
              
+    volatile TUInt32    m_nService2Stop;
 public:
+    void StopService(TUInt32 nServiceID);
     TInt32 Init(IfCommunicator *pIfCom,CDoid *pDoidBegin,TInt32 nSkeletonNr);
     
     //×¢²áÌØ¶¨µÄSrv

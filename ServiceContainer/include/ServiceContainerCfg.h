@@ -17,6 +17,7 @@ class IfTaskMgr;
 class IfLoggerManager;
 class CService;
 
+//注意pIfTaskMgr\pIfLoggerMgr都只能在初始化时候调用，不要在运行时调用.pStubCenter可以重复使用
 #define SERVICE_INIT_FUN_NAME	"InitService"
     typedef CService* (*SERVICE_INIT_FUN)(IfOrb* pStubCenter,IfTaskMgr *pIfTaskMgr,IfLoggerManager *pIfLoggerMgr);
 

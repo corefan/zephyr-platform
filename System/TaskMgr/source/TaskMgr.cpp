@@ -26,11 +26,13 @@ TInt32 CTaskInfo::ApplyTask(TInt32 threadId)
 TInt32 CTaskInfo::Run(TInt32 threadId)
 {
     TInt32 runCnt = 0;
-    
-    if (SUCCESS == m_pTask->Begin(threadId))
+    if (m_pTask)
     {
-        runCnt = m_pTask->Run(threadId, (TASK_RUN_COUNT<<m_priority));
-        m_pTask->End(threadId);
+        if (SUCCESS == m_pTask->Begin(threadId))
+        {
+            runCnt = m_pTask->Run(threadId, (TASK_RUN_COUNT<<m_priority));
+            m_pTask->End(threadId);
+        }
     }
     return runCnt;
 }

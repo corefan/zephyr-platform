@@ -29,8 +29,8 @@ public:
     //发送消息
     virtual TInt32  SendMsg(CMessageHeader *pMsg) = 0;
 
-    //这是为Service准备的,每个comm就只能有一个.为服务器特殊设计.
-    virtual TInt32 RegisterRun(TInt32 nRunGapInMs) = 0;
+    //这是为Service准备的,每个comm就只能有一个.为服务器特殊设计.不要这个，直接到IfOrb去注册.
+    //virtual TInt32 RegisterRun(TInt32 nRunGapInMs) = 0;
 };
 
 }

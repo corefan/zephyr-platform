@@ -1,6 +1,7 @@
 #include "../include/Orb.h"
 #include "../../Public/include/SysMacros.h"
 #include <iostream>
+#include "../../System/include/SysInc.h"
 namespace Zephyr
 {
 
@@ -56,8 +57,30 @@ TInt32 COrb::Init(IfCommunicator *pIfCom,CDoid *pDoidBegin,TInt32 nSkeletonNr)
         printf("Can not get clock!");
         return NULL_POINTER;
     }
-    m_tSkeletonPool;
+    m_nLastCheckTime = m_pClock->GetLocalTime();
+    m_pIfComm = pIfCom;
+
+    m_nLocalNodeId = pDoidBegin->m_nodeId;
+    m_nLocalVIP = pDoidBegin->m_virtualIp;
+    //这个Orb的service从这个开始
+    m_nLocalServiceId = pDoidBegin->m_srvId;
+
+    m_nLocalServiceIdEnd = m_nLocalServiceId + MAX_SERVICE_NR_PER_COMM;
+    return m_tSkeletonPool.InitPool(nSkeletonNr);
 }
+
+void COrb::StopService(TUInt32 nServiceID)
+{
+    if (0xFFFFFFFF != nServiceID)
+    {
+        m_nService2Stop = nServiceID;
+        while (m_nService2Stop == nServiceID) //改为-1
+        {
+            SleepT(15); //不停的尝试.
+        }
+    }
+}
+
 
 TInt32 COrb::RegisterRun(IfSkeleton *pIfSkeleton,TUInt32 nGapInMs)
 {
@@ -116,6 +139,7 @@ TInt32 COrb::Run(const TInt32 threadId,const TInt32 runCnt)
             pMsg = m_pIfComm->GetMsg();
         }
     }
+
     return SUCCESS;
 }
 

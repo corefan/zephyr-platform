@@ -357,6 +357,22 @@ public:
     //只用来判断是否为空闲
     CList<CArrayPoolNode<ITEM_CLASS> >   m_tFree;
 public:
+   TInt32 InitPool(TUInt32 nSize)
+   {
+       try
+       {
+           m_pPool = new CListNode<CArrayPoolNode<ITEM_CLASS> >[nSize];
+       }
+       catch (...)
+       {
+           return OUT_OF_MEM;
+       }
+       for (TUInt32 i =0;i<nSize;++i)
+       {
+           m_pPool[i].InitInPoolList(&m_tFree);
+           m_tFree.push_back(&m_pPool[i]);
+       }
+   }
    TUInt32 GetMaxSize()
    {
        return m_nMaxSize;
@@ -371,15 +387,24 @@ public:
          }
          return p;
     }
-    CListNode<CArrayPoolNode<ITEM_CLASS> > *FindMem(int nIdx)
+    CListNode<CArrayPoolNode<ITEM_CLASS> > *FindMem(TUInt32 nIdx)
     {
         return m_pPool + (nIdx % m_nMaxSize);
+    }
+    ITEM_CLASS *FindUsedMem(TUInt32 nIdx)
+    {
+        if (m_pPool[nIdx%m_nMaxSize].m_pListBelongsTo != &m_tFree)
+        {
+            return m_pPool[nIdx%m_nMaxSize];
+        }
+        return NULL;
     }
     void ReleaseMem(CListNode<CArrayPoolNode<ITEM_CLASS> > *pNode)
     {
         if (pNode->m_pListBelongsTo)
         {
             pNode->m_pListBelongsTo->Detach(pNode);
+            pNode->m_pListBelongsTo = NULL;
         }
         m_tFree.push_back(pNode);
         --m_nUsedSize;

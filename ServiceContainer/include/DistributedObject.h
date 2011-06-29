@@ -43,7 +43,9 @@ public:
     }
     CObject();
     TInt32 Init();
+    //在初始化的时候会被调.
     virtual TInt32      OnInit();
+    //结束是回调.
     virtual TInt32      OnFinal();
     /*virtual TInt32  OnRecv(CMessageHeader *pMsg); //这些函数如果*/
 
