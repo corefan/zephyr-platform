@@ -372,6 +372,7 @@ public:
            m_pPool[i].InitInPoolList(&m_tFree);
            m_tFree.push_back(&m_pPool[i]);
        }
+       return SUCCESS;
    }
    TUInt32 GetMaxSize()
    {
