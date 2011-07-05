@@ -23,13 +23,79 @@ typedef unsigned char TUChar;
 typedef unsigned char TUInt8;
 typedef short TInt16;
 typedef unsigned short TUInt16;
-typedef  long TInt32;
-typedef  unsigned long TUInt32;
+typedef  int TInt32;
+typedef  unsigned int TUInt32;
 typedef float TFloat;
 typedef double TDouble;
 typedef long long TInt64;
 typedef unsigned long long TUInt64;
 typedef bool TBool;
+
+template <class TYPE>
+class OctSeq
+{
+private:
+    TYPE m_nBodyLength;
+    TUChar *m_pBuffer;
+public:
+    static TInt32 CalFullLength(TInt32 nLength)
+    {
+        return sizeof(TYPE) + nLength;
+    }
+    TInt32 GetFullLength()
+    {
+        return sizeof(TYPE) + m_nBodyLength;
+    }
+    TYPE GetBodyLength()
+    {
+        return m_nBodyLength;
+    }
+    OctSeq(TInt32 nBodyLength,TUChar *pBuffer)
+    {
+        m_pBuffer = pBuffer;
+        m_nBodyLength = nBodyLength;
+    }
+    TUChar *GetBody()
+    {
+        return m_pBuffer;
+    }
+};
+
+template <class LENGHT_TYPE,class TAG_TYPE>
+class TLV
+{
+private:
+    LENGHT_TYPE m_nBodyLength;
+    TAG_TYPE    m_nTag;
+    TUChar      *m_pBuffer;
+public:
+    LENGHT_TYPE GetBodyLength()
+    {
+        return m_nBodyLength;
+    }
+    TLV(LENGHT_TYPE nBodyLength,TAG_TYPE tTag,TUChar *pBuffer)
+    {
+        m_nBodyLength = nBodyLength;
+        m_nTag = tTag;
+        m_pBuffer = pBuffer;
+    }
+    TUChar *GetBody()
+    {
+        return m_pBuffer;
+    }
+    TAG_TYPE GetTag()
+    {
+        return m_nTag;
+    }
+    LENGHT_TYPE GetFullLength()
+    {
+        return ((sizeof(LENGHT_TYPE)+sizeof(TAG_TYPE)) + m_nBodyLength); 
+    }
+};
+
+
+
+
 #define  false FALSE
 #define true TRUE
 }

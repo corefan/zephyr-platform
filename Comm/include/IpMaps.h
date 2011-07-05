@@ -195,7 +195,7 @@ public:
 private:
     TBool AddListeningExisted(CIpMapItem *pItem,int nIdx)
     {
-        for (TInt32 i=0;i<m_vListening.size();++i)
+        for (TUInt32 i=0;i<m_vListening.size();++i)
         {
             if (m_pVirtualIps[m_vListening[i]].m_tKey.GetMyIp() == pItem->m_tKey.GetMyIp())
             {

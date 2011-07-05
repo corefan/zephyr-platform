@@ -711,6 +711,10 @@ TInt32 CInterfaceElement::GenerateSkeletonSourceFile(const char *pPath)
         nUsed += n;
         nLength -= n;
 
+        n = sprintf_s(pBuff,nLength,"#include \"Public/include/TypeUnmarshaller.h\"\n");
+        nUsed += n;
+        nLength -= n;
+
         //         n = sprintf_s(pBuff+nUsed,nLength,"public:\n",m_szName.c_str(),m_szName.c_str());
         //         nUsed += n;
         //         nLength -= n;
@@ -1039,6 +1043,9 @@ TInt32 CInterfaceElement::GenerateStubSourceFile(const char *pPath)
          nUsed += n;
          nLength -= n;
 
+         n = sprintf_s(pBuff,nLength,"#include \"Public/include/TypeMarshaller.h\"\n");
+         nUsed += n;
+         nLength -= n;
 //         n = sprintf_s(pBuff+nUsed,nLength,"public:\n",m_szName.c_str(),m_szName.c_str());
 //         nUsed += n;
 //         nLength -= n;

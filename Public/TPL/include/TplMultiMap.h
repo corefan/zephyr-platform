@@ -678,6 +678,7 @@ private:
             //得到了.
 #ifdef _DEBUG
         }
+        return NULL;
 #endif
     }
     //将nSize个节点从左子树迁移到右子树，返回的是新的根,这个迁移之后树并不一定平衡
@@ -832,6 +833,7 @@ private:
             //得到了.
 #ifdef _DEBUG
         }
+        return NULL;
 #endif
     }
 

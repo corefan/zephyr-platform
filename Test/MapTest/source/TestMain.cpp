@@ -24,6 +24,13 @@ public:
     }
 };
 
+class CTest2 : public CMapTest
+{
+public:
+    unsigned int m_key;
+
+};
+
 CMapTest &GetNullRef()
 {
     CMapTest *pNullRef = NULL;
@@ -32,6 +39,7 @@ CMapTest &GetNullRef()
 
 int main()
 {
+    CTest2 t2;
 //     IfTaskMgr *pTaskMgr = CreateTaskMgr();
 //     pTaskMgr->StartWorking(4);
 //     CExceptionParser parser;

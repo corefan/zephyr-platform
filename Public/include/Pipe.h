@@ -86,7 +86,7 @@ public:
     }
     TInt32 Init(TInt32 pipeSize)
     {
-        TUInt32 uAddr= ((TUInt32)this);
+        TUInt32 uAddr= ((TUInt32)this); //只要最后几位就够了
         if (uAddr % (sizeof(void*)))
         {
             return MEM_NOT_ALIGNED;

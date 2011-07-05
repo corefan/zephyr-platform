@@ -77,6 +77,8 @@ TInt32 CProduerAndConsumer::RequireFetchProduct(TUInt32 timeout)
         }
     }
 #endif
+
+    return SUCCESS;
 }
 
 

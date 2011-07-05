@@ -195,6 +195,14 @@
 				RelativePath=".\include\TypeDef.h"
 				>
 			</File>
+			<File
+				RelativePath=".\include\TypeMarshaller.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\TypeUnmarshaller.h"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="source"
@@ -233,6 +241,14 @@
 			</File>
 			<File
 				RelativePath=".\source\Timer.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\source\TypeMarshallers.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\source\TypeUnmarshaller.cpp"
 				>
 			</File>
 		</Filter>
