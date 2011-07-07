@@ -127,20 +127,6 @@ TInt32 CFullTypeDef::Process(char **ppElements,EnType *pTypes,int nProcess2,int 
     if (alphabet_type == pTypes[nProcess2])
     {
         //find a type
-        CBaseElement *pFoundType = IsOneType(ppElements[nProcess2]);
-        if (!pFoundType)
-        {
-            pFoundType = CREATE_FROM_STATIC_POOL(CBaseElement);
-            if (!pFoundType)
-            {
-                printf("Out of Mem");
-                
-                return OUT_OF_MEM;
-            }
-            pFoundType->SetName(ppElements[nProcess2]);
-            AddType(pFoundType);
-        }
-        m_pType = pFoundType;
         m_szFull += ppElements[nProcess2];
         m_szRawTxt += ppElements[nProcess2];
         m_szRawNoPrefix += ppElements[nProcess2];
@@ -213,6 +199,20 @@ TInt32 CFullTypeDef::Process(char **ppElements,EnType *pTypes,int nProcess2,int 
                 }
             }
         }
+        CBaseElement *pFoundType = IsOneType(m_szRawNoPrefix.c_str());
+        if (!pFoundType)
+        {
+            pFoundType = CREATE_FROM_STATIC_POOL(CBaseElement);
+            if (!pFoundType)
+            {
+                printf("Out of Mem");
+
+                return OUT_OF_MEM;
+            }
+            pFoundType->SetName(m_szRawNoPrefix.c_str());
+            AddType(pFoundType);
+        }
+        m_pType = pFoundType;
     }
     while((operator_type == pTypes[nProcess2])||(star_mark_type == pTypes[nProcess2]))
     {

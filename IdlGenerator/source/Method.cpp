@@ -2,6 +2,7 @@
 #include "../include/Parameter.h"
 #include "../include/IdlGeneratorErrorCode.h"
 #include "../include/interfaceElement.h"
+#include "../include/HeaderFile.h"
 namespace Zephyr
 {
 
@@ -159,7 +160,7 @@ TInt32 CMethod::GetMethodFunPtTxt(char *pszBuff,int nLength)
     {
         CBaseElement *pBase = m_pFather;
         CInterfaceElement *pIf = dynamic_cast<CInterfaceElement*>(pBase);
-        int nUsed = sprintf_s(pszBuff,nLength,"{(");
+        int nUsed = sprintf_s(pszBuff,nLength,"{(%s_SERVICE_ID|",CHeaderFile::sm_szServiceName.c_str());
         if (nUsed>0)
         {
             nLength -= nUsed;
@@ -273,14 +274,14 @@ TInt32 CMethod::GenerateStubSourceCode(char *pszBuff,int nLength)
                 char *pFormat;
                 if (i)
                 {
-                    pFormat = "+GetLength(%s)"; //请自定义getLength函数.
+                    pFormat = "+sizeof(%s)"; //请自定义getLength函数.
                 }
                 else
                 {
-                    pFormat = "GetLength(%s)";
+                    pFormat = "sizeof(%s)";
                 }
                 CParamerter *pPar = dynamic_cast<CParamerter *>(p);
-                nRet = sprintf_s(pszBuff+nUsed,nLength,pFormat,pPar->m_szName.c_str());
+                nRet = sprintf_s(pszBuff+nUsed,nLength,pFormat,pPar->m_pFullType->m_pType->m_szName.c_str());
                 nUsed += nRet;
                 nLength -= nRet;
             }
@@ -298,19 +299,20 @@ TInt32 CMethod::GenerateStubSourceCode(char *pszBuff,int nLength)
     }
     
     
-    nRet = sprintf_s(pszBuff+nUsed,nLength, ";\n    CMessageHeader *pMsg = m_pOnwerObj->PrepareMsg(nLen,(");
+    nRet = sprintf_s(pszBuff+nUsed,nLength, ";\n    CMessageHeader *pMsg = m_pOnwerObj->PrepareMsg(nLen,(%s_SERVICE_ID|",CHeaderFile::sm_szServiceName.c_str());
     nUsed += nRet;
     nLength -= nRet;
-    nRet = GetMethodIdStr(pszBuff+nUsed,nLength);
+    nRet = pIf->GetMethodIdStr(pszBuff+nUsed,nLength);
     nUsed += nRet;
     nLength -= nRet;
 
     pszBuff[nUsed] = '|';
     ++nUsed;
     ++nLength;
-    nRet = pIf->GetMethodIdStr(pszBuff+nUsed,nLength);
+    nRet = GetMethodIdStr(pszBuff+nUsed,nLength);
     nUsed += nRet;
     nLength -= nRet;
+   
     nRet = sprintf_s(pszBuff+nUsed,nLength,"),&m_tTarget,1,false);\n"
                                             "    if (NULL == pMsg)\n"
                                             "    {\n"

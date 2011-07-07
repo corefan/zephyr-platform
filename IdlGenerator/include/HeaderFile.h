@@ -34,7 +34,9 @@ protected:
     TUInt32       m_nFileLength;
     char    *m_pszFile;
     std::string   m_szFileName;
+    
 public:
+    static string sm_szServiceName;
     CHeaderFile();
     ~CHeaderFile();
     TInt32 GeneratorIdl(const char *pFileName,const char *pPath);

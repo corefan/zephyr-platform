@@ -47,12 +47,14 @@ public:
 
     virtual TInt32 GenerateSkeleton(const char *pPath);
     virtual TInt32 GenerateStub(const char *pPath);
+    virtual TInt32 GenerateMethodId(const char *pPath);
 
     //void OnError(int nProcess2);
     EnState GetState(char *pAlphabets);
     int HandleAStatement(char **ppElements,EnType *pTypes,int& nProcess2,int nTotalEles);
     TInt32 GetMethodIdStr(char *pBuff,int nLength);
 private:
+    TInt32 GenerateMethodIdFile(const char *pPath,int i);
     TInt32 GenerateStubHeaderFile(const char *pPath);
     TInt32 GenerateStubSourceFile(const char *pPath);
     TInt32 GenerateSkeletonHeaderFile(const char *pPath);

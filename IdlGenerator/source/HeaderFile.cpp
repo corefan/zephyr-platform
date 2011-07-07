@@ -5,7 +5,11 @@
 namespace Zephyr
 {
 
+
+
 IMPLEMENT_STATIC_CLASS_POOL(CHeaderFile);
+
+string CHeaderFile::sm_szServiceName;
 
 CHeaderFile::CHeaderFile()
 {
@@ -109,18 +113,26 @@ TInt32 CHeaderFile::GeneratorIdl(const char *pFileName,const char *pPath)
     nRet = Process(m_ppWords,m_pWordsTypes,0,m_nNrOfWords);
     if (nRet == m_nNrOfWords)
     {
-        printf("Parser Txt success, we got whole syntax tree!");
+        printf("\nParser Txt success, we got whole syntax tree!\n");
     }
     else
     {
-        printf("Syntax incorrect! at %d",nRet);
+        printf("\nSyntax incorrect! at %d\n",nRet);
         printf("press any key to continue");
         char c;
         std::cin>>c;
     }
+    printf("\nInput Service Name :");
+    std::cin>>sm_szServiceName;
+    printf("\nInput Interface Id Start Num:");
+    std::cin>>CBaseElement::sm_nInterfaceIdBegin;
+    for (int i=0;i<sm_szServiceName.size();++i)
+    {
+        sm_szServiceName[i] = toupper(sm_szServiceName[i]);
+    }
     GenerateStub(pPath);
     GenerateSkeleton(pPath);
-    
+    GenerateMethodId(pPath);
     return SUCCESS;
 }
 

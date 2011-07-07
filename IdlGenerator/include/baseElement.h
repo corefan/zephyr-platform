@@ -148,6 +148,7 @@ public:
 
     static TplMap<TplPtPack<CBaseElement,string >,string> *sm_pBaseKeyWords;
 
+    static TInt32 sm_nInterfaceIdBegin;
     string m_szName; //
     EnRawTypes     m_nElmentType;
     CBaseElement *m_pFather;
@@ -197,6 +198,7 @@ public:
     virtual const char *GetHierachyName();
     virtual TInt32 GenerateSkeleton(const char *pPath);
     virtual TInt32 GenerateStub(const char *pPath);
+    virtual TInt32 GenerateMethodId(const char *pPath);
 
     TInt32 IgnorType(char **ppElements,EnType *pTypes,int nProcess2,int nTotalEles,EnType eType);
     TInt32 IgnorTypes(char **ppElements,EnType *pTypes,int nProcess2,int nTotalEles,int nrOfType,EnType eType[]);

@@ -714,7 +714,7 @@ TInt32 CInterfaceElement::GenerateSkeletonSourceFile(const char *pPath)
         nUsed += n;
         nLength -= n;
 
-        n = sprintf_s(pBuff+nUsed,nLength,"#include \"Public/include/TypeUnmarshaller.h\"\n");
+        n = sprintf_s(pBuff+nUsed,nLength,"#include \"Public/include/TypeUnmarshaller.h\"\n#include \"%sMethodId.h\"\n",m_szName.c_str());
         nUsed += n;
         nLength -= n;
 
@@ -903,6 +903,80 @@ TInt32 CInterfaceElement::GenerateStub(const char *pPath)
     return nFileNr;
 }
 
+TInt32 CInterfaceElement::GenerateMethodId(const char *pPath)
+{
+    return GenerateMethodIdFile(pPath,CBaseElement::sm_nInterfaceIdBegin++);
+}
+
+
+TInt32 CInterfaceElement::GenerateMethodIdFile(const char *pPath,int nInterfaceId)
+{
+    int nRet = 0;
+    //stub Ãû×Ö
+    std::string szFileName = pPath;
+    szFileName += m_szName;
+    szFileName += "MehtodId.h";
+    FILE *pFile = fopen(szFileName.c_str(),"w");
+    int nLength = 2*1024*1024;
+    char *pBuff = NULL;
+    NEW(pBuff,char,nLength);
+    if (!pBuff)
+    {
+        return OUT_OF_MEM;
+    }
+    int nUsed = 0;
+    if (pFile)
+    {
+        int nBegin = 10000;
+        int n = sprintf_s(pBuff+nBegin,1000,"__%s_METHOD_ID_H__",m_szName.c_str());
+
+        for (int i=0;i<n;++i)
+        {
+            pBuff[nBegin] = toupper(pBuff[nBegin]);
+            ++nBegin;
+        }
+        
+        n = sprintf_s(pBuff,nLength,"#ifndef %s\n#define %s\n#include \"ServiceIdDef.h\"\n\n#define ",(pBuff+10000),(pBuff+10000));
+        nUsed += n;
+        nLength -= n;
+        n = GetMethodIdStr(pBuff+nUsed,nLength);
+        nUsed += n;
+        nLength -= n;
+        n = sprintf_s(pBuff+nUsed,nLength," (0x%08X) \n",nInterfaceId);
+        nUsed += n;
+        nLength -= n;
+
+        int nMethodNr = 0;
+        for (int i=0;i<m_tChilds.size();++i)
+        {
+            CBaseElement *pBase = m_tChilds[i].m_pPt;
+            if (raw_method_type == pBase->m_nElmentType)
+            {
+                CMethod *pMethod = dynamic_cast<CMethod*>(pBase);
+                n = sprintf_s(pBuff+nUsed,nLength,"#define ");
+                nUsed += n;
+                nLength -= n;
+                n = pMethod->GetMethodIdStr(pBuff+nUsed,nLength);
+                nUsed += n;
+                nLength -= n;
+                n = sprintf_s(pBuff+nUsed,nLength,"(0x%08X)\n",nMethodNr);
+                nUsed += n;
+                nLength -= n;
+            }
+        }
+        n = sprintf_s(pBuff+nUsed,nLength,"#endif\n\n");
+        nUsed += n;
+        nLength -= n;
+
+        fwrite(pBuff,1,nUsed,pFile);
+        //sprintf_s()
+        fclose (pFile);
+        delete [] pBuff;
+        return nUsed;
+
+    }
+}
+
 TInt32 CInterfaceElement::GenerateStubHeaderFile(const char *pPath)
 {
     int nRet = 0;
@@ -1049,7 +1123,7 @@ TInt32 CInterfaceElement::GenerateStubSourceFile(const char *pPath)
          nUsed += n;
          nLength -= n;
 
-         n = sprintf_s(pBuff+nUsed,nLength,"#include \"Public/include/TypeMarshaller.h\"\n");
+         n = sprintf_s(pBuff+nUsed,nLength,"#include \"Public/include/TypeMarshaller.h\"\n#include \"%sMethodId.h\"\n",m_szName.c_str());
          nUsed += n;
          nLength -= n;
 //         n = sprintf_s(pBuff+nUsed,nLength,"public:\n",m_szName.c_str(),m_szName.c_str());
@@ -1128,7 +1202,7 @@ TInt32 CInterfaceElement::GenerateStubSourceFile(const char *pPath)
 
 TInt32 CInterfaceElement::GetMethodIdStr(char *pBuff,int nLength)
 {
-    int nRet = sprintf_s(pBuff,nLength,"%s_ID",m_szName.c_str());
+    int nRet = sprintf_s(pBuff,nLength,"%s_INTERFACE_ID",m_szName.c_str());
     for (int i=0;i<nRet;++i)
     {
         pBuff[i] = toupper(pBuff[i]);

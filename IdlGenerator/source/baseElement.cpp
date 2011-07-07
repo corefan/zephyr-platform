@@ -6,6 +6,7 @@ namespace Zephyr
 IMPLEMENT_STATIC_CLASS_POOL(CBaseElement)
 
 
+TInt32 CBaseElement::sm_nInterfaceIdBegin = 0;
 
 TplMap<TplPtPack<CBaseElement,string >,string> *CBaseElement::sm_pBaseElements = NULL;
 TplMap<TplPtPack<CBaseElement,string >,string> *CBaseElement::sm_pBaseKeyWords = NULL;
@@ -228,5 +229,21 @@ TInt32 CBaseElement::GenerateStub(const char *pPath)
     }
     return nTotalSize;
 }
+
+TInt32 CBaseElement::GenerateMethodId(const char *pPath)
+{
+    int n = m_tChilds.size();
+    int nTotalSize = 0;
+    for(int i=0;i<n;++i)
+    {
+        int nRet = m_tChilds[i]->GenerateMethodId(pPath);
+        if (nRet < SUCCESS)
+        {
+            nTotalSize += nRet;
+        }
+    }
+    return nTotalSize;
+}
+
 
 }
