@@ -70,6 +70,7 @@ CHeaderFile::CHeaderFile()
          AddKeyWords("switch",key_switch       );
          AddKeyWords("extern",key_extern       );
          AddKeyWords("virtual",key_virtual);
+         AddKeyWords("typedef",key_type_define);
     }
 }
 
@@ -561,11 +562,18 @@ TInt32 CHeaderFile::DividIntoWords()
         {
             cTypes[i] = back_slash_mark_type;
         }
-        else
+        else if (IsBiggerMark(c))
+        {
+            cTypes[i] = bigger_mark_type;
+        }
+        else if (IsSmallerMark(c))
+        {
+            cTypes[i] = smaller_mark_type;
+        }
+        else 
         {
             cTypes[i] = not_acceptable_type;
         }
-
         ++c;
     }
     //¿Õ¸ñ 0 ·ûºÅ 1 ×ÖÄ¸ 2 Êı×Ö 3 
@@ -594,6 +602,8 @@ TInt32 CHeaderFile::DividIntoWords()
                         
                     }
                     break;
+                case smaller_mark_type:
+                case bigger_mark_type:
                 case blanket_type_1:
                 case blanket_type_2:
                 case semicolon_type:
@@ -738,6 +748,8 @@ TInt32 CHeaderFile::DividIntoWords()
             {
                 switch (cTypes[(unsigned int)(*pCur)])
                 {
+                case smaller_mark_type:
+                case bigger_mark_type:
                 case blanket_type_1:
                 case blanket_type_2:
                 case semicolon_type:
@@ -887,6 +899,8 @@ TInt32 CHeaderFile::DividIntoWords()
             {
                 switch (cTypes[(unsigned int)(*pCur)])
                 {
+                case smaller_mark_type:
+                case bigger_mark_type:
                 case blanket_type_1:
                 case blanket_type_2:
                 case semicolon_type:
@@ -1049,6 +1063,8 @@ TInt32 CHeaderFile::DividIntoWords()
             {
                 switch (cTypes[(unsigned int)(*pCur)])
                 {
+                case smaller_mark_type:
+                case bigger_mark_type:
                 case blanket_type_1:
                 case blanket_type_2:
                 case enter_type:
@@ -1171,6 +1187,8 @@ TInt32 CHeaderFile::DividIntoWords()
             {
                 switch (cTypes[(unsigned int)(*pCur)])
                 {
+                case smaller_mark_type:
+                case bigger_mark_type:
                 case blanket_type_1:
                 case blanket_type_2:
                 case enter_type:
@@ -1294,6 +1312,8 @@ TInt32 CHeaderFile::DividIntoWords()
             {
                 switch (cTypes[(unsigned int)(*pCur)])
                 {
+                case smaller_mark_type:
+                case bigger_mark_type:
                 case blanket_type_1:
                 case blanket_type_2:
                 case semicolon_type:
@@ -1451,6 +1471,8 @@ TInt32 CHeaderFile::DividIntoWords()
             {
                 switch (cTypes[(unsigned int)(*pCur)])
                 {
+                case smaller_mark_type:
+                case bigger_mark_type:
                 case blanket_type_1:
                 case blanket_type_2:
                 case semicolon_type:
@@ -1608,6 +1630,8 @@ TInt32 CHeaderFile::DividIntoWords()
             {
                 switch (cTypes[(unsigned int)(*pCur)])
                 {
+                case smaller_mark_type:
+                case bigger_mark_type:
                 case blanket_type_1:
                 case blanket_type_2:
                 case semicolon_type:
@@ -1765,6 +1789,8 @@ TInt32 CHeaderFile::DividIntoWords()
             {
                 switch (cTypes[(unsigned int)(*pCur)])
                 {
+                case smaller_mark_type:
+                case bigger_mark_type:
                 case blanket_type_1:
                 case blanket_type_2:
                 case semicolon_type:
@@ -1922,6 +1948,8 @@ TInt32 CHeaderFile::DividIntoWords()
             {
                 switch (cTypes[(unsigned int)(*pCur)])
                 {
+                case smaller_mark_type:
+                case bigger_mark_type:
                 case blanket_type_1:
                 case blanket_type_2:
                 case semicolon_type:
@@ -2077,6 +2105,8 @@ TInt32 CHeaderFile::DividIntoWords()
             break;
         case blanket_type_1:
         case blanket_type_2:
+        case bigger_mark_type:
+        case smaller_mark_type:
         case semicolon_type:
             {
                 memcpy(pRead2,m_pszFile+nLastWordIdx,i-nLastWordIdx);
@@ -2218,16 +2248,6 @@ TBool CHeaderFile::IsOperator(char c)
         }
         break;
     case '.':
-        {
-
-        }
-        break;
-    case '>':
-        {
-
-        }
-        break;
-    case '<':
         {
 
         }

@@ -96,8 +96,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ServiceTemplate", "ServiceT
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Service", "ServiceTemplate\Service\Service.vcproj", "{BA24FB41-F29E-4B06-88C4-CC15A012F22F}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Interface", "ServiceTemplate\Interface\Interface.vcproj", "{891AB460-395A-4105-AA33-DCA74BD0F39D}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -184,10 +182,6 @@ Global
 		{BA24FB41-F29E-4B06-88C4-CC15A012F22F}.Debug|Win32.Build.0 = Debug|Win32
 		{BA24FB41-F29E-4B06-88C4-CC15A012F22F}.Release|Win32.ActiveCfg = Release|Win32
 		{BA24FB41-F29E-4B06-88C4-CC15A012F22F}.Release|Win32.Build.0 = Release|Win32
-		{891AB460-395A-4105-AA33-DCA74BD0F39D}.Debug|Win32.ActiveCfg = Debug|Win32
-		{891AB460-395A-4105-AA33-DCA74BD0F39D}.Debug|Win32.Build.0 = Debug|Win32
-		{891AB460-395A-4105-AA33-DCA74BD0F39D}.Release|Win32.ActiveCfg = Release|Win32
-		{891AB460-395A-4105-AA33-DCA74BD0F39D}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -214,6 +208,5 @@ Global
 		{5ED9AAD6-9262-4AA5-BD51-CE67C975EAC3} = {3D35C6D4-1649-4E0C-B271-8E64AD6C8B77}
 		{91620A53-C81D-4D22-AB12-927113250D64} = {3D35C6D4-1649-4E0C-B271-8E64AD6C8B77}
 		{BA24FB41-F29E-4B06-88C4-CC15A012F22F} = {B3DB8D16-8B9C-4EA3-91F7-457F262E5E2A}
-		{891AB460-395A-4105-AA33-DCA74BD0F39D} = {B3DB8D16-8B9C-4EA3-91F7-457F262E5E2A}
 	EndGlobalSection
 EndGlobal

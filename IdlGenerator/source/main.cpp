@@ -20,11 +20,11 @@ int main(int argc,char *pArgv[])
     char szPath[256];
     if (argc != 3)
     {
-        cout<<"Input Interface fileName";
+        cout<<"Input Interface fileName:";
         cin>>szFileName;
         cout<<"Input outPut path:";
         cin>>szPath;
-        return -1;
+        //return -1;
     }
     else
     {

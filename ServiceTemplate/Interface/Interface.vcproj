@@ -40,6 +40,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
+				AdditionalIncludeDirectories="../../"
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -146,12 +147,44 @@
 			Filter="cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx"
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
+			<File
+				RelativePath=".\source\IfConnectingSkeleton.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\source\IfConnectingStub.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\source\IfGatewaySvcSkeleton.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\source\IfGatewaySvcStub.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="include"
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
+			<File
+				RelativePath=".\include\IfConnectingSkeleton.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\IfConnectingStub.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\IfGatewaySvcSkeleton.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\IfGatewaySvcStub.h"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="interface"
@@ -163,7 +196,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\IfGateway.h"
+				RelativePath=".\interface\IfGateway.h"
 				>
 			</File>
 		</Filter>

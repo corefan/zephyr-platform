@@ -57,6 +57,8 @@ enum EnType
     blanket_type_1          , //'('
     blanket_type_2          , //')'
     semicolon_type          , //;
+    bigger_mark_type        , //>
+    smaller_mark_type       , //<
 };
 
 
@@ -91,6 +93,7 @@ enum EnRawTypes
     key_switch      ,
     key_extern      ,
     key_virtual     ,
+    key_type_define ,
     raw_base_element_type,    //这个是未知类型.
     raw_TInt32_type,
     raw_TInt16_type,

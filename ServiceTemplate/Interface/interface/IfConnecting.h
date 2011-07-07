@@ -14,7 +14,6 @@ namespace Zephyr
         TInt32 SetId(TUInt32 uId) = 0;
         TInt32 CheckId(TUInt32 uId) = 0;
     };
-
 }
 
 

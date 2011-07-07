@@ -32,6 +32,7 @@ public:
     std::string  m_szFull;
     std::string  m_szRawTxt;
     std::string  m_szRawNoPrefix;
+    std::vector<CFullTypeDef*> m_pTplSubs;
 public:
     std::string &GetRawTxt()
     {

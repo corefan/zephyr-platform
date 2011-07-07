@@ -88,11 +88,11 @@ TInt32 CMethod::Process(char **ppElements,EnType *pTypes,int nProcess2,int nTota
                 }
             }
         }
-        else
-        {
-            OnError(ppElements[nProcess2]);
-            return -1;
-        }
+//         else
+//         {
+//             OnError(ppElements[nProcess2]);
+//             return -1;
+//         }
     }
     if (nProcess2 < nTotalEles)
     {
@@ -273,14 +273,14 @@ TInt32 CMethod::GenerateStubSourceCode(char *pszBuff,int nLength)
                 char *pFormat;
                 if (i)
                 {
-                    pFormat = "+sizeof(%s)";
+                    pFormat = "+GetLength(%s)"; //请自定义getLength函数.
                 }
                 else
                 {
-                    pFormat = "sizeof(%s)";
+                    pFormat = "GetLength(%s)";
                 }
                 CParamerter *pPar = dynamic_cast<CParamerter *>(p);
-                nRet = sprintf_s(pszBuff+nUsed,nLength,pFormat,pPar->m_pFullType->m_pType->m_szName.c_str());
+                nRet = sprintf_s(pszBuff+nUsed,nLength,pFormat,pPar->m_szName.c_str());
                 nUsed += nRet;
                 nLength -= nRet;
             }

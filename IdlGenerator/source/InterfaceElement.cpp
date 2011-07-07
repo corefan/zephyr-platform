@@ -590,7 +590,7 @@ TInt32 CInterfaceElement::GenerateSkeletonHeaderFile(const char *pPath)
             pBuff[nBegin] = toupper(pBuff[nBegin]);
             ++nBegin;
         }
-        n = sprintf_s(pBuff,nLength,"#ifndef %s \n #define %s\n",(pBuff+10000),(pBuff+10000));
+        n = sprintf_s(pBuff,nLength,"#ifndef %s\n#define %s\n",(pBuff+10000),(pBuff+10000));
         nUsed += n;
         nLength -= n;
 
@@ -673,6 +673,9 @@ TInt32 CInterfaceElement::GenerateSkeletonHeaderFile(const char *pPath)
                 nLength -= n;
             }
         }
+        n = sprintf_s(pBuff+nUsed,nLength,"#endif\n");
+        nUsed += n;
+        nLength -= n;
         //sprintf_s()
         fwrite(pBuff,1,nUsed,pFile);
         //sprintf_s()
@@ -711,7 +714,7 @@ TInt32 CInterfaceElement::GenerateSkeletonSourceFile(const char *pPath)
         nUsed += n;
         nLength -= n;
 
-        n = sprintf_s(pBuff,nLength,"#include \"Public/include/TypeUnmarshaller.h\"\n");
+        n = sprintf_s(pBuff+nUsed,nLength,"#include \"Public/include/TypeUnmarshaller.h\"\n");
         nUsed += n;
         nLength -= n;
 
@@ -927,7 +930,7 @@ TInt32 CInterfaceElement::GenerateStubHeaderFile(const char *pPath)
             ++nBegin;
         }
 
-        n = sprintf_s(pBuff,nLength,"#ifndef %s \n #define %s\n",(pBuff+10000),(pBuff+10000));
+        n = sprintf_s(pBuff,nLength,"#ifndef %s\n#define %s\n#include \"Public/include/TypeDef.h\"\n",(pBuff+10000),(pBuff+10000));
         nUsed += n;
         nLength -= n;
 
@@ -1007,6 +1010,9 @@ TInt32 CInterfaceElement::GenerateStubHeaderFile(const char *pPath)
                 nLength -= n;
             }
         }
+        n = sprintf_s(pBuff+nUsed,nLength,"#endif\n");
+        nUsed += n;
+        nLength -= n;
 
         fwrite(pBuff,1,nUsed,pFile);
         //sprintf_s()
@@ -1043,7 +1049,7 @@ TInt32 CInterfaceElement::GenerateStubSourceFile(const char *pPath)
          nUsed += n;
          nLength -= n;
 
-         n = sprintf_s(pBuff,nLength,"#include \"Public/include/TypeMarshaller.h\"\n");
+         n = sprintf_s(pBuff+nUsed,nLength,"#include \"Public/include/TypeMarshaller.h\"\n");
          nUsed += n;
          nLength -= n;
 //         n = sprintf_s(pBuff+nUsed,nLength,"public:\n",m_szName.c_str(),m_szName.c_str());

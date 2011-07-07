@@ -145,6 +145,74 @@ TInt32 CFullTypeDef::Process(char **ppElements,EnType *pTypes,int nProcess2,int 
         m_szRawTxt += ppElements[nProcess2];
         m_szRawNoPrefix += ppElements[nProcess2];
         ++nProcess2;
+        //处理模板
+        if (smaller_mark_type == pTypes[nProcess2])
+        {
+            //if ('<' == ppElements[nProcess2][0])
+            m_szFull += "_tpl_begin_";
+            m_szRawTxt += ppElements[nProcess2];
+            m_szRawNoPrefix += ppElements[nProcess2];
+            {
+                ++nProcess2;
+                //一个类型
+                bool bMoreTplSubTypes = true;
+                while(bMoreTplSubTypes)
+                {
+                    CFullTypeDef *pFullType = CREATE_FROM_STATIC_POOL(CFullTypeDef);
+                    if (!pFullType)
+                    {
+                        return OUT_OF_MEM;
+                    }
+                    int n = pFullType->Process(ppElements,pTypes,nProcess2,nTotalEles);
+                    if (n < SUCCESS)
+                    {
+                        return n;
+                    }
+                    m_szFull += pFullType->m_szFull;
+                    m_szRawTxt += pFullType->m_szRawTxt;
+                    m_szRawNoPrefix += pFullType->m_szRawTxt;
+
+                    nProcess2 += n;
+                    m_pTplSubs.push_back(pFullType);
+                    if (operator_type == pTypes[nProcess2])
+                    {
+                        if (','==ppElements[nProcess2][0])
+                        {
+                            m_szFull += "_and_";
+                            m_szRawTxt += ",";
+                            m_szRawNoPrefix += ",";
+
+                            bMoreTplSubTypes = true;
+                            nProcess2++;
+                        }
+                        else
+                        {
+                            bMoreTplSubTypes = false;
+                        }
+                    }
+                    else
+                    {
+                        bMoreTplSubTypes = false;
+                    }
+                }
+                
+                if (bigger_mark_type == pTypes[nProcess2])
+                {
+                    if ('>' == ppElements[nProcess2][0])
+                    {
+                        m_szFull += "_tpl_end_";
+                        m_szRawTxt += ppElements[nProcess2];
+                        m_szRawNoPrefix += ppElements[nProcess2];
+                        ++nProcess2;
+                    }
+                }
+                else
+                {
+                    printf("can not found the template's end \'>\' \n\r");
+                    return -1;
+                }
+            }
+        }
     }
     while((operator_type == pTypes[nProcess2])||(star_mark_type == pTypes[nProcess2]))
     {
@@ -163,6 +231,10 @@ TInt32 CFullTypeDef::Process(char **ppElements,EnType *pTypes,int nProcess2,int 
                     AddOpr(en_ref_operator);
                 }
                 break;
+            case ',': //为模板类特加的.
+                {
+                    return (nProcess2 - nOld);
+                }
             default:
                 {
                     char *pAt =NULL;

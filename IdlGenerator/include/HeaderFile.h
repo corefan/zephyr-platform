@@ -54,6 +54,22 @@ private:
     TBool  IsOperator(char c);
     TBool  IsAlphabet(char c);
     TBool  IsNum(char c);
+    TBool  IsBiggerMark(char c)
+    {
+        if ('>' == c)
+        {
+            return TRUE;
+        }
+        return FALSE;
+    }
+    TBool IsSmallerMark(char c)
+    {
+        if ('<' == c)
+        {
+            return TRUE;
+        }
+        return FALSE;
+    }
     TBool  IsSlashMark(char c)
     {
         if ('/'==c)
@@ -129,7 +145,7 @@ private:
     void RemoveAllNumLine(); //É¾³ýËùÓÐ'#'
     void RemoveAllCommentsAndMakeConstStr();
     void RemoveAllType(EnType enType);
-    
+    void RemoveAllTypeDef();
 };
 
 }
