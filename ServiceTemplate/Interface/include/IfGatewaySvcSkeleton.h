@@ -1,6 +1,5 @@
-#ifndef __IFGATEWAYSVC_SKELETON_H__ 
+#ifndef __IFGATEWAYSVC_SKELETON_H__
 #define __IFGATEWAYSVC_SKELETON_H__
-#include "../interface/IfGateway.h"
 namespace Zephyr 
 {
 class IfGatewaySvcSkeleton 

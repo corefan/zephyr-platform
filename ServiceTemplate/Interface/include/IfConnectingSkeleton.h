@@ -1,6 +1,5 @@
-#ifndef __IFCONNECTING_SKELETON_H__ 
- #define __IFCONNECTING_SKELETON_H__
-#include "../Interface/IfConnecting.h"
+#ifndef __IFCONNECTING_SKELETON_H__
+#define __IFCONNECTING_SKELETON_H__
 namespace Zephyr 
 {
 class IfConnectingSkeleton 

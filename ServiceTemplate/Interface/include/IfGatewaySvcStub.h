@@ -1,7 +1,8 @@
-#ifndef __IFGATEWAYSVC_STUB_H__ 
+#ifndef __IFGATEWAYSVC_STUB_H__
 #define __IFGATEWAYSVC_STUB_H__
 #include "Public/include/TypeDef.h"
-
+#include "Public/include/Doid.h"
+#include "Public/Interface/Platform/include/IfSkeleton.h"
 namespace Zephyr 
 {
 class IfGatewaySvcStub : public IfGatewaySvc

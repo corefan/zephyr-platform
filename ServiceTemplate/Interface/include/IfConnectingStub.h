@@ -1,7 +1,8 @@
-#ifndef __IFCONNECTING_STUB_H__ 
+#ifndef __IFCONNECTING_STUB_H__
 #define __IFCONNECTING_STUB_H__
 #include "Public/include/TypeDef.h"
-#include "../Interface/IfConnecting.h"
+#include "Public/include/Doid.h"
+#include "Public/Interface/Platform/include/IfSkeleton.h"
 namespace Zephyr 
 {
 class IfConnectingStub : public IfConnecting
