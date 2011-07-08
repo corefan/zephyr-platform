@@ -1,0 +1,200 @@
+#include "./IfConnectingSkeleton.h"
+#include "Public/include/TypeUnmarshaller.h"
+#include "IfConnectingMethodId.h"
+namespace Zephyr 
+{
+TInt32 IfConnectingSkeleton::HandleMsg(CMessageHeader *pMsg)
+{
+    typedef TInt32 (IfConnectingSkeleton::*_PFMSG)(CMessageHeader *); 
+    struct _MSGMAP_ENTRY { TUInt32 m_uMsgID; _PFMSG m_pHandlerFunc; };
+    static _MSGMAP_ENTRY sMsgMapEntries[] = 
+    {
+        {(GATEWAY_SERVICE_ID|IFCONNECTING_INTERFACE_ID|REGISTERSERVICE_TUINT32_TUINT32_CDOID_PT_ID), &IfConnectingSkeleton::HandleRegisterService_TUInt32_TUInt32_CDoid_pt},
+        {(GATEWAY_SERVICE_ID|IFCONNECTING_INTERFACE_ID|UNREGISTERSERVICE_TUINT32_TUINT32_CDOID_PT_ID), &IfConnectingSkeleton::HandleUnregisterService_TUInt32_TUInt32_CDoid_pt},
+        {(GATEWAY_SERVICE_ID|IFCONNECTING_INTERFACE_ID|DISCONNECT_TUINT32_ID), &IfConnectingSkeleton::HandleDisconnect_TUInt32},
+        {(GATEWAY_SERVICE_ID|IFCONNECTING_INTERFACE_ID|SETID_TUINT32_ID), &IfConnectingSkeleton::HandleSetId_TUInt32},
+        {(GATEWAY_SERVICE_ID|IFCONNECTING_INTERFACE_ID|CHECKID_TUINT32_ID), &IfConnectingSkeleton::HandleCheckId_TUInt32},
+    };
+    TInt32 nBegin = 0;
+    TInt32 nEnd = 5;
+    TUInt32 nMethodId = pMsg->GetMethodId();
+    _PFMSG pPfMsg = NULL;
+    while((nBegin < nEnd)
+    {
+        if (nBegin == (nEnd -1))
+        {
+            if (sMsgMapEntries[nBegin].m_uMsgID == nMethodId)
+            {
+                pPfMsg=sMsgMapEntries[nBegin].m_pHandlerFunc;
+            }
+            else if (sMsgMapEntries[nEnd].m_uMsgID == nMethodId)
+            {
+                pPfMsg=sMsgMapEntries[nEnd].m_pHandlerFunc;
+            }
+            break;
+        }
+        TInt32 nMiddle = (nBegin + nEnd) >> 1;
+        TUInt32 nMiddleVal = sMsgMapEntries[nMiddle].m_uMsgID;
+        if (nMiddleVal == nMethodId)
+        {
+            pPfMsg = sMsgMapEntries[nMiddle].m_pHandlerFunc;
+            break;
+        }
+        else
+        {
+            if (nMiddleVal>nMethodId)
+            {
+                nEnd = nMiddle;
+            }
+            else
+            {
+                nBegin   = nMiddle;
+            }
+        }
+    }
+    if (NULL == pPfMsg)
+    {
+        return CAN_NOT_HANDLE_THIS_MSG;
+    }
+    return (this->*pPfMsg)(pMsg);
+}; 
+TInt32 IfConnectingSkeleton::RegisterService_TUInt32_TUInt32_CDoid_pt(CMessageHeader *pMsg)
+{
+    TInt32 nLen = pMsg->GetBodyLength();
+    TUChar *pBuffer =pMsg->GetBody();
+    TInt32 nRet;
+    TUInt32 uServiceIdBegin;
+    nRet = Unmarshall(pBuffer,nLen,uServiceIdBegin);
+    if (nRet<SUCCESS)
+    {
+        pBuffer += nRet;
+        nLen -= nRet;
+    }
+    else
+    {
+        return nRet;
+    }
+    TUInt32 uServcieIdEnd;
+    nRet = Unmarshall(pBuffer,nLen,uServcieIdEnd);
+    if (nRet<SUCCESS)
+    {
+        pBuffer += nRet;
+        nLen -= nRet;
+    }
+    else
+    {
+        return nRet;
+    }
+    CDoid* pDoid;
+    nRet = Unmarshall(pBuffer,nLen,pDoid);
+    if (nRet<SUCCESS)
+    {
+        pBuffer += nRet;
+        nLen -= nRet;
+    }
+    else
+    {
+        return nRet;
+    }
+    m_pImplementObj->RegisterService(uServiceIdBegin,uServcieIdEnd,pDoid);
+    return SUCCESS;
+}
+TInt32 IfConnectingSkeleton::UnregisterService_TUInt32_TUInt32_CDoid_pt(CMessageHeader *pMsg)
+{
+    TInt32 nLen = pMsg->GetBodyLength();
+    TUChar *pBuffer =pMsg->GetBody();
+    TInt32 nRet;
+    TUInt32 uServiceIdBegin;
+    nRet = Unmarshall(pBuffer,nLen,uServiceIdBegin);
+    if (nRet<SUCCESS)
+    {
+        pBuffer += nRet;
+        nLen -= nRet;
+    }
+    else
+    {
+        return nRet;
+    }
+    TUInt32 uServcieIdEnd;
+    nRet = Unmarshall(pBuffer,nLen,uServcieIdEnd);
+    if (nRet<SUCCESS)
+    {
+        pBuffer += nRet;
+        nLen -= nRet;
+    }
+    else
+    {
+        return nRet;
+    }
+    CDoid* pDoid;
+    nRet = Unmarshall(pBuffer,nLen,pDoid);
+    if (nRet<SUCCESS)
+    {
+        pBuffer += nRet;
+        nLen -= nRet;
+    }
+    else
+    {
+        return nRet;
+    }
+    m_pImplementObj->UnregisterService(uServiceIdBegin,uServcieIdEnd,pDoid);
+    return SUCCESS;
+}
+TInt32 IfConnectingSkeleton::Disconnect_TUInt32(CMessageHeader *pMsg)
+{
+    TInt32 nLen = pMsg->GetBodyLength();
+    TUChar *pBuffer =pMsg->GetBody();
+    TInt32 nRet;
+    TUInt32 uReason;
+    nRet = Unmarshall(pBuffer,nLen,uReason);
+    if (nRet<SUCCESS)
+    {
+        pBuffer += nRet;
+        nLen -= nRet;
+    }
+    else
+    {
+        return nRet;
+    }
+    m_pImplementObj->Disconnect(uReason);
+    return SUCCESS;
+}
+TInt32 IfConnectingSkeleton::SetId_TUInt32(CMessageHeader *pMsg)
+{
+    TInt32 nLen = pMsg->GetBodyLength();
+    TUChar *pBuffer =pMsg->GetBody();
+    TInt32 nRet;
+    TUInt32 uId;
+    nRet = Unmarshall(pBuffer,nLen,uId);
+    if (nRet<SUCCESS)
+    {
+        pBuffer += nRet;
+        nLen -= nRet;
+    }
+    else
+    {
+        return nRet;
+    }
+    m_pImplementObj->SetId(uId);
+    return SUCCESS;
+}
+TInt32 IfConnectingSkeleton::CheckId_TUInt32(CMessageHeader *pMsg)
+{
+    TInt32 nLen = pMsg->GetBodyLength();
+    TUChar *pBuffer =pMsg->GetBody();
+    TInt32 nRet;
+    TUInt32 uId;
+    nRet = Unmarshall(pBuffer,nLen,uId);
+    if (nRet<SUCCESS)
+    {
+        pBuffer += nRet;
+        nLen -= nRet;
+    }
+    else
+    {
+        return nRet;
+    }
+    m_pImplementObj->CheckId(uId);
+    return SUCCESS;
+}
+}
