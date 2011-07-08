@@ -10,7 +10,7 @@ namespace Zephyr
 IMPLEMENT_STATIC_CLASS_POOL(CHeaderFile);
 
 string CHeaderFile::sm_szServiceName;
-
+const char *CHeaderFile::m_pFileName=NULL;
 CHeaderFile::CHeaderFile()
 {
     m_ppElements = NULL;
@@ -93,23 +93,24 @@ TInt32 CHeaderFile::GeneratorIdl(const char *pFileName,const char *pPath)
         printf("Can not open file:%s",pFileName);
         return nRet;
     }
+    m_pFileName = pFileName;
     DividIntoWords();
     
     RemoveAllCommentsAndMakeConstStr();
     RemoveAllType(divider_type);
     RemoveAllNumLine();
     RemoveAllType(enter_type);
-    for (int i=0;i<m_nNrOfWords;++i)
-    {
-        if (enter_type == m_pWordsTypes[i])
-        {
-            printf("\n");
-        }
-        else
-        {
-            printf("@%s$",m_ppWords[i]);
-        }
-    }
+//     for (int i=0;i<m_nNrOfWords;++i)
+//     {
+//         if (enter_type == m_pWordsTypes[i])
+//         {
+//             printf("\n");
+//         }
+//         else
+//         {
+//             printf("@%s$",m_ppWords[i]);
+//         }
+//     }
     nRet = Process(m_ppWords,m_pWordsTypes,0,m_nNrOfWords);
     if (nRet == m_nNrOfWords)
     {
@@ -2159,7 +2160,7 @@ TInt32 CHeaderFile::DividIntoWords()
     return SUCCESS;
 }
 
-TBool  CHeaderFile::IsDivider(char c)
+TBOOL  CHeaderFile::IsDivider(char c)
 {
     switch(c)
     {
@@ -2179,7 +2180,7 @@ TBool  CHeaderFile::IsDivider(char c)
     return TRUE;
 }
 
-TBool CHeaderFile::IsEnter(char c )
+TBOOL CHeaderFile::IsEnter(char c )
 {
     if ('\n' == c)
     {
@@ -2188,7 +2189,7 @@ TBool CHeaderFile::IsEnter(char c )
     return FALSE;
 }
 
-TBool CHeaderFile::IsOperator(char c)
+TBOOL CHeaderFile::IsOperator(char c)
 {
 
     switch(c)
@@ -2287,7 +2288,7 @@ TBool CHeaderFile::IsOperator(char c)
     return TRUE;
 }
 
-TBool  CHeaderFile::IsAlphabet(char c)
+TBOOL  CHeaderFile::IsAlphabet(char c)
 {
     if ((c>='a')&&(c<='z'))
     {
@@ -2303,7 +2304,7 @@ TBool  CHeaderFile::IsAlphabet(char c)
     }
     return FALSE;
 }
-TBool  CHeaderFile::IsNum(char c)
+TBOOL  CHeaderFile::IsNum(char c)
 {
     if ((c>='0')&&(c<='9'))
     {

@@ -1,6 +1,6 @@
-#include "./IfGatewaySvcStub.h"
+#include "../include/IfGatewaySvcStub.h"
 #include "Public/include/TypeMarshaller.h"
-#include "IfGatewaySvcMethodId.h"
+#include "../include/IfGatewaySvcMethodId.h"
 namespace Zephyr 
 {
 TInt32 IfGatewaySvcStub::Syn2Map(TUInt32 uFrom,TLV<TUInt8,TUInt16>& tTLV)

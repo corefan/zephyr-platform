@@ -21,7 +21,7 @@ public:
     virtual TInt32 Run(TInt32 runCun) = 0;
     virtual TInt32 OnStop();
 
-    TInt32 Stop(TBool bBlock = true);
+    TInt32 Stop(TBOOL bBlock = true);
 };
 
 }

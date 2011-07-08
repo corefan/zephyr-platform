@@ -408,7 +408,7 @@ public:
                     return (m_nodeSize + 1);
                 }
 private:
-    bool        NeedRearrange(TBool bRightNode)
+    bool        NeedRearrange(TBOOL bRightNode)
                 {
                     //return false;
                     TInt32 leftNodeSize = 0;
@@ -2011,7 +2011,7 @@ public:
                     }
                     return SUCCESS;
                 }
-    TBool   IsFull()
+    TBOOL   IsFull()
             {
                 if (m_pHead->m_pRightNode == m_pRear)
                 {

@@ -45,7 +45,7 @@ public:
     {
         return m_pTask;
     }
-    TBool IsUsed()
+    TBOOL IsUsed()
     {
          if (m_pTask)
          {

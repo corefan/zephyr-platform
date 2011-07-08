@@ -20,7 +20,7 @@ public:
     {
         OnInit();
     }
-    TBool IsInUse()
+    TBOOL IsInUse()
     {
         if (m_ip)
         {

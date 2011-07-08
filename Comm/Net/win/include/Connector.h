@@ -84,7 +84,7 @@ public:
     //TInt32 Connect(CConnection *pConnection);
     //TInt32 StopConnecting(CConnection *pConnection);
 
-    TBool  IsListFull()
+    TBOOL  IsListFull()
     {
         if (m_maxPendingConnection <= m_pendingSocket.GetActivedSize())
         {

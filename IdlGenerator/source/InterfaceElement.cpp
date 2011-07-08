@@ -569,6 +569,15 @@ TInt32 CInterfaceElement::GenerateSkeletonHeaderFile(const char *pPath)
     int nRet = 0;
     //stub 名字
     std::string szFileName = pPath;
+    int nPathLen = szFileName.size();
+    if (szFileName[nPathLen-1]=='/')
+    {
+        szFileName +="include/";
+    }
+    else
+    {
+        szFileName +="/include/";
+    }
     szFileName += m_szName;
     szFileName += "Skeleton.h";
     FILE *pFile = fopen(szFileName.c_str(),"w");
@@ -593,6 +602,10 @@ TInt32 CInterfaceElement::GenerateSkeletonHeaderFile(const char *pPath)
         n = sprintf_s(pBuff,nLength,"#ifndef %s\n#define %s\n",(pBuff+10000),(pBuff+10000));
         nUsed += n;
         nLength -= n;
+        
+        n = sprintf_s(pBuff+nUsed,nLength,"#include \"Public/include/Message.h\"\n#include \"../Interface/%s\"\n",CHeaderFile::m_pFileName);
+        nUsed +=n;
+        nLength+=n;
 
         if (m_pFather)
         {
@@ -693,6 +706,16 @@ TInt32 CInterfaceElement::GenerateSkeletonSourceFile(const char *pPath)
     int nRet = 0;
     //stub 名字
     std::string szFileName = pPath;
+    int nPathLen = szFileName.size();
+    if (szFileName[nPathLen-1]=='/')
+    {
+        szFileName +="source/";
+    }
+    else
+    {
+        szFileName +="/source/";
+    }
+    
     szFileName +=m_szName;
     szFileName += "Skeleton.cpp";
     FILE *pFile = fopen(szFileName.c_str(),"w");
@@ -706,7 +729,7 @@ TInt32 CInterfaceElement::GenerateSkeletonSourceFile(const char *pPath)
     int nUsed = 0;
     if (pFile)
     {
-        szFileName = pPath;
+        szFileName = "../include/";
         szFileName +=m_szName;
         szFileName += "Skeleton.h";
 
@@ -714,7 +737,7 @@ TInt32 CInterfaceElement::GenerateSkeletonSourceFile(const char *pPath)
         nUsed += n;
         nLength -= n;
 
-        n = sprintf_s(pBuff+nUsed,nLength,"#include \"Public/include/TypeUnmarshaller.h\"\n#include \"%sMethodId.h\"\n",m_szName.c_str());
+        n = sprintf_s(pBuff+nUsed,nLength,"#include \"Public/include/TypeUnmarshaller.h\"\n#include \"../include/%sMethodId.h\"\n",m_szName.c_str());
         nUsed += n;
         nLength -= n;
 
@@ -792,7 +815,7 @@ TInt32 CInterfaceElement::GenerateSkeletonSourceFile(const char *pPath)
                                       "    TInt32 nEnd = %u;\n"
                                       "    TUInt32 nMethodId = pMsg->GetMethodId();\n"
                                       "    _PFMSG pPfMsg = NULL;\n"
-                                      "    while((nBegin < nEnd)\n"
+                                      "    while(nBegin < nEnd)\n"
                                       "    {\n"
                                       "        if (nBegin == (nEnd -1))\n"
                                       "        {\n"
@@ -914,8 +937,18 @@ TInt32 CInterfaceElement::GenerateMethodIdFile(const char *pPath,int nInterfaceI
     int nRet = 0;
     //stub 名字
     std::string szFileName = pPath;
+    
+    int nPathLen = szFileName.size();
+    if (szFileName[nPathLen-1]=='/')
+    {
+        szFileName +="include/";
+    }
+    else
+    {
+        szFileName +="/include/";
+    }
     szFileName += m_szName;
-    szFileName += "MehtodId.h";
+    szFileName += "MethodId.h";
     FILE *pFile = fopen(szFileName.c_str(),"w");
     int nLength = 2*1024*1024;
     char *pBuff = NULL;
@@ -936,7 +969,7 @@ TInt32 CInterfaceElement::GenerateMethodIdFile(const char *pPath,int nInterfaceI
             ++nBegin;
         }
         
-        n = sprintf_s(pBuff,nLength,"#ifndef %s\n#define %s\n#include \"ServiceIdDef.h\"\n\n#define ",(pBuff+10000),(pBuff+10000));
+        n = sprintf_s(pBuff,nLength,"#ifndef %s\n#define %s\n#include \"../../include/ServiceIdDef.h\"\n\n#define ",(pBuff+10000),(pBuff+10000));
         nUsed += n;
         nLength -= n;
         n = GetMethodIdStr(pBuff+nUsed,nLength);
@@ -959,7 +992,8 @@ TInt32 CInterfaceElement::GenerateMethodIdFile(const char *pPath,int nInterfaceI
                 n = pMethod->GetMethodIdStr(pBuff+nUsed,nLength);
                 nUsed += n;
                 nLength -= n;
-                n = sprintf_s(pBuff+nUsed,nLength,"(0x%08X)\n",nMethodNr);
+                n = sprintf_s(pBuff+nUsed,nLength," (0x%08X)\n",nMethodNr);
+                ++nMethodNr;
                 nUsed += n;
                 nLength -= n;
             }
@@ -982,6 +1016,15 @@ TInt32 CInterfaceElement::GenerateStubHeaderFile(const char *pPath)
     int nRet = 0;
     //stub 名字
     std::string szFileName = pPath;
+    int nPathLen = szFileName.size();
+    if (szFileName[nPathLen-1]=='/')
+    {
+        szFileName +="include/";
+    }
+    else
+    {
+        szFileName +="/include/";
+    }
     szFileName += m_szName;
     szFileName += "Stub.h";
     FILE *pFile = fopen(szFileName.c_str(),"w");
@@ -1004,10 +1047,12 @@ TInt32 CInterfaceElement::GenerateStubHeaderFile(const char *pPath)
             ++nBegin;
         }
 
-        n = sprintf_s(pBuff,nLength,"#ifndef %s\n#define %s\n#include \"Public/include/TypeDef.h\"\n",(pBuff+10000),(pBuff+10000));
+        n = sprintf_s(pBuff,nLength,"#ifndef %s\n#define %s\n#include \"Public/include/TypeDef.h\"\n#include \"Public/include/Doid.h\"\n#include \"Public/Interface/Platform/include/IfSkeleton.h\"\n",(pBuff+10000),(pBuff+10000));
         nUsed += n;
         nLength -= n;
-
+        n = sprintf_s(pBuff+nUsed,nLength,"#include \"../Interface/%s\"\n",CHeaderFile::m_pFileName);
+        nUsed +=n;
+        nLength+=n;
 //         n = sprintf_s(pBuff+nUsed,nLength,"#include \"%s\";\n",m_szName.c_str());
 //         nUsed += n;
 //         nLength -= n;
@@ -1102,6 +1147,15 @@ TInt32 CInterfaceElement::GenerateStubSourceFile(const char *pPath)
     int nRet = 0;
     //stub 名字
     std::string szFileName = pPath;
+    int nPathLen = szFileName.size();
+    if (szFileName[nPathLen-1]=='/')
+    {
+        szFileName +="source/";
+    }
+    else
+    {
+        szFileName +="/source/";
+    }
     szFileName +=m_szName;
     szFileName += "Stub.cpp";
     FILE *pFile = fopen(szFileName.c_str(),"w");
@@ -1115,7 +1169,7 @@ TInt32 CInterfaceElement::GenerateStubSourceFile(const char *pPath)
     int nUsed = 0;
     if (pFile)
     {
-        szFileName = pPath;
+        szFileName = "../include/";
         szFileName +=m_szName;
         szFileName += "Stub.h";
 
@@ -1123,7 +1177,7 @@ TInt32 CInterfaceElement::GenerateStubSourceFile(const char *pPath)
          nUsed += n;
          nLength -= n;
 
-         n = sprintf_s(pBuff+nUsed,nLength,"#include \"Public/include/TypeMarshaller.h\"\n#include \"%sMethodId.h\"\n",m_szName.c_str());
+         n = sprintf_s(pBuff+nUsed,nLength,"#include \"Public/include/TypeMarshaller.h\"\n#include \"../include/%sMethodId.h\"\n",m_szName.c_str());
          nUsed += n;
          nLength -= n;
 //         n = sprintf_s(pBuff+nUsed,nLength,"public:\n",m_szName.c_str(),m_szName.c_str());

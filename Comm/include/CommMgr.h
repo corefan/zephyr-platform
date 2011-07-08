@@ -80,10 +80,10 @@ private:
     //返回值为是否需要丢弃消息,应用层阻塞了
 
 
-    TBool IsAppStillBlocked();
-    TBool IsNetStillBlocked();
+    TBOOL IsAppStillBlocked();
+    TBOOL IsNetStillBlocked();
 
-    TBool CheckNetState(CMessageHeader *pMsg);
+    TBOOL CheckNetState(CMessageHeader *pMsg);
     void SendAppMsg(CMessageHeader *pMsg);
 
     void HandleOneNetMsg(CMessageHeader *pMsg);
@@ -124,7 +124,7 @@ public:
     CIpMapItem *GetIpMapInfo(CConPair *pPair);
 
     void   OnConnected(CCommConnection *pConnection);
-    void   OnDisconnected(CCommConnection *pConnection,TBool bIsNegative = TRUE);
+    void   OnDisconnected(CCommConnection *pConnection,TBOOL bIsNegative = TRUE);
 };
 
 }

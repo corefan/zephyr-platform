@@ -15,7 +15,7 @@ CProduerAndConsumer::CProduerAndConsumer()
 #endif`
 }
 //…Í«Î≤÷ø‚ø’º‰
-TBool    CProduerAndConsumer::OnProduced()
+TBOOL    CProduerAndConsumer::OnProduced()
 {
 
 #ifdef _WIN32

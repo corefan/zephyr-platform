@@ -23,7 +23,7 @@ CCommConnection::~CCommConnection()
     //É¶¶¼²»×ö
 }
 
-TBool CCommConnection::IsActived()
+TBOOL CCommConnection::IsActived()
 {
     if (m_pIfConnection)
     {

@@ -241,7 +241,7 @@ public:
     {
         m_msgInfo.m_systemCall = 1;
     }
-    TBool IsSystemCall()
+    TBOOL IsSystemCall()
     {
         if (m_msgInfo.m_systemCall)
         {

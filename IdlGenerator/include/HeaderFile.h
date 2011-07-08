@@ -37,6 +37,7 @@ protected:
     
 public:
     static string sm_szServiceName;
+    static const char *m_pFileName;
     CHeaderFile();
     ~CHeaderFile();
     TInt32 GeneratorIdl(const char *pFileName,const char *pPath);
@@ -51,12 +52,12 @@ private:
     
     TInt32 GeneratorIdlCode();
 
-    TBool  IsDivider(char c);
-    TBool  IsEnter(char c);
-    TBool  IsOperator(char c);
-    TBool  IsAlphabet(char c);
-    TBool  IsNum(char c);
-    TBool  IsBiggerMark(char c)
+    TBOOL  IsDivider(char c);
+    TBOOL  IsEnter(char c);
+    TBOOL  IsOperator(char c);
+    TBOOL  IsAlphabet(char c);
+    TBOOL  IsNum(char c);
+    TBOOL  IsBiggerMark(char c)
     {
         if ('>' == c)
         {
@@ -64,7 +65,7 @@ private:
         }
         return FALSE;
     }
-    TBool IsSmallerMark(char c)
+    TBOOL IsSmallerMark(char c)
     {
         if ('<' == c)
         {
@@ -72,7 +73,7 @@ private:
         }
         return FALSE;
     }
-    TBool  IsSlashMark(char c)
+    TBOOL  IsSlashMark(char c)
     {
         if ('/'==c)
         {
@@ -80,7 +81,7 @@ private:
         }
         return FALSE;
     }
-    TBool IsBackSlash(char c)
+    TBOOL IsBackSlash(char c)
     {
         if ('\\'==c)
         {
@@ -88,7 +89,7 @@ private:
         }
         return FALSE;
     }
-    TBool  IsStarMark(char c)
+    TBOOL  IsStarMark(char c)
     {
         if ('*'==c)
         {
@@ -96,7 +97,7 @@ private:
         }
         return FALSE;
     }
-    TBool IsSingleQuote(char c)
+    TBOOL IsSingleQuote(char c)
     {
         if ('\''==c)
         {
@@ -104,7 +105,7 @@ private:
         }
         return FALSE;
     }
-    TBool IsQuote(char c)
+    TBOOL IsQuote(char c)
     {
         if ('"'==c)
         {
@@ -112,7 +113,7 @@ private:
         }
         return FALSE;
     }
-    TBool IsBlanket1(char c)
+    TBOOL IsBlanket1(char c)
     {
         if('('==c)
         {
@@ -120,7 +121,7 @@ private:
         }
         return FALSE;
     }
-    TBool IsBlanket2(char c)
+    TBOOL IsBlanket2(char c)
     {
         if (')'==c)
         {
@@ -128,7 +129,7 @@ private:
         }
         return FALSE;
     }
-    TBool IsSemicolon(char c)
+    TBOOL IsSemicolon(char c)
     {
          if (';' == c)
          {

@@ -29,15 +29,20 @@ typedef float TFloat;
 typedef double TDouble;
 typedef long long TInt64;
 typedef unsigned long long TUInt64;
-typedef bool TBool;
+typedef bool TBOOL;
 
 template <class TYPE>
 class OctSeq
 {
-private:
+public:
     TYPE m_nBodyLength;
     TUChar *m_pBuffer;
 public:
+    OctSeq()
+    {
+        m_nBodyLength = 0;
+        m_pBuffer = 0;
+    }
     static TInt32 CalFullLength(TInt32 nLength)
     {
         return sizeof(TYPE) + nLength;
@@ -64,11 +69,17 @@ public:
 template <class LENGHT_TYPE,class TAG_TYPE>
 class TLV
 {
-private:
+public:
     LENGHT_TYPE m_nBodyLength;
     TAG_TYPE    m_nTag;
     TUChar      *m_pBuffer;
 public:
+    TLV()
+    {
+        m_nBodyLength = 0;
+        m_nTag = 0;
+        m_pBuffer = 0;
+    }
     LENGHT_TYPE GetBodyLength()
     {
         return m_nBodyLength;

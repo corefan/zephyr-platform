@@ -469,7 +469,7 @@ TInt32 CCommMgr::Run(const TInt32 threadId,const TInt32 runCnt)
     return usedCnt;
 }
 
-TBool CCommMgr::CheckNetState(CMessageHeader *pMsg)
+TBOOL CCommMgr::CheckNetState(CMessageHeader *pMsg)
 {
     //无论如何都成功
     return TRUE;
@@ -752,7 +752,7 @@ void   CCommMgr::OnConnected(CCommConnection *pConnection)
         }
     }
 }
-void   CCommMgr::OnDisconnected(CCommConnection *pConnection,TBool bIsNegative)
+void   CCommMgr::OnDisconnected(CCommConnection *pConnection,TBOOL bIsNegative)
 {
     //清ipmap表
     m_ipMaps.OnDisconnected(pConnection,m_tClock.GetLocalTime());

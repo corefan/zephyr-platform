@@ -40,7 +40,7 @@ private:
 public:
     CCommConnection();
     ~CCommConnection();
-    TBool IsActived();
+    TBOOL IsActived();
     TInt32 OnInit();
     TInt32 OnFinal();
     IfConnection *GetIfConnection()

@@ -38,7 +38,7 @@ private:
 public:
     CProduerAndConsumer();
     //申请仓库空间
-    TBool    OnProduced();
+    TBOOL    OnProduced();
     //申请收货
     //只有遍历所有生产者后才会锁.
     TInt32 RequireFetchProduct(TUInt32 timeout=15);

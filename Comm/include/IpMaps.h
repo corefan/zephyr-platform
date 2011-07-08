@@ -90,7 +90,7 @@ public:
 public:
     CIpMap();
 
-    TBool IsPostive(TInt32 idx)
+    TBOOL IsPostive(TInt32 idx)
     {
         CIpMapItem *pItem = m_pVirtualIps + idx;
         if (pItem->m_nNodeId < m_localNodeId)
@@ -154,7 +154,7 @@ public:
 
     TInt32 Init(const TChar *pConfigName,IfConnection *pSelf);
     TInt32 InitWithConfig(const TChar *pConfig,IfConnection *pSelf);
-    TBool IsLocal(CIpMapItem *pItem)
+    TBOOL IsLocal(CIpMapItem *pItem)
     {
         if ((pItem->m_nNodeId == m_localNodeId)&&(pItem->m_nVirtualIp == m_localVirtualIp))
         {
@@ -162,7 +162,7 @@ public:
         }
         return FALSE;
     }
-    TBool IsLocal(CDoid *pDoId)
+    TBOOL IsLocal(CDoid *pDoId)
     {
         if((pDoId->m_nodeId == m_localNodeId) && (pDoId->m_virtualIp == m_localVirtualIp))
         {
@@ -193,7 +193,7 @@ public:
         return NULL;
     }
 private:
-    TBool AddListeningExisted(CIpMapItem *pItem,int nIdx)
+    TBOOL AddListeningExisted(CIpMapItem *pItem,int nIdx)
     {
         for (TUInt32 i=0;i<m_vListening.size();++i)
         {

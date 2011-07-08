@@ -499,7 +499,7 @@ TInt32 CMethod::GenerateSkeletonSourceCode(char *pszBuff,int nLength)
     if ((m_pFather)&&(raw_interface_type == m_pFather->m_nElmentType))
     {
         pIf = dynamic_cast<CInterfaceElement*>(m_pFather);
-        nRet = sprintf_s(pszBuff,nLength,"%s %sSkeleton::%s(CMessageHeader *pMsg)\n"
+        nRet = sprintf_s(pszBuff,nLength,"%s %sSkeleton::Handle%s(CMessageHeader *pMsg)\n"
                                          "{\n"
                                          "    TInt32 nLen = pMsg->GetBodyLength();\n"
                                          ,m_pFullRetType->m_szRawTxt.c_str(),pIf->m_szName.c_str(),m_szFullName.c_str());

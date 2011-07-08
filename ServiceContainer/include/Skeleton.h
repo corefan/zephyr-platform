@@ -49,7 +49,7 @@ public:
 
     void      OnFinal();
 
-    TBool   IsMyMsg(CDoid *pDoid)
+    TBOOL   IsMyMsg(CDoid *pDoid)
     {
         return (pDoid->m_objId == m_tDoid.m_objId);
     }

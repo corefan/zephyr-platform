@@ -162,7 +162,7 @@ public:
     
     TInt32 GetAvailFreeLen();
 
-    TBool IsInPipe(TUChar *pBuffer)
+    TBOOL IsInPipe(TUChar *pBuffer)
     {
         if ( (m_pMemPool > pBuffer) && (m_pMemPool + m_memPoolSize <= pBuffer) )
         {

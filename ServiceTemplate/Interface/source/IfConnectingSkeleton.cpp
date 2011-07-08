@@ -1,6 +1,6 @@
-#include "./IfConnectingSkeleton.h"
+#include "../include/IfConnectingSkeleton.h"
 #include "Public/include/TypeUnmarshaller.h"
-#include "IfConnectingMethodId.h"
+#include "../include/IfConnectingMethodId.h"
 namespace Zephyr 
 {
 TInt32 IfConnectingSkeleton::HandleMsg(CMessageHeader *pMsg)
@@ -19,7 +19,7 @@ TInt32 IfConnectingSkeleton::HandleMsg(CMessageHeader *pMsg)
     TInt32 nEnd = 5;
     TUInt32 nMethodId = pMsg->GetMethodId();
     _PFMSG pPfMsg = NULL;
-    while((nBegin < nEnd)
+    while(nBegin < nEnd)
     {
         if (nBegin == (nEnd -1))
         {
@@ -58,7 +58,7 @@ TInt32 IfConnectingSkeleton::HandleMsg(CMessageHeader *pMsg)
     }
     return (this->*pPfMsg)(pMsg);
 }; 
-TInt32 IfConnectingSkeleton::RegisterService_TUInt32_TUInt32_CDoid_pt(CMessageHeader *pMsg)
+TInt32 IfConnectingSkeleton::HandleRegisterService_TUInt32_TUInt32_CDoid_pt(CMessageHeader *pMsg)
 {
     TInt32 nLen = pMsg->GetBodyLength();
     TUChar *pBuffer =pMsg->GetBody();
@@ -99,7 +99,7 @@ TInt32 IfConnectingSkeleton::RegisterService_TUInt32_TUInt32_CDoid_pt(CMessageHe
     m_pImplementObj->RegisterService(uServiceIdBegin,uServcieIdEnd,pDoid);
     return SUCCESS;
 }
-TInt32 IfConnectingSkeleton::UnregisterService_TUInt32_TUInt32_CDoid_pt(CMessageHeader *pMsg)
+TInt32 IfConnectingSkeleton::HandleUnregisterService_TUInt32_TUInt32_CDoid_pt(CMessageHeader *pMsg)
 {
     TInt32 nLen = pMsg->GetBodyLength();
     TUChar *pBuffer =pMsg->GetBody();
@@ -140,7 +140,7 @@ TInt32 IfConnectingSkeleton::UnregisterService_TUInt32_TUInt32_CDoid_pt(CMessage
     m_pImplementObj->UnregisterService(uServiceIdBegin,uServcieIdEnd,pDoid);
     return SUCCESS;
 }
-TInt32 IfConnectingSkeleton::Disconnect_TUInt32(CMessageHeader *pMsg)
+TInt32 IfConnectingSkeleton::HandleDisconnect_TUInt32(CMessageHeader *pMsg)
 {
     TInt32 nLen = pMsg->GetBodyLength();
     TUChar *pBuffer =pMsg->GetBody();
@@ -159,7 +159,7 @@ TInt32 IfConnectingSkeleton::Disconnect_TUInt32(CMessageHeader *pMsg)
     m_pImplementObj->Disconnect(uReason);
     return SUCCESS;
 }
-TInt32 IfConnectingSkeleton::SetId_TUInt32(CMessageHeader *pMsg)
+TInt32 IfConnectingSkeleton::HandleSetId_TUInt32(CMessageHeader *pMsg)
 {
     TInt32 nLen = pMsg->GetBodyLength();
     TUChar *pBuffer =pMsg->GetBody();
@@ -178,7 +178,7 @@ TInt32 IfConnectingSkeleton::SetId_TUInt32(CMessageHeader *pMsg)
     m_pImplementObj->SetId(uId);
     return SUCCESS;
 }
-TInt32 IfConnectingSkeleton::CheckId_TUInt32(CMessageHeader *pMsg)
+TInt32 IfConnectingSkeleton::HandleCheckId_TUInt32(CMessageHeader *pMsg)
 {
     TInt32 nLen = pMsg->GetBodyLength();
     TUChar *pBuffer =pMsg->GetBody();

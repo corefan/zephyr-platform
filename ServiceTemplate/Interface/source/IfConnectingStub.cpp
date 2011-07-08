@@ -1,6 +1,7 @@
-#include "./IfConnectingStub.h"
+#include "../include/IfConnectingStub.h"
 #include "Public/include/TypeMarshaller.h"
-#include "IfConnectingMethodId.h"
+#include "../include/IfConnectingMethodId.h"
+#include "Public/include/Doid.h"
 namespace Zephyr 
 {
 TInt32 IfConnectingStub::RegisterService(TUInt32 uServiceIdBegin,TUInt32 uServcieIdEnd,CDoid* pDoid)

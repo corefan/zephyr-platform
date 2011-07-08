@@ -63,7 +63,7 @@ public:
     {
 
     }
-    TBool IsInOneIp(CDoid &another)
+    TBOOL IsInOneIp(CDoid &another)
     {
         if (m_nodeId != another.m_nodeId)
         {
@@ -103,6 +103,12 @@ public:
 	void ToStr(TChar *pBuff);
 };
 
+
+TInt32 Unmarshall(TUChar *pBuffer,TUInt32 nLen,CDoid *&pDoid);
+TInt32 Marshall(TUChar *pBuffer,TUInt32 nLen,CDoid *pDoid);
+
+TInt32 Unmarshall(TUChar *pBuffer,TUInt32 nLen,CDoid& pDoid);
+TInt32 Marshall(TUChar *pBuffer,TUInt32 nLen,CDoid& pDoid);
 
 const CDoid NULL_DOID;
 }

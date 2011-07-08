@@ -1,6 +1,6 @@
-#include "./IfGatewaySvcSkeleton.h"
+#include "../include/IfGatewaySvcSkeleton.h"
 #include "Public/include/TypeUnmarshaller.h"
-#include "IfGatewaySvcMethodId.h"
+#include "../include/IfGatewaySvcMethodId.h"
 namespace Zephyr 
 {
 TInt32 IfGatewaySvcSkeleton::HandleMsg(CMessageHeader *pMsg)
@@ -18,7 +18,7 @@ TInt32 IfGatewaySvcSkeleton::HandleMsg(CMessageHeader *pMsg)
     TInt32 nEnd = 4;
     TUInt32 nMethodId = pMsg->GetMethodId();
     _PFMSG pPfMsg = NULL;
-    while((nBegin < nEnd)
+    while(nBegin < nEnd)
     {
         if (nBegin == (nEnd -1))
         {
@@ -57,7 +57,7 @@ TInt32 IfGatewaySvcSkeleton::HandleMsg(CMessageHeader *pMsg)
     }
     return (this->*pPfMsg)(pMsg);
 }; 
-TInt32 IfGatewaySvcSkeleton::Syn2Map_TUInt32_TLV_tpl_begin_TUInt8_and_TUInt16_tpl_end__ref(CMessageHeader *pMsg)
+TInt32 IfGatewaySvcSkeleton::HandleSyn2Map_TUInt32_TLV_tpl_begin_TUInt8_and_TUInt16_tpl_end__ref(CMessageHeader *pMsg)
 {
     TInt32 nLen = pMsg->GetBodyLength();
     TUChar *pBuffer =pMsg->GetBody();
@@ -87,7 +87,7 @@ TInt32 IfGatewaySvcSkeleton::Syn2Map_TUInt32_TLV_tpl_begin_TUInt8_and_TUInt16_tp
     m_pImplementObj->Syn2Map(uFrom,tTLV);
     return SUCCESS;
 }
-TInt32 IfGatewaySvcSkeleton::RegisterService_TUInt32_OctSeq_tpl_begin_TUInt16_tpl_end__ref(CMessageHeader *pMsg)
+TInt32 IfGatewaySvcSkeleton::HandleRegisterService_TUInt32_OctSeq_tpl_begin_TUInt16_tpl_end__ref(CMessageHeader *pMsg)
 {
     TInt32 nLen = pMsg->GetBodyLength();
     TUChar *pBuffer =pMsg->GetBody();
@@ -117,7 +117,7 @@ TInt32 IfGatewaySvcSkeleton::RegisterService_TUInt32_OctSeq_tpl_begin_TUInt16_tp
     m_pImplementObj->RegisterService(uServiceId,tServiceName);
     return SUCCESS;
 }
-TInt32 IfGatewaySvcSkeleton::UnRegisterService_TUInt32(CMessageHeader *pMsg)
+TInt32 IfGatewaySvcSkeleton::HandleUnRegisterService_TUInt32(CMessageHeader *pMsg)
 {
     TInt32 nLen = pMsg->GetBodyLength();
     TUChar *pBuffer =pMsg->GetBody();
@@ -136,7 +136,7 @@ TInt32 IfGatewaySvcSkeleton::UnRegisterService_TUInt32(CMessageHeader *pMsg)
     m_pImplementObj->UnRegisterService(uServiceId);
     return SUCCESS;
 }
-TInt32 IfGatewaySvcSkeleton::BroadcastTeamMsg_TUInt32_OctSeq_tpl_begin_TUInt16_tpl_end__ref(CMessageHeader *pMsg)
+TInt32 IfGatewaySvcSkeleton::HandleBroadcastTeamMsg_TUInt32_OctSeq_tpl_begin_TUInt16_tpl_end__ref(CMessageHeader *pMsg)
 {
     TInt32 nLen = pMsg->GetBodyLength();
     TUChar *pBuffer =pMsg->GetBody();

@@ -577,7 +577,7 @@ private:
                     return 0;
                 }
 
-    bool        NeedRearrange(TBool bRightNode)
+    bool        NeedRearrange(TBOOL bRightNode)
                 {
                     //return false;
                     TInt32 leftNodeSize;

@@ -28,7 +28,7 @@ TInt32 CThread::OnStop()
     return SUCCESS;
 }
 
-TInt32 CThread::Stop(TBool bBlock)
+TInt32 CThread::Stop(TBOOL bBlock)
 {
     m_nContinue = 0;
     if (bBlock)

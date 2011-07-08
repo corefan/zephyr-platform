@@ -173,7 +173,7 @@ public:
 //         return event_connection_nothing;
 //     }
     
-    TBool IsConnected()
+    TBOOL IsConnected()
     {
         if (connection_is_using == m_connectionState)
         {
@@ -181,7 +181,7 @@ public:
         }
         return FALSE;
     }
-    TBool IsActived()
+    TBOOL IsActived()
     {
         if (m_connectionState == connection_is_not_in_use)
         {
@@ -255,7 +255,7 @@ public:
     void OnNetDisconnected();
     
     
-    TBool CheckReadHeader(CIocpOverlappedDataHeader *pHeader)
+    TBOOL CheckReadHeader(CIocpOverlappedDataHeader *pHeader)
     {
         if (pHeader == &m_readDataHeader)
         {
@@ -267,7 +267,7 @@ public:
         return FALSE;
     }
 
-    TBool CheckWriteHeader(CIocpOverlappedDataHeader *pHeader)
+    TBOOL CheckWriteHeader(CIocpOverlappedDataHeader *pHeader)
     {
         if (pHeader == &m_writeDataHeader)
         {
