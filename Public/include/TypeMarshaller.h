@@ -52,7 +52,7 @@ inline TInt32 Marshall(TUChar *pBuffer,TInt32 uBuffLen,TInt64 ullInt64);
 
 inline TInt32 GetLength(TInt64 c);
 
-//inline TInt32 Marshall(TUChar *pBuffer,TInt32 uBuffLen,TBOOL bBool);
+//inline TInt32 Marshall(TUChar *pBuffer,TInt32 uBuffLen,TBOOL bBool); 为什么会和TInt32 Marshall(TUChar *pBuffer,TInt32 uBuffLen,CDoid *pDoid)冲突呢？！
 
 inline TInt32 GetLength(TBOOL c);
 
