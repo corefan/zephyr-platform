@@ -37,7 +37,7 @@ TInt32 IfConnectingStub::RegisterService(TUInt32 uServiceIdBegin,TUInt32 uServci
     {
         return nRet;
     }
-    nRet = Marshall(pBuffer+nUsed,nLen,pDoid);
+    nRet = Marshall(pBuffer+nUsed,nLen,(CDoid*)pDoid);
     if (nRet < SUCCESS)
     {
         return nRet;
@@ -85,7 +85,7 @@ TInt32 IfConnectingStub::UnregisterService(TUInt32 uServiceIdBegin,TUInt32 uServ
     {
         return nRet;
     }
-    nRet = Marshall(pBuffer+nUsed,nLen,pDoid);
+    nRet = Marshall(pBuffer+nUsed,nLen,(CDoid*)pDoid);
     if (nRet < SUCCESS)
     {
         return nRet;
