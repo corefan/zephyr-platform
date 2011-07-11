@@ -22,7 +22,7 @@ class CService;
     typedef CService* (*SERVICE_INIT_FUN)(IfOrb* pStubCenter,IfTaskMgr *pIfTaskMgr,IfLoggerManager *pIfLoggerMgr);
 
 #define SERVICE_RELEASE_FUN_NAME "ReleaseService"
-    typedef int (*SERVICE_RELEASE_FUN)();
+    typedef TInt32 (*SERVICE_RELEASE_FUN)();
 
 
 

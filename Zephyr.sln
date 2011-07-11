@@ -95,6 +95,10 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ServiceTemplate", "ServiceTemplate", "{B3DB8D16-8B9C-4EA3-91F7-457F262E5E2A}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Service", "ServiceTemplate\Service\Service.vcproj", "{BA24FB41-F29E-4B06-88C4-CC15A012F22F}"
+	ProjectSection(ProjectDependencies) = postProject
+		{D8FD8F00-4723-4804-8F35-E333FCD9EC5A} = {D8FD8F00-4723-4804-8F35-E333FCD9EC5A}
+		{891AB460-395A-4105-AA33-DCA74BD0F39D} = {891AB460-395A-4105-AA33-DCA74BD0F39D}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Interface", "ServiceTemplate\Interface\Interface.vcproj", "{891AB460-395A-4105-AA33-DCA74BD0F39D}"
 EndProject

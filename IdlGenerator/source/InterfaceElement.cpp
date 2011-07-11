@@ -603,7 +603,7 @@ TInt32 CInterfaceElement::GenerateSkeletonHeaderFile(const char *pPath)
         nUsed += n;
         nLength -= n;
         
-        n = sprintf_s(pBuff+nUsed,nLength,"#include \"Public/include/Message.h\"\n#include \"../Interface/%s\"\n",CHeaderFile::m_pFileName);
+        n = sprintf_s(pBuff+nUsed,nLength,"#include \"Public/include/Message.h\"\n#include \"../Interface/%s\"\n#include \"%sMethodId.h\"\n",CHeaderFile::m_pFileName,m_szName.c_str());
         nUsed +=n;
         nLength+=n;
 
@@ -627,10 +627,39 @@ TInt32 CInterfaceElement::GenerateSkeletonHeaderFile(const char *pPath)
                                           "        m_pImplementObj = pIfObj;\n"
                                           "    }\n"
                                           "    TInt32 HandleMsg(CMessageHeader *pMsg);\n"
-                                          "    static TBool  IsMine(CMessageHeader *pMsg); //是否属于这个接口\n"
+                                          "    static TBOOL  IsMine(CMessageHeader *pMsg) //是否属于这个接口\n"
+                                          "     {\n"
+                                          "         return (("
                                           ,m_szName.c_str(),m_szName.c_str(),m_szName.c_str(),m_szName.c_str());
+                                          
+                                          
+
+        if (n<SUCCESS)
+        {
+            printf("Out of Mem!\n");
+            return n;
+        }
+
         nUsed +=n;
         nLength -= n;
+
+        n = GetMethodIdStr(pBuff+nUsed,nLength);
+        if (n<SUCCESS)
+        {
+            printf("Out of Mem!\n");
+            return n;
+        }
+        nUsed +=n;
+        nLength -=n;
+        n = sprintf_s(pBuff+nUsed,nLength,")&(pMsg->GetMethodId()));\n     }\n");
+        if (n<SUCCESS)
+        {
+            printf("Out of Mem!\n");
+            return n;
+        }
+        nUsed +=n;
+        nLength -= n;
+
 
         for (int i=0;i<m_tChilds.size();++i)
         {

@@ -13,14 +13,27 @@
 #ifndef __ZEPHYR_IDL_HEADER_FILE_H__
 #define __ZEPHYR_IDL_HEADER_FILE_H__
 
+#include "../Interface/Platform/include/IfTaskMgr.h"
+#include "../Interface/Platform/include/IfLoggerMgr.h"
+#include "../Interface/Platform/include/IfFinalizer.h"
 
 
+#define DECALRE_HANDLE_INTERFCE virtual TInt32  OnRecv(CMessageHeader *pMsg);
 
-#define HANDLE_INTERFACE(IF_NAME) if ( IF_NAME##Skeleton::IsMine(pMsg)) \
+
+#define IMPLEMENT_START_HANDLE_INTERFACE(CLASS_NAME) TInt32  CLASS_NAME##::OnRecv(CMessageHeader *pMsg) \
+    { \
+
+#define IMPLEMENT_HANDLE_INTERFACE(IF_NAME) if ( IF_NAME##Skeleton::IsMine(pMsg)) \
 { \
-    IF_NAME##Skeleton tSkeleton(pMsg); \
+    IF_NAME##Skeleton tSkeleton(this); \
     return tSkeleton.HandleMsg(pMsg); \
 }
+
+#define  IMPLEMENT_END_HANDLE_INTERFACE(CLASS_NAME)  \
+    return CLASS_NAME##::OnRecvUnacceptableMsg(pMsg); \
+}
+
 
 
 #define GET_REMOTE_STUB_PT(pointer,IfClass,pRemoteDoid) \

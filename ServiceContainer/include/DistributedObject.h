@@ -48,12 +48,16 @@ public:
     //结束是回调.
     virtual TInt32      OnFinal();
     /*virtual TInt32  OnRecv(CMessageHeader *pMsg); //这些函数如果*/
-
-    //定时  器到时了
-    virtual TInt32  OnTimer(TInt32 nTimerIdx,void *pData,TInt32 nTimeGap,TUInt32 nTimeNow)
+    virtual TInt32 OnRecvUnacceptableMsg(CMessageHeader *pMsg)
     {
-        return 0;
+        //drop this msg;
+        return SUCCESS;
     }
+//     //定时  器到时了
+//     virtual TInt32  OnTimer(TInt32 nTimerIdx,void *pData,TInt32 nTimeGap,TUInt32 nTimeNow)
+//     {
+//         return 0;
+//     }
 
     //以下是给Service使用的
     //定期的回调，可以注册循环时间，但只能有一个

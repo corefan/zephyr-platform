@@ -1,7 +1,6 @@
 #include "../include/IfConnectingStub.h"
 #include "Public/include/TypeMarshaller.h"
 #include "../include/IfConnectingMethodId.h"
-#include "Public/include/Doid.h"
 namespace Zephyr 
 {
 TInt32 IfConnectingStub::RegisterService(TUInt32 uServiceIdBegin,TUInt32 uServcieIdEnd,CDoid* pDoid)
@@ -37,7 +36,7 @@ TInt32 IfConnectingStub::RegisterService(TUInt32 uServiceIdBegin,TUInt32 uServci
     {
         return nRet;
     }
-    nRet = Marshall(pBuffer+nUsed,nLen,(CDoid*)pDoid);
+    nRet = Marshall(pBuffer+nUsed,nLen,pDoid);
     if (nRet < SUCCESS)
     {
         return nRet;
@@ -85,7 +84,7 @@ TInt32 IfConnectingStub::UnregisterService(TUInt32 uServiceIdBegin,TUInt32 uServ
     {
         return nRet;
     }
-    nRet = Marshall(pBuffer+nUsed,nLen,(CDoid*)pDoid);
+    nRet = Marshall(pBuffer+nUsed,nLen,pDoid);
     if (nRet < SUCCESS)
     {
         return nRet;
