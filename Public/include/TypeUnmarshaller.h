@@ -6,9 +6,9 @@
 namespace Zephyr
 {
 
-    inline TInt32 Unmarshall(TUChar *pBuffer,TInt32 uBuffLen,TUChar& ucChar);
+    TInt32 Unmarshall(TUChar *pBuffer,TInt32 uBuffLen,TUChar& ucChar);
 
-    inline TInt32 Unmarshall(TUChar *pBuffer,TInt32 uBuffLen,TUChar& ucChar);
+    TInt32 Unmarshall(TUChar *pBuffer,TInt32 uBuffLen,TUChar& ucChar);
 
 
     // inline TInt32 Marshall(TUChar *pBuffer,TInt32 uBuffLen,TInt8 nInt8);
@@ -18,23 +18,23 @@ namespace Zephyr
     // inline TInt32 Unmarshall(TUChar *pBuffer,TInt32 uBuffLen,TUInt8& uInt8);
 
 
-    inline TInt32 Unmarshall(TUChar *pBuffer,TInt32 uBuffLen,TInt16& nInt16);
+    TInt32 Unmarshall(TUChar *pBuffer,TInt32 uBuffLen,TInt16& nInt16);
 
-    inline TInt32 Unmarshall(TUChar *pBuffer,TInt32 uBuffLen,TUInt16& uInt16);
+    TInt32 Unmarshall(TUChar *pBuffer,TInt32 uBuffLen,TUInt16& uInt16);
 
-    inline TInt32 Unmarshall(TUChar *pBuffer,TInt32 uBuffLen,TInt32& nInt32);
+    TInt32 Unmarshall(TUChar *pBuffer,TInt32 uBuffLen,TInt32& nInt32);
 
-    inline TInt32 Unmarshall(TUChar *pBuffer,TInt32 uBuffLen,TUInt32& uInt32);
+     TInt32 Unmarshall(TUChar *pBuffer,TInt32 uBuffLen,TUInt32& uInt32);
 
-    inline TInt32 Unmarshall(TUChar *pBuffer,TInt32 uBuffLen,TFloat& fFloat);
+     TInt32 Unmarshall(TUChar *pBuffer,TInt32 uBuffLen,TFloat& fFloat);
 
-    inline TInt32 Unmarshall(TUChar *pBuffer,TInt32 uBuffLen,TDouble& dDouble);
+     TInt32 Unmarshall(TUChar *pBuffer,TInt32 uBuffLen,TDouble& dDouble);
 
-    inline TInt32 Unmarshall(TUChar *pBuffer,TInt32 uBuffLen,TInt64& llInt64);
+     TInt32 Unmarshall(TUChar *pBuffer,TInt32 uBuffLen,TInt64& llInt64);
 
-    inline TInt32 Unmarshall(TUChar *pBuffer,TInt32 uBuffLen,TInt64& ullInt64);
+     TInt32 Unmarshall(TUChar *pBuffer,TInt32 uBuffLen,TInt64& ullInt64);
 
-    inline TInt32 Unmarshall(TUChar *pBuffer,TInt32 uBuffLen,TBOOL& bBool);
+     TInt32 Unmarshall(TUChar *pBuffer,TInt32 uBuffLen,TBOOL& bBool);
 
     template<class TYPE>
     TInt32 Unmarshall(TUChar *pBuffer,TInt32 uBuffLen,OctSeq<TYPE> &tOctSeq)
