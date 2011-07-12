@@ -2,40 +2,80 @@
 #define __ZEPHYR_PUBLIC_TYPE_UNMARSHALLER_H__
 
 #include "TypeDef.h"
-
+#include "SysMacros.h"
 namespace Zephyr
 {
+#ifndef _USE_LINK_2_MARSHALL
+#define DECLARE_UNMARSHALLERS(TYPE) \
+    inline TInt32 Unmarshall(TUChar *pBuffer,TInt32 uBufferLen,TYPE &tType) \
+    { \
+    if (uBufferLen >= sizeof(TYPE)) \
+    { \
+    tType = *((TYPE*)pBuffer); \
+    return sizeof(TYPE); \
+} \
+    return OUT_OF_MEM; \
+}
 
-    TInt32 Unmarshall(TUChar *pBuffer,TInt32 uBuffLen,TUChar& ucChar);
-
-    TInt32 Unmarshall(TUChar *pBuffer,TInt32 uBuffLen,TUChar& ucChar);
 
 
-    // inline TInt32 Marshall(TUChar *pBuffer,TInt32 uBuffLen,TInt8 nInt8);
-    // inline TInt32 Unmarshall(TUChar *pBuffer,TInt32 uBuffLen,TInt8& nInt8);
-    // 
-    // inline TInt32 Marshall(TUChar *pBuffer,TInt32 uBuffLen,TUInt8 uInt8);
-    // inline TInt32 Unmarshall(TUChar *pBuffer,TInt32 uBuffLen,TUInt8& uInt8);
+    DECLARE_UNMARSHALLERS(TChar) 
 
+        //IMPL_MARSHALLERS(TInt8) 
 
-    TInt32 Unmarshall(TUChar *pBuffer,TInt32 uBuffLen,TInt16& nInt16);
+    DECLARE_UNMARSHALLERS(TUChar) 
 
-    TInt32 Unmarshall(TUChar *pBuffer,TInt32 uBuffLen,TUInt16& uInt16);
+        //IMPL_MARSHALLERS(TUInt8) 
 
-    TInt32 Unmarshall(TUChar *pBuffer,TInt32 uBuffLen,TInt32& nInt32);
+    DECLARE_UNMARSHALLERS(TInt16) 
 
-     TInt32 Unmarshall(TUChar *pBuffer,TInt32 uBuffLen,TUInt32& uInt32);
+    DECLARE_UNMARSHALLERS(TUInt16) 
 
-     TInt32 Unmarshall(TUChar *pBuffer,TInt32 uBuffLen,TFloat& fFloat);
+    DECLARE_UNMARSHALLERS(TInt32) 
 
-     TInt32 Unmarshall(TUChar *pBuffer,TInt32 uBuffLen,TDouble& dDouble);
+    DECLARE_UNMARSHALLERS(TUInt32) 
 
-     TInt32 Unmarshall(TUChar *pBuffer,TInt32 uBuffLen,TInt64& llInt64);
+    DECLARE_UNMARSHALLERS(TFloat) 
 
-     TInt32 Unmarshall(TUChar *pBuffer,TInt32 uBuffLen,TInt64& ullInt64);
+    DECLARE_UNMARSHALLERS(TDouble) 
 
-     TInt32 Unmarshall(TUChar *pBuffer,TInt32 uBuffLen,TBOOL& bBool);
+    DECLARE_UNMARSHALLERS(TInt64) 
 
+    DECLARE_UNMARSHALLERS(TUInt64) 
+
+    DECLARE_UNMARSHALLERS(TBOOL) 
+#else
+
+     TInt32 Unmarshall(TUChar *pBuffer,TInt32 uBuffLen,TUChar& ucChar);
+ 
+     TInt32 Unmarshall(TUChar *pBuffer,TInt32 uBuffLen,TUChar& ucChar);
+ 
+ 
+     // inline TInt32 Marshall(TUChar *pBuffer,TInt32 uBuffLen,TInt8 nInt8);
+     // inline TInt32 Unmarshall(TUChar *pBuffer,TInt32 uBuffLen,TInt8& nInt8);
+     // 
+     // inline TInt32 Marshall(TUChar *pBuffer,TInt32 uBuffLen,TUInt8 uInt8);
+     // inline TInt32 Unmarshall(TUChar *pBuffer,TInt32 uBuffLen,TUInt8& uInt8);
+ 
+ 
+     TInt32 Unmarshall(TUChar *pBuffer,TInt32 uBuffLen,TInt16& nInt16);
+ 
+     TInt32 Unmarshall(TUChar *pBuffer,TInt32 uBuffLen,TUInt16& uInt16);
+ 
+     TInt32 Unmarshall(TUChar *pBuffer,TInt32 uBuffLen,TInt32& nInt32);
+ 
+      TInt32 Unmarshall(TUChar *pBuffer,TInt32 uBuffLen,TUInt32& uInt32);
+ 
+      TInt32 Unmarshall(TUChar *pBuffer,TInt32 uBuffLen,TFloat& fFloat);
+ 
+      TInt32 Unmarshall(TUChar *pBuffer,TInt32 uBuffLen,TDouble& dDouble);
+ 
+      TInt32 Unmarshall(TUChar *pBuffer,TInt32 uBuffLen,TInt64& llInt64);
+ 
+      TInt32 Unmarshall(TUChar *pBuffer,TInt32 uBuffLen,TInt64& ullInt64);
+ 
+      TInt32 Unmarshall(TUChar *pBuffer,TInt32 uBuffLen,TBOOL& bBool);
+#endif
     template<class TYPE>
     TInt32 Unmarshall(TUChar *pBuffer,TInt32 uBuffLen,OctSeq<TYPE> &tOctSeq)
     {
