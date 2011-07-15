@@ -177,31 +177,11 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath=".\source\DistributedObject.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\source\Orb.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\source\Service.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\ServiceContainer.cpp"
 				>
 			</File>
 			<File
 				RelativePath=".\source\ServiceContainerCfg.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\source\Session.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\source\Skeleton.cpp"
 				>
 			</File>
 		</Filter>
@@ -211,27 +191,7 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath=".\include\DistributedObject.h"
-				>
-			</File>
-			<File
-				RelativePath=".\include\Orb.h"
-				>
-			</File>
-			<File
-				RelativePath=".\include\Service.h"
-				>
-			</File>
-			<File
 				RelativePath=".\include\ServiceContainerCfg.h"
-				>
-			</File>
-			<File
-				RelativePath=".\include\Session.h"
-				>
-			</File>
-			<File
-				RelativePath=".\include\Skeleton.h"
 				>
 			</File>
 		</Filter>

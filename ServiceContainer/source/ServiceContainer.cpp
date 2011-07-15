@@ -216,7 +216,7 @@ int main(int argc, char* argv[])
             {
                 CService *pService = (CService *)tRead.m_tCfg.m_pOrbs[i].m_pServices[j].m_pService;
                 pOrb[j].StopService(pService->GetServiceId());
-                (*(tRead.m_tCfg.m_pOrbs[i].m_pServices[j].m_pReleaseFun))();
+                (*(tRead.m_tCfg.m_pOrbs[i].m_pServices[j].m_pReleaseFun))(pService);
                 ReleaseDynamicLib(tRead.m_tCfg.m_pOrbs[i].m_pServices[j].m_pPluginModuleHandle);
                 tRead.m_tCfg.m_pOrbs[i].m_pServices[j].m_pPluginModuleHandle = NULL;
             }

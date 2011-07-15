@@ -6,13 +6,14 @@
 #include "../include/FullTypeClass.h"
 #include "../include/baseElement.h"
 #include "../../Public/tpl/include/TplPool.h"
-
+#include "iostream"
 
 using namespace Zephyr;
 
 using namespace std;
 
 #define TEST_CONST 6
+using namespace std;
 
 int main(int argc,char *pArgv[])
 {
