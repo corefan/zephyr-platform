@@ -23,8 +23,6 @@ public:
     {
         m_pService = pService;
     }
-    
-    
 };
 
 }

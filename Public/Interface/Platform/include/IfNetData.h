@@ -13,8 +13,8 @@
 #ifndef __ZEPHYR_IF_NET_DATA_H__
 #define __ZEPHYR_IF_NET_DATA_H__
 
-#include "TypeDef.h"
-#include "SysMacros.h"
+#include "../../../include/TypeDef.h"
+#include "../../../include/SysMacros.h"
 
 namespace Zephyr
 {

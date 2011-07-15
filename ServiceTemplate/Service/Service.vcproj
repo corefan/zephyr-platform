@@ -190,6 +190,14 @@
 				RelativePath=".\include\GatewayService.h"
 				>
 			</File>
+			<File
+				RelativePath=".\include\GatewaySession.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\Route.h"
+				>
+			</File>
 		</Filter>
 	</Files>
 	<Globals>
