@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8.00"
-	Name="Statistic"
-	ProjectGUID="{3F819B43-1F6E-43CC-BEA5-D9F760F30039}"
-	RootNamespace="Statistic"
+	Name="Orb"
+	ProjectGUID="{E98E39EC-B1DE-4B0A-935C-3B6AF2254425}"
+	RootNamespace="Orb"
 	Keyword="Win32Proj"
 	>
 	<Platforms>
@@ -40,7 +40,6 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="./;include;../include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -103,8 +102,6 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				Optimization="0"
-				AdditionalIncludeDirectories="./;include;../include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
@@ -145,18 +142,54 @@
 	</References>
 	<Files>
 		<Filter
-			Name="Include"
+			Name="source"
+			Filter="cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx"
+			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath=".\include\Statistic.h"
+				RelativePath=".\source\DistributedObject.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\source\Orb.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\source\Service.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\source\Session.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\source\Skeleton.cpp"
 				>
 			</File>
 		</Filter>
 		<Filter
-			Name="Source"
+			Name="include"
+			Filter="h;hpp;hxx;hm;inl;inc;xsd"
+			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath=".\source\Statistic.cpp"
+				RelativePath=".\include\DistributedObject.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\Orb.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\Service.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\Session.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\Skeleton.h"
 				>
 			</File>
 		</Filter>
