@@ -18,8 +18,9 @@ public:
      {
          return ((IFCONNECTING_INTERFACE_ID)&(pMsg->GetMethodId()));
      }
-    TInt32 HandleRegisterService_TUInt32_TUInt32_CDoid_pt(CMessageHeader *pMsg);;
-    TInt32 HandleUnregisterService_TUInt32_TUInt32_CDoid_pt(CMessageHeader *pMsg);;
+    TInt32 HandleRegisterService_CDoid_pt_TUInt32_TUInt32_TUInt32_TUInt32(CMessageHeader *pMsg);;
+    TInt32 HandleUnregisterService_TUInt32_TUInt32_TUInt32(CMessageHeader *pMsg);;
+    TInt32 HandleRegisterTeam_TUInt32(CMessageHeader *pMsg);;
     TInt32 HandleDisconnect_TUInt32(CMessageHeader *pMsg);;
     TInt32 HandleSetId_TUInt32(CMessageHeader *pMsg);;
     TInt32 HandleCheckId_TUInt32(CMessageHeader *pMsg);;

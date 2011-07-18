@@ -12,11 +12,11 @@
 #ifndef __IF_NET_APP_H__
 #define __IF_NET_APP_H__
 
-#include "SysMacros.h"
-#include "TypeDef.h"
+#include "../../../include/SysMacros.h"
+#include "../../../include/TypeDef.h"
 #include "IfParser.h"
 #include "IfCryptor.h"
-#include "IfNetData.h"
+#include "../../Platform/include/IfNetData.h"
 namespace Zephyr
 {
 

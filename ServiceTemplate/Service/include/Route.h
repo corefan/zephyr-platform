@@ -10,11 +10,19 @@ class CRoute
 {
 public:
     TUInt32 m_uKey;
+    //可能会有溢出，但是没关系.
     //可能会注册部分功能.
     TUInt32 m_uIdBegin;
     TUInt32 m_uIdEnd;
-    //
+    TUInt32 m_uPriority; //权重，这个再做负载均衡的时候使用
     CDoid   m_tRouteTo;
+    CRoute()
+    {
+        m_uKey = 0;
+        m_uIdBegin = 0;
+        m_uIdEnd = 0;
+        m_uPriority = 0;
+    }
 };
 
 }

@@ -177,7 +177,23 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath=".\source\GatewayBasicConfig.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\source\GatewayParser.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\source\GatewayParserFactory.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\source\GatewayService.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\source\GatewaySession.cpp"
 				>
 			</File>
 		</Filter>
@@ -187,11 +203,27 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
+				RelativePath=".\include\GatewayBasicConfig.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\GatewayParser.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\GatewayParserFactory.h"
+				>
+			</File>
+			<File
 				RelativePath=".\include\GatewayService.h"
 				>
 			</File>
 			<File
 				RelativePath=".\include\GatewaySession.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\MsgListener.h"
 				>
 			</File>
 			<File

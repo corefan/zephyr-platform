@@ -14,7 +14,7 @@
 #ifndef __ZEPHYR_IF_CRYPTOR_H__
 #define __ZEPHYR_IF_CRYPTOR_H__
 
-#include "TypeDef.h"
+#include "../../../include/TypeDef.h"
 //#include "Message.h"
 
 namespace Zephyr

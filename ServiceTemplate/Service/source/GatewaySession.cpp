@@ -1,0 +1,92 @@
+#include "../include/GatewaySession.h"
+#include "../../Interface/include/IfConnectingSkeleton.h"
+
+namespace Zephyr
+{
+
+IMPLEMENT_START_HANDLE_INTERFACE(CGatewaySession)
+IMPLEMENT_HANDLE_INTERFACE(IfConnecting)
+IMPLEMENT_END_HANDLE_INTERFACE(CGatewaySession)
+
+
+CGatewaySession::CGatewaySession()
+{
+
+}
+
+void CGatewaySession::Init(CGatewayService *pService)
+{
+    
+}
+
+void CGatewaySession::OnConnected(TUInt32 uIp,TUInt16 uPortId)
+{
+
+}
+
+TInt32 CGatewaySession::OnRecv(TUChar *pMsg, TUInt32 msgLen)
+{
+    return SUCCESS;
+}
+    //virtual TInt32 OnRecvIn2Piece(TUChar *pMsg, TUInt32 msgLen,TUChar *pMsg2,TUInt32 msgLen2) = 0;
+    //网络层会自动从factory生成parser和crypter,请应用层对这连个东西进行设置
+    //应用层应该明确知道IfParser 和 IfCryptor的实现类，并在OnConnected的时候对其进行设置.
+    //如果返回值en_if_connection_callback_on_connected_release_parser 设置了，那么parser会被释放
+    //如果返回值en_if_connection_callback_on_connected_release_cryptor 设置了，那么pCryptor会被释放
+    //IfConnection *pIfConnection在连接实际建立的时候再传给应用层。
+TInt32 CGatewaySession::OnConnected(IfConnection *pIfConnection,IfParser *pParser,IfCryptor *pCryptor)
+{
+    return SUCCESS;
+}
+    //任何socket异常都会自动关闭网络连接
+TInt32 CGatewaySession::OnDissconneted(TInt32 erroCode)
+{
+    return SUCCESS;
+}
+
+    //在初始化的时候会被调.
+TInt32 CGatewaySession::OnInit()
+{
+    return SUCCESS;
+}
+    //结束是回调.
+TInt32 CGatewaySession::OnFinal()
+{
+    return SUCCESS;
+}
+
+TInt32 CGatewaySession::RegisterService(CDoid *pDoid,TUInt32 uServiceId,TUInt32 uServiceIdBegin,TUInt32 uServcieIdEnd,TUInt32 uPriority)
+{
+    return SUCCESS;
+}
+
+TInt32 CGatewaySession::UnregisterService(TUInt32 uServiceId,TUInt32 uServiceIdBegin,TUInt32 uServcieIdEnd)
+{
+    return SUCCESS;
+}
+    //注册广播
+TInt32 CGatewaySession::RegisterTeam(TUInt32 uTeamID)
+{
+    return SUCCESS;
+}
+
+TInt32 CGatewaySession::Disconnect(TUInt32 uReason)
+{
+    return SUCCESS;
+}
+TInt32 CGatewaySession::SetId(TUInt32 uId)
+{
+    return SUCCESS;
+}
+
+TInt32 CGatewaySession::CheckId(TUInt32 uId)
+{
+    return SUCCESS;
+}
+    //默认是0权限（最高），先插入的会先使用
+TInt32 CGatewaySession::AddRoute(CDoid *pDoid,TUInt32 uSrvId,TUInt32 uBegin,TUInt32 uEnd,TUInt32 uPriority)
+{
+    return SUCCESS;
+}
+
+}

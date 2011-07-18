@@ -106,9 +106,12 @@ public:
 
 
 
-
-#define  false FALSE
-#define true TRUE
+#ifndef FALSE
+#define FALSE false 
+#endif
+#ifndef TRUE
+#define TRUE true 
+#endif
 }
 
 

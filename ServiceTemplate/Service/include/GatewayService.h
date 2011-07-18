@@ -1,7 +1,6 @@
 #ifndef __ZEPHYR_GATEWAY_SERVICE_H__
 #define __ZEPHYR_GATEWAY_SERVICE_H__
 
-#include "Public/include/TypeDef.h"
 #include "Public/include/SysMacros.h"
 #include "Public/Orb/include/Service.h"
 #include "../../Interface/Interface/IfGateway.h"
@@ -10,35 +9,71 @@
 #include "Public/tpl/include/TplMultiMap.h"
 #include "Public/tpl/include/TplPool.h"
 #include "Route.h"
+#include "Public/tpl/include/TplList.h"
+#include "GatewaySession.h"
+#include "./GatewayParserFactory.h"
+
+#include "Public/include/TypeDef.h"
+
 namespace Zephyr
 {
 class CGatewayService : public CService,
+                        public IfListenerCallBack,
                         public IfGatewaySvc
 {
 private:
     IfNet   *m_pNet;
+    //在OnInit的时候，根据ServiceId再来获取Logger
+    IfLoggerManager     *m_pLoggerManager;
+    IfTaskMgr           *m_pTaskMgr;
+    IfOrb               *m_pOrb;
+
     TUInt32 m_uIp;
     TUInt16 m_uListeningPort;
     TUInt16 m_nMaxConnections;
 
-    CPool<TplMultiKeyMapNode<CRoute,TUInt32> > m_tListeningPool;
+    //一个Service公用一个Pool，避免使用静态变量，这样的话，就在同一ServiceContainer里开多个Gateway.
+    CPool<TplMultiKeyMapNode<CRoute,TUInt32> > m_tRoutePool;
+    
+    //
+    CPool<CListNode<CGatewaySession> >         m_tSessionPool;
+
+    CList<CGatewaySession>                     m_tUsingSessions;
+
+    TplMultiKeyMap<CRoute,TUInt32>             m_tServiceRoute;
+
+    IfLogger                                   *m_pLogger;
+
+    CGatewayParserFactory                      m_tParserFactory;
+public:
+    CGatewayService();
+    virtual IfConnectionCallBack *OnNewConnection(CConPair *pPair);
 
 public:
     CPool<TplMultiKeyMapNode<CRoute,TUInt32> > *GetRoutePool()
     {
-        return &m_tListeningPool;
+        return &m_tRoutePool;
     }
     DECALRE_HANDLE_INTERFCE;
 
+    TInt32 InitService(IfOrb* pOrb,IfTaskMgr *pIfTaskMgr,IfLoggerManager *pIfLoggerMgr);
     //同步消息.
     virtual TInt32 Syn2Map(TUInt32 uFrom,TLV<TUInt8,TUInt16>& tTLV);
-    //注册服务
-    virtual TInt32 RegisterService(TUInt32 uServiceId,OctSeq<TUInt16>& tServiceName);
+    //注册服务 
+    virtual TInt32 RegisterService(TUInt32 uServiceId,TUInt32 uServicBegin,TUInt32 uEnd,TUInt32 uPriority,OctSeq<TUInt16>& tServiceName);
     //注销服务
-    virtual TInt32 UnRegisterService(TUInt32 uServiceId);
+    virtual TInt32 UnRegisterService(TUInt32 uServiceId,TUInt32 uServicBegin,TUInt32 uEnd);
     //发送广播聊天信息
     virtual TInt32 BroadcastTeamMsg(TUInt32 uTeam,OctSeq<TUInt16>& tServiceName);
 
+    virtual TInt32 ChangePriorty(TUInt32 uServiceId,CDoid *pMyDoid,TUInt32 uPriority);
+
+    //开始接收登陆，供管理使用。主控服务器在所有内部服务器协调启动完成后，让gateway开始接收登陆.
+    virtual TInt32  StartLogin(TUInt32 uIp,TUInt16 nListeningPort,TUInt16 nMaxConnection);
+    //停止接入登陆，供管理使用。开始停服.这个时候Gateway只是停止接收新的连接，老连接还是维持的
+    virtual TInt32  StopLogin();
+    //关闭所有客户端连接
+    virtual TInt32  DisconnectedAllClient();
 
     //以下是Service专有的.
     virtual TInt32      OnInit();
@@ -56,16 +91,21 @@ public:
     virtual TInt32  OnNetEvent(CConnectionEvent *pEvent);
 
     //开始接入
-    void StartLogin(TChar *pIp,TUInt16 nListeningPort,TUInt16 nMaxConnection);
-    //停止接入
-    void StopLogin();
+
+    //查找默认的服务入口点，即这些服务不需要鉴权和注册也能拥有，比如登陆
+    CDoid *FindService(TUInt32);
+
+
+
+private:
+    TInt32 AddRoute(CDoid *pDoid,TUInt32 uSrvId,TUInt32 uBegin,TUInt32 uEnd,TUInt32 uPriority=0);
 };
 
 
 
 #ifdef WIN32
 
-extern "C" __declspec( dllexport ) CService *InitService(IfOrb* pStubCenter,IfTaskMgr *pIfTaskMgr,IfLoggerManager *pIfLoggerMgr);
+extern "C" __declspec( dllexport ) CService *InitService(IfOrb* pOrb,IfTaskMgr *pIfTaskMgr,IfLoggerManager *pIfLoggerMgr);
 
 extern "C" __declspec( dllexport ) TInt32 ReleaseService(CService *);
 

@@ -13,9 +13,9 @@
 #ifndef __IF_PARSER_FACTORY_H__
 #define __IF_PARSER_FACTORY_H__
 
-#include "TypeDef.h"
+#include "../../../include/TypeDef.h"
 #include "IfParser.h"
-#include "IfNetData.h"
+#include "../../Platform/include/IfNetData.h"
 namespace Zephyr
 {
 
