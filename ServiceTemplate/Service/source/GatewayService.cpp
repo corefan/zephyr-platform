@@ -1,7 +1,8 @@
 #include "../include/GatewayService.h"
 #include "Public/include/SysMacros.h"
 #include "../../Interface/include/IfGatewaySvcSkeleton.h"
-
+#include "../include/GatewayBasicConfig.h"
+#include "Public/include/NetCenter.h"
 namespace Zephyr
 {
 
@@ -63,14 +64,37 @@ TInt32 CGatewayService::DisconnectedAllClient()
 TInt32 CGatewayService::OnInit()
 {
     //根据ServiceID来获取配置
-    //然后生成Net
-    //然后生成日志
+    CDoid *pDoid = GetMyDoid();
+    //肯定有
     
+    CGatewayBasicConfig tConfig;
+    TInt32 nRet = tConfig.ReadFile(pDoid->m_virtualIp,pDoid->m_srvId);
+    if (nRet < SUCCESS)
+    {
+        printf_s("Read config file failed!");
+        return nRet;
+    }
+    //然后生成Net
+    m_pNet = CreateNet(m_pTaskMgr,&m_tParserFactory,NULL,tConfig.m_uMaxIncomingConnection4Listner,
+                        (tConfig.m_uOutPutCacheInKBs*1024),(tConfig.m_uInputCacheInKBs*1024));
+    //然后生成日志
+    nRet = m_pLoggerManager->AddLogger(tConfig.m_szLoggerName,-1,tConfig.m_uWriteLoggerMask,tConfig.m_uPrint2ScreenLoggerMask);
+    if (nRet < SUCCESS)
+    {
+        printf("Create Logger Failed!");
+        DestoryNet(m_pNet);
+        return OUT_OF_MEM;
+    }
+    m_pLogger = m_pLoggerManager->GetLogger(nRet);
     return SUCCESS;
 }
     //结束是回调.
 TInt32 CGatewayService::OnFinal()
 {
+    DestoryNet(m_pNet);
+    m_pNet = NULL;
+    m_pLoggerManager->ReleaseLogger(m_pLogger);
+    m_pLogger = NULL;
     return SUCCESS;
 }
 
@@ -102,6 +126,15 @@ TInt32 CGatewayService::InitService(IfOrb* pOrb,IfTaskMgr *pIfTaskMgr,IfLoggerMa
 
 IfConnectionCallBack *CGatewayService::OnNewConnection(CConPair *pPair)
 {
+    if (m_tUsingSessions.size() < m_nMaxConnections)
+    {
+        CListNode<CGatewaySession> *pMem = m_tSessionPool.GetMem();
+        if (pMem)
+        {
+            m_tUsingSessions.push_front(pMem);
+            return pMem;
+        }
+    }
     return NULL;
 }
 

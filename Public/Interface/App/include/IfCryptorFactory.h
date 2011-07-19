@@ -13,9 +13,9 @@
 #ifndef __IF_CRYPTOR_FACTORY_H__
 #define __IF_CRYPTOR_FACTORY_H__
 
-#include "TypeDef.h"
+#include "../../../include/TypeDef.h"
 #include "IfCryptor.h"
-#include "IfNetData.h"
+#include "../../Platform/include/IfNetData.h"
 namespace Zephyr
 {
 

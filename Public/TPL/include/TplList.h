@@ -16,6 +16,12 @@
 #ifdef _DEBUG
 #include "stdio.h"
 #endif
+#include "../../include/TypeDef.h"
+
+namespace Zephyr 
+{
+
+
 //¼Ù¶¨
 template<class BASE_CLASS>
 class CListNode : public BASE_CLASS
@@ -30,11 +36,13 @@ class CList
 private:
     CListNode<BASE_CLASS> *m_pHeader;
     CListNode<BASE_CLASS> *m_pRear;
+    TUInt32 m_uSize;
 public:
     CList()
     {
         m_pHeader = NULL;
         m_pRear   = NULL;
+        m_uSize = 0;
     }
     CListNode<BASE_CLASS> *pop_front()
     {
@@ -51,6 +59,7 @@ public:
                 m_pHeader = m_pHeader->GetNext();
                 pRtn->Detach();
             }
+            --m_uSize;
             return pRtn;
         }
         return NULL;
@@ -76,6 +85,7 @@ public:
                 m_pRear = m_pRear->GetPrev();
                 pRtn->Detach();
             }
+            --m_uSize;
             return pRtn;
         }
         return NULL;
@@ -101,6 +111,7 @@ public:
             m_pHeader = p;
             m_pRear   = p;
         }
+        ++m_uSize;
     }
     void push_back(CListNode<BASE_CLASS> *p)
     {
@@ -114,6 +125,7 @@ public:
             m_pHeader = p;
             m_pRear   = p;
         }
+        ++m_uSize;
     }
     void Detach(CListNode<BASE_CLASS> *p)
     {
@@ -129,6 +141,7 @@ public:
         {
             p->Detach();
         }
+        --m_uSize;
     }
     void HandleOver(CList *pTo,CListNode<BASE_CLASS> *p)
     {
@@ -139,7 +152,14 @@ public:
     {
         m_pHeader = NULL;
         m_pRear   = NULL;
+        m_uSize = 0;
+    }
+    TUInt32 size()
+    {
+        return m_uSize;
     }
 };
+
+}
 
 #endif

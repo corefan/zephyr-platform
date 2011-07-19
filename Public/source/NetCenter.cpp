@@ -16,4 +16,11 @@ IfNet *CreateNet(IfTaskMgr *pTaskMgr,IfParserFactory *pParserFactory,IfCryptorFa
     return pConnectionMgr;
 }
 
+TInt32  DestoryNet(IfNet *pIfNet)
+{
+    CConnectionMgr *pConnectionMgr = (CConnectionMgr *)pIfNet;
+    delete pConnectionMgr; 
+    return SUCCESS;
+}
+
 };

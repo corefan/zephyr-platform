@@ -11,6 +11,13 @@ CGatewayBasicConfig::CGatewayBasicConfig()
     m_uOutPutCacheInKBs = 0;
     m_uInputCacheInKBs = 0;
     m_szLoggerName[0] = 0;
+#ifdef _DEBUG
+    m_uWriteLoggerMask = 0xFFFFFFFF;
+    m_uPrint2ScreenLoggerMask = 0xFFFFFFFF; //什么都不记
+#else
+    m_uWriteLoggerMask = 0xFFFFFFFF;
+    m_uPrint2ScreenLoggerMask = 0;
+#endif
 }
     //根据其被加载的ID来获取配置.
 TInt32  CGatewayBasicConfig::ReadFile(TUInt16 uVIp,TUInt16 uServiceId)

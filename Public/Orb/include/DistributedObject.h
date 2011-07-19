@@ -37,16 +37,20 @@ public:
     {
         m_pSkeleton = pSkeleton;
     }
-    IfSkeleton *GetSkeleton()
-    {
-        return m_pSkeleton;
-    }
+    
     CObject();
     TInt32 Init();
     //在初始化的时候会被调.
     virtual TInt32      OnInit();
     //结束是回调.
     virtual TInt32      OnFinal();
+
+    CDoid *GetMyDoid();
+    //获得后自己初始化
+    CMessageHeader *PrepareMsg(TInt32 bodyLength,TUInt32 methodId,CDoid* destDoid,TInt32 destDoidNum,bool bRearrangeDest);
+    //发送消息
+    TInt32  SendMsg(CMessageHeader *pMsg);
+
     /*virtual TInt32  OnRecv(CMessageHeader *pMsg); //这些函数如果*/
     virtual TInt32 OnRecvUnacceptableMsg(CMessageHeader *pMsg)
     {
