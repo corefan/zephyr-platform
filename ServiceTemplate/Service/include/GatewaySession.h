@@ -26,6 +26,7 @@ public:
     DECALRE_HANDLE_INTERFCE
 
     CGatewaySession();
+    //只调用一次
     void Init(CGatewayService *pService);
 
     //这个是在连接建立起来的时候回调的.

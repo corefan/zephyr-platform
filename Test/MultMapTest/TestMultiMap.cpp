@@ -29,14 +29,14 @@ int main(int argc,char *pArgv[])
     std::cout<<"Input test time!";
     std::cin>>nMaxTestTime;
     srand(nMaxTestTime);
-    CTestClass **ppStore = new CTestClass*[nMaxTestTime];
-    for (int i = 0;i<nMaxTestTime;++i)
+    CTestClass **ppStore = new CTestClass*[nMaxTestTime*4];
+    for (int i = 0;i<nMaxTestTime*4;++i)
     {
         ppStore[i] = NULL;
     }
     TplMultiKeyMap<CTestClass,int> m_tMap;
     CPool<TplMultiKeyMapNode<CTestClass,int> > tPool;
-    tPool.InitPool(nMaxTestTime);
+    tPool.InitPool(nMaxTestTime*4);
     m_tMap.Init(&tPool);
     int *pRand = new int[nMaxTestTime];
     std::map<int,CTestClass> tMap;
@@ -118,29 +118,73 @@ int main(int argc,char *pArgv[])
         {
             nTestTime = (nMaxTestTime>>1);
         }
-        for (int i=0;i<nTestTime;++i)
+        for (int j=0;j<4;++j)
         {
-            int n = pRand[((i+nTotalTestTime)%nMaxTestTime)];
+            for (int i=0;i<nTestTime;++i)
+            {
+                int n = pRand[((i+nTotalTestTime)%nMaxTestTime)];
 #ifdef USE_STL_MAP
-            CTestClass tC;
-            tC.m_nKey = n;
-            tMap[n] = tC;
-            //ppStore[i] = &tMap[n];
+                CTestClass tC;
+                tC.m_nKey = n;
+                tMap[n] = tC;
+                //ppStore[i] = &tMap[n];
 #else
-            ppStore[i] = m_tMap.PrepareItem();
-            if (ppStore[i])
-            {
-                ppStore[i]->m_nKey = n;
-                m_tMap.AddInTree(ppStore[i]);
-                m_tMap.CheckTree();
-            }
-            else
-            {
-                printf("NULL !");
-            }
+                ppStore[i+j*nTestTime] = m_tMap.PrepareItem();
+                if (ppStore[i+j*nTestTime])
+                {
+                    if (3 == j)
+                    {
+                        ppStore[i+j*nTestTime]->m_nKey = n+1;
+                    }
+                    else
+                    {
+                        ppStore[i+j*nTestTime]->m_nKey = n;
+                    }
+                    
+                    m_tMap.AddInTree(ppStore[i+j*nTestTime]);
+                    //m_tMap.CheckTree();
+                }
+                else
+                {
+                    printf("NULL !");
+                }
 #endif
+            }
         }
+       
         //Sleep(15);
+        TplMultiKeyMapNode<CTestClass,int>::Iterator it = m_tMap.Begin();
+        int nCount = 0;
+        int nLast = 0;
+        while (it.GetItem())
+        {
+            ++nCount;
+            int nNow = it->GetKey();
+            if (nLast > nNow)
+            {
+                int *p = NULL;
+                *p = 0;
+            }
+            //cout<<nNow<<" ";
+            ++it;
+        }
+        cout<<"count is :"<<nCount<<"input "<<nTestTime*4;
+        nCount = 0;
+        it = m_tMap.End();
+        while (it.GetItem())
+        {
+            ++nCount;
+            int nNow = it->GetKey();
+            if (nLast > nNow)
+            {
+                int *p = NULL;
+                *p = 0;
+            }
+            //cout<<nNow<<" ";
+            --it;
+        }
+        cout<<"count is :"<<nCount<<"input "<<nTestTime*4;
+
         for (int i=0;i<nTestTime;++i)
         {
 #ifdef USE_STL_MAP

@@ -1,6 +1,6 @@
 #include "../include/GatewaySession.h"
 #include "../../Interface/include/IfConnectingSkeleton.h"
-
+#include "../include/GatewayService.h"
 namespace Zephyr
 {
 
@@ -16,7 +16,8 @@ CGatewaySession::CGatewaySession()
 
 void CGatewaySession::Init(CGatewayService *pService)
 {
-    
+    m_pService = pService;
+    m_tRouteMap.Init(pService->GetRoutePool());
 }
 
 void CGatewaySession::OnConnected(TUInt32 uIp,TUInt16 uPortId)
@@ -52,6 +53,7 @@ TInt32 CGatewaySession::OnInit()
     //结束是回调.
 TInt32 CGatewaySession::OnFinal()
 {
+    m_tRouteMap.clean();
     return SUCCESS;
 }
 

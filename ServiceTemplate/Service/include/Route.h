@@ -9,6 +9,10 @@ namespace Zephyr
 class CRoute
 {
 public:
+    TUInt32 &GetKey()
+    {
+        return m_uKey;
+    }
     TUInt32 m_uKey;
     //可能会有溢出，但是没关系.
     //可能会注册部分功能.
