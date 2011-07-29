@@ -16,6 +16,7 @@
 
 #include "../../App/include/IfObj.h"
 #include "IfSkeleton.h"
+#include "IfCommunicator.h"
 
 namespace Zephyr
 {
@@ -34,6 +35,8 @@ public:
     virtual TInt32 RegisterRun(IfSkeleton *pObj,TUInt32 nGapInMs) = 0;
     //时间相关,获取一次就行了，这个不会变
     virtual const CClock *GetClock() = 0;
+
+    virtual IfCommunicator *GetCommunicator() = 0;
 //  这个放到应用层去做 
 //     //查找Service
 //     CDoid   FindService(TCHAR *pName) = 0;

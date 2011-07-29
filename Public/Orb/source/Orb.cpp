@@ -143,4 +143,9 @@ TInt32 COrb::Run(const TInt32 threadId,const TInt32 runCnt)
     return SUCCESS;
 }
 
+IfCommunicator *COrb::GetCommunicator()
+{
+    return m_pIfComm;
+}
+
 }

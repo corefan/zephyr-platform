@@ -10,7 +10,7 @@ namespace Zephyr
 
 class CService : public CObject
 {
-private:
+protected:
     CTimer m_tTimer;
     const CClock  *m_pClock;
     IfOrb   *m_pIfOrb; //只有service才能注销

@@ -66,6 +66,8 @@ public:
     //时间相关
     virtual const CClock *GetClock();
 
+    virtual IfCommunicator *GetCommunicator();
+
 public:
     virtual TInt32 Begin(TInt32 threadId)
     {

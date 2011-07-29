@@ -27,7 +27,6 @@ private:
     IfLoggerManager     *m_pLoggerManager;
     IfTaskMgr           *m_pTaskMgr;
     IfOrb               *m_pOrb;
-
     TUInt32 m_uIp;
     TUInt16 m_uListeningPort;
     TUInt16 m_nMaxConnections;
@@ -45,6 +44,7 @@ private:
     IfLogger                                   *m_pLogger;
 
     CGatewayParserFactory                      m_tParserFactory;
+    TUInt32                                    m_uLastRoutineTime;
 public:
     CGatewayService();
     virtual IfConnectionCallBack *OnNewConnection(CConPair *pPair);

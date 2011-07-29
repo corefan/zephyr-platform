@@ -17,6 +17,7 @@ CGatewayService::CGatewayService()
     m_uIp  = NULL;
     m_uListeningPort = NULL;
     m_nMaxConnections;
+    m_uLastRoutineTime = 0;
 }
 
 TInt32 CGatewayService::Syn2Map(TUInt32 uFrom,TLV<TUInt8,TUInt16>& tTLV)
@@ -86,6 +87,7 @@ TInt32 CGatewayService::OnInit()
         return OUT_OF_MEM;
     }
     m_pLogger = m_pLoggerManager->GetLogger(nRet);
+    m_pIfComm = m_pOrb->GetCommunicator();
     return SUCCESS;
 }
     //结束是回调.
@@ -108,6 +110,31 @@ TInt32 CGatewayService::OnTimer(TInt32 nTimerIdx,void *pData,TInt32 nTimeGap,TUI
     //定期的回调，可以注册循环时间，但只能有一个
 TInt32 CGatewayService::OnRoutine(TUInt32 nRunCnt)
 {
+    TUInt32 nGap = GetClock()->GetTimeGap(m_uLastRoutineTime);
+    if (nGap > 1000) //没1秒重新刷20个
+    {
+        m_uLastRoutineTime = GetClock()->GetLocalTime();
+        TUInt32 uSize = m_tUsingSessions.size();
+        if (uSize)
+        {
+            uSize >>= 7;
+            ++uSize;
+            while(uSize)
+            {
+                --uSize;
+                CListNode<CGatewaySession> *pSession = m_tUsingSessions.pop_front();
+                m_tUsingSessions.push_back(pSession);
+                if (pSession)
+                {
+                    pSession->HeartBeat();
+                }
+                else
+                {
+                    break;
+                }
+            }
+        }
+    }
     return SUCCESS;
 }
     //网络时间
@@ -121,6 +148,8 @@ TInt32 CGatewayService::InitService(IfOrb* pOrb,IfTaskMgr *pIfTaskMgr,IfLoggerMa
     m_pTaskMgr = pIfTaskMgr;
     m_pLoggerManager = pIfLoggerMgr;
     m_pOrb = pOrb;
+    m_pClock = pOrb->GetClock();
+    m_uLastRoutineTime = GetClock()->GetLocalTime();
     return SUCCESS;
 }
 
@@ -136,6 +165,16 @@ IfConnectionCallBack *CGatewayService::OnNewConnection(CConPair *pPair)
         }
     }
     return NULL;
+}
+
+CDoid *CGatewayService::FindService(TUInt32)
+{
+    return NULL;
+}
+
+TInt32 CGatewayService::AddRoute(CDoid *pDoid,TUInt32 uSrvId,TUInt32 uBegin,TUInt32 uEnd,TUInt32 uPriority)
+{
+    return SUCCESS;
 }
 
 CService *InitService(IfOrb* pStubCenter,IfTaskMgr *pIfTaskMgr,IfLoggerManager *pIfLoggerMgr)
@@ -160,6 +199,10 @@ TInt32 ReleaseService(CService* pService)
     delete pGatewayService;
     return SUCCESS;
 }
+
+
+//查找默认的服务入口点，即这些服务不需要鉴权和注册也能拥有，比如登陆
+
 
 
 }

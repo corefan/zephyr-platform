@@ -19,10 +19,21 @@ class CGatewaySession : public CSession
                       , public IfConnectionCallBack    //Net的回调
                       , public IfConnecting    //远程接口
 {
+public:
+    enum EnSessionState
+    {
+        en_connection_not_using,   //未使用
+        en_shake_hands,            //握手
+        en_connection_established, //连接创建
+        en_trying_to_disconnected, //尝试断链
+    };
 private:
     TplMultiKeyMap<CRoute,TUInt32> m_tRouteMap;
     CGatewayService *m_pService;
+    TUInt32          m_uLastOprTime;
+    EnSessionState   m_enState;
 public:
+    
     DECALRE_HANDLE_INTERFCE
 
     CGatewaySession();
@@ -42,7 +53,7 @@ public:
     virtual TInt32 OnConnected(IfConnection *pIfConnection,IfParser *pParser,IfCryptor *pCryptor);
     //任何socket异常都会自动关闭网络连接
     virtual TInt32 OnDissconneted(TInt32 erroCode);
-
+    void HeartBeat();
 public:
 
     //在初始化的时候会被调.
@@ -60,6 +71,7 @@ public:
 private:
     //默认是0权限（最高），先插入的会先使用
     TInt32 AddRoute(CDoid *pDoid,TUInt32 uSrvId,TUInt32 uBegin,TUInt32 uEnd,TUInt32 uPriority=0);
+    void   SendHeartBeat();
     
 };
 

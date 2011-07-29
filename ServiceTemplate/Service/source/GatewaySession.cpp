@@ -18,6 +18,7 @@ void CGatewaySession::Init(CGatewayService *pService)
 {
     m_pService = pService;
     m_tRouteMap.Init(pService->GetRoutePool());
+    m_uLastOprTime = pService->GetClock()->GetLocalTime();
 }
 
 void CGatewaySession::OnConnected(TUInt32 uIp,TUInt16 uPortId)
@@ -88,7 +89,21 @@ TInt32 CGatewaySession::CheckId(TUInt32 uId)
     //默认是0权限（最高），先插入的会先使用
 TInt32 CGatewaySession::AddRoute(CDoid *pDoid,TUInt32 uSrvId,TUInt32 uBegin,TUInt32 uEnd,TUInt32 uPriority)
 {
+
     return SUCCESS;
 }
 
+void CGatewaySession::HeartBeat()
+{
+    TUInt32 nGap = m_pService->GetClock()->GetTimeGap(m_uLastOprTime);
+    if (nGap > 30000) //心跳时间30秒
+    {
+        SendHeartBeat();
+        m_uLastOprTime = m_pService->GetClock()->GetLocalTime();
+    }
+}
+void CGatewaySession::SendHeartBeat()
+{
+
+}
 }
