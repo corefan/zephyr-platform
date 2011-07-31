@@ -153,7 +153,7 @@ int main(int argc,char *pArgv[])
         }
        
         //Sleep(15);
-        TplMultiKeyMapNode<CTestClass,int>::Iterator it = m_tMap.Begin();
+        TplMultiKeyMapNode<CTestClass,int>::Iterator it = m_tMap.First();
         int nCount = 0;
         int nLast = 0;
         while (it.GetItem())
@@ -170,7 +170,7 @@ int main(int argc,char *pArgv[])
         }
         cout<<"count is :"<<nCount<<"input "<<nTestTime*4;
         nCount = 0;
-        it = m_tMap.End();
+        it = m_tMap.Last();
         while (it.GetItem())
         {
             ++nCount;

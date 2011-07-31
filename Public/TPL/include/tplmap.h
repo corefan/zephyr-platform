@@ -1704,38 +1704,12 @@ public:
 		}
 		return 0;
 	}
-    class Iterator
-    {
-//     private:
-//         TplNode<CItem,CKey>::Iterator m_iterator;
-//     public:
-//         void        operator ++()
-//                     {
-//                         ++m_iterator;
-//                     }
-//         CItem*      operator ->()
-//                     {
-//                         return m_iterator.GetItem();
-//                     }
-//         bool        operator == (Iterator& itor)
-//                     {
-//                         if (itor.m_iterator == m_iterator)
-//                         {
-//                             return true;
-//                         }
-//                         return false;
-//                     }
-//     private:
-//         Iterator(){};
-//         ~Iterator(){};
-//         friend class TplMap<CItem,CKey>;
-    };
-    friend class Iterator;
+    
 private:
 public:
     typedef TInt32 (CItem::*_PFMSG)(TInt32);
     //Begin是有效的
-    TplNode<CItem,CKey> *Begin()
+    TplNode<CItem,CKey> *First()
     {
         if (m_pTree)
         {
@@ -1744,7 +1718,7 @@ public:
         return NULL;
     }
     //end也是有效的
-    TplNode<CItem,CKey> *End()
+    TplNode<CItem,CKey> *Last()
     {
         if (m_pTree)
         {
@@ -1819,7 +1793,14 @@ public:
     TInt32      RemoveFromTree(CItem *pItem);
     TInt32      AddInTree(CItem* pItem);
 
-    CItem   *GetItemByKey(CKey* pKey);
+    TplNode<CItem,CKey>  *GetItemByKey(CKey rKey)
+    {
+        if  (NULL == m_pTree)
+        {
+            return NULL;
+        }
+        return m_pTree->FindNode(rKey);
+    }
     TInt32         GetFreeSize()
                 {
                     return m_tPool.GetFreeNr();
@@ -1967,15 +1948,7 @@ TInt32 TplMap<CItem,CKey>::AddInTree(CItem* pItem)
     return nResutl;
 }
 
-template<class CItem, class CKey>
-CItem *TplMap<CItem,CKey>::GetItemByKey(CKey* pKey)
-{
-    if ((NULL == pKey) || (NULL == m_pTree))
-    {
-        return NULL;
-    }
-    return m_pTree->FindNode(*pKey);
-}
+
 
 }
 #endif

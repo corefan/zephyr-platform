@@ -84,7 +84,7 @@ int main()
             unsigned int ran = rand();
             randTime ++;
             ran *= rand();
-            CMapTest *pMap = map.GetItemByKey(&ran);
+            CMapTest *pMap = map.GetItemByKey(ran);
             if (!pMap)
             {
                 TInt32 result;
@@ -113,7 +113,7 @@ int main()
         }
 
         map.CheckTree();
-        TplNode<CMapTest,unsigned int>::Iterator it = map.Begin();
+        TplNode<CMapTest,unsigned int>::Iterator it = map.First();
         unsigned int last = 0;
         while(!it.IsNull())
         {
@@ -146,7 +146,7 @@ int main()
         }
         for (int i =0;i<NUM_OF_TEST_TIME;++i)
         {
-            CMapTest *p = map.GetItemByKey(pRandNr + i);
+            CMapTest *p = map.GetItemByKey(pRandNr[i]);
             if (!p)
             {
                 printf("Can not find rand nr %u",pRandNr[i]);

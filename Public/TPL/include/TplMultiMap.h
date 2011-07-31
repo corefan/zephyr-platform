@@ -1012,6 +1012,14 @@ public:
         {
             m_pNow = pNow;
         }
+        void operator=(Iterator &rValue)
+        {
+            m_pNow = rValue.m_pNow;
+        }
+        void operator=(TplMultiKeyMapNode<CItem,CKey>* pNow)
+        {
+            m_pNow = pNow;
+        }
         TInt32 Init(TplMultiKeyMapNode<CItem,CKey>* pNow)
         {
             if(!pNow)
@@ -1123,6 +1131,10 @@ public:
             return *this;
         }
         CItem*      operator ->()
+        {
+            return m_pNow;
+        }
+        operator CItem*()
         {
             return m_pNow;
         }
@@ -1917,7 +1929,7 @@ private:
 public:
     typedef TInt32 (CItem::*_PFMSG)(TInt32);
     //Begin是有效的
-    TplMultiKeyMapNode<CItem,CKey> *Begin()
+    TplMultiKeyMapNode<CItem,CKey> *First()
     {
         if (m_pTree)
         {
@@ -1926,7 +1938,7 @@ public:
         return NULL;
     }
     //end也是有效的
-    TplMultiKeyMapNode<CItem,CKey> *End()
+    TplMultiKeyMapNode<CItem,CKey> *Last()
     {
         if (m_pTree)
         {
@@ -1936,7 +1948,7 @@ public:
     }
     void clean()
     {
-        TplMultiKeyMapNode<CItem,CKey>::Iterator it = Begin();
+        TplMultiKeyMapNode<CItem,CKey>::Iterator it = First();
         TplMultiKeyMapNode<CItem,CKey> *pNode = it.GetItem();
         int nRtn;
         while (pNode)
@@ -2036,7 +2048,15 @@ public:
 
     TInt32      AddInTree(CItem* pItem);
 
-    CItem   *GetItemByKey(CKey* pKey);
+    TplMultiKeyMapNode<CItem,CKey> *GetItemByKey(CKey&  rKey)
+    {
+        if (!m_pTree)
+        {
+            return NULL;
+        }
+        return m_pTree->FindNode(rKey);
+    }
+
     TInt32         GetFreeSize()
                 {
                     return m_pPool->GetFreeNr();
@@ -2109,16 +2129,6 @@ TInt32 TplMultiKeyMap<CItem,CKey>::AddInTree(CItem* pItem)
     }
     
     return SUCCESS;
-}
-
-template<class CItem, class CKey>
-CItem *TplMultiKeyMap<CItem,CKey>::GetItemByKey(CKey* pKey)
-{
-    if ((NULL == pKey) || (NULL == m_pTree))
-    {
-        return NULL;
-    }
-    return m_pTree->FindNode(*pKey);
 }
 
 }

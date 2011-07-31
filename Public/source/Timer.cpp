@@ -55,7 +55,7 @@ TUInt32 CTimer::Run(TUInt64 nTimeNow)
     TUInt32 nRunCnt = 0;
     //if (m_tMap.GetActivedSize())
     {
-        TplMultiKeyMapNode<CScheduler,TUInt64> *pNode = m_tMap.Begin();
+        TplMultiKeyMapNode<CScheduler,TUInt64> *pNode = m_tMap.First();
         while(pNode)
         {
             if (pNode->m_nTime < nTimeNow)
@@ -81,7 +81,7 @@ TUInt32 CTimer::Run(TUInt64 nTimeNow)
                         m_tPool.ReleaseMem(pNode);
                     }
                 }
-                pNode = m_tMap.Begin();//这样做效率很差，但是最安全，限制最少.
+                pNode = m_tMap.First();//这样做效率不高Log(n)，但是最安全，限制最少.
                 ++ nRunCnt;
                 if (nRunCnt > 10000)
                 {

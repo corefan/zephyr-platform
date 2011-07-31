@@ -43,7 +43,7 @@ TInt32   CBaseElement::AddBaseType(const char *psz,EnRawTypes nType)
 CBaseElement *CBaseElement::IsOneType(const char *psz)
 {
     string key = psz;
-    TplPtPack<CBaseElement,string > *pElePack = sm_pBaseElements->GetItemByKey(&key);
+    TplPtPack<CBaseElement,string > *pElePack = sm_pBaseElements->GetItemByKey(key);
     if (pElePack)
     {
         return pElePack->m_pPt;
@@ -74,7 +74,7 @@ TInt32   CBaseElement::AddKeyWords(const char *pName,EnRawTypes key)
 CBaseElement *CBaseElement::IsKeyWords(const char *psz)
 {
     string str = psz;
-    TplPtPack<CBaseElement,string > *pElePack = sm_pBaseKeyWords->GetItemByKey(&str);
+    TplPtPack<CBaseElement,string > *pElePack = sm_pBaseKeyWords->GetItemByKey(str);
     if (pElePack)
     {
         return pElePack->m_pPt;

@@ -110,7 +110,7 @@ TInt32 CConnector::Run(const TUInt32 runCnt)
             {
                 for(TUInt32 i=0;i<wset.fd_count;++i)
                 {
-                    CConnectingList *pCItem = m_pendingSocket.GetItemByKey(wset.fd_array+i);
+                    CConnectingList *pCItem = m_pendingSocket.GetItemByKey(wset.fd_array[i]);
                     if (pCItem)
                     {
                         OnConnectionEstablish(pCItem->m_pConnection);
@@ -125,7 +125,7 @@ TInt32 CConnector::Run(const TUInt32 runCnt)
                 }
                 for(TUInt32 i=0;i<exceptSet.fd_count;++i)
                 {
-                    CConnectingList *pCItem = m_pendingSocket.GetItemByKey(exceptSet.fd_array+i);
+                    CConnectingList *pCItem = m_pendingSocket.GetItemByKey(exceptSet.fd_array[i]);
                     if (pCItem)
                     {
                         OnDisconnected(pCItem->m_pConnection);
@@ -279,7 +279,7 @@ TInt32 CConnector::AddToPendingList(CConnection *pConnection)
 {
     TInt32 result = SUCCESS;
     SOCKET socket = pConnection->GetSocket();
-    if (m_pendingSocket.GetItemByKey(&socket)) //已经加过了？！
+    if (m_pendingSocket.GetItemByKey(socket)) //已经加过了？！
     {
         return FAIL;
     }

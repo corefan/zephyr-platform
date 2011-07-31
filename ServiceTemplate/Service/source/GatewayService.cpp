@@ -167,8 +167,19 @@ IfConnectionCallBack *CGatewayService::OnNewConnection(CConPair *pPair)
     return NULL;
 }
 
-CDoid *CGatewayService::FindService(TUInt32)
+CDoid *CGatewayService::FindService(TUInt32 uServiceId)
 {
+    TUInt32 uSvr = (uServiceId>>11); //左移11位就可以了
+    TplMultiKeyMapNode<CRoute,TUInt32>::Iterator it = m_tServiceRoute.GetItemByKey(uSvr);
+    CRoute *pRount = it;
+    while ((pRount)&&(pRount->m_uKey == uServiceId))
+    {
+        if ((uServiceId <= pRount->m_uIdBegin)&&(uServiceId> pRount->m_uIdEnd))
+        {
+            return &pRount->m_tRouteTo;
+        }
+        ++it;
+    }
     return NULL;
 }
 

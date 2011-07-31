@@ -170,7 +170,7 @@ TInt32 CCommMgr::Init(TInt32 nrOfWorkerThread,IfTaskMgr *pTaskMgr,IfLoggerManage
         for (TUInt32 i=0;i<m_ipMaps.m_vListening.size();++i)
         {
             CIpMapItem *pIpMap = m_ipMaps.GetConnection(m_ipMaps.m_vListening[i]);
-            TChar pIps[64];
+            //TChar pIps[64];
             
             pIpMap->m_pListeningItem = m_pNet->Listen(pIpMap->m_tKey.GetMyIp(),pIpMap->m_tKey.GetMyPort(),32,((IfListenerCallBack*)this));
             if (!pIpMap->m_pListeningItem)
@@ -347,7 +347,7 @@ TInt32 CCommMgr::InitWithConfig(TInt32 nrOfWorkerThread,IfTaskMgr *pTaskMgr,IfLo
         for (TUInt32 i=0;i<m_ipMaps.m_vListening.size();++i)
         {
             CIpMapItem *pIpMap = m_ipMaps.GetConnection(m_ipMaps.m_vListening[i]);
-            TChar pIps[64];
+            //TChar pIps[64];
 
             pIpMap->m_pListeningItem = m_pNet->Listen(pIpMap->m_tKey.GetMyIp(),pIpMap->m_tKey.GetMyPort(),32,((IfListenerCallBack*)this));
             if (!pIpMap->m_pListeningItem)
