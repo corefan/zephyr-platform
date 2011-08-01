@@ -1963,13 +1963,6 @@ public:
         }
     }
     
-    void RunOnTree(_PFMSG ptr,TInt32 arg)
-    {
-		if (m_pTree)
-		{
-			m_pTree->RunOnTree(ptr, arg);
-		}
-    }
     TplMultiKeyMap()
     {
         m_pPool = NULL;

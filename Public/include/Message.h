@@ -107,6 +107,12 @@ private: //改公共的，不要麻烦了
 
 
 public:
+    //从MessageId
+    static TUInt32 GetServiceID(TUInt32 uMethodId)
+    {
+        return (uMethodId&0x0007F800);
+    }
+
 	inline TUInt32 GetBodyLength()
 	{
 		return m_msgInfo.m_msgBodyLength;

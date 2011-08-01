@@ -558,4 +558,36 @@ void CLogger::WriteRawLog(const TUInt32 lvl,const TChar *__pFormat,...)
     }
 }
 
+void CLogger::WriteBinLog(const TChar *pBin,TUInt32 uLength)
+{
+    m_loggerCount ++;
+
+    TChar *pBuff;
+    TUInt32 maxLogLenth = uLength + 64;
+    pBuff = (TChar *)m_pipe.PrepareMsg(maxLogLenth);
+    if (maxLogLenth < MAX_LOGGER_LENGTH)
+    {
+        pBuff = m_buff;
+    }
+    TUInt32 strLen = sprintf_s(pBuff,maxLogLenth,"Length:%u,[Start]",uLength);
+    memcpy(pBuff+strLen,pBin,uLength);
+    strLen += uLength;
+    //长度其实可以不计
+    strLen += sprintf_s(pBuff+strLen,maxLogLenth-strLen,"[End]");
+    if (pBuff == m_buff)
+    {
+        TInt32 ret = m_pipe.WriteData((TUChar*)m_buff,strLen);
+        while(ret < 0)
+        {
+            //app will write the file to HD;
+            AppRun(strLen);
+            ret = m_pipe.WriteData((TUChar*)m_buff,strLen);
+        }
+    }
+    else // already write into pipe!
+    {
+        m_pipe.ConfirmAddMsg((TUChar*)pBuff,strLen);
+    }
+}
+
 }
