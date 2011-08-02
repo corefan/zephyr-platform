@@ -169,56 +169,13 @@ IfConnectionCallBack *CGatewayService::OnNewConnection(CConPair *pPair)
 
 CDoid *CGatewayService::FindService(TUInt32 uServiceId)
 {
-    TUInt32 uSvr = (uServiceId>>11); //左移11位就可以了
-    TplMultiKeyMapNode<CRoute,TUInt32>::Iterator it = m_tServiceRoute.GetItemByKey(uSvr);
-    CRoute *pRount = it;
-    CRoute *pRtn(NULL);
-    while ((pRount)&&(pRount->m_uKey == uServiceId))
-    {
-        if ((uServiceId <= pRount->m_uIdBegin)&&(uServiceId> pRount->m_uIdEnd))
-        {
-            if (pRtn)
-            {
-                if (pRtn->m_uPriority > pRount->m_uPriority) //计算权重.
-                {
-                    pRtn = pRount;
-                }
-            }
-            else
-            {
-                pRtn = pRount;
-            }
-        }
-        ++it;
-    }
-    if (pRtn)
-    {
-        return &pRtn->m_tRouteTo;
-    }
-    return NULL;
+    return m_tServiceRoute.FindService(uServiceId);
 }
 
 TInt32 CGatewayService::AddRoute(CDoid *pDoid,TUInt32 uSrvId,TUInt32 uBegin,TUInt32 uEnd,TUInt32 uPriority)
 {
-    
-    if ((uSrvId != CMessageHeader::GetServiceID(uBegin))||(uSrvId!=CMessageHeader::GetServiceID(uEnd-1)))
-    {
-        //入参错误，写日志
-        
-        
-        return FAIL;
-    }
-    CRoute *pRoute = m_tServiceRoute.PrepareItem();
-    if (pRoute)
-    {
-        pRoute->m_uKey = CMessageHeader::GetServiceID(uSrvId);
-        
-    }
-    else
-    {
-         
-    }
-    return SUCCESS;
+    CDoid *pRegister = GetCurrentMsg()->GetSrcDoid();
+    return m_tServiceRoute.AddRoute(pDoid,pRegister,uSrvId,uBegin,uEnd,uPriority);
 }
 
 CService *InitService(IfOrb* pStubCenter,IfTaskMgr *pIfTaskMgr,IfLoggerManager *pIfLoggerMgr)

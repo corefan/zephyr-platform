@@ -75,7 +75,7 @@ public:
         return SUCCESS;
     }
 
-    const CMessageHeader *GetCurrentMsg()
+    CMessageHeader *GetCurrentMsg()
     {
         return m_pCurrentMsg;
     } 

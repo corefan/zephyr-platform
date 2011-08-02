@@ -12,8 +12,9 @@
 #include "Public/tpl/include/TplList.h"
 #include "GatewaySession.h"
 #include "./GatewayParserFactory.h"
-
 #include "Public/include/TypeDef.h"
+#include "GatewayLogger.h"
+#include "RouteMap.h"
 
 namespace Zephyr
 {
@@ -39,7 +40,7 @@ private:
 
     CList<CGatewaySession>                     m_tUsingSessions;
 
-    TplMultiKeyMap<CRoute,TUInt32>             m_tServiceRoute;
+    CRouteMap                                  m_tServiceRoute;
 
     IfLogger                                   *m_pLogger;
 
@@ -94,11 +95,16 @@ public:
 
     //查找默认的服务入口点，即这些服务不需要鉴权和注册也能拥有，比如登陆
     CDoid *FindService(TUInt32);
-
+    
+    IfLogger *GetLogger()
+    {
+        return m_pLogger;
+    }
 
 
 private:
     TInt32 AddRoute(CDoid *pDoid,TUInt32 uSrvId,TUInt32 uBegin,TUInt32 uEnd,TUInt32 uPriority=0);
+    
 };
 
 

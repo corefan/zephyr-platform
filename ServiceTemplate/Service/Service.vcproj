@@ -198,6 +198,10 @@
 				RelativePath=".\source\GatewaySession.cpp"
 				>
 			</File>
+			<File
+				RelativePath=".\source\RouteMap.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="include"
@@ -206,6 +210,10 @@
 			>
 			<File
 				RelativePath=".\include\GatewayBasicConfig.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\GatewayLogger.h"
 				>
 			</File>
 			<File
@@ -230,6 +238,10 @@
 			</File>
 			<File
 				RelativePath=".\include\Route.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\RouteMap.h"
 				>
 			</File>
 		</Filter>

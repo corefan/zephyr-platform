@@ -1,6 +1,7 @@
 #include "../include/GatewaySession.h"
 #include "../../Interface/include/IfConnectingSkeleton.h"
 #include "../include/GatewayService.h"
+
 namespace Zephyr
 {
 
@@ -17,7 +18,7 @@ CGatewaySession::CGatewaySession()
 void CGatewaySession::Init(CGatewayService *pService)
 {
     m_pService = pService;
-    m_tRouteMap.Init(pService->GetRoutePool());
+    m_tServiceRoute.Init(pService->GetRoutePool(),pService->GetLogger());
     m_uLastOprTime = pService->GetClock()->GetLocalTime();
 }
 
@@ -54,7 +55,7 @@ TInt32 CGatewaySession::OnInit()
     //结束是回调.
 TInt32 CGatewaySession::OnFinal()
 {
-    m_tRouteMap.clean();
+    m_tServiceRoute.OnFinal();
     return SUCCESS;
 }
 
@@ -106,4 +107,16 @@ void CGatewaySession::SendHeartBeat()
 {
 
 }
+
+IfLogger *CGatewaySession::GetLogger()
+{
+#ifdef _DEBUG
+    if (NULL == m_pService)
+    {
+        return NULL;
+    }
+#endif
+    return m_pService->GetLogger();
+}
+
 }

@@ -39,7 +39,7 @@ CMapTest &GetNullRef()
 
 int main()
 {
-    CTest2 t2;
+   CTest2 t2;
 //     IfTaskMgr *pTaskMgr = CreateTaskMgr();
 //     pTaskMgr->StartWorking(4);
 //     CExceptionParser parser;

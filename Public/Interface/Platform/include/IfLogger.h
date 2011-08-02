@@ -1,7 +1,7 @@
 #ifndef __ZEPHYR_SYSTEM_LOGGER_IF_LOGGER_H__
 #define __ZEPHYR_SYSTEM_LOGGER_IF_LOGGER_H__
 #include "stdarg.h"
-#include "TypeDef.h"
+#include "../../../include/TypeDef.h"
 
 namespace Zephyr
 {
@@ -9,10 +9,13 @@ namespace Zephyr
 
 enum EnLogLvl
 {
-    log_warning     = 1,
-    log_run         = (1<<1),
-    log_critical    = (1<<2),
-    log_debug       = (1<<3),
+    log_critical     = 1,               //紧急，运行时的致命错误，比如内存不够、网络断开
+    log_run          = (1<<1),          //运行日志，比如物品创建、任务创建等
+    log_test         = (1<<2),          //测试模式
+    log_debug        = (1<<3),          //debug日志，在release版中不存在.
+    log_release_mode = (log_critical|log_run),
+    log_test_mode    = (log_critical|log_run|log_test),
+    log_debug_mode   = (log_critical|log_run|log_debug),
 };
 
 class IfLogger

@@ -1,6 +1,7 @@
 #include "../include/GatewayBasicConfig.h"
 #include "Public/Config/include/SettingFile.h"
 #include "Public/include/SysMacros.h"
+#include "Public/Interface/Platform/include/IfLogger.h"
 namespace Zephyr
 {
 
@@ -12,11 +13,11 @@ CGatewayBasicConfig::CGatewayBasicConfig()
     m_uInputCacheInKBs = 0;
     m_szLoggerName[0] = 0;
 #ifdef _DEBUG
-    m_uWriteLoggerMask = 0xFFFFFFFF;
-    m_uPrint2ScreenLoggerMask = 0xFFFFFFFF; //什么都不记
+    m_uWriteLoggerMask = log_debug_mode;
+    m_uPrint2ScreenLoggerMask = log_debug_mode; 
 #else
-    m_uWriteLoggerMask = 0xFFFFFFFF;
-    m_uPrint2ScreenLoggerMask = 0;
+    m_uWriteLoggerMask = log_release_mode;
+    m_uPrint2ScreenLoggerMask = log_release_mode;
 #endif
 }
     //根据其被加载的ID来获取配置.

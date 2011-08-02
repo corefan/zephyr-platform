@@ -10,6 +10,8 @@
 #include "Route.h"
 #include "Public/Interface/App/include/IfNetApp.h"
 #include "Public/tpl/include/TplMultiMap.h"
+#include "GatewayLogger.h"
+#include "RouteMap.h"
 namespace Zephyr
 {
 
@@ -28,7 +30,7 @@ public:
         en_trying_to_disconnected, //尝试断链
     };
 private:
-    TplMultiKeyMap<CRoute,TUInt32> m_tRouteMap;
+    CRouteMap       m_tServiceRoute;
     CGatewayService *m_pService;
     TUInt32          m_uLastOprTime;
     EnSessionState   m_enState;
@@ -68,10 +70,13 @@ public:
     virtual TInt32 Disconnect(TUInt32 uReason);
     virtual TInt32 SetId(TUInt32 uId);
     virtual TInt32 CheckId(TUInt32 uId);
+    //使用inline
+    IfLogger *GetLogger();
 private:
     //默认是0权限（最高），先插入的会先使用
     TInt32 AddRoute(CDoid *pDoid,TUInt32 uSrvId,TUInt32 uBegin,TUInt32 uEnd,TUInt32 uPriority=0);
     void   SendHeartBeat();
+    
     
 };
 
