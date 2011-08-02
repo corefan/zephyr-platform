@@ -12,7 +12,7 @@ CDoid *CRouteMap::FindService(TUInt32 uServiceId)
     TplMultiKeyMapNode<CRoute,TUInt32>::Iterator it = m_tServiceRoute.GetItemByKey(uSvr);
     CRoute *pRount = it;
     CRoute *pRtn(NULL);
-    while ((pRount))
+    while ((pRount)&&(pRount->m_uKey == uSvr))
     {
         if ((uServiceId <= pRount->m_uIdBegin)&&(uServiceId> pRount->m_uIdEnd))
         {
@@ -61,7 +61,7 @@ TInt32 CRouteMap::AddRoute(CDoid *pDoid,CDoid *pRegister,TUInt32 uSrvId,TUInt32 
         tNew.m_uKey     = uSrvId;
         tNew.m_uPriority = uPriority;
         CRoute *pMerge = &tNew;
-        while ((pRount))
+        while ((pRount)&&(pRount->m_uKey == uSrvId))
         {
             if (pRount->Merge(*pMerge)) //³É¹¦ÈÚºÏ
             {
