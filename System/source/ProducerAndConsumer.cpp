@@ -67,7 +67,7 @@ TInt32 CProduerAndConsumer::RequireFetchProduct(TUInt32 timeout)
             pthread_mutex_unlock(&m_mutex);
             return result;
         }
-        int retcode=int  pthread_cond_reltimedwait_np(&m_cond,&m_mutex,&ts);
+        int retcode= pthread_cond_reltimedwait_np(&m_cond,&m_mutex,&ts);
         //if (m_productsNr)
         {
             int result = (int)m_productsNr;
