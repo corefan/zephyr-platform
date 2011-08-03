@@ -18,7 +18,7 @@ CGatewaySession::CGatewaySession()
 void CGatewaySession::Init(CGatewayService *pService)
 {
     m_pService = pService;
-    m_tServiceRoute.Init(pService->GetRoutePool(),pService->GetLogger());
+    m_tServiceRoute.Init(pService->GetRoutePool());
     m_uLastOprTime = pService->GetClock()->GetLocalTime();
 }
 
@@ -90,7 +90,7 @@ TInt32 CGatewaySession::CheckId(TUInt32 uId)
     //默认是0权限（最高），先插入的会先使用
 TInt32 CGatewaySession::AddRoute(CDoid *pDoid,TUInt32 uSrvId,TUInt32 uBegin,TUInt32 uEnd,TUInt32 uPriority)
 {
-
+    
     return SUCCESS;
 }
 

@@ -75,10 +75,16 @@ public:
         return SUCCESS;
     }
 
-    CMessageHeader *GetCurrentMsg()
+    //这个更多的
+    CDoid *GetCallerDoid()
     {
-        return m_pCurrentMsg;
-    } 
+        if (m_pCurrentMsg)
+        {
+            return m_pCurrentMsg->GetSrcDoid();
+        }
+        //如果不是远程调用，那就是本地调用，调用者就是自己.
+        return GetMyDoid(); 
+    }
 };
 
 }

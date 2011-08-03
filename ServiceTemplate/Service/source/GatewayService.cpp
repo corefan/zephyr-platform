@@ -18,6 +18,7 @@ CGatewayService::CGatewayService()
     m_uListeningPort = NULL;
     m_nMaxConnections;
     m_uLastRoutineTime = 0;
+    m_pListener = NULL;
 }
 
 TInt32 CGatewayService::Syn2Map(TUInt32 uFrom,TLV<TUInt8,TUInt16>& tTLV)
@@ -42,17 +43,62 @@ TInt32 CGatewayService::BroadcastTeamMsg(TUInt32 uTeam,OctSeq<TUInt16>& tService
 
 TInt32 CGatewayService::ChangePriorty(TUInt32 uServiceId,CDoid *pMyDoid,TUInt32 uPriority)
 {
-    return SUCCESS;
+    TInt32 nRet = m_tServiceRoute.ChangePriorty(uServiceId,pMyDoid,uPriority);
+    if (0 == nRet)
+    {
+        CDoid *pRegister = GetCallerDoid();
+        char szBufferRegister[64];
+        pRegister->ToStr(szBufferRegister);
+        char szBufferDoid[64];
+        pMyDoid->ToStr(szBufferDoid);
+        LOG_RUN((-nRet),"Register:%s ,doid:%s, uSrvId:%u,uPriority:%u",szBufferRegister,szBufferDoid,uServiceId,uPriority);
+    }
+    return nRet;
 }
 
 //开始接收登陆，供管理使用。主控服务器在所有内部服务器协调启动完成后，让gateway开始接收登陆.
 TInt32 CGatewayService::StartLogin(TUInt32 uIp,TUInt16 nListeningPort,TUInt16 nMaxConnection)
 {
+    if ((0 == m_uListeningPort)&&(0 == m_uIp))
+    {
+        IfListenerCallBack *pCallBack = this; //必须转一下，不位不对，Listen的参数void*,不是IfListenerCallBack*
+        char szBuffer[64];
+        GetCallerDoid()->ToStr(szBuffer);
+        LOG_RUN(en_start_listing,"Caller(%s) start Listening at Ip:%u,port:%u,MaxConnection:%u",szBuffer,uIp,(TUInt32)nListeningPort,(TUInt32)nMaxConnection);
+        
+        m_pListener = m_pNet->Listen(uIp,nListeningPort,nMaxConnection,pCallBack);
+        
+        if (NULL == m_pListener)
+        {
+            LOG_RUN(en_start_listening_failed,"Listen failed! Ip:%u,port:%u",uIp,(TUInt32)nListeningPort);
+            return -(en_start_listening_failed);
+        }
+    }
+    else
+    {
+        //重复启动
+        CDoid *pRegister = GetCallerDoid();
+        char szBufferRegister[64];
+        pRegister->ToStr(szBufferRegister);
+        LOG_RUN(en_restart_listening,"Restart listening from doid:%s , New Ip:%u,port:%u,max connection:%u",szBufferRegister,uIp,(TUInt32)nListeningPort,(TUInt32)nMaxConnection);
+    }
     return SUCCESS;
 }
 //停止接入登陆，供管理使用。开始停服.这个时候Gateway只是停止接收新的连接，老连接还是维持的
 TInt32 CGatewayService::StopLogin()
 {
+    char szBuffer[64];
+    GetCallerDoid()->ToStr(szBuffer);
+    if (m_pListener)
+    {
+        LOG_RUN(en_stop_listening,"Caller(%s) stop Listening",szBuffer);
+        m_pNet->StopListening(m_pListener); //肯定成功.
+        m_pListener = NULL;
+    }
+    else
+    {
+        LOG_RUN(en_listening_not_started,"Caller(%s) try stop Listening,but there's no listening.",szBuffer);
+    }
     return SUCCESS;
 }
 //关闭所有客户端连接
@@ -174,8 +220,24 @@ CDoid *CGatewayService::FindService(TUInt32 uServiceId)
 
 TInt32 CGatewayService::AddRoute(CDoid *pDoid,TUInt32 uSrvId,TUInt32 uBegin,TUInt32 uEnd,TUInt32 uPriority)
 {
-    CDoid *pRegister = GetCurrentMsg()->GetSrcDoid();
-    return m_tServiceRoute.AddRoute(pDoid,pRegister,uSrvId,uBegin,uEnd,uPriority);
+    TInt32 nRet = m_tServiceRoute.AddRoute(pDoid,uSrvId,uBegin,uEnd,uPriority);
+    if (nRet < SUCCESS)
+    {
+        CDoid *pRegister = GetCallerDoid();
+        char szBufferRegister[64];
+        pRegister->ToStr(szBufferRegister);
+        char szBufferDoid[64];
+        pDoid->ToStr(szBufferDoid);
+        if (nRet < en_gw_error_begin)
+        {
+            LOG_RUN((-nRet),"Register:%s ,doid:%s, uSrvId:%u,uBegin:%u,uEnd:%u,uPriority:%u",szBufferRegister,szBufferDoid,uSrvId,uBegin,uEnd,uPriority);
+        }
+        else
+        {
+            LOG_CRITICAL((-nRet),"Register:%s ,doid:%s, uSrvId:%u,uBegin:%u,uEnd:%u,uPriority:%u",szBufferRegister,szBufferDoid,uSrvId,uBegin,uEnd,uPriority);
+        }
+    }
+    return nRet;
 }
 
 CService *InitService(IfOrb* pStubCenter,IfTaskMgr *pIfTaskMgr,IfLoggerManager *pIfLoggerMgr)

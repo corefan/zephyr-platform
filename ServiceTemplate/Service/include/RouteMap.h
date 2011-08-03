@@ -14,22 +14,16 @@ class CRouteMap
 private:
     TplMultiKeyMap<CRoute,TUInt32>             m_tServiceRoute;
 
-    IfLogger                                   *m_pLogger;
 public:
     CRouteMap()
     {
-        m_pLogger = NULL;
     }
-    void Init(CPool<TplMultiKeyMapNode<CRoute,TUInt32> > *pPool,IfLogger *pLogger)
+    void Init(CPool<TplMultiKeyMapNode<CRoute,TUInt32> > *pPool)
     {
-        m_pLogger = pLogger;
         m_tServiceRoute.Init(pPool);
     }
-    IfLogger *GetLogger()
-    {
-        return m_pLogger;
-    }
-    TInt32 AddRoute(CDoid *pDoid,CDoid *pRegister,TUInt32 uSrvId,TUInt32 uBegin,TUInt32 uEnd,TUInt32 uPriority=0);
+    TInt32 AddRoute(CDoid *pDoid,TUInt32 uSrvId,TUInt32 uBegin,TUInt32 uEnd,TUInt32 uPriority);
+    TInt32 ChangePriorty(TUInt32 uServiceId,CDoid *pMyDoid,TUInt32 uPriority);
     CDoid *FindService(TUInt32);
     void OnFinal();
 };

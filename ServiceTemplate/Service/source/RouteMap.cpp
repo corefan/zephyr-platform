@@ -37,17 +37,35 @@ CDoid *CRouteMap::FindService(TUInt32 uServiceId)
     return NULL;
 }
 
-TInt32 CRouteMap::AddRoute(CDoid *pDoid,CDoid *pRegister,TUInt32 uSrvId,TUInt32 uBegin,TUInt32 uEnd,TUInt32 uPriority)
+TInt32 CRouteMap::ChangePriorty(TUInt32 uServiceId,CDoid *pMyDoid,TUInt32 uPriority)
+{
+    TUInt32 uSvr = CMessageHeader::GetServiceID(uServiceId); //修改一个Service的
+    TplMultiKeyMapNode<CRoute,TUInt32>::Iterator it = m_tServiceRoute.GetItemByKey(uSvr);
+    CRoute *pRount = it;
+    TInt32 nCount = 0;
+    while ((pRount)&&(pRount->m_uKey == uSvr))
+    {
+        if (pRount->m_tRouteTo == (*pMyDoid))
+        {
+            pRount->m_uPriority = uPriority;
+            ++nCount;
+        }
+        ++it;
+    }
+    return nCount;
+}
+
+TInt32 CRouteMap::AddRoute(CDoid *pDoid,TUInt32 uSrvId,TUInt32 uBegin,TUInt32 uEnd,TUInt32 uPriority)
 {
     if ((uSrvId != CMessageHeader::GetServiceID(uBegin))||(uSrvId!=CMessageHeader::GetServiceID(uEnd-1)))
     {
         //入参错误，写日志
-        char szBufferRegister[64];
-        pRegister->ToStr(szBufferRegister);
-        char szBufferDoid[64];
-        pDoid->ToStr(szBufferDoid);
-        LOG_RUN(en_error_service_id,"Error Servcie Id,Register:%s ,doid:%s, uSrvId:%u,uBegin:%u,uEnd:%u,uPriority:%u",szBufferRegister,szBufferDoid,uSrvId,uBegin,uEnd,uPriority);
-        return FAIL;
+//         char szBufferRegister[64];
+//         pRegister->ToStr(szBufferRegister);
+//         char szBufferDoid[64];
+//         pDoid->ToStr(szBufferDoid);
+//         LOG_RUN(en_error_service_id,"Error Servcie Id,Register:%s ,doid:%s, uSrvId:%u,uBegin:%u,uEnd:%u,uPriority:%u",szBufferRegister,szBufferDoid,uSrvId,uBegin,uEnd,uPriority);
+        return -((TInt32)en_error_service_id);
     }
     //查找有没有，没的话再说.
     TplMultiKeyMapNode<CRoute,TUInt32>::Iterator it = m_tServiceRoute.GetItemByKey(uSrvId);
@@ -98,11 +116,12 @@ TInt32 CRouteMap::AddRoute(CDoid *pDoid,CDoid *pRegister,TUInt32 uSrvId,TUInt32 
     else
     {
         //写日志.内存
-        char szBufferRegister[64];
-        pRegister->ToStr(szBufferRegister);
-        char szBufferDoid[64];
-        pDoid->ToStr(szBufferDoid);
-        LOG_CRITICAL(en_allocate_route_mem_failed,"Servcie Id,Register:%s ,doid:%s, uSrvId:%u,uBegin:%u,uEnd:%u,uPriority:%u",szBufferRegister,szBufferDoid,uSrvId,uBegin,uEnd,uPriority);
+//         char szBufferRegister[64];
+//         pRegister->ToStr(szBufferRegister);
+//         char szBufferDoid[64];
+//         pDoid->ToStr(szBufferDoid);
+//         LOG_CRITICAL(en_allocate_route_mem_failed,"Servcie Id,Register:%s ,doid:%s, uSrvId:%u,uBegin:%u,uEnd:%u,uPriority:%u",szBufferRegister,szBufferDoid,uSrvId,uBegin,uEnd,uPriority);
+        return OUT_OF_MEM;
     }
     return SUCCESS;
 }

@@ -31,7 +31,7 @@ private:
     TUInt32 m_uIp;
     TUInt16 m_uListeningPort;
     TUInt16 m_nMaxConnections;
-
+    void*   m_pListener;
     //一个Service公用一个Pool，避免使用静态变量，这样的话，就在同一ServiceContainer里开多个Gateway.
     CPool<TplMultiKeyMapNode<CRoute,TUInt32> > m_tRoutePool;
     
