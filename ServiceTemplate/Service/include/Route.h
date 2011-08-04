@@ -34,8 +34,9 @@ public:
         {
             if (m_uIdBegin > rNew.m_uIdBegin)
             {
-                if (m_uIdEnd <= rNew.m_uIdBegin)
+                if (m_uIdBegin <= rNew.m_uIdEnd)
                 {
+                    m_uIdBegin = rNew.m_uIdBegin;
                     if (m_uIdEnd < rNew.m_uIdEnd)
                     {
                         m_uIdEnd = rNew.m_uIdEnd;
@@ -46,11 +47,10 @@ public:
                     //可以融合
                 }
             }
-            else if (m_uIdBegin >= rNew.m_uIdEnd)
+            else if (m_uIdBegin <= rNew.m_uIdEnd)
             {
                 //可以融合
-                m_uIdBegin = rNew.m_uIdBegin;
-                if (m_uIdEnd < rNew.m_uIdEnd)
+                if (m_uIdEnd > rNew.m_uIdEnd)
                 {
                     m_uIdEnd = rNew.m_uIdEnd;
                 }
@@ -59,6 +59,52 @@ public:
             }
         }
         return FALSE;
+    }
+    //如果是-1不匹配，0，则表示不需要任何删减操作,1表示要删除一个，即this，2表示增加一个（值即rRmvPart）,3，表示完全匹配
+    TInt32 Separate(CRoute &rRmvPart)
+    {
+        if (m_tRouteTo == rRmvPart.m_tRouteTo)
+        {
+            if (m_uIdBegin < rRmvPart.m_uIdBegin)
+            {
+                if (m_uIdEnd > rRmvPart.m_uIdBegin)
+                {
+                    //有删减
+                    if (m_uIdEnd > rRmvPart.m_uIdEnd)
+                    {
+                        //变成2个
+                        TUInt32 uTmp = m_uIdEnd;
+                        m_uIdEnd = rRmvPart.m_uIdBegin;
+                        rRmvPart.m_uIdBegin = rRmvPart.m_uIdEnd;
+                        rRmvPart.m_uIdEnd = uTmp;
+                        return 2;
+                    }
+                    else
+                    {
+                        m_uIdEnd = rRmvPart.m_uIdBegin;
+                        return 0;
+                    }
+                }
+            }
+            else if (m_uIdBegin < rRmvPart.m_uIdEnd)
+            {
+                if (m_uIdEnd <= rRmvPart.m_uIdEnd)
+                {
+                    //完全匹配
+                    if ((m_uIdBegin == rRmvPart.m_uIdBegin) && (m_uIdEnd == rRmvPart.m_uIdEnd))
+                    {
+                        return 3;
+                    }
+                    return 1;
+                }
+                else
+                {
+                    m_uIdBegin = rRmvPart.m_uIdEnd;
+                    return 0;
+                }
+            }
+        }
+        return -1; //不对.
     }
 };
 

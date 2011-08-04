@@ -28,7 +28,9 @@ TInt32 CGatewayService::Syn2Map(TUInt32 uFrom,TLV<TUInt8,TUInt16>& tTLV)
 //注册服务 
 TInt32 CGatewayService::RegisterService(TUInt32 uServiceId,TUInt32 uServicBegin,TUInt32 uEnd,TUInt32 uPriority,OctSeq<TUInt16>& tServiceName)
 {
-    return SUCCESS;
+    AddRoute(GetCallerDoid(),uServiceId,uServicBegin,uEnd,uPriority);
+    
+    return SUCCESS;//表示处理了.
 }
 //注销服务
 TInt32 CGatewayService::UnRegisterService(TUInt32 uServiceId,TUInt32 uServicBegin,TUInt32 uEnd)

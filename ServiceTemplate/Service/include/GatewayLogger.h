@@ -28,6 +28,7 @@ enum EnGWLogId
     en_restart_listening,
     en_stop_listening,
     en_listening_not_started,
+    en_no_much_service_id_found,
 };
 
 #endif

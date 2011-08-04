@@ -22,7 +22,10 @@ public:
     {
         m_tServiceRoute.Init(pPool);
     }
+    //×ó¿ªÓÒ±Õ
     TInt32 AddRoute(CDoid *pDoid,TUInt32 uSrvId,TUInt32 uBegin,TUInt32 uEnd,TUInt32 uPriority);
+    //×ó¿ªÓÒ±Õ
+    TInt32 RmvRoute(CDoid *pDoid,TUInt32 uSrvId,TUInt32 uBegin,TUInt32 uEnd);
     TInt32 ChangePriorty(TUInt32 uServiceId,CDoid *pMyDoid,TUInt32 uPriority);
     CDoid *FindService(TUInt32);
     void OnFinal();
