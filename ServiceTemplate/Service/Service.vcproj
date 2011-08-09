@@ -202,10 +202,6 @@
 				RelativePath=".\source\RouteMap.cpp"
 				>
 			</File>
-			<File
-				RelativePath=".\include\RouteMap.h"
-				>
-			</File>
 		</Filter>
 		<Filter
 			Name="include"
@@ -242,6 +238,10 @@
 			</File>
 			<File
 				RelativePath=".\include\Route.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\RouteMap.h"
 				>
 			</File>
 		</Filter>

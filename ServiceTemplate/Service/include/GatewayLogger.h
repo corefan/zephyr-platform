@@ -29,6 +29,9 @@ enum EnGWLogId
     en_stop_listening,
     en_listening_not_started,
     en_no_much_service_id_found,
+    en_system_id_unmatch, //系统ID不对，说明漏消息了
+    en_on_disconnected,
 };
+
 
 #endif

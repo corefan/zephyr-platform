@@ -35,6 +35,21 @@ TInt32 CGatewayService::RegisterService(TUInt32 uServiceId,TUInt32 uServicBegin,
 //注销服务
 TInt32 CGatewayService::UnRegisterService(TUInt32 uServiceId,TUInt32 uServicBegin,TUInt32 uEnd)
 {
+    CDoid *pRegister = GetCallerDoid();
+    TInt32 nRet = m_tServiceRoute.RmvRoute(pRegister,uServiceId,uServicBegin,uEnd);
+    if (nRet < SUCCESS)
+    {
+        char szBufferRegister[64];
+        pRegister->ToStr(szBufferRegister);
+        if (nRet < en_gw_error_begin)
+        {
+            LOG_RUN((-nRet),"UnRegister from:%s , uSrvId:%u,uBegin:%u,uEnd:%u,",szBufferRegister,uServiceId,uServicBegin,uEnd);
+        }
+        else
+        {
+            LOG_CRITICAL((-nRet),"UnRegister from :%s , uSrvId:%u,uBegin:%u,uEnd:%u,",szBufferRegister,uServiceId,uServicBegin,uEnd);
+        }
+    }
     return SUCCESS;
 }
 //发送广播聊天信息
@@ -107,6 +122,18 @@ TInt32 CGatewayService::StopLogin()
 TInt32 CGatewayService::DisconnectedAllClient()
 {
     return SUCCESS;
+}
+
+void CGatewayService::OnDisconnected(CGatewaySession *pSession,IfParser *pParser,IfCryptor *pCryptor,TInt32 uReason)
+{
+    //pParser \ pCryptor都不用释放.
+    LOG_RUN(en_on_disconnected,"OnDisconnected,UserId:%llu,SystemId:%u,Reason%d",pSession->GetUserId(),pSession->GetSystemId(),uReason);
+
+    m_pOrb->UnRegisterObj(pSession->GetSkeleton());
+    CListNode<CGatewaySession> *pListNode = (CListNode<CGatewaySession> *)pSession;
+    m_tUsingSessions.Detach(pListNode);
+    pSession->OnFinal();
+    m_tSessionPool.ReleaseMem(pListNode);
 }
 
     //以下是Service专有的.

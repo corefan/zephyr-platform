@@ -30,12 +30,29 @@ public:
         en_trying_to_disconnected, //尝试断链
     };
 private:
+    TUInt64         m_uUserId;
     CRouteMap       m_tServiceRoute;
     CGatewayService *m_pService;
     TUInt32          m_uLastOprTime;
     EnSessionState   m_enState;
+    TUInt32         m_uIp;
+    TUInt16         m_uPort;
+
+    //这个ID是系统分配的零时ID，用完就会销毁
+    TUInt32         m_uSystemId;
+    IfConnection    *m_pIfConnection;
+    IfParser        *m_pParser;
+    IfCryptor       *m_pCryptor;
+
 public:
-    
+    TUInt64 GetUserId()
+    {
+        return m_uUserId;
+    }
+    TUInt32 GetSystemId()
+    {
+        return m_uSystemId;
+    }
     DECALRE_HANDLE_INTERFCE
 
     CGatewaySession();
@@ -73,8 +90,6 @@ public:
     //使用inline
     IfLogger *GetLogger();
 private:
-    //默认是0权限（最高），先插入的会先使用
-    TInt32 AddRoute(CDoid *pDoid,TUInt32 uSrvId,TUInt32 uBegin,TUInt32 uEnd,TUInt32 uPriority=0);
     void   SendHeartBeat();
     
     

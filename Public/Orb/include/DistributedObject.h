@@ -85,6 +85,11 @@ public:
         //如果不是远程调用，那就是本地调用，调用者就是自己.
         return GetMyDoid(); 
     }
+
+    IfSkeleton *GetSkeleton()
+    {
+        return m_pSkeleton;
+    }
 };
 
 }

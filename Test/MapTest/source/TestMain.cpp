@@ -39,6 +39,9 @@ CMapTest &GetNullRef()
 
 int main()
 {
+   char szBuffer[512];
+   char *p = szBuffer;
+   p = szBuffer+5;
    CTest2 t2;
 //     IfTaskMgr *pTaskMgr = CreateTaskMgr();
 //     pTaskMgr->StartWorking(4);
