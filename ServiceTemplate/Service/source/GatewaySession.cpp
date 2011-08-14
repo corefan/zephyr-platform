@@ -32,8 +32,22 @@ void CGatewaySession::OnConnected(TUInt32 uIp,TUInt16 uPortId)
 
 TInt32 CGatewaySession::OnRecv(TUChar *pMsg, TUInt32 msgLen)
 {
-
-    return SUCCESS;
+    CMessageHeader::UnMsgInfo *pMsgInfo = (CMessageHeader::UnMsgInfo *)pMsg;
+    TUInt32 uMsgId = pMsgInfo->m_methodId;
+    if (pMsgInfo->m_msgBodyLength + sizeof(CMessageHeader::UnMsgInfo) == msgLen) //这个是肯定的
+    {
+        CDoid *pDoid = m_tServiceRoute.FindService(uMsgId);
+        if (pDoid)
+        {
+            CMessageHeader *pMsgHeader = PrepareMsg(pMsgInfo->m_msgBodyLength,uMsgId,pDoid,1,false);
+            if (pMsg)
+            {
+                memcpy(pMsgHeader->GetBody(),(pMsg+sizeof(CMessageHeader::UnMsgInfo)),pMsgInfo->m_msgBodyLength);
+                return SendMsg(pMsgHeader);
+            }
+        }
+    }
+    return msgLen;
 }
     //virtual TInt32 OnRecvIn2Piece(TUChar *pMsg, TUInt32 msgLen,TUChar *pMsg2,TUInt32 msgLen2) = 0;
     //网络层会自动从factory生成parser和crypter,请应用层对这连个东西进行设置

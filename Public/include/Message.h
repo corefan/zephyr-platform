@@ -80,11 +80,10 @@ public:
             //the 5th bits indicated if it is a system call and it should not be reported to the application.
             //1 for net layer,heartbeat, 2 for system calls,like for time synchronization. service heartbeat. service managerment and so on.
             TUInt64    m_systemCall:1;
-
-			//服务8个bit, 接口3,方法 8比特
-			TUInt64    m_methodId:19;
-			//是否是相应.
-            TUInt64    m_reply:1;
+           
+            //1024种Service应该也够了吧
+			//服务10个bit, 接口2,方法8比特 // 一个服务只要4个接口，应该足够了（(Service/Session) * 2(Reply)）,(每个接口256个方法应该也足够了，一个类不应该提供过多方法的)
+			TUInt64    m_methodId:20;
         };
         TUInt64 m_data;
     };
@@ -110,7 +109,7 @@ public:
     //从MessageId
     static TUInt32 GetServiceID(TUInt32 uMethodId)
     {
-        return (uMethodId&0x0007F800);
+        return (uMethodId&0x000FFF00);
     }
 
 	inline TUInt32 GetBodyLength()
