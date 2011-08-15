@@ -276,8 +276,9 @@ CService *InitService(IfOrb* pStubCenter,IfTaskMgr *pIfTaskMgr,IfLoggerManager *
     if (nRet < SUCCESS)
     {
         delete p;
+        p = NULL;
     }
-    return NULL;
+    return p;
 }
 
 TInt32 ReleaseService(CService* pService)

@@ -64,9 +64,27 @@ TInt32 COrb::Init(IfCommunicator *pIfCom,CDoid *pDoidBegin,TInt32 nSkeletonNr)
     m_nLocalVIP = pDoidBegin->m_virtualIp;
     //这个Orb的service从这个开始
     m_nLocalServiceId = pDoidBegin->m_srvId;
+    for (int i=0;i<MAX_SERVICE_NR;++i)
+    {
+        m_ppServiceSkeleton[i] = NULL;
+    }
+    
 
     m_nLocalServiceIdEnd = m_nLocalServiceId + MAX_SERVICE_NR_PER_COMM;
-    return m_tSkeletonPool.InitPool(nSkeletonNr);
+    TInt32 nRet = m_tSkeletonPool.InitPool(nSkeletonNr);
+    if (nRet < SUCCESS)
+    {
+        return nRet;
+    }
+    for (int i=0;i<nSkeletonNr;++i)
+    {
+        CSkeleton *pSkt = m_tSkeletonPool.FindMem(i);
+        CDoid *pDoid = pSkt->GetMyDoid();
+        pDoid->m_nodeId = m_nLocalNodeId;
+        pDoid->m_virtualIp = m_nLocalVIP;
+        pDoid->m_srvId = m_nLocalServiceId;
+        pDoid->m_objId = i;
+    }
 }
 
 void COrb::StopService(TUInt32 nServiceID)

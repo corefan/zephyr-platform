@@ -185,7 +185,12 @@ int main(int argc, char* argv[])
                 if (pSkeleton)
                 {
                     pService->SetSkeleton(pSkeleton);
-                    pService->OnInit();
+                    TInt32 nRet = pService->OnInit();
+                    if (nRet < SUCCESS)
+                    {
+                        printf("Init Service %s Failed!",tRead.m_tCfg.m_pOrbs[i].m_pServices[j].m_pszServiceDllName.c_str());
+                        return nRet;
+                    }
                     printf_s("Init Plugin [%s] Succeed",tRead.m_tCfg.m_pOrbs[i].m_pServices[j].m_pszServiceDllName);
                 }
             }
