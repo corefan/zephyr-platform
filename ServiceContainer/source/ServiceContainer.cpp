@@ -130,7 +130,15 @@ int main(int argc, char* argv[])
             doid.m_srvId = nSrvBegin;
             doid.m_virtualIp = tRead.m_tCfg.m_nLocalIp;
             doid.m_nodeId    = tRead.m_tCfg.m_nLocalNodeId;
-            TInt32 nRet = pOrb[i].Init(pIfComm,&doid,tRead.m_tCfg.m_pOrbs[i].m_nSkeleton);
+            char szBuffer[128];
+            sprintf_s(szBuffer,sizeof(szBuffer),"OrbLogger%d",i);
+            TInt32 nRet = pLogMgr->AddLogger(szBuffer,-1,LOG_WRITE_MODE,LOG_PRINT_SCREEN_MODE);
+            if (nRet < SUCCESS)
+            {
+                return nRet;
+            }
+            IfLogger *pLogger = pLogMgr->GetLogger(nRet);
+            nRet = pOrb[i].Init(pIfComm,&doid,tRead.m_tCfg.m_pOrbs[i].m_nSkeleton,pLogger);
             if (nRet < SUCCESS)
             {
                 printf("Orb[%d] init failed! stub nr:%d",i,tRead.m_tCfg.m_pOrbs[i].m_nSkeleton);

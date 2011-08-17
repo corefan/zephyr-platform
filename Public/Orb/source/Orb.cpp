@@ -5,6 +5,37 @@
 namespace Zephyr
 {
 
+COrb::COrb()
+{
+    m_pIfComm = NULL;
+    //IfObj          *m_pRunObj;
+    m_nRunGapInMs = 0;
+    m_nLastCheckTime = 0;
+    m_nLocalNodeId = 0;
+    m_nLocalVIP = 0;
+    //这个Orb的service从这个开始
+    m_nLocalServiceId = 0;
+
+    m_nLocalServiceIdEnd = 0;
+
+    m_pClock = NULL;
+    for (int i=0;i<MAX_SERVICE_NR;++i)
+    {
+        m_ppServiceSkeleton[i] = NULL;
+    }
+    //需要run的都放这里,40ms跑一次
+    m_nLastRunTime = 0;
+
+    m_pLogger = NULL;
+
+     m_nService2Stop = 0xFFFFFFFF;
+}
+
+COrb::~COrb()
+{
+    //其实没啥必要了
+}
+
 IfSkeleton* COrb::RegisterObj(IfObj *pObjSkeleton,TInt16 nSrvId)
 {
     if ((nSrvId >= m_nLocalServiceId) && (nSrvId < (m_nLocalServiceIdEnd)))
@@ -34,6 +65,7 @@ IfSkeleton* COrb::RegiterService(IfObj *pObj,TInt16 nSrvId)
         {
             pRtn->m_pListBelongsTo = NULL;
             pRtn->m_tDoid.m_srvId = nSrvId;
+            pRtn->m_pIfComm = m_pIfComm;
             m_ppServiceSkeleton[nSrvId-m_nLocalServiceId] = pRtn;
         }
         return pRtn;
@@ -49,7 +81,7 @@ void    COrb::UnRegisterObj(IfSkeleton *pIfSkel)
     m_tSkeletonPool.ReleaseMem(pSk);
 }
 
-TInt32 COrb::Init(IfCommunicator *pIfCom,CDoid *pDoidBegin,TInt32 nSkeletonNr)
+TInt32 COrb::Init(IfCommunicator *pIfCom,CDoid *pDoidBegin,TInt32 nSkeletonNr,IfLogger *pLogger)
 {
     m_pClock = pIfCom->GetClock();
     if (!m_pClock)
@@ -64,11 +96,7 @@ TInt32 COrb::Init(IfCommunicator *pIfCom,CDoid *pDoidBegin,TInt32 nSkeletonNr)
     m_nLocalVIP = pDoidBegin->m_virtualIp;
     //这个Orb的service从这个开始
     m_nLocalServiceId = pDoidBegin->m_srvId;
-    for (int i=0;i<MAX_SERVICE_NR;++i)
-    {
-        m_ppServiceSkeleton[i] = NULL;
-    }
-    
+    m_pLogger = pLogger;
 
     m_nLocalServiceIdEnd = m_nLocalServiceId + MAX_SERVICE_NR_PER_COMM;
     TInt32 nRet = m_tSkeletonPool.InitPool(nSkeletonNr);

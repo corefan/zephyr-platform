@@ -181,6 +181,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\include\OrbErrorCode.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\OrbLogger.h"
+				>
+			</File>
+			<File
 				RelativePath=".\include\Service.h"
 				>
 			</File>

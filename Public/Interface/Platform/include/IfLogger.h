@@ -15,8 +15,18 @@ enum EnLogLvl
     log_debug        = (1<<3),          //debug日志，在release版中不存在.
     log_release_mode = (log_critical|log_run),
     log_test_mode    = (log_critical|log_run|log_test),
-    log_debug_mode   = (log_critical|log_run|log_debug),
+    log_debug_mode   = (log_critical|log_run|log_test|log_debug),
 };
+
+#ifdef  _DEBUG
+#define LOG_WRITE_MODE log_debug_mode 
+#define LOG_PRINT_SCREEN_MODE log_test 
+#else
+#define LOG_WRITE_MODE log_release_mode
+#define LOG_PRINT_SCREEN_MODE log_critical
+#endif
+
+
 
 class IfLogger
 {
@@ -31,6 +41,20 @@ public:
     //直接写比特流，不要随便用.
     virtual void WriteBinLog(const TChar *pBin,TUInt32 uLength) = 0;
 };
+
+//这里的Format不能是char*指针，必须是字符串"",就能自动带入File和Line
+#define LOG_DEBUG(LogId,Format,...)	GetLogger()->WriteLog(LogId,log_debug,"[File:%s,Line:%u]"##Format,__FILE__,__LINE__,__VA_ARGS__)
+
+//这里的Format不能是char*指针，必须是字符串"",就能自动带入File和Line
+#define LOG_CRITICAL(LogId,Format,...)	GetLogger()->WriteLog(LogId,log_critical,"[File:%s,Line:%u]"##Format,__FILE__,__LINE__,__VA_ARGS__)
+
+//每一个运行日志都必须有自己的日志号，这样，可以根据日志号，直接找到错误点.
+#define LOG_RUN(LogId,Format,...)	GetLogger()->WriteLog(LogId,log_run,Format,__VA_ARGS__)
+
+//这里的Format不能是char*指针，必须是字符串"",就能自动带入File和Line
+#define LOG_TEST(LogId,Format,...)	GetLogger()->WriteLog(LogId,log_test,"[File:%s,Line:%u]"##Format,__FILE__,__LINE__,__VA_ARGS__)
+
+
 
 
 }

@@ -18,7 +18,7 @@
 #include "../../Interface/Platform/include/IfTask.h"
 #include "../../Interface/Platform/include/IfCommunicator.h"
 #include "../../tpl/include/TplPool.h"
-
+#include "../../Interface/Platform/include/IfLogger.h"
 #include "Skeleton.h"
 
 #define MAX_SERVICE_NR 64
@@ -48,11 +48,17 @@ private:
     //需要run的都放这里,40ms跑一次
     TUInt32         m_nLastRunTime;
     CList<CArrayPoolNode<CSkeleton> > m_tRunning;
+
+    IfLogger        *m_pLogger;
+
+
              
     volatile TUInt32    m_nService2Stop;
 public:
+    COrb();
+    ~COrb();
     void StopService(TUInt32 nServiceID);
-    TInt32 Init(IfCommunicator *pIfCom,CDoid *pDoidBegin,TInt32 nSkeletonNr);
+    TInt32 Init(IfCommunicator *pIfCom,CDoid *pDoidBegin,TInt32 nSkeletonNr,IfLogger *pLogger);
     
     //注册特定的Srv
     virtual IfSkeleton* RegisterObj(IfObj *pObjSkeleton,TInt16 nSrvId);

@@ -2,18 +2,6 @@
 #define __ZEPHYR_GATEWAY_LOGGER_H__
 
 #include "Public/Interface/Platform/include/IfLogger.h"
-//这里的Format不能是char*指针，必须是字符串"",就能自动带入File和Line
-#define LOG_DEBUG(LogId,Format,...)	GetLogger()->WriteLog(LogId,log_debug,"[File:%s,Line:%u]"##Format,__FILE__,__LINE__,__VA_ARGS__)
-
-//这里的Format不能是char*指针，必须是字符串"",就能自动带入File和Line
-#define LOG_CRITICAL(LogId,Format,...)	GetLogger()->WriteLog(LogId,log_critical,"[File:%s,Line:%u]"##Format,__FILE__,__LINE__,__VA_ARGS__)
-
-//每一个运行日志都必须有自己的日志号，这样，可以根据日志号，直接找到错误点.
-#define LOG_RUN(LogId,Format,...)	GetLogger()->WriteLog(LogId,log_run,Format,__VA_ARGS__)
-
-//这里的Format不能是char*指针，必须是字符串"",就能自动带入File和Line
-#define LOG_TEST(LogId,Format,...)	GetLogger()->WriteLog(LogId,log_test,"[File:%s,Line:%u]"##Format,__FILE__,__LINE__,__VA_ARGS__)
-
 
 enum EnGWLogId
 {

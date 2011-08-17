@@ -24,7 +24,7 @@ CGatewayBasicConfig::CGatewayBasicConfig()
 TInt32  CGatewayBasicConfig::ReadFile(TUInt16 uVIp,TUInt16 uServiceId)
 {
     char szFileName[64];
-    sprintf_s(szFileName,sizeof(szFileName),"GatewayConfig%d_%d.ini",uVIp,uServiceId);
+    sprintf_s(szFileName,sizeof(szFileName),"%d/GatewayConfig%d.ini",uVIp,uServiceId);
     CSettingFile tFile;
     if (tFile.LoadFromFile(szFileName))
     {

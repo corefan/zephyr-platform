@@ -17,6 +17,8 @@
 #include "../../Interface/Platform/include/IfSkeleton.h"
 #include "../../Interface/App/include/IfObj.h"
 #include "../../Interface/Platform/include/IfCommunicator.h"
+#include "OrbErrorCode.h"
+
 namespace Zephyr
 {
 
@@ -51,11 +53,19 @@ public:
 
     TBOOL   IsMyMsg(CDoid *pDoid)
     {
-        return (pDoid->m_objId == m_tDoid.m_objId);
+        if (m_pRegisteredObj)
+        {
+            return (pDoid->m_objId == m_tDoid.m_objId);
+        }
+        return FALSE;
     }
     TInt32  OnRecv(CMessageHeader *pMsg)
     {
-        return m_pRegisteredObj->OnRecv(pMsg);
+        if (m_pRegisteredObj)
+        {
+            return m_pRegisteredObj->OnRecv(pMsg);
+        }
+        return OBJ_NOT_REISTERED;
     }
 };
 

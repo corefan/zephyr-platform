@@ -15,18 +15,35 @@ void CSkeleton::OnReused(TUInt16 uStep)
 
 CDoid *CSkeleton::GetMyDoid()
 {
-    return &m_tDoid;
+#ifdef _DEBUG
+    if (m_pRegisteredObj)
+    {
+#endif
+        return &m_tDoid;
+#ifdef _DEBUG
+    }
+    return NULL;
+#endif
 }
     //获得后自己初始化
 CMessageHeader *CSkeleton::PrepareMsg(TInt32 bodyLength,TUInt32 methodId,CDoid* destDoid,TInt32 destDoidNum,bool bRearrangeDest) 
 {
-   return m_pIfComm->PrepareMsg(bodyLength,methodId,m_tDoid,destDoid,destDoidNum,bRearrangeDest);
+    if (m_pRegisteredObj)
+    {
+        return m_pIfComm->PrepareMsg(bodyLength,methodId,m_tDoid,destDoid,destDoidNum,bRearrangeDest);
+    }
+    //没有注册不能使用！
+    return NULL;
 }
 
     //发送消息
 TInt32 CSkeleton::SendMsg(CMessageHeader *pMsg)
 {
-    return m_pIfComm->SendMsg(pMsg);
+    if (m_pRegisteredObj)
+    {
+        return m_pIfComm->SendMsg(pMsg);
+    }
+    return OBJ_NOT_REISTERED;
 }
 
 
