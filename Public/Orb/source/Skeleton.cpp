@@ -47,10 +47,11 @@ TInt32 CSkeleton::SendMsg(CMessageHeader *pMsg)
 }
 
 
-TInt32 CSkeleton::Init(IfCommunicator *pIfComm)
+TInt32 CSkeleton::Init(IfCommunicator *pIfComm,CDoid *pDoid)
 {
     m_pRegisteredObj = NULL;
     m_pIfComm = pIfComm;
+    m_tDoid = *pDoid;
     return SUCCESS;
 }
 

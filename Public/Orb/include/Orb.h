@@ -84,6 +84,11 @@ public:
     {
         return SUCCESS;
     }
+public:
+    IfLogger *GetLogger()
+    {
+        return m_pLogger;
+    }
 };
 
 }

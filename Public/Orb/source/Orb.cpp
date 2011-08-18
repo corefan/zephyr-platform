@@ -2,6 +2,7 @@
 #include "../../include/SysMacros.h"
 #include <iostream>
 #include "../../../System/include/SysInc.h"
+#include "../include/OrbLogger.h"
 namespace Zephyr
 {
 
@@ -46,7 +47,7 @@ IfSkeleton* COrb::RegisterObj(IfObj *pObjSkeleton,TInt16 nSrvId)
             pRtn->m_pListBelongsTo = NULL;
             pRtn->m_tDoid.m_srvId = nSrvId;
         }
-        
+        LOG_DEBUG(en_obj_registered,"Obj [%d,%d]",(TUInt32)nSrvId,(TUInt32)pRtn->m_tDoid.m_objId);
         return pRtn;
     }
     return NULL;
@@ -64,10 +65,12 @@ IfSkeleton* COrb::RegiterService(IfObj *pObj,TInt16 nSrvId)
         if (pRtn)
         {
             pRtn->m_pListBelongsTo = NULL;
-            pRtn->m_tDoid.m_srvId = nSrvId;
-            pRtn->m_pIfComm = m_pIfComm;
+            pRtn->OnInit();
+            pRtn->RegisterObj(pObj,nSrvId);
+            
             m_ppServiceSkeleton[nSrvId-m_nLocalServiceId] = pRtn;
         }
+        LOG_RUN(en_service_registered,"Service %d Registered!",(TUInt32)nSrvId);
         return pRtn;
     }
     return NULL;
@@ -77,6 +80,12 @@ IfSkeleton* COrb::RegiterService(IfObj *pObj,TInt16 nSrvId)
 void    COrb::UnRegisterObj(IfSkeleton *pIfSkel)
 {
     CListNode<CArrayPoolNode<CSkeleton> > *pSk = (CListNode<CArrayPoolNode<CSkeleton> >*)pIfSkel;
+    pSk->OnFinal();
+    if (pSk->m_pListBelongsTo)
+    {
+        pSk->m_pListBelongsTo->Detach(pSk);
+        pSk->m_pListBelongsTo = NULL;
+    }
     pSk->OnReused(m_tSkeletonPool.GetMaxSize());
     m_tSkeletonPool.ReleaseMem(pSk);
 }
@@ -104,15 +113,16 @@ TInt32 COrb::Init(IfCommunicator *pIfCom,CDoid *pDoidBegin,TInt32 nSkeletonNr,If
     {
         return nRet;
     }
+    CDoid tDoid = *pDoidBegin;
+    tDoid.m_objId = 0;
     for (int i=0;i<nSkeletonNr;++i)
     {
         CSkeleton *pSkt = m_tSkeletonPool.FindMem(i);
-        CDoid *pDoid = pSkt->GetMyDoid();
-        pDoid->m_nodeId = m_nLocalNodeId;
-        pDoid->m_virtualIp = m_nLocalVIP;
-        pDoid->m_srvId = m_nLocalServiceId;
-        pDoid->m_objId = i;
+        tDoid.m_objId = i;
+        pSkt->Init(pIfCom,&tDoid);
     }
+    LOG_RUN(en_orb_inited,"Orb initialized.localService Id:%u, skeleton Nr:%d,",(TUInt32)m_nLocalServiceId,nSkeletonNr);
+    return SUCCESS;
 }
 
 void COrb::StopService(TUInt32 nServiceID)
@@ -124,6 +134,7 @@ void COrb::StopService(TUInt32 nServiceID)
         {
             SleepT(15); //不停的尝试.
         }
+        LOG_RUN(en_stop_service,"Service %d Stoped!",nServiceID);
     }
 }
 
@@ -138,6 +149,15 @@ TInt32 COrb::RegisterRun(IfSkeleton *pIfSkeleton,TUInt32 nGapInMs)
     }
     m_tRunning.push_back(pSk);
     pSk->m_pListBelongsTo = &m_tRunning;
+    CDoid *pDoid = pSk->GetMyDoid();
+#ifdef _DEBUG
+    if (pDoid)
+    {
+#endif
+        LOG_DEBUG(en_obj_registered_run,"Obj [%d,%d] registered run.",(TUInt32)pDoid->m_srvId,(TUInt32)pDoid->m_objId);
+#ifdef _DEBUG
+    }
+#endif
     return SUCCESS;
 }
     //时间相关

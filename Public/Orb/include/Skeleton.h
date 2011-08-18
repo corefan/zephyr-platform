@@ -38,6 +38,11 @@ public:
     {
 
     }
+    void RegisterObj(IfObj *pObj,TUInt16 uSrv)
+    {
+        m_pRegisteredObj = pObj;
+        m_tDoid.m_srvId = uSrv;
+    }
     void   OnReused(TUInt16 uStep);
     CDoid *GetMyDoid();
     //获得后自己初始化
@@ -45,11 +50,18 @@ public:
     //发送消息
     virtual TInt32  SendMsg(CMessageHeader *pMsg);
 
-    TInt32    Init(IfCommunicator *pIfComm);
+    TInt32    Init(IfCommunicator *pIfComm,CDoid *pDoid);
     
-    TInt32    OnInit(); 
+    TInt32    OnInit()
+    {
+        m_pRegisteredObj = NULL;
+        return SUCCESS;
+    }
 
-    void      OnFinal();
+    void      OnFinal()
+    {
+        m_pRegisteredObj = NULL;
+    }
 
     TBOOL   IsMyMsg(CDoid *pDoid)
     {

@@ -31,20 +31,10 @@ public:
 
 };
 
-CMapTest &GetNullRef()
-{
-    CMapTest *pNullRef = NULL;
-    return *pNullRef;
-}
 
 int main()
 {
-   char szBuffer[512];
-   char *p = szBuffer;
-   p = szBuffer+5;
-   CTest2 t2;
-   float fT = 242.242;
-   int nT = fT;
+
 //     IfTaskMgr *pTaskMgr = CreateTaskMgr();
 //     pTaskMgr->StartWorking(4);
 //     CExceptionParser parser;

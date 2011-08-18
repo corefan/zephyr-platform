@@ -141,13 +141,13 @@ int main(int argc, char* argv[])
             nRet = pOrb[i].Init(pIfComm,&doid,tRead.m_tCfg.m_pOrbs[i].m_nSkeleton,pLogger);
             if (nRet < SUCCESS)
             {
-                printf("Orb[%d] init failed! stub nr:%d",i,tRead.m_tCfg.m_pOrbs[i].m_nSkeleton);
+                printf("Orb[%d] init failed! stub nr:%d\n\r",i,tRead.m_tCfg.m_pOrbs[i].m_nSkeleton);
                 return nRet;
             }
         }
         else
         {
-            printf("Get IfComm[%d] failed!",i);
+            printf("Get IfComm[%d] failed!\n\r",i);
             return NULL_POINTER;
         }
     }
@@ -167,7 +167,7 @@ int main(int argc, char* argv[])
                 tRead.m_tCfg.m_pOrbs[i].m_pServices[j].m_pReleaseFun=(SERVICE_RELEASE_FUN)GetDynamicLibFunction(tRead.m_tCfg.m_pOrbs[i].m_pServices[j].m_pPluginModuleHandle,SERVICE_RELEASE_FUN_NAME);
                 if ((tRead.m_tCfg.m_pOrbs[i].m_pServices[j].m_pInitFun)&&(tRead.m_tCfg.m_pOrbs[i].m_pServices[j].m_pReleaseFun))
                 {
-                    printf("Plugin [%s] InitFun=%p ReleaseFun=%p",
+                    printf("Plugin [%s] InitFun=%p ReleaseFun=%p\n\r",
                         tRead.m_tCfg.m_pOrbs[i].m_pServices->m_pszServiceDllName,
                         tRead.m_tCfg.m_pOrbs[i].m_pServices->m_pInitFun,
                         tRead.m_tCfg.m_pOrbs[i].m_pServices->m_pReleaseFun);
@@ -176,7 +176,7 @@ int main(int argc, char* argv[])
             }
             if (!bSuccessfull)
             {
-                printf("Load DLL:%s failed!",tRead.m_tCfg.m_pOrbs[i].m_pServices->m_pszServiceDllName);
+                printf("Load DLL:%s failed!\n\r",tRead.m_tCfg.m_pOrbs[i].m_pServices->m_pszServiceDllName);
             }
         }
     }
@@ -196,10 +196,10 @@ int main(int argc, char* argv[])
                     TInt32 nRet = pService->OnInit();
                     if (nRet < SUCCESS)
                     {
-                        printf("Init Service %s Failed!",tRead.m_tCfg.m_pOrbs[i].m_pServices[j].m_pszServiceDllName.c_str());
+                        printf("Init Service %s Failed!\n\r",tRead.m_tCfg.m_pOrbs[i].m_pServices[j].m_pszServiceDllName.c_str());
                         return nRet;
                     }
-                    printf_s("Init Plugin [%s] Succeed",tRead.m_tCfg.m_pOrbs[i].m_pServices[j].m_pszServiceDllName);
+                    printf_s("Init Plugin [%s] Succeed\n\r",tRead.m_tCfg.m_pOrbs[i].m_pServices[j].m_pszServiceDllName);
                 }
             }
             else
