@@ -58,7 +58,7 @@ public:
         pFile=fopen(FileName,"rb");
         if(NULL == pFile)
         {
-            fprintf(stderr, "Open logfile failed:%s ", strerror(errno));
+            fprintf(stderr, "Open setting file:%s failed:%s \n\r",FileName, strerror(errno));
         }
 
 
@@ -101,7 +101,7 @@ public:
 		pFile=fopen(FileName,"rb");
         if(NULL == pFile)
         {
-            fprintf(stderr, "Open logfile failed:%s ", strerror(errno));
+            fprintf(stderr, "Open setting file:%s failed:%s \n\r",FileName, strerror(errno));
         }
 
 

@@ -163,6 +163,7 @@ TInt32 CGatewayService::OnInit()
     }
     m_pLogger = m_pLoggerManager->GetLogger(nRet);
     m_pIfComm = m_pOrb->GetCommunicator();
+    m_pOrb->RegisterRun(m_pSkeleton,500);
     return SUCCESS;
 }
     //结束是回调.

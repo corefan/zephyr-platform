@@ -170,6 +170,18 @@ const CClock *COrb::GetClock()
 TInt32 COrb::Run(const TInt32 threadId,const TInt32 runCnt)
 {
     int nUsedCnt = 0;
+    TInt32 nGap = m_pClock->GetTimeGap(m_nLastCheckTime);
+    if (nGap >= 40)
+    {
+        m_nLastCheckTime = m_pClock->GetLocalTime();
+        CListNode<CArrayPoolNode<CSkeleton> >  *pHeader = m_tRunning.header();
+        CListNode<CArrayPoolNode<CSkeleton> >  *pRear = m_tRunning.header();
+        while (pHeader)
+        {
+            nUsedCnt += pHeader->OnRoutine(runCnt);
+            pHeader = pHeader->GetNext();
+        }
+    }
     CMessageHeader *pMsg = m_pIfComm->GetMsg();
     while (pMsg)
     {
@@ -205,8 +217,21 @@ TInt32 COrb::Run(const TInt32 threadId,const TInt32 runCnt)
             pMsg = m_pIfComm->GetMsg();
         }
     }
-
-    return SUCCESS;
+    CConnectionEvent tEvent;
+    TInt32 nRet = m_pIfComm->GetNetEvent(tEvent);
+    while (SUCCESS <= nRet) //net Event 必须全处理了
+    {
+        for (TInt32 n=0;n<MAX_SERVICE_NR;++n)
+        {
+            if (m_ppServiceSkeleton[n])
+            {
+                m_ppServiceSkeleton[n]->OnNetEvent(&tEvent);
+            }
+        }
+        nRet = m_pIfComm->GetNetEvent(tEvent);
+        ++nUsedCnt;
+    }
+    return nUsedCnt;
 }
 
 IfCommunicator *COrb::GetCommunicator()

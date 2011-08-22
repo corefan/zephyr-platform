@@ -168,7 +168,7 @@ int main(int argc, char* argv[])
                 if ((tRead.m_tCfg.m_pOrbs[i].m_pServices[j].m_pInitFun)&&(tRead.m_tCfg.m_pOrbs[i].m_pServices[j].m_pReleaseFun))
                 {
                     printf("Plugin [%s] InitFun=%p ReleaseFun=%p\n\r",
-                        tRead.m_tCfg.m_pOrbs[i].m_pServices->m_pszServiceDllName,
+                        tRead.m_tCfg.m_pOrbs[i].m_pServices->m_pszServiceDllName.c_str(),
                         tRead.m_tCfg.m_pOrbs[i].m_pServices->m_pInitFun,
                         tRead.m_tCfg.m_pOrbs[i].m_pServices->m_pReleaseFun);
                     bSuccessfull = true;
@@ -199,7 +199,7 @@ int main(int argc, char* argv[])
                         printf("Init Service %s Failed!\n\r",tRead.m_tCfg.m_pOrbs[i].m_pServices[j].m_pszServiceDllName.c_str());
                         return nRet;
                     }
-                    printf_s("Init Plugin [%s] Succeed\n\r",tRead.m_tCfg.m_pOrbs[i].m_pServices[j].m_pszServiceDllName);
+                    printf_s("Init Plugin [%s] Succeed\n\r",tRead.m_tCfg.m_pOrbs[i].m_pServices[j].m_pszServiceDllName.c_str());
                 }
             }
             else

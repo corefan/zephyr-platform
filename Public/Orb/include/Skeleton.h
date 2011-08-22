@@ -79,6 +79,21 @@ public:
         }
         return OBJ_NOT_REISTERED;
     }
+    void OnNetEvent(CConnectionEvent *pEvent)
+    {
+        if (m_pRegisteredObj)
+        {
+            m_pRegisteredObj->OnNetEvent(pEvent);
+        }
+    }
+    TInt32 OnRoutine(TUInt32 uRunCnt)
+    {
+        if (m_pRegisteredObj)
+        {
+            return m_pRegisteredObj->OnRoutine(uRunCnt);
+        }
+        return 0;
+    }
 };
 
 
