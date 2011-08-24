@@ -667,7 +667,7 @@ TInt32 CInterfaceElement::GenerateSkeletonHeaderFile(const char *pPath)
             if (raw_method_type == pBase->m_nElmentType)
             {
                 CMethod *pMethod = dynamic_cast<CMethod*>(pBase);
-                n = sprintf_s(pBuff+nUsed,nLength,"    %s ",pMethod->GetFullRetType()->m_szRawTxt.c_str());
+                n = sprintf_s(pBuff+nUsed,nLength,"    TInt32 ");
                 nUsed += n;
                 nLength -= n;
                 

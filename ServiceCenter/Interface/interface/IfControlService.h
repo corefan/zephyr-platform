@@ -11,7 +11,7 @@ class IfControlService
 public:
     virtual TInt32 StartService(TUInt32 uServiceId,TLV<TUInt32,TUInt32> tConfigs) = 0;
 
-    virtual TUInt32 Command(TUInt32 uServiceId,TLV<TUInt32,TUInt32> tCommands) = 0;
+    virtual TInt32 Command(TUInt32 uServiceId,TLV<TUInt32,TUInt32> tCommands) = 0;
 
     virtual TInt32 StopService(TUInt32 uServiceId,TLV<TUInt32,TUInt32> tDatas) = 0;
 };

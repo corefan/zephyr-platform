@@ -18,9 +18,9 @@ public:
      {
          return ((IFCONTROLSERVICE_INTERFACE_ID)&(pMsg->GetMethodId()));
      }
-    TInt32 HandleStartService_TUInt32_TLV_tpl_begin_TUInt32_and_TUInt32_tpl_end_(CMessageHeader *pMsg);;
-    TUInt32 HandleCommand_TUInt32_TLV_tpl_begin_TUInt32_and_TUInt32_tpl_end_(CMessageHeader *pMsg);;
-    TInt32 HandleStopService_TUInt32_TLV_tpl_begin_TUInt32_and_TUInt32_tpl_end_(CMessageHeader *pMsg);;
+    TInt32 HandleStartService_TUInt32_TLV_tpl_begin_TUInt32_and_TUInt32_tpl_end_(CMessageHeader *pMsg);
+    TInt32 HandleCommand_TUInt32_TLV_tpl_begin_TUInt32_and_TUInt32_tpl_end_(CMessageHeader *pMsg);
+    TInt32 HandleStopService_TUInt32_TLV_tpl_begin_TUInt32_and_TUInt32_tpl_end_(CMessageHeader *pMsg);
 };
 }
 #endif

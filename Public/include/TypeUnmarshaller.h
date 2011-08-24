@@ -76,6 +76,9 @@ namespace Zephyr
  
       TInt32 Unmarshall(TUChar *pBuffer,TInt32 uBuffLen,TBOOL& bBool);
 #endif
+
+TInt32 Unmarshall(TUChar *pBuffer,TInt32 uBuffLen,TChar *&psz);
+
     template<class TYPE>
     TInt32 Unmarshall(TUChar *pBuffer,TInt32 uBuffLen,OctSeq<TYPE> &tOctSeq)
     {

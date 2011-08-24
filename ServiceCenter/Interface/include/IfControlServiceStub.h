@@ -16,9 +16,9 @@ public:
         m_pOnwerObj = pSkeleton;
         m_tTarget = *pDoid;
     }
-    TInt32 StartService(TUInt32 uServiceId,TLV<TUInt32,TUInt32> tConfigs);
-    TUInt32 Command(TUInt32 uServiceId,TLV<TUInt32,TUInt32> tCommands);
-    TInt32 StopService(TUInt32 uServiceId,TLV<TUInt32,TUInt32> tDatas);
+    virtual TInt32 StartService(TUInt32 uServiceId,TLV<TUInt32,TUInt32> tConfigs);
+    virtual TInt32 Command(TUInt32 uServiceId,TLV<TUInt32,TUInt32> tCommands);
+    virtual TInt32 StopService(TUInt32 uServiceId,TLV<TUInt32,TUInt32> tDatas);
 };
 }
 #endif

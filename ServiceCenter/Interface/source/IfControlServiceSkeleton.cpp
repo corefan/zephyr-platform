@@ -9,9 +9,9 @@ TInt32 IfControlServiceSkeleton::HandleMsg(CMessageHeader *pMsg)
     struct _MSGMAP_ENTRY { TUInt32 m_uMsgID; _PFMSG m_pHandlerFunc; };
     static _MSGMAP_ENTRY sMsgMapEntries[] = 
     {
-        {(CONTROLSERVICE_SERVICE_ID|IFCONTROLSERVICE_INTERFACE_ID|STARTSERVICE_TUINT32_TLV_TPL_BEGIN_TUINT32_AND_TUINT32_TPL_END__ID), &IfControlServiceSkeleton::HandleStartService_TUInt32_TLV_tpl_begin_TUInt32_and_TUInt32_tpl_end_},
-        {(CONTROLSERVICE_SERVICE_ID|IFCONTROLSERVICE_INTERFACE_ID|COMMAND_TUINT32_TLV_TPL_BEGIN_TUINT32_AND_TUINT32_TPL_END__ID), &IfControlServiceSkeleton::HandleCommand_TUInt32_TLV_tpl_begin_TUInt32_and_TUInt32_tpl_end_},
-        {(CONTROLSERVICE_SERVICE_ID|IFCONTROLSERVICE_INTERFACE_ID|STOPSERVICE_TUINT32_TLV_TPL_BEGIN_TUINT32_AND_TUINT32_TPL_END__ID), &IfControlServiceSkeleton::HandleStopService_TUInt32_TLV_tpl_begin_TUInt32_and_TUInt32_tpl_end_},
+        {(SERVICE_CENTER_SERVICE_ID|IFCONTROLSERVICE_INTERFACE_ID|STARTSERVICE_TUINT32_TLV_TPL_BEGIN_TUINT32_AND_TUINT32_TPL_END__ID), &IfControlServiceSkeleton::HandleStartService_TUInt32_TLV_tpl_begin_TUInt32_and_TUInt32_tpl_end_},
+        {(SERVICE_CENTER_SERVICE_ID|IFCONTROLSERVICE_INTERFACE_ID|COMMAND_TUINT32_TLV_TPL_BEGIN_TUINT32_AND_TUINT32_TPL_END__ID), &IfControlServiceSkeleton::HandleCommand_TUInt32_TLV_tpl_begin_TUInt32_and_TUInt32_tpl_end_},
+        {(SERVICE_CENTER_SERVICE_ID|IFCONTROLSERVICE_INTERFACE_ID|STOPSERVICE_TUINT32_TLV_TPL_BEGIN_TUINT32_AND_TUINT32_TPL_END__ID), &IfControlServiceSkeleton::HandleStopService_TUInt32_TLV_tpl_begin_TUInt32_and_TUInt32_tpl_end_},
     };
     TInt32 nBegin = 0;
     TInt32 nEnd = 3;
@@ -86,7 +86,7 @@ TInt32 IfControlServiceSkeleton::HandleStartService_TUInt32_TLV_tpl_begin_TUInt3
     m_pImplementObj->StartService(uServiceId,tConfigs);
     return SUCCESS;
 }
-TUInt32 IfControlServiceSkeleton::HandleCommand_TUInt32_TLV_tpl_begin_TUInt32_and_TUInt32_tpl_end_(CMessageHeader *pMsg)
+TInt32 IfControlServiceSkeleton::HandleCommand_TUInt32_TLV_tpl_begin_TUInt32_and_TUInt32_tpl_end_(CMessageHeader *pMsg)
 {
     TInt32 nLen = pMsg->GetBodyLength();
     TUChar *pBuffer =pMsg->GetBody();

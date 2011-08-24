@@ -115,7 +115,7 @@ const char *CMethod::GetHierachyName()
 
 TInt32 CMethod::GetFullMethodTxt(char *pszBuff,int nLength)
 {
-    int nRet = sprintf_s(pszBuff,nLength,"%s %s(",m_pFullRetType->m_szRawTxt.c_str(),m_szName.c_str());
+    int nRet = sprintf_s(pszBuff,nLength,"virtual %s %s(",m_pFullRetType->m_szRawTxt.c_str(),m_szName.c_str());
     int nUsed = nRet;
     nLength -= nRet;
     for (int i=0;i<m_tChilds.size();++i)
@@ -150,7 +150,7 @@ TInt32 CMethod::GetFullMethodTxt(char *pszBuff,int nLength)
 
 TInt32 CMethod::GetFullSkeletonMethodTxt(char *pszBuff,int nLength)
 {
-    return sprintf_s(pszBuff,nLength,"Handle%s(CMessageHeader *pMsg);",m_szFullName.c_str());
+    return sprintf_s(pszBuff,nLength,"Handle%s(CMessageHeader *pMsg)",m_szFullName.c_str());
 }
 
 

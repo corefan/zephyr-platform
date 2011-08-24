@@ -40,6 +40,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
+				AdditionalIncludeDirectories="$(SolutionDir)"
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -102,6 +103,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalIncludeDirectories="$(SolutionDir)"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
@@ -146,16 +148,64 @@
 			Filter="cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx"
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
+			<File
+				RelativePath=".\source\IfControlServiceSkeleton.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\source\IfControlServiceStub.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\source\IfServiceCenterSkeleton.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\source\IfServiceCenterStub.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="include"
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
+			<File
+				RelativePath=".\include\IfControlServiceMethodId.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\IfControlServiceSkeleton.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\IfControlServiceStub.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\IfServiceCenterMethodId.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\IfServiceCenterSkeleton.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\IfServiceCenterStub.h"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="interface"
 			>
+			<File
+				RelativePath=".\interface\IfControlService.h"
+				>
+			</File>
+			<File
+				RelativePath=".\interface\IfServiceCenter.h"
+				>
+			</File>
 		</Filter>
 		<File
 			RelativePath=".\ReadMe.txt"

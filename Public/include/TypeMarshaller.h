@@ -100,6 +100,9 @@ namespace Zephyr
 // 
 // TInt32 GetLength(TBOOL c);
 #endif
+
+TInt32 Marshall(TUChar *pBuffer,TInt32 uBuffLen,const TChar *psz);
+
 template<class TYPE>
 TInt32 Marshall(TUChar *pBuffer,TInt32 uBuffLen,OctSeq<TYPE> &tOctSeq)
 {
