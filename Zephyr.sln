@@ -112,6 +112,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ServiceCenter", "ServiceCen
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Interface", "serviceCenter\Interface\Interface.vcproj", "{41E2CB3E-A60F-477E-8D80-BEAB954B0296}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Service", "ServiceCenter\Service\Service.vcproj", "{9AAE520F-BDA4-48A8-B3A6-E04FB76CDF89}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -210,6 +212,10 @@ Global
 		{41E2CB3E-A60F-477E-8D80-BEAB954B0296}.Debug|Win32.Build.0 = Debug|Win32
 		{41E2CB3E-A60F-477E-8D80-BEAB954B0296}.Release|Win32.ActiveCfg = Release|Win32
 		{41E2CB3E-A60F-477E-8D80-BEAB954B0296}.Release|Win32.Build.0 = Release|Win32
+		{9AAE520F-BDA4-48A8-B3A6-E04FB76CDF89}.Debug|Win32.ActiveCfg = Debug|Win32
+		{9AAE520F-BDA4-48A8-B3A6-E04FB76CDF89}.Debug|Win32.Build.0 = Debug|Win32
+		{9AAE520F-BDA4-48A8-B3A6-E04FB76CDF89}.Release|Win32.ActiveCfg = Release|Win32
+		{9AAE520F-BDA4-48A8-B3A6-E04FB76CDF89}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -239,5 +245,6 @@ Global
 		{BA24FB41-F29E-4B06-88C4-CC15A012F22F} = {B3DB8D16-8B9C-4EA3-91F7-457F262E5E2A}
 		{891AB460-395A-4105-AA33-DCA74BD0F39D} = {B3DB8D16-8B9C-4EA3-91F7-457F262E5E2A}
 		{41E2CB3E-A60F-477E-8D80-BEAB954B0296} = {842BAAAD-6DA7-4792-8371-E408B3381BC0}
+		{9AAE520F-BDA4-48A8-B3A6-E04FB76CDF89} = {842BAAAD-6DA7-4792-8371-E408B3381BC0}
 	EndGlobalSection
 EndGlobal

@@ -12,6 +12,7 @@ public:
     virtual TInt32 OnSerivceStarted(TUInt32 nServiceId,const TChar* pszName,CDoid tDoid) = 0;
     virtual TInt32 OnServiceStoped(TUInt32 nServiceId,CDoid tDoid) = 0;
     virtual TInt32 ServiceStatic(TUInt32 uServiceId,CDoid tDoid,TLV<TUInt16,TUInt16> tDatas) = 0;
+    virtual TInt32 HeartBeat(TUInt32 uServiceId,CDoid) = 0;
 };
 
 }
