@@ -30,6 +30,7 @@ public:
     DECLARE_CLASS_LIST(CListNode);
 };
 
+
 template<class BASE_CLASS>
 class CList
 {
@@ -157,6 +158,41 @@ public:
     TUInt32 size()
     {
         return m_uSize;
+    }
+};
+
+
+
+
+template<class BASE_CLASS>
+class CSafeListNode : public CListNode<BASE_CLASS>
+{
+public:
+    CList<BASE_CLASS> *m_pListBelongs2;
+
+    CSafeListNode()
+    {
+        m_pListBelongs2 = NULL;
+    }
+    void Detach()
+    {
+        if (m_pListBelongs2)
+        {
+            m_pListBelongs2->Detach(this);
+            m_pListBelongs2 = NULL;
+        }
+    }
+    void Attach2(CList<BASE_CLASS> *pList)
+    {
+        if (m_pListBelongs2)
+        {
+            m_pListBelongs2->Detach(this);
+        }
+        m_pListBelongs2 = pList;
+        if (pList)
+        {
+            pList->push_back(this);
+        }
     }
 };
 

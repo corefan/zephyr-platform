@@ -3,7 +3,7 @@
 
 #include "IfNetApp.h"
 #include "IfNet.h"
-
+#include "Public/tpl/include/TplList.h"
 using namespace Zephyr;
 
 class CAppConnectionMgr;
@@ -18,9 +18,8 @@ private:
     unsigned int    m_connectedTime;
 
     unsigned int    m_nTestStep;
+    CList<CAppConnection> *m_pBelongs2;
 public:
-
-
     void SetMgr(CAppConnectionMgr *pMgr)
     {
         m_pConnectionMgr = pMgr;

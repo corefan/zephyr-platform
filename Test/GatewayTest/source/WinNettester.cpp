@@ -70,32 +70,18 @@ TInt32 CWinNetTester::Run(const TInt32 threadId,const TInt32 runCnt)
 {
     int usedCnt = m_pNet->Run(runCnt);
     srand(time(NULL));
-    if (!usedCnt)
-    {
-        //使用了反而速度降慢了？
-//         int waitRtl; = Wait4Event();
-//         if (TIME_OUT != waitRtl)
-        {
-            usedCnt = m_pNet->Run(runCnt);
-            if (0 == usedCnt)
-            {
-                //printf("Wrong!");
-            }
-        }
-        //printf("no work to do!");
-    }
+   
     unsigned long timeNow = timeGetTime();
     if ((timeNow - m_lastRunTime) > 1000)
     {
         m_lastRunTime = timeNow;
-        int PoolNr = m_ConnectionPool.GetConnectionNr();
-        for (int i = 0;i<PoolNr;++i)
+        CList<CAppConnection> *pList = m_ConnectionPool.GetUsingList();
+        CListNode<CAppConnection> *pNode = pList->header();
+        while(pNode)
         {
-            CAppConnection *pConn = m_ConnectionPool.GetConnectionByIdx(i);
-            if (pConn)
-            {
-                int ret =  pConn->Run();
-            }
+            CListNode<CAppConnection> *pNext = pNode->GetNext();
+            pNode->Run();
+            pNode = pNext;
         }
     }
     return usedCnt;

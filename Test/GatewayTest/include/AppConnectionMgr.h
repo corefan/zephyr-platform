@@ -4,16 +4,15 @@
 #include "IfNetApp.h"
 #include "AppConnection.h"
 #include "TypeDef.h"
-
+#include "Public/tpl/include/TplList.h"
+#include "Public/tpl/include/TplPool.h"
 using namespace Zephyr;
 
 class CAppConnectionMgr : public IfListenerCallBack
 {
 private:
-    CAppConnection  *m_pConnectionPool;
-    CAppConnection  *m_pFree;
-    CAppConnection  *m_pUsed;
-    TInt32          m_connectionNr;
+    CPool<CSafeListNode<CAppConnection> > m_tPool;
+    CList<CAppConnection> m_tUsingList;
 public:
 
     virtual IfConnectionCallBack *OnNewConnection(CConPair *pPair);
@@ -21,14 +20,13 @@ public:
     CAppConnection *GetConnection();
     int GetConnectionNr()
     {
-        return m_connectionNr;
-    }
-    CAppConnection *GetConnectionByIdx(int idx)
-    {
-        return m_pConnectionPool + idx;
+        return m_tUsingList.size();
     }
     void ReleaseConnection(CAppConnection *pConnection);
-    void AddToUsedList(CAppConnection *pItem);
+    CList<CAppConnection> *GetUsingList()
+    {
+        return &m_tUsingList;
+    }
 };
 
 #endif

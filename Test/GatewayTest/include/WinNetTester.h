@@ -16,7 +16,7 @@ class CWinNetTester : public IfTask
 {
 public:
     IfNet*              m_pNet;
-    CAppConnectionMgr  m_ConnectionPool;
+    CAppConnectionMgr   m_ConnectionPool;
     CTestParserFactory  m_parserFactory;
     unsigned long       m_lastRunTime;
     char                m_myIp[32];
