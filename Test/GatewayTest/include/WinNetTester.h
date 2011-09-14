@@ -38,6 +38,7 @@ public:
     {
         return SUCCESS;
     }
+    TInt32 ConnectMe(CAppConnection *pConnection);
 };
 
 #endif

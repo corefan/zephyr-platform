@@ -87,7 +87,7 @@ public:
         };
         TUInt64 m_data;
     };
-private: //改公共的，不要麻烦了
+public: //改公共的，不要麻烦了
 	
 	CDoid m_destDoid;          //the destination obj id(may have a lot, max 256)
     //the 1st  bit indicate the byte-orders of this msg.

@@ -6,15 +6,26 @@
 #include "TypeDef.h"
 #include "Public/tpl/include/TplList.h"
 #include "Public/tpl/include/TplPool.h"
+#include "Public/include/Clock.h"
+
 using namespace Zephyr;
 
 class CAppConnectionMgr : public IfListenerCallBack
 {
 private:
     CPool<CSafeListNode<CAppConnection> > m_tPool;
+    CList<CAppConnection> m_tWaitingConnectionList;
     CList<CAppConnection> m_tUsingList;
+    CClock                m_tClock;
 public:
-
+    CClock *GetClock()
+    {
+        return &m_tClock;
+    }
+    void UpdateClock()
+    {
+        m_tClock.Update();
+    }
     virtual IfConnectionCallBack *OnNewConnection(CConPair *pPair);
     TInt32  Init(TInt32 maxConnectionNr);
     CAppConnection *GetConnection();

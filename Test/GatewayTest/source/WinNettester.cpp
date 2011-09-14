@@ -1,6 +1,8 @@
 #include "WinNetTester.h"
 #include "Mmsystem.h"
 #include "time.h"
+#include "GatewayTestErrorCode.h"
+
 CWinNetTester::CWinNetTester(IfTaskMgr *pTaskMgr,int maxConnectionNr)
 {
     m_pNet = CreateNet(pTaskMgr,&m_parserFactory,NULL,maxConnectionNr);
@@ -44,20 +46,24 @@ TInt32 CWinNetTester::Init(const char *pMyIp,const char *pRemoteIp,unsigned shor
             if (SUCCESS > ret)
             {
                 m_pNet->Run(128);
-                Sleep(15);
             }
             else
             {
                 tryAgain = false;
             }
         }
-        if (39 == (i %40))
+        if (0 == (i %10)) //每10个链接休息等待一下
         {
             Sleep(15);
             m_pNet->Run(128);
         }
     }
     return SUCCESS;
+}
+
+TInt32 CWinNetTester::ConnectMe(CAppConnection *pConnection)
+{
+    return m_pNet->Connect(m_remoteIp,m_myIp,m_remotePort,0,pConnection);
 }
 
 
@@ -70,17 +76,25 @@ TInt32 CWinNetTester::Run(const TInt32 threadId,const TInt32 runCnt)
 {
     int usedCnt = m_pNet->Run(runCnt);
     srand(time(NULL));
-   
-    unsigned long timeNow = timeGetTime();
-    if ((timeNow - m_lastRunTime) > 1000)
+    m_ConnectionPool.UpdateClock();
+    if ((m_ConnectionPool.GetClock()->GetTimeGap(m_lastRunTime)) > 500)
     {
+        unsigned long timeNow = m_ConnectionPool.GetClock()->GetLocalTime();
         m_lastRunTime = timeNow;
         CList<CAppConnection> *pList = m_ConnectionPool.GetUsingList();
         CListNode<CAppConnection> *pNode = pList->header();
         while(pNode)
         {
             CListNode<CAppConnection> *pNext = pNode->GetNext();
-            pNode->Run();
+            TInt32 nRet = pNode->Routine();
+            if (RETRY_CONNECTING == nRet) //需要重新链接.
+            {
+                nRet = ConnectMe(pNode);
+                if (nRet >= SUCCESS)
+                {
+                    pNode->OnTryConnecting();
+                }
+            }
             pNode = pNext;
         }
     }

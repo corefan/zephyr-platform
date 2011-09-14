@@ -18,7 +18,9 @@ private:
     unsigned int    m_connectedTime;
 
     unsigned int    m_nTestStep;
+    unsigned int    m_nStepStartTime;
     CList<CAppConnection> *m_pBelongs2;
+    
 public:
     void SetMgr(CAppConnectionMgr *pMgr)
     {
@@ -28,8 +30,6 @@ public:
     TInt32 OnInit();
     TInt32 OnFinal();
     
-    TInt32 Run();
-
     virtual TInt32 OnRecv(TUChar *pMsg, TUInt32 msgLen);
     //virtual TInt32 OnRecvIn2Piece(TUChar *pMsg, TUInt32 msgLen,TUChar *pMsg2,TUInt32 msgLen2) = 0;
     //网络层会自动从factory生成parser和crypter,请应用层对这连个东西进行设置
@@ -56,7 +56,16 @@ public:
     TInt32 GetPendingDataLen();
 
     //调用这个后，就可以将IfConnectionCallBack释放.Net不会继续回调该接口.
-    TInt32 Disconnect();    
+    TInt32 Disconnect();  
+
+public:
+    TInt32 HandleCompactMsg(TUChar *pMsg,TInt32 nMsgLength);
+    TInt32 Routine();
+    TInt32 Run0();
+    TInt32 Run1();
+    TInt32 Run2();
+    TInt32 Run3();
+    void OnTryConnecting();
 };
 
 

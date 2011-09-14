@@ -164,7 +164,15 @@ TInt32 CGatewayService::OnInit()
     m_pLogger = m_pLoggerManager->GetLogger(nRet);
     m_pIfComm = m_pOrb->GetCommunicator();
     m_pOrb->RegisterRun(m_pSkeleton,500);
-    return SUCCESS;
+    //临时的
+    IfListenerCallBack *pCallback = this;
+    m_pListener = m_pNet->Listen((TUInt32)0,12222,32,pCallback);
+    if (m_pListener)
+    {
+        return SUCCESS;
+    }
+    return FAIL;
+    //
 }
     //结束是回调.
 TInt32 CGatewayService::OnFinal()

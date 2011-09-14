@@ -18,6 +18,9 @@
 #include "../Interface/Platform/include/IfFinalizer.h"
 
 
+#define GET_RAWMSG(address) ((CMessageHeader *)( (TUChar *)(address) - (TUInt32)(&((CMessageHeader *)0)->m_msgInfo)))
+
+
 #define DECALRE_HANDLE_INTERFCE virtual TInt32  OnRecv(CMessageHeader *pMsg);
 
 

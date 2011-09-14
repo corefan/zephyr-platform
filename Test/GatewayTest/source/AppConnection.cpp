@@ -5,6 +5,9 @@
 #include "AppConnectionMgr.h"
 #include <iostream> 
 #include <time.h> 
+#include "Public/include/IdlHeaderFile.h"
+#include "Public/include/Message.h"
+#include "../include/GatewayTestErrorCode.h"
 using namespace Zephyr;
 
 
@@ -39,10 +42,6 @@ TInt32 CAppConnection::OnFinal()
 }
 
 
-TInt32 CAppConnection::Run()
-{
-    return SUCCESS;
-}
 
 TInt32 CAppConnection::OnRecv(TUChar *pMsg, TUInt32 msgLen)
 {
@@ -66,7 +65,6 @@ TInt32 CAppConnection::OnRecv(TUChar *pMsg, TUInt32 msgLen)
         ++pLen;
     }
     m_msgRecved += msgLen;
-    Run();
     return SUCCESS;
 }
     //virtual TInt32 OnRecvIn2Piece(TUChar *pMsg, TUInt32 msgLen,TUChar *pMsg2,TUInt32 msgLen2) = 0;
@@ -94,9 +92,11 @@ TInt32 CAppConnection::OnDissconneted(TInt32 erroCode)
 //#endif
     //if (!m_passiveSendNr)
     {
-        m_pConnectionMgr->ReleaseConnection(this);
+        //m_pConnectionMgr->ReleaseConnection(this); //不释放，只是存着
     }
     m_pIfConnection = NULL;
+    m_nStepStartTime = m_pConnectionMgr->GetClock()->GetLocalTime();
+    m_nTestStep = 0; //转为0
     return SUCCESS;
 }
 
@@ -154,7 +154,7 @@ TInt32 CAppConnection::Disconnect()
     if (m_pIfConnection)
     {
         TInt32 ret = m_pIfConnection->Disconnect();
-        m_pIfConnection = NULL;
+        OnDissconneted(-1);
         return ret;
     }
     return SUCCESS;
@@ -162,3 +162,84 @@ TInt32 CAppConnection::Disconnect()
 
 
 
+TInt32 CAppConnection::HandleCompactMsg(TUChar *pMsg,TInt32 nMsgLength)
+{
+    CMessageHeader::UnMsgInfo *pInfo = (CMessageHeader::UnMsgInfo *)pMsg;
+    //可以一样处理的
+    CMessageHeader *pMsgHeader = GET_RAWMSG(pInfo);
+    //获取
+    //IMPLEMENT_HANDLE_INTERFACE(IfConnecting);
+    return SUCCESS;
+}
+
+TInt32 CAppConnection::Routine()
+{
+    switch (m_nTestStep)
+    {
+    case 0:
+        {
+            //判断时间，准备连接
+            return Run0();
+        }
+        break;
+    case 1:
+        {
+            //等待链接
+            return Run1();
+        }
+        break;
+    case 2:
+        {
+            //连接成功后,发送握手
+            return Run2();
+        }
+        break;
+    case 3:
+        {
+            //等待握手相应
+            return Run3();
+        }
+        break;
+    case 4:
+        {
+        }
+        break;
+    }
+    return SUCCESS;
+}
+
+TInt32 CAppConnection::Run0()
+{
+    if (m_pConnectionMgr->GetClock()->GetTimeGap(m_nStepStartTime) > 50000)
+    {
+        //如果短线超过50秒，则重连
+        return RETRY_CONNECTING;
+    }
+    return SUCCESS;
+}
+
+TInt32 CAppConnection::Run1()
+{
+    if (m_pConnectionMgr->GetClock()->GetTimeGap(m_nStepStartTime) > 800) //800ms之内必须连接成功
+    {
+        Disconnect();
+    }
+    return SUCCESS;
+}
+
+
+TInt32 CAppConnection::Run2()
+{
+    return SUCCESS;
+}
+
+TInt32 CAppConnection::Run3()
+{
+    return SUCCESS;
+}
+
+void CAppConnection::OnTryConnecting()
+{
+    m_nTestStep = 1;
+    m_nStepStartTime = m_pConnectionMgr->GetClock()->GetLocalTime();
+}

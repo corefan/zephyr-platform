@@ -9,6 +9,7 @@ IfConnectionCallBack *CAppConnectionMgr::OnNewConnection(CConPair *pPair)
 }
 TInt32  CAppConnectionMgr::Init(TInt32 maxConnectionNr)
 {
+    m_tClock.Update();
     return m_tPool.InitPool(maxConnectionNr);
 }
 CAppConnection *CAppConnectionMgr::GetConnection()
