@@ -22,6 +22,14 @@ private:
     CList<CAppConnection> *m_pBelongs2;
     
 public:
+    enum EnTestStep
+    {
+        en_disconnected = 0,      //会等随机时间后重连
+        en_trying_conntecting ,   //尝试连接
+        en_send_authentication,  //连接发成功，开始请求鉴权
+        en_wait_authentication_resp, //等待鉴权回应
+        en_test_01,             //测试1
+    };
     void SetMgr(CAppConnectionMgr *pMgr)
     {
         m_pConnectionMgr = pMgr;

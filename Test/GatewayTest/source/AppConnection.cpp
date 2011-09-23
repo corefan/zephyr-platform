@@ -81,6 +81,7 @@ TInt32 CAppConnection::OnConnected(IfConnection *pIfConnection,IfParser *pParser
     m_pIfConnection = pIfConnection;
     m_msgRecved = 0;
     m_msgSend = 0;
+    m_nTestStep = 2;//
     return SUCCESS;
 }
 
@@ -176,25 +177,25 @@ TInt32 CAppConnection::Routine()
 {
     switch (m_nTestStep)
     {
-    case 0:
+    case en_disconnected:
         {
             //判断时间，准备连接
             return Run0();
         }
         break;
-    case 1:
+    case en_trying_conntecting:
         {
             //等待链接
             return Run1();
         }
         break;
-    case 2:
+    case en_send_authentication:
         {
             //连接成功后,发送握手
             return Run2();
         }
         break;
-    case 3:
+    case en_wait_authentication_resp:
         {
             //等待握手相应
             return Run3();
