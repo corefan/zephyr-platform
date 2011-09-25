@@ -38,6 +38,7 @@ TInt32 CWinNetTester::Init(const char *pMyIp,const char *pRemoteIp,unsigned shor
     for (int i=0;i<passiveConnectionNr;++i)
     {
         CAppConnection *pConnection = m_ConnectionPool.GetConnection();
+        
         bool tryAgain = true;
         while(tryAgain)
         {

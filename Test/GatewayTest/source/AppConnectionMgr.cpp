@@ -18,7 +18,8 @@ CAppConnection *CAppConnectionMgr::GetConnection()
     pResult = m_tPool.GetMem();
     pResult->OnInit();
     pResult->Attach2(&m_tUsingList);
-
+    pResult->SetMgr(this);
+    
     return pResult;
 }
 

@@ -30,6 +30,7 @@ CAppConnection *CAppConnectionMgr::GetConnection()
         pResult = m_pFree;
         m_pFree = m_pFree->Detach(NULL);
         pResult->OnInit();
+        pResult->SetMgr(this);
     }
     return pResult;
 }
