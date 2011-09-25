@@ -142,7 +142,6 @@ TInt32 CGatewayService::OnInit()
     //根据ServiceID来获取配置
     CDoid *pDoid = GetMyDoid();
     //肯定有
-    
     CGatewayBasicConfig tConfig;
     TInt32 nRet = tConfig.ReadFile(pDoid->m_virtualIp,pDoid->m_srvId);
     if (nRet < SUCCESS)
@@ -153,6 +152,11 @@ TInt32 CGatewayService::OnInit()
     //然后生成Net
     m_pNet = CreateNet(m_pTaskMgr,&m_tParserFactory,NULL,tConfig.m_uMaxIncomingConnection4Listner,
                         (tConfig.m_uOutPutCacheInKBs*1024),(tConfig.m_uInputCacheInKBs*1024));
+    if (!m_pNet)
+    {
+        printf("Create net module failed!");
+        return FAIL;
+    }
     //然后生成日志
     nRet = m_pLoggerManager->AddLogger(tConfig.m_szLoggerName,-1,tConfig.m_uWriteLoggerMask,tConfig.m_uPrint2ScreenLoggerMask);
     if (nRet < SUCCESS)
@@ -171,6 +175,8 @@ TInt32 CGatewayService::OnInit()
     {
         return SUCCESS;
     }
+    m_tSessionPool.InitPool(1100);
+    
     return FAIL;
     //
 }
@@ -194,8 +200,9 @@ TInt32 CGatewayService::OnTimer(TInt32 nTimerIdx,void *pData,TInt32 nTimeGap,TUI
     //定期的回调，可以注册循环时间，但只能有一个
 TInt32 CGatewayService::OnRoutine(TUInt32 nRunCnt)
 {
+    int nRet = m_pNet->Run(nRunCnt);
     TUInt32 nGap = GetClock()->GetTimeGap(m_uLastRoutineTime);
-    if (nGap > 1000) //没1秒重新刷20个
+    if (nGap > 1000) //1秒重新刷20个
     {
         m_uLastRoutineTime = GetClock()->GetLocalTime();
         TUInt32 uSize = m_tUsingSessions.size();
@@ -205,6 +212,7 @@ TInt32 CGatewayService::OnRoutine(TUInt32 nRunCnt)
             ++uSize;
             while(uSize)
             {
+                ++nRet;
                 --uSize;
                 CListNode<CGatewaySession> *pSession = m_tUsingSessions.pop_front();
                 m_tUsingSessions.push_back(pSession);
@@ -219,7 +227,8 @@ TInt32 CGatewayService::OnRoutine(TUInt32 nRunCnt)
             }
         }
     }
-    return SUCCESS;
+
+    return nRet;
 }
     //网络时间
 TInt32 CGatewayService::OnNetEvent(CConnectionEvent *pEvent)
@@ -244,6 +253,18 @@ IfConnectionCallBack *CGatewayService::OnNewConnection(CConPair *pPair)
         CListNode<CGatewaySession> *pMem = m_tSessionPool.GetMem();
         if (pMem)
         {
+            pMem->OnInit();
+            pMem->Init(this);
+            IfSkeleton *pSkeleton =  m_pOrb->RegisterObj(pMem,m_nServiceId);
+            if (pSkeleton)
+            {
+                pMem->SetSkeleton(pSkeleton);
+            }
+            else
+            {
+                m_tSessionPool.ReleaseMem(pMem);
+                return NULL;
+            }
             m_tUsingSessions.push_front(pMem);
             return pMem;
         }

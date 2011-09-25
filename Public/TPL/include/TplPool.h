@@ -161,6 +161,11 @@ public:
     int        m_nInitSize;
     int        m_nFreeNr;
 public:
+    CPool()
+    {
+        m_nInitSize = 64;
+        m_nFreeNr = 0;
+    }
     ~CPool()
     {
         Final();
