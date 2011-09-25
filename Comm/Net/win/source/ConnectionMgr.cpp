@@ -133,7 +133,7 @@ void  CConnectionMgr::Final()
     m_pCryptorFactory = NULL;
 }
 
-TInt32 CConnectionMgr::Connect(const TChar *pRemoteIp,const TChar *pMyIp,TUInt16 remotePort,TUInt16 myPort,void *pAppCallBack)
+TInt32 CConnectionMgr::Connect(const TChar *pRemoteIp,const TChar *pMyIp,TUInt16 remotePort,TUInt16 myPort,IfConnectionCallBack *pAppCallBack)
 {
     if (!pAppCallBack)
     {
@@ -150,7 +150,7 @@ TInt32 CConnectionMgr::Connect(const TChar *pRemoteIp,const TChar *pMyIp,TUInt16
     return m_connector.Connect(&pair,(IfConnectionCallBack*)pAppCallBack);
 }
 
-TInt32 CConnectionMgr::Connect(const TUInt32 remoteIp,const TUInt32 myIp,TUInt16 remotePort,TUInt16 myPort,void *pAppCallBack)
+TInt32 CConnectionMgr::Connect(const TUInt32 remoteIp,const TUInt32 myIp,TUInt16 remotePort,TUInt16 myPort,IfConnectionCallBack *pAppCallBack)
 {
     if (!pAppCallBack)
     {
