@@ -16,7 +16,7 @@ CGatewayService::CGatewayService()
     m_pNet = NULL;
     m_uIp  = NULL;
     m_uListeningPort = NULL;
-    m_nMaxConnections;
+    m_nMaxConnections = 0;
     m_uLastRoutineTime = 0;
     m_pListener = NULL;
 }
@@ -150,7 +150,7 @@ TInt32 CGatewayService::OnInit()
         return nRet;
     }
     //然后生成Net
-    m_pNet = CreateNet(m_pTaskMgr,&m_tParserFactory,NULL,tConfig.m_uMaxIncomingConnection4Listner,
+    m_pNet = CreateNet(m_pTaskMgr,&m_tParserFactory,NULL,tConfig.m_uMaxConnections,
                         (tConfig.m_uOutPutCacheInKBs*1024),(tConfig.m_uInputCacheInKBs*1024));
     if (!m_pNet)
     {
@@ -170,12 +170,15 @@ TInt32 CGatewayService::OnInit()
     m_pOrb->RegisterRun(m_pSkeleton,500);
     //临时的
     IfListenerCallBack *pCallback = this;
-    m_pListener = m_pNet->Listen((TUInt32)0,12222,32,pCallback);
+    m_pListener = m_pNet->Listen((TUInt32)0,12222,64,pCallback);
+    //
+    m_nMaxConnections = 1100;
+    m_tSessionPool.InitPool(1100);
     if (m_pListener)
     {
         return SUCCESS;
     }
-    m_tSessionPool.InitPool(1100);
+    
     
     return FAIL;
     //

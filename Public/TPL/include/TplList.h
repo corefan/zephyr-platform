@@ -141,8 +141,8 @@ public:
         else
         {
             p->Detach();
+            --m_uSize;
         }
-        --m_uSize;
     }
     void HandleOver(CList *pTo,CListNode<BASE_CLASS> *p)
     {
