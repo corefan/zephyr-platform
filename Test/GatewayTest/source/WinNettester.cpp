@@ -53,7 +53,7 @@ TInt32 CWinNetTester::Init(const char *pMyIp,const char *pRemoteIp,unsigned shor
                 tryAgain = false;
             }
         }
-        if (0 == (i %10)) //每10个链接休息等待一下
+        //if (0 == (i %2)) //每10个链接休息等待一下
         {
             Sleep(15);
             m_pNet->Run(128);
