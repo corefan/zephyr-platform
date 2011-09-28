@@ -19,7 +19,6 @@ private:
 
     unsigned int    m_nTestStep;
     unsigned int    m_nStepStartTime;
-    CList<CAppConnection> *m_pBelongs2;
     
 public:
     enum EnTestStep

@@ -17,7 +17,6 @@ CAppConnection *CAppConnectionMgr::GetConnection()
     CSafeListNode<CAppConnection> *pResult = NULL;
     pResult = m_tPool.GetMem();
     pResult->OnInit();
-    pResult->Attach2(&m_tUsingList);
     pResult->SetMgr(this);
     
     return pResult;

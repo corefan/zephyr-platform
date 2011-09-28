@@ -16,6 +16,8 @@ private:
     CPool<CSafeListNode<CAppConnection> > m_tPool;
     CList<CAppConnection> m_tWaitingConnectionList;
     CList<CAppConnection> m_tUsingList;
+    CList<CAppConnection> m_tTryingList;
+    CList<CAppConnection> m_tDisconnectedList;
     CClock                m_tClock;
 public:
     CClock *GetClock()
@@ -37,6 +39,22 @@ public:
     CList<CAppConnection> *GetUsingList()
     {
         return &m_tUsingList;
+    }
+
+    void AddToUsedList(CAppConnection *pItem)
+    {
+        CSafeListNode<CAppConnection> *pSafeNode = (CSafeListNode<CAppConnection> *)pItem;
+        pSafeNode->Attach2(&m_tUsingList);
+    }
+    void AddToTryingList(CAppConnection *pItem)
+    {
+        CSafeListNode<CAppConnection> *pSafeNode = (CSafeListNode<CAppConnection> *)pItem;
+        pSafeNode->Attach2(&m_tTryingList);
+    }
+    void AddToDisconnectedList(CAppConnection *pItem)
+    {
+        CSafeListNode<CAppConnection> *pSafeNode = (CSafeListNode<CAppConnection> *)pItem;
+        pSafeNode->Attach2(&m_tDisconnectedList);
     }
 };
 

@@ -82,6 +82,7 @@ TInt32 CAppConnection::OnConnected(IfConnection *pIfConnection,IfParser *pParser
     m_msgRecved = 0;
     m_msgSend = 0;
     m_nTestStep = 2;//
+    m_pConnectionMgr->AddToUsedList(this);
     return SUCCESS;
 }
 
@@ -98,6 +99,7 @@ TInt32 CAppConnection::OnDissconneted(TInt32 erroCode)
     m_pIfConnection = NULL;
     m_nStepStartTime = m_pConnectionMgr->GetClock()->GetLocalTime();
     m_nTestStep = 0; //תΪ0
+    m_pConnectionMgr->AddToDisconnectedList(this);
     return SUCCESS;
 }
 
@@ -243,4 +245,5 @@ void CAppConnection::OnTryConnecting()
 {
     m_nTestStep = 1;
     m_nStepStartTime = m_pConnectionMgr->GetClock()->GetLocalTime();
+    m_pConnectionMgr->AddToTryingList(this);
 }

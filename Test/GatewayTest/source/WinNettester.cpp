@@ -50,6 +50,7 @@ TInt32 CWinNetTester::Init(const char *pMyIp,const char *pRemoteIp,unsigned shor
             }
             else
             {
+                pConnection->OnTryConnecting();
                 tryAgain = false;
             }
         }
