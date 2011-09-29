@@ -10,6 +10,7 @@
 
 #endif
 #include "MySQLRecordSet.h"
+#include "DBTransationManager.h"
 
 namespace DBLib
 {
@@ -20,6 +21,8 @@ CMySQLConnection::CMySQLConnection(void)
 {
 	m_MySQLHandle=NULL;
 	m_pDatabase=NULL;
+    m_pMgr = NULL;
+    m_pLogger = NULL;
 }
 
 CMySQLConnection::~CMySQLConnection(void)
@@ -234,7 +237,20 @@ unsigned __int64 CMySQLConnection::GetInsertId(void)
 }
 void CMySQLConnection::ProcessErrorMsg(LPCTSTR Msg)
 {
-	PrintDBLog(0xff,"%s %s\r\n",Msg,mysql_error(m_MySQLHandle));
+	//PrintDBLog(0xff,"%s %s\r\n",Msg,mysql_error(m_MySQLHandle));
+#ifdef _DEBUG
+    if (m_pLogger)
+    {
+#endif
+        m_pLogger->WriteLog(0xff,"%s %s\r\n",Msg,mysql_error(m_MySQLHandle));
+#ifdef _DEBUG
+    }
+#endif
+}
+
+void CMySQLConnection::SetLogger(IfLogger *pLogger)
+{
+    m_pLogger = pLogger;
 }
 
 int CMySQLConnection::FetchStaticResult(CDBStaticRecordSet * pDBRecordset)

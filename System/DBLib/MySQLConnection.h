@@ -2,7 +2,8 @@
 #define __DB_LIB_MYSQL_CONNECTION_H__
 
 #include "DBLib.h"
-
+#include "Public/Interface/Platform/include/IfLogger.h"
+using namespace Zephyr;
 
 namespace DBLib
 {
@@ -11,6 +12,9 @@ typedef MYSQL * MYSQL_HANDLE;
 typedef MYSQL_RES * MYSQL_RES_HANDLE;
 
 class CMySQLDatabase;
+class CDBTransationManager;
+
+
 
 class CMySQLConnection :
 	public IDBConnection
@@ -18,6 +22,8 @@ class CMySQLConnection :
 protected:
 	MYSQL_HANDLE		m_MySQLHandle;
 	CMySQLDatabase *	m_pDatabase;
+    CDBTransationManager *m_pMgr;
+    IfLogger            *m_pLogger;
 
 	DECLARE_CLASS_INFO(CMySQLConnection)
 public:
@@ -48,7 +54,7 @@ public:
 
     virtual unsigned __int64 GetInsertId(void);
 	static int MySQLValueToDBValue(int ValueType,void *pData,int DataSize,int DitigalSize,CDBValue& DBValue);
-
+    virtual void SetLogger(IfLogger *pLogger);
 	void ProcessErrorMsg(const char* Msg);
 protected:
 	int FetchStaticResult(CDBStaticRecordSet * pDBRecordset);

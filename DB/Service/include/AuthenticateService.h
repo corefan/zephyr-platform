@@ -24,12 +24,44 @@ class CAuthenticateService : public CService,
 {
 private:
     IfTrascationWorkThreadMgr  *m_pDbMgr;
+    IfOrb *m_pIfOrb;
+    IfTaskMgr *m_pIfTaskMgr;
+    IfLoggerManager *m_pLoggerMgr;
+    IfLogger        *m_pLogger;
 public:
+    //在初始化的时候会被调.
+    virtual TInt32      OnInit();
+    //结束是回调.
+    virtual TInt32      OnFinal();
+    
+    TInt32 InitService(IfOrb *pIfOrb,IfTaskMgr *pIfTaskMgr,IfLoggerManager *pLoggerMgr);
     CAuthenticateService();
     ~CAuthenticateService();
     virtual TInt32 Authenticate(TLV<TUInt16,TUInt16> tAuthenticateData); 
-};
-}
 
+    TInt32 OnRecv(Zephyr::CMessageHeader *)
+    {
+        return 0;
+    }
+
+};
+
+
+
+#ifdef WIN32
+
+extern "C" __declspec( dllexport ) CService *InitService(IfOrb* pOrb,IfTaskMgr *pIfTaskMgr,IfLoggerManager *pIfLoggerMgr);
+
+extern "C" __declspec( dllexport ) TInt32 ReleaseService(CService *);
+
+#else
+
+extern "C" CService *InitService(IfOrb* pStubCenter,IfTaskMgr *pIfTaskMgr,IfLoggerManager *pIfLoggerMgr);
+extern "C" TInt32 ReleaseService(CService *);
+
+#endif
+
+
+}
 
 #endif

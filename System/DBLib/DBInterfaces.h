@@ -5,6 +5,9 @@
 #include "DBTypes.h"
 #include "NameObject.h"
 
+#include "Public/Interface/Platform/include/IfLogger.h"
+using namespace Zephyr;
+
 namespace DBLib
 {
 
@@ -13,6 +16,8 @@ class IDBConnection;
 class IDBRecordSet;
 class IDBParameterSet;
 class CDBValue;
+
+
 
 class IDatabase
 	:public CNameObject
@@ -53,6 +58,7 @@ public:
 	virtual const char* GetLastDatabaseErrorString()=0;
 	virtual int TranslateString(LPCTSTR szSource,int SrcLen,LPTSTR szTarget,int MaxLen)=0;
     virtual unsigned long long GetInsertId() = 0;
+    virtual void SetLogger(IfLogger *pLogger) = 0;
 };
 
 class IDBRecordSet

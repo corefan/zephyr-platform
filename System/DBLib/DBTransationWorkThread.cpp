@@ -45,7 +45,7 @@ bool CDBTransationWorkThread::Init(IDBConnection * pConnection,LPCTSTR ConnectSt
 	m_FinishTransQueue.Create(QueueSize);
 	m_ConnectionTestTimer.SaveTime();
 
-	PrintDBLog(0xff,"工作线程队列长度%d",QueueSize);
+	m_pManager->GetLogger()->WriteLog(0xff,"工作线程队列长度%d",QueueSize);
 
 	return (Start() == SUCCESS);
 }
@@ -128,7 +128,7 @@ BOOL CDBTransationWorkThread::OnRun()
 		}
 		else
 		{
-			PrintDBLog(0xff,"数据库事务执行出错，回滚");
+			m_pManager->GetLogger()->WriteLog(0xff,"数据库事务执行出错，回滚");
 			m_pConnection->RollBack();
 		}
 		pDBTansaction->SetResult(Ret);
@@ -148,7 +148,7 @@ BOOL CDBTransationWorkThread::OnRun()
 	{
 		if(!m_pConnection->IsConnected())
 		{
-			PrintDBLog(0xff,"连接已断开，重新连接");
+			m_pManager->GetLogger()->WriteLog(0xff,"连接已断开，重新连接");
 			m_pConnection->Disconnect();
 			m_pConnection->Connect((LPCTSTR)m_ConnectString);
             m_pConnection->EnableTransaction(true);

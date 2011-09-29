@@ -4,7 +4,7 @@
 namespace DBLib
 {
 
-IfTrascationWorkThreadMgr *__stdcall GetMysqlWorkThreadMgr(const char* pszConnectStr,int ThreadCount,int QueueSize,unsigned int Flag)
+IfTrascationWorkThreadMgr *__stdcall GetMysqlWorkThreadMgr(const char* pszConnectStr,IfLogger *pLogger,int ThreadCount,int QueueSize,unsigned int Flag)
 {
     CDBTransationManager *pMgr(0);
     CMySQLDatabase *pMysqlDb(0);
@@ -31,7 +31,7 @@ IfTrascationWorkThreadMgr *__stdcall GetMysqlWorkThreadMgr(const char* pszConnec
         }
         return 0;
     }
-    bool bSuccess = pMgr->Init(pMysqlDb,pszConnectStr,ThreadCount,QueueSize,Flag);
+    bool bSuccess = pMgr->Init(pMysqlDb,pszConnectStr,pLogger, ThreadCount,QueueSize,Flag);
     if (bSuccess)
     {
         return pMgr;

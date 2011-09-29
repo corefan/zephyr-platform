@@ -499,7 +499,7 @@ void CLogger::WriteLog(const TUInt32 lvl,const TChar *_pFormat,va_list ValueList
     }
 }
 
-void CLogger::WriteRawLog(const TUInt32 lvl,const TChar *__pFormat,...)
+void CLogger::WriteRawLog(const TUInt32 lvl,const TChar *__pFormat,va_list argList)
 {
     if (!(lvl & m_needOperation))
     {
@@ -514,22 +514,19 @@ void CLogger::WriteRawLog(const TUInt32 lvl,const TChar *__pFormat,...)
     {
         pBuff = m_buff;
     }
-    va_list argList;
-    va_start(argList,__pFormat);
-    
+
     TInt32 strLen = _vsnprintf((pBuff),MAX_LOGGER_CONTENTS_LENGTH,__pFormat,argList);
-    va_end(argList);
     if (strLen <= 0)
     {
         return;
     }
     //不加任何东西
-//     if ('\n' != pBuff[(strLen-1)])
-//     {
-//         // MAX_LOGGER_LENGTH - MAX_LOGGER_CONTENTS_LENGTH == 48, enough for a lot of thing
-//         pBuff[strLen] = '\n';
-//         strLen ++;
-//     }
+    //     if ('\n' != pBuff[(strLen-1)])
+    //     {
+    //         // MAX_LOGGER_LENGTH - MAX_LOGGER_CONTENTS_LENGTH == 48, enough for a lot of thing
+    //         pBuff[strLen] = '\n';
+    //         strLen ++;
+    //     }
 
 
     //TInt32 strLen = pEnd - m_buff;
@@ -553,9 +550,17 @@ void CLogger::WriteRawLog(const TUInt32 lvl,const TChar *__pFormat,...)
 
     if (lvl & m_printToScreen)
     {
-         pBuff[strLen] = '\0';
+        pBuff[strLen] = '\0';
         printf("%s",m_buff);
     }
+}
+
+void CLogger::WriteRawLog(const TUInt32 lvl,const TChar *__pFormat,...)
+{
+    va_list argList;
+    va_start(argList,__pFormat);
+    WriteRawLog(lvl,__pFormat,argList);
+    va_end(argList);
 }
 
 void CLogger::WriteBinLog(const TChar *pBin,TUInt32 uLength)

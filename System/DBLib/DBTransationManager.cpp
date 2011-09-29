@@ -19,6 +19,8 @@ CDBTransationManager::~CDBTransationManager(void)
 	Destory();
 }
 
+
+
 void CDBTransationManager::Destory()
 {
 	for(int i=0;i<(int)m_WorkThreads.size();i++)
@@ -30,20 +32,21 @@ void CDBTransationManager::Destory()
 	m_WorkThreads.clear();
 }
 
-bool CDBTransationManager::Init(IDatabase * pDatabase,LPCTSTR szConnectStr,int ThreadCount,int QueueSize,UINT Flag)
+bool CDBTransationManager::Init(IDatabase * pDatabase,LPCTSTR szConnectStr,IfLogger *pLogger,int ThreadCount,int QueueSize,UINT Flag)
 {
 	if(pDatabase==NULL)
 		return false;
 	Destory();
 	m_pDatabase=pDatabase;
 	m_Flag=Flag;
-
+    m_tLogger.SetLogger(pLogger);
 	for(int i=0;i<ThreadCount;i++)
 	{
 		IDBConnection * pConnection=m_pDatabase->CreateConnection();
+        pConnection->SetLogger(GetLogger());
 		if(pConnection->Connect(szConnectStr)!=DBERR_SUCCEED)
 		{
-			PrintDBLog(0xff,"数据库无法连接，但初始化继续");
+			m_tLogger.WriteLog(0xff,"数据库无法连接，但初始化继续");
 		}
 		CDBTransationWorkThread * pThread=new CDBTransationWorkThread(this);
 		if(!pThread->Init(pConnection,szConnectStr,QueueSize))
@@ -58,7 +61,7 @@ bool CDBTransationManager::Init(IDatabase * pDatabase,LPCTSTR szConnectStr,int T
 
 	m_PerformanceCountTimer.SaveTime();
 
-	PrintDBLog(0xff,"一共建立了%d个工作线程",ThreadCount);
+	m_tLogger.WriteLog(0xff,"一共建立了%d个工作线程",ThreadCount);
 
 	return true;
 }
@@ -125,7 +128,7 @@ int CDBTransationManager::Update(int ProcessLimit)
 		m_ExecTimes=0;
 		if(m_Flag&DBTM_FLAG_LOG_PERFORMANCE)
 		{
-			PrintDBLog(0xff,"平均执行时间=%g毫秒,每秒执行次数%g",m_AvgExecTime,m_ExecTimesPerSec);
+			m_tLogger.WriteLog(0xff,"平均执行时间=%g毫秒,每秒执行次数%g",m_AvgExecTime,m_ExecTimesPerSec);
 		}
 	}
 
@@ -155,5 +158,143 @@ IfTrasactionWorkThread *CDBTransationManager::GetThread(int nIdx)
     }
     return NULL;
 }
+
+void CDBTransationManager::CDbLoggerWithLock::WriteLog(const TUInt32 logId,const TUInt32 lvl,const TChar *__pFormat,...)
+{
+    va_list argList;
+    va_start(argList,__pFormat);
+    //CAutoLock tLock(m_tLocks);
+    m_tLocks.Lock();
+#ifdef _DEBUG
+    if (m_pLogger)
+    {
+#endif
+        m_pLogger->WriteLog(logId,lvl,__pFormat,argList);
+#ifdef _DEBUG
+    }
+    else
+    {
+        printf(__pFormat,argList);
+    }
+#endif
+    m_tLocks.Unlock();
+    va_end(argList);
+}
+
+void CDBTransationManager::CDbLoggerWithLock::WriteLog(const TUInt32 lvl,const TChar *__pFormat,...)
+{
+    va_list argList;
+    va_start(argList,__pFormat);
+    //CAutoLock tLock(m_tLocks);
+    m_tLocks.Lock();
+#ifdef _DEBUG
+    if (m_pLogger)
+    {
+#endif
+        m_pLogger->WriteLog(lvl,__pFormat,argList);
+#ifdef _DEBUG
+    }
+    else
+    {
+        printf(__pFormat,argList);
+    }
+#endif
+    m_tLocks.Unlock();
+    va_end(argList);
+}
+
+void CDBTransationManager::CDbLoggerWithLock::WriteLog(const TUInt32 logId,const TUInt32 lvl,const TChar* __pFormat,va_list vl)
+{
+    //CAutoLock tLock(m_tLocks);
+    m_tLocks.Lock();
+#ifdef _DEBUG
+    if (m_pLogger)
+    {
+#endif
+        m_pLogger->WriteLog(logId,lvl,__pFormat,vl);
+#ifdef _DEBUG
+    }
+    else
+    {
+        printf(__pFormat,vl);
+    }
+#endif
+    m_tLocks.Unlock();
+}
+
+void CDBTransationManager::CDbLoggerWithLock::WriteLog(const TUInt32 lvl,const TChar *__pFormat,va_list vl)
+{
+    m_tLocks.Lock();
+#ifdef _DEBUG
+    if (m_pLogger)
+    {
+#endif
+        m_pLogger->WriteLog(lvl,__pFormat,vl);
+#ifdef _DEBUG
+    }
+    else
+    {
+        printf(__pFormat,vl);
+    }
+#endif
+    m_tLocks.Unlock();
+}
+
+//直接写数据，不按格式写
+void CDBTransationManager::CDbLoggerWithLock::WriteRawLog(const TUInt32 lvl,const TChar *__pFormat,...)
+{
+    va_list argList;
+    va_start(argList,__pFormat);
+    m_tLocks.Lock();
+#ifdef _DEBUG
+    if (m_pLogger)
+    {
+#endif
+        m_pLogger->WriteRawLog(lvl,__pFormat,argList);
+#ifdef _DEBUG
+    }
+    else
+    {
+        printf(__pFormat,argList);
+    }
+#endif
+    m_tLocks.Unlock();
+    va_end(argList);
+}
+
+
+void CDBTransationManager::CDbLoggerWithLock::WriteRawLog(const TUInt32 lvl,const TChar *__pFormat,va_list argList)
+{
+    m_tLocks.Lock();
+#ifdef _DEBUG
+    if (m_pLogger)
+    {
+#endif
+        m_pLogger->WriteRawLog(lvl,__pFormat,argList);
+#ifdef _DEBUG
+    }
+    else
+    {
+        printf(__pFormat,argList);
+    }
+#endif
+    m_tLocks.Unlock();
+}
+
+//直接写比特流，不要随便用.
+void CDBTransationManager::CDbLoggerWithLock::WriteBinLog(const TChar *pBin,TUInt32 uLength)
+{
+    m_tLocks.Lock();
+#ifdef _DEBUG
+    if (m_pLogger)
+    {
+#endif
+        m_pLogger->WriteBinLog(pBin,uLength);
+#ifdef _DEBUG
+    }
+#endif
+    m_tLocks.Unlock();
+}
+
 
 }

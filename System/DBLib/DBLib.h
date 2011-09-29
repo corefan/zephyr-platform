@@ -74,11 +74,6 @@ typedef unsigned long ulong;
 #endif
 
 
-void PrintDBLog(int logLvl,const char* __pszFormat,...);
-
-
-
-
 #include "MySQLRecordSet.h"
 #include "MySQLConnection.h"
 #include "MySQLDatabase.h"
