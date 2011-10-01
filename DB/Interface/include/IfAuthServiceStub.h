@@ -17,6 +17,7 @@ public:
         m_tTarget = *pDoid;
     }
     virtual TInt32 Authenticate(TLV<TUInt16,TUInt16> tAuthenticateData);
+    virtual TInt32 OnDisconneted(CDoid tMyDoid);
 };
 }
 #endif

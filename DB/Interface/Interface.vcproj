@@ -194,6 +194,10 @@
 				RelativePath=".\include\IfAuthServiceStub.h"
 				>
 			</File>
+			<File
+				RelativePath="..\include\ServiceIdDef.h"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="interface"

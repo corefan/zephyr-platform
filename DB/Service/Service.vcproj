@@ -198,10 +198,18 @@
 				RelativePath=".\include\AuthenticateServiceLogger.h"
 				>
 			</File>
+			<File
+				RelativePath=".\include\DBConfig.h"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="DBTrans"
 			>
+			<File
+				RelativePath=".\source\DBAuthenticateTrans.cpp"
+				>
+			</File>
 			<File
 				RelativePath=".\include\DBAuthenticateTrans.h"
 				>

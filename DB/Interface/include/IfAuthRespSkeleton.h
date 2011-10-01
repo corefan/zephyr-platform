@@ -19,6 +19,7 @@ public:
          return ((IFAUTHRESP_INTERFACE_ID)&(pMsg->GetMethodId()));
      }
     TInt32 HandleRespAuthenticate_TInt32_TLV_tpl_begin_TUInt16_and_TUInt16_tpl_end_(CMessageHeader *pMsg);
+    TInt32 HandleConfirmDisconneted_CDoid(CMessageHeader *pMsg);
 };
 }
 #endif

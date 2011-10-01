@@ -40,4 +40,30 @@ TInt32 IfAuthRespStub::RespAuthenticate(TInt32 nResult,TLV<TUInt16,TUInt16> tAut
     return m_pOnwerObj->SendMsg(pMsg);
 }
 
+TInt32 IfAuthRespStub::ConfirmDisconneted(CDoid tMyDoid)
+{
+    TInt32 nLen = sizeof(CDoid);
+    CMessageHeader *pMsg = m_pOnwerObj->PrepareMsg(nLen,(AUTHENTICATE_SERVICE_SERVICE_ID|IFAUTHRESP_INTERFACE_ID|CONFIRMDISCONNETED_CDOID_ID),&m_tTarget,1,false);
+    if (NULL == pMsg)
+    {
+        return OUT_OF_MEM;
+    }
+    TUInt32 nUsed=0;
+    TInt32 nRet=0;
+    TUChar *pBuffer = pMsg->GetBody();
+    nRet = Marshall(pBuffer+nUsed,nLen,tMyDoid);
+    if (nRet < SUCCESS)
+    {
+        return nRet;
+    }
+    nUsed += nRet;
+    nLen-=nRet;
+    if (nRet < SUCCESS)
+    {
+        return nRet;
+    }
+    pMsg->ResetBodyLength(nUsed);
+    return m_pOnwerObj->SendMsg(pMsg);
+}
+
 }

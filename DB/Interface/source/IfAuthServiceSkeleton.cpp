@@ -10,9 +10,10 @@ TInt32 IfAuthServiceSkeleton::HandleMsg(CMessageHeader *pMsg)
     static _MSGMAP_ENTRY sMsgMapEntries[] = 
     {
         {(AUTHENTICATE_SERVICE_SERVICE_ID|IFAUTHSERVICE_INTERFACE_ID|AUTHENTICATE_TLV_TPL_BEGIN_TUINT16_AND_TUINT16_TPL_END__ID), &IfAuthServiceSkeleton::HandleAuthenticate_TLV_tpl_begin_TUInt16_and_TUInt16_tpl_end_},
+        {(AUTHENTICATE_SERVICE_SERVICE_ID|IFAUTHSERVICE_INTERFACE_ID|ONDISCONNETED_CDOID_ID), &IfAuthServiceSkeleton::HandleOnDisconneted_CDoid},
     };
     TInt32 nBegin = 0;
-    TInt32 nEnd = 1;
+    TInt32 nEnd = 2;
     TUInt32 nMethodId = pMsg->GetMethodId();
     _PFMSG pPfMsg = NULL;
     while(nBegin < nEnd)
@@ -71,6 +72,25 @@ TInt32 IfAuthServiceSkeleton::HandleAuthenticate_TLV_tpl_begin_TUInt16_and_TUInt
         return nRet;
     }
     m_pImplementObj->Authenticate(tAuthenticateData);
+    return SUCCESS;
+}
+TInt32 IfAuthServiceSkeleton::HandleOnDisconneted_CDoid(CMessageHeader *pMsg)
+{
+    TInt32 nLen = pMsg->GetBodyLength();
+    TUChar *pBuffer =pMsg->GetBody();
+    TInt32 nRet;
+    CDoid tMyDoid;
+    nRet = Unmarshall(pBuffer,nLen,tMyDoid);
+    if (nRet<SUCCESS)
+    {
+        pBuffer += nRet;
+        nLen -= nRet;
+    }
+    else
+    {
+        return nRet;
+    }
+    m_pImplementObj->OnDisconneted(tMyDoid);
     return SUCCESS;
 }
 }

@@ -11,7 +11,8 @@
 #include "Public/include/TypeDef.h"
 #include "AuthenticateServiceLogger.h"
 #include "System/DBLib/IfDBLib.h"
-
+#include "DBAuthenticateTrans.h"
+#include "Public/tpl/include/tplmap.h"
 
 
 namespace Zephyr
@@ -23,11 +24,14 @@ class CAuthenticateService : public CService,
                              public IfAuthService
 {
 private:
+    TplMap<CDBAuthenticateTrans,CDoid> m_tUsingMaps;
+    CPool<TplNode<CDBAuthenticateTrans,CDoid> > m_tTransPool;
     IfTrascationWorkThreadMgr  *m_pDbMgr;
     IfOrb *m_pIfOrb;
     IfTaskMgr *m_pIfTaskMgr;
     IfLoggerManager *m_pLoggerMgr;
     IfLogger        *m_pLogger;
+    TInt32          m_nMaxTransNum;
 public:
     //在初始化的时候会被调.
     virtual TInt32      OnInit();
@@ -38,7 +42,7 @@ public:
     CAuthenticateService();
     ~CAuthenticateService();
     virtual TInt32 Authenticate(TLV<TUInt16,TUInt16> tAuthenticateData); 
-
+    virtual TInt32 OnDisconneted(CDoid tMyDoid);
     TInt32 OnRecv(Zephyr::CMessageHeader *)
     {
         return 0;

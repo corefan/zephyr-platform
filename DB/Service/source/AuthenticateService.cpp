@@ -1,5 +1,5 @@
 #include "../include/AuthenticateService.h"
-
+#include "../include/DBConfig.h"
 namespace Zephyr
 {
 CAuthenticateService::CAuthenticateService()
@@ -59,8 +59,43 @@ TInt32 ReleaseService(CService* pService)
 TInt32 CAuthenticateService::OnInit()
 {
     //m_pDbMgr = GetMysqlWorkThreadMgr()
+    CDBConfig tDBConfig;
+    if (tDBConfig.ReadConfig("DBConfig.ini") < 0)
+    {
+        return FAIL;
+    }
+    TInt32 nLoggerIdx = m_pLoggerMgr->AddLogger(tDBConfig.m_szLoggerName,-1);
+    if (nLoggerIdx < SUCCESS)
+    {
+        return nLoggerIdx;
+    }
+    IfLogger *pDBLogger = m_pLoggerMgr->GetLogger(nLoggerIdx);
+    if (!pDBLogger)
+    {
+        return NULL_POINTER;
+    }
+    m_pDbMgr = GetMysqlWorkThreadMgr(tDBConfig.m_szConnectStr,pDBLogger,tDBConfig.m_nThreadCount,tDBConfig.m_nQueueSize,tDBConfig.m_nFlag);
+    if (!m_pDbMgr)
+    {
+        printf("Init DB failed, Pls check the DB config:DBConfig.ini");
+        return FAIL;
+    }
+    m_nMaxTransNum = tDBConfig.m_nThreadCount * tDBConfig.m_nQueueSize;
+    TInt32 nRet = m_tTransPool.InitPool(m_nMaxTransNum);
+    if (nRet < SUCCESS)
+    {
+        return nRet;
+    }
+    m_tUsingMaps.Init(&m_tTransPool);
+
     return SUCCESS;
 }
+
+TInt32 CAuthenticateService::OnDisconneted(CDoid tMyDoid)
+{
+    return SUCCESS;
+}
+
 //结束是回调.
 TInt32 CAuthenticateService::OnFinal()
 {
