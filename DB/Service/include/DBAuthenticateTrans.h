@@ -14,9 +14,8 @@ class CDBAuthenticateTrans : public CDBTransaction
 {
 public:
     //是谁请求的.
-    TUInt32 m_nContinue;
+    volatile TUInt32 m_nContinue;
     CDoid  m_tSrcDoid;
-
     union UnData
     {
         //请求数据
@@ -30,6 +29,19 @@ public:
         return m_tSrcDoid;
     }
 public:
+    void Init(CAuthenticateData *pData);
+    void OnDisconnected()
+    {
+        m_nContinue = 0;
+    }
+    TBOOL IsContinue()
+    {
+        if (m_nContinue)
+        {
+            return TRUE;
+        }
+        return FALSE;
+    }
     CDBAuthenticateTrans();
     virtual bool OnExecute(void * pConnection);
     virtual void OnFinish();

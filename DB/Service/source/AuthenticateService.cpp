@@ -1,7 +1,15 @@
 #include "../include/AuthenticateService.h"
 #include "../include/DBConfig.h"
+#include "../../Interface/include/IfAuthServiceSkeleton.h"
+
 namespace Zephyr
 {
+
+IMPLEMENT_START_HANDLE_INTERFACE(CAuthenticateService)
+IMPLEMENT_HANDLE_INTERFACE(IfAuthService)
+IMPLEMENT_END_HANDLE_INTERFACE(CAuthenticateService)
+
+
 CAuthenticateService::CAuthenticateService()
 {
     m_pDbMgr        = NULL;
@@ -27,13 +35,14 @@ CAuthenticateService::~CAuthenticateService()
 
 TInt32 CAuthenticateService::Authenticate(TLV<TUInt16,TUInt16> tAuthenticateData)
 {
+    
     return SUCCESS;
 }
 
 
 
 
-CService *InitService(IfOrb* pStubCenter,IfTaskMgr *pIfTaskMgr,IfLoggerManager *pIfLoggerMgr)
+CService *InitService(IfOrb* pOrb,IfTaskMgr *pIfTaskMgr,IfLoggerManager *pIfLoggerMgr)
 {
     CAuthenticateService *pAuthenticateScrvice=NULL;
     try
@@ -44,14 +53,14 @@ CService *InitService(IfOrb* pStubCenter,IfTaskMgr *pIfTaskMgr,IfLoggerManager *
     {
         return NULL;
     }
-    
-
+    pAuthenticateScrvice->InitService(pOrb,pIfTaskMgr,pIfLoggerMgr);
     return pAuthenticateScrvice;
 }
 
 TInt32 ReleaseService(CService* pService)
 {
-
+    CAuthenticateService *pAS = (CAuthenticateService*)pService;
+    delete pAS;
     return SUCCESS;
 }
 
@@ -93,12 +102,26 @@ TInt32 CAuthenticateService::OnInit()
 
 TInt32 CAuthenticateService::OnDisconneted(CDoid tMyDoid)
 {
+    TplNode<CDBAuthenticateTrans,CDoid> *pNode = m_tUsingMaps.GetItemByKey(tMyDoid);
+    if (pNode)
+    {
+        pNode->OnDisconnected();
+    }
+    return SUCCESS;
+}
+
+TInt32 CAuthenticateService::InitService(IfOrb *pIfOrb,IfTaskMgr *pIfTaskMgr,IfLoggerManager *pLoggerMgr)
+{
+    m_pIfOrb = pIfOrb;
+    m_pIfTaskMgr = pIfTaskMgr;
+    m_pLoggerMgr = pLoggerMgr;
     return SUCCESS;
 }
 
 //结束是回调.
 TInt32 CAuthenticateService::OnFinal()
 {
+    m_tUsingMaps.UnInit();
     return SUCCESS;
 }
 

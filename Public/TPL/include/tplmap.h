@@ -1750,6 +1750,7 @@ public:
     }
     void UnInit()
     {
+        m_pPool->Final();
     }
     CItem *PrepareItem()
     {
@@ -1793,7 +1794,7 @@ public:
     TInt32      RemoveFromTree(CItem *pItem);
     TInt32      AddInTree(CItem* pItem);
 
-    TplNode<CItem,CKey>  *GetItemByKey(CKey rKey)
+    TplNode<CItem,CKey>  *GetItemByKey(CKey& rKey)
     {
         if  (NULL == m_pTree)
         {

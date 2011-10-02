@@ -203,6 +203,7 @@ public:
     void Final()
     {
         CListNode<CMemBlock> *p = m_tUsingMemBlocks.pop_front();
+        m_pMainBlock = NULL;
         while (p)
         {
             CListNode<CMemBlock> *pDel = p;

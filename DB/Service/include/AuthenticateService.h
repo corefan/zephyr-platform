@@ -33,21 +33,20 @@ private:
     IfLogger        *m_pLogger;
     TInt32          m_nMaxTransNum;
 public:
-    //在初始化的时候会被调.
+    CAuthenticateService();
+    ~CAuthenticateService();
     virtual TInt32      OnInit();
     //结束是回调.
     virtual TInt32      OnFinal();
-    
+
     TInt32 InitService(IfOrb *pIfOrb,IfTaskMgr *pIfTaskMgr,IfLoggerManager *pLoggerMgr);
-    CAuthenticateService();
-    ~CAuthenticateService();
+    DECALRE_HANDLE_INTERFCE;
+    //在初始化的时候会被调.
+    
+    
     virtual TInt32 Authenticate(TLV<TUInt16,TUInt16> tAuthenticateData); 
     virtual TInt32 OnDisconneted(CDoid tMyDoid);
-    TInt32 OnRecv(Zephyr::CMessageHeader *)
-    {
-        return 0;
-    }
-
+    
 };
 
 
