@@ -17,6 +17,8 @@ CAuthenticateService::CAuthenticateService()
     m_pIfTaskMgr    = NULL;
     m_pLoggerMgr    = NULL;
     m_pLogger       = NULL;
+    m_nMaxTransNum  = 0;
+    m_nPendingDBTrans = 0;
 }
 
 CAuthenticateService::~CAuthenticateService()
@@ -31,11 +33,57 @@ CAuthenticateService::~CAuthenticateService()
         m_pLoggerMgr->ReleaseLogger(m_pLogger);
         m_pLogger = NULL;
     }
+
+    m_pIfOrb        = NULL;
+    m_pIfTaskMgr    = NULL;
+    m_pLoggerMgr    = NULL;
+    m_nMaxTransNum  = 0;
+    m_nPendingDBTrans = 0;
 }
 
 TInt32 CAuthenticateService::Authenticate(TLV<TUInt16,TUInt16> tAuthenticateData)
 {
-    
+    CDoid *pFrom = GetMyDoid();
+    if (pFrom)
+    {
+        CDBAuthenticateTrans *pDB = m_tUsingMaps.GetItemByKey(*pFrom);
+        if (pDB)
+        {
+            pDB->OnDisconnected();
+            m_tUsingMaps.ReleaseItem(pDB);
+            //等数据库返回后在释放回内存池
+        }
+        if (m_nPendingDBTrans < m_nMaxTransNum)
+        {
+            if (tAuthenticateData.GetBodyLength() == sizeof(CAuthenticateData))
+            {
+                pDB = m_tUsingMaps.PrepareItem();
+                if (pDB) //分配内存成功
+                {
+                    ++m_nPendingDBTrans;
+                    pDB->Init((CAuthenticateData*)tAuthenticateData.GetBody());
+                    pDB->m_tSrcDoid = *pFrom;
+                    IfTrasactionWorkThread *pThread = m_pDbMgr->GetThread();
+                    if(pThread)
+                    {
+                        if (pThread->AddTransaction(pDB))
+                        {
+                            //必须成功啊
+                            m_tUsingMaps.AddInTree(pDB);
+                        }
+                        else
+                        {
+                            m_tUsingMaps.ReleaseItem(pDB);
+                        }
+                    }
+                }
+            }
+        }
+        else
+        {
+
+        }
+    }
     return SUCCESS;
 }
 

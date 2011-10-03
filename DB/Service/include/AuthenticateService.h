@@ -32,6 +32,7 @@ private:
     IfLoggerManager *m_pLoggerMgr;
     IfLogger        *m_pLogger;
     TInt32          m_nMaxTransNum;
+    TInt32          m_nPendingDBTrans;
 public:
     CAuthenticateService();
     ~CAuthenticateService();
