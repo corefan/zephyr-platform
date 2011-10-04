@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8.00"
-	Name="Interface"
+	Name="DBInterface"
 	ProjectGUID="{A137B32D-7173-4B1F-80D5-B7047A312C6A}"
 	RootNamespace="Interface"
 	Keyword="Win32Proj"

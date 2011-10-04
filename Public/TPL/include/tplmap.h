@@ -987,7 +987,7 @@ void TplNode<CItem,CKey>::Print(TInt32 etch,TInt32& count)
     {
         cout<<"+  ";
     }
-    //cout<<CItem::GetKey()<<"("<<count++<<") nodeSize :"<<m_nodeSize<<endl;
+    cout<<CItem::GetKey()<<"("<<count++<<") nodeSize :"<<m_nodeSize<<endl;
 
     if (m_pRightNode)
     {

@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8.00"
-	Name="Interface"
+	Name="SCInterface"
 	ProjectGUID="{41E2CB3E-A60F-477E-8D80-BEAB954B0296}"
 	RootNamespace="Interface"
 	Keyword="Win32Proj"

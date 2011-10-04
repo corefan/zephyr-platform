@@ -5,6 +5,18 @@
 namespace Zephyr
 {
 
+
+
+
+
+ostream & operator<<(ostream &os,CDoid &tDoid)
+{
+    os<<"["<<tDoid.m_nodeId<<","<<tDoid.m_virtualIp<<","<<tDoid.m_srvId<<","<<tDoid.m_objId<<"]";
+    return os;
+}
+
+
+
 void CDoid::ToStr(TChar *pBuff)
 {
     sprintf(pBuff,"Doid://%u/%u/%u/%u",(unsigned int)m_nodeId,(unsigned int)m_virtualIp,(unsigned int)m_srvId,(unsigned int)m_objId);

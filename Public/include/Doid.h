@@ -20,6 +20,10 @@
 
 #include "TypeDef.h"
 #include "SysMacros.h"
+#include <iostream>
+
+
+using namespace std;
 
 namespace Zephyr
 {
@@ -101,8 +105,10 @@ public:
 	}
     //Buff need 32 bytes!
 	void ToStr(TChar *pBuff);
+    friend ostream &operator<<(ostream &os,CDoid &tDoid);
 };
 
+ostream & operator<<(ostream &os,CDoid &tDoid);
 
 TInt32 Unmarshall(TUChar *pBuffer,TUInt32 nLen,CDoid *&pDoid);
 TInt32 Marshall(TUChar *pBuffer,TUInt32 nLen,CDoid *pDoid);
