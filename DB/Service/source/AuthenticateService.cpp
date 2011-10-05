@@ -1,6 +1,8 @@
 #include "../include/AuthenticateService.h"
 #include "../include/DBConfig.h"
 #include "../../Interface/include/IfAuthServiceSkeleton.h"
+#include "../include/AuthenticateLogger.h"
+#include "../../Interface/include/IfAuthRespStub.h"
 
 namespace Zephyr
 {
@@ -61,7 +63,9 @@ TInt32 CAuthenticateService::Authenticate(TLV<TUInt16,TUInt16> tAuthenticateData
                 if (pDB) //分配内存成功
                 {
                     ++m_nPendingDBTrans;
-                    pDB->Init((CAuthenticateData*)tAuthenticateData.GetBody());
+                    ++m_nTotalReqTrans;
+                    ++m_nTotalReqTransIn1Min;
+                    pDB->Init((CAuthenticateData*)tAuthenticateData.GetBody(),this);
                     pDB->m_tSrcDoid = *pFrom;
                     IfTrasactionWorkThread *pThread = m_pDbMgr->GetThread();
                     if(pThread)
@@ -81,7 +85,14 @@ TInt32 CAuthenticateService::Authenticate(TLV<TUInt16,TUInt16> tAuthenticateData
         }
         else
         {
-
+            IfAuthResp *pResp;
+            GET_REMOTE_STUB_PT(pResp,IfAuthResp,pFrom);
+            //把原数据发回
+            pResp->RespAuthenticate(-((TInt32)en_incorrect_data_length),tAuthenticateData);
+            //写日志
+            TChar szDoid[64];
+            pFrom->ToStr(szDoid);
+            LOG_RUN(en_incorrect_data_length,"Recive incorrect data from Doid:%s",szDoid);
         }
     }
     return SUCCESS;
@@ -116,12 +127,17 @@ TInt32 ReleaseService(CService* pService)
 TInt32 CAuthenticateService::OnInit()
 {
     //m_pDbMgr = GetMysqlWorkThreadMgr()
-    CDBConfig tDBConfig;
+    CDBConfig tDBConfig; 
     if (tDBConfig.ReadConfig("DBConfig.ini") < 0)
     {
         return FAIL;
     }
-    TInt32 nLoggerIdx = m_pLoggerMgr->AddLogger(tDBConfig.m_szLoggerName,-1);
+    return StartService(tDBConfig.m_szLoggerName,tDBConfig.m_szConnectStr,tDBConfig.m_nThreadCount,tDBConfig.m_nQueueSize,tDBConfig.m_nFlag);
+}
+
+TInt32 CAuthenticateService::StartService(TChar *pszLoggerName,TChar *pszConnectStr,TInt32  nThreadCount,TInt32 nQueueSize,TUInt32 uFlag)
+{
+    TInt32 nLoggerIdx = m_pLoggerMgr->AddLogger(pszLoggerName,-1);
     if (nLoggerIdx < SUCCESS)
     {
         return nLoggerIdx;
@@ -131,28 +147,33 @@ TInt32 CAuthenticateService::OnInit()
     {
         return NULL_POINTER;
     }
-    m_pDbMgr = GetMysqlWorkThreadMgr(tDBConfig.m_szConnectStr,pDBLogger,tDBConfig.m_nThreadCount,tDBConfig.m_nQueueSize,tDBConfig.m_nFlag);
+    m_pDbMgr = GetMysqlWorkThreadMgr(pszConnectStr,pDBLogger,nThreadCount,nQueueSize,uFlag);
     if (!m_pDbMgr)
     {
         printf("Init DB failed, Pls check the DB config:DBConfig.ini");
         return FAIL;
     }
-    m_nMaxTransNum = tDBConfig.m_nThreadCount * tDBConfig.m_nQueueSize;
+    m_nMaxTransNum = nThreadCount * nQueueSize;
     TInt32 nRet = m_tTransPool.InitPool(m_nMaxTransNum);
     if (nRet < SUCCESS)
     {
         return nRet;
     }
     m_tUsingMaps.Init(&m_tTransPool);
-
-    return SUCCESS;
+    //其實只能是40ms
+    return m_pIfOrb->RegisterRun(GetSkeleton(),40);
 }
+
+
 
 TInt32 CAuthenticateService::OnDisconneted(CDoid tMyDoid)
 {
     TplNode<CDBAuthenticateTrans,CDoid> *pNode = m_tUsingMaps.GetItemByKey(tMyDoid);
     if (pNode)
     {
+        TChar szDoid[64];
+        tMyDoid.ToStr(szDoid);
+        LOG_RUN(en_client_disconneted,"Client:%s Disconneted before DB return!",szDoid);
         pNode->OnDisconnected();
     }
     return SUCCESS;
@@ -173,5 +194,37 @@ TInt32 CAuthenticateService::OnFinal()
     return SUCCESS;
 }
 
+void CAuthenticateService::OnDbFinished(CDBAuthenticateTrans *pTrans)
+{
+    --m_nPendingDBTrans;
+    ++m_nTotalRetTrans;
+    if (pTrans->IsContinue())
+    {
+        if (pTrans->IsSuccess())
+        {
+            //回覆成功
+        }
+        else
+        {
+            //回覆失敗
+        }
+    }
+    //從樹中刪除
+    m_tUsingMaps.RemoveFromTree(pTrans);
+    //放回內存池
+    m_tUsingMaps.ReleaseItem(pTrans);
+}
+
+TInt32  CAuthenticateService::OnRoutine(TUInt32 nRunCnt)
+{
+    TInt32 nGap = m_pClock->GetTimeGap(m_nLastStaticTime);
+    if (nGap > 60)
+    {
+        m_nLastStaticTime = m_pClock->GetLocalTime();
+        LOG_RUN(en_statistic_db_trans_num,"Total Trans %llu, Total Return %llu, %u in last minutes.\n",m_nTotalReqTrans,m_nTotalRetTrans,m_nTotalReqTransIn1Min);
+        m_nTotalReqTransIn1Min = 0;
+    }
+    return SUCCESS;
+}
 
 }

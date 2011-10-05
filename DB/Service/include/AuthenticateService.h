@@ -33,12 +33,19 @@ private:
     IfLogger        *m_pLogger;
     TInt32          m_nMaxTransNum;
     TInt32          m_nPendingDBTrans;
+    TUInt64         m_nTotalReqTrans;
+    TUInt64         m_nTotalRetTrans;
+    //以上两个相减就是还在处理中的
+    TUInt32         m_nLastStaticTime;
+    //统计信息,1分钟统计一次
+    TUInt32         m_nTotalReqTransIn1Min;
 public:
     CAuthenticateService();
     ~CAuthenticateService();
     virtual TInt32      OnInit();
     //结束是回调.
     virtual TInt32      OnFinal();
+    virtual TInt32  OnRoutine(TUInt32 nRunCnt);
 
     TInt32 InitService(IfOrb *pIfOrb,IfTaskMgr *pIfTaskMgr,IfLoggerManager *pLoggerMgr);
     DECALRE_HANDLE_INTERFCE;
@@ -47,7 +54,13 @@ public:
     
     virtual TInt32 Authenticate(TLV<TUInt16,TUInt16> tAuthenticateData); 
     virtual TInt32 OnDisconneted(CDoid tMyDoid);
-    
+    TInt32 StartService(TChar *pszLoggerName,TChar *pszConnectStr,TInt32  nThreadCount,TInt32 QueueSize,TUInt32 Flag=0);
+
+    IfLogger *GetLogger()
+    {
+        return m_pLogger;
+    }
+    void OnDbFinished(CDBAuthenticateTrans *pTrans);
 };
 
 

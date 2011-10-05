@@ -19,7 +19,7 @@ ostream & operator<<(ostream &os,CDoid &tDoid)
 
 void CDoid::ToStr(TChar *pBuff)
 {
-    sprintf(pBuff,"Doid://%u/%u/%u/%u",(unsigned int)m_nodeId,(unsigned int)m_virtualIp,(unsigned int)m_srvId,(unsigned int)m_objId);
+    sprintf(pBuff,"[%u,%u,%u,%u]",(unsigned int)m_nodeId,(unsigned int)m_virtualIp,(unsigned int)m_srvId,(unsigned int)m_objId);
 }
 
 TInt32 Unmarshall(TUChar *pBuffer,TUInt32 nLen,CDoid *&pDoid)

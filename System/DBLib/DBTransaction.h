@@ -17,7 +17,7 @@ public:
 
 	virtual bool OnExecute(void * pConnection);
 	virtual void OnFinish();
-
+    
 	void SetResult(bool IsSucceed)
 	{
 		m_IsSucceed=IsSucceed;

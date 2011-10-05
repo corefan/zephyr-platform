@@ -191,6 +191,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\include\AuthenticateLogger.h"
+				>
+			</File>
+			<File
 				RelativePath=".\include\AuthenticateService.h"
 				>
 			</File>
