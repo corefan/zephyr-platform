@@ -31,6 +31,7 @@ public:
         CAuthorityData    m_tAuthorityData;
     };
     UnData m_unAllData;
+    TInt32 m_nResult;
     CDoid &GetKey()
     {
         return m_tSrcDoid;

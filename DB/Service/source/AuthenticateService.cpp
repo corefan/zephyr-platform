@@ -92,7 +92,7 @@ TInt32 CAuthenticateService::Authenticate(TLV<TUInt16,TUInt16> tAuthenticateData
             //写日志
             TChar szDoid[64];
             pFrom->ToStr(szDoid);
-            LOG_RUN(en_incorrect_data_length,"Recive incorrect data from Doid:%s",szDoid);
+            LOG_RUN(en_incorrect_data_length,"Recive incorrect data from Doid:%s\n",szDoid);
         }
     }
     return SUCCESS;
@@ -173,7 +173,7 @@ TInt32 CAuthenticateService::OnDisconneted(CDoid tMyDoid)
     {
         TChar szDoid[64];
         tMyDoid.ToStr(szDoid);
-        LOG_RUN(en_client_disconneted,"Client:%s Disconneted before DB return!",szDoid);
+        LOG_RUN(en_client_disconneted,"Client:%s Disconneted before DB return!\n",szDoid);
         pNode->OnDisconnected();
     }
     return SUCCESS;
@@ -198,15 +198,35 @@ void CAuthenticateService::OnDbFinished(CDBAuthenticateTrans *pTrans)
 {
     --m_nPendingDBTrans;
     ++m_nTotalRetTrans;
+    CDoid *pFrom = &pTrans->m_tSrcDoid;
     if (pTrans->IsContinue())
     {
         if (pTrans->IsSuccess())
         {
             //回覆成功
+            IfAuthResp *pResp;
+            GET_REMOTE_STUB_PT(pResp,IfAuthResp,pFrom);
+            //把原数据发回
+            TLV<TUInt16,TUInt16> tAuthTLV;
+            tAuthTLV.m_nBodyLength = sizeof(CAuthorityData);
+            tAuthTLV.m_nTag = pTrans->m_nResult; //表示成功.其实没用
+            tAuthTLV.m_pBuffer = (TUChar*)&pTrans->m_unAllData.m_tAuthorityData;
+            pResp->RespAuthenticate(-((TInt32)en_incorrect_data_length),tAuthTLV);
         }
         else
         {
             //回覆失敗
+            IfAuthResp *pResp;
+            GET_REMOTE_STUB_PT(pResp,IfAuthResp,pFrom);
+            //把原数据发回
+            TLV<TUInt16,TUInt16> tAuthTLV;
+            tAuthTLV.m_nBodyLength = sizeof(CAuthenticateData);
+            tAuthTLV.m_nTag = 0; //表示元数据返回
+            tAuthTLV.m_pBuffer = (TUChar*)&pTrans->m_unAllData.m_tAuthenticateData;
+            pResp->RespAuthenticate(-((TInt32)en_data_trans_failed),tAuthTLV);
+            TChar szDoid[64];
+            pFrom->ToStr(szDoid);
+            LOG_RUN(en_data_trans_failed,"DB Trans Failed for Doid:%s\n",szDoid);
         }
     }
     //從樹中刪除
