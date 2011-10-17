@@ -116,44 +116,39 @@ private:
         pSiblings->Init();
         pSiblings->m_pLeftNode = this;
         pSiblings->m_pRightNode = m_pSiblings;
-        //pSiblings->m_nodeSize = 1;
-        pSiblings->m_pParent = this; //指向树节点
+        pSiblings->m_nodeSize = 1;
+        pSiblings->m_pParent = NULL;
         pSiblings->m_pSiblings = pSiblings;
         if (m_pSiblings)
         {
             m_pSiblings->m_pLeftNode = pSiblings;
-            pSiblings->m_nodeSize = m_pSiblings->m_nodeSize + 1;
-            m_pSiblings->m_nodeSize = 0; //清了.
-        }
-        else
-        {
-            pSiblings->m_nodeSize = 1;
+            pSiblings->m_nodeSize += m_pSiblings->m_nodeSize;
         }
         m_pSiblings = pSiblings;
     }
     //调用者保证是属于sibling list
-//     void DetachFromSibling()
-//     {
-//         if (m_pRightNode)
-//         {
-//             m_pRightNode->m_pLeftNode = m_pLeftNode;
-//         }
-//         //第一个兄弟节点
-//         if (m_pParent == m_pLeftNode) //总是存在的
-//         {
-//             m_pParent->m_pSiblings = m_pRightNode;
-//         }
-//         else
-//         {
-//             m_pLeftNode->m_pRightNode = m_pRightNode;
-//         }
-// 
-//         m_pParent = NULL;
-//         m_pLeftNode = NULL;
-//         m_pRightNode = NULL;
-//         m_nodeSize = 0;
-// 
-//     }
+    void DetachFromSibling()
+    {
+        if (m_pRightNode)
+        {
+            m_pRightNode->m_pLeftNode = m_pLeftNode;
+        }
+        //第一个兄弟节点
+        if (m_pParent == m_pLeftNode) //总是存在的
+        {
+            m_pParent->m_pSiblings = m_pRightNode;
+        }
+        else
+        {
+            m_pLeftNode->m_pRightNode = m_pRightNode;
+        }
+
+        m_pParent = NULL;
+        m_pLeftNode = NULL;
+        m_pRightNode = NULL;
+        m_nodeSize = 0;
+
+    }
     enum EnActive
     {
         active_mask     = 0x80000000,
@@ -238,9 +233,10 @@ public:
     TplMultiKeyMapNode<CItem,CKey> *SafeReleaseNode(TplMultiKeyMapNode<CItem,CKey> *pRelease,TInt32 &result)
     {
         TplMultiKeyMapNode<CItem,CKey> *pResult = FindNode(pRelease->GetKey());
-
+#ifdef _DEBUG
         if (pResult)
         {
+#endif
             //要释放Tree中的Node
             if (pResult == pRelease) 
             {
@@ -251,7 +247,6 @@ public:
                     if (pReplacement->m_pRightNode)
                     {
                         pReplacement->m_pRightNode->m_nodeSize = pRelease->m_nodeSize - 1;
-                        //pReplacement->m_pRightNode->m_pLeftNode = pReplacement->m_pRightNode; //不用，原来就是.
                     }
                     pReplacement->m_pLeftNode  = pRelease->m_pLeftNode;
                     pReplacement->m_pRightNode = pRelease->m_pRightNode;
@@ -294,26 +289,16 @@ public:
             }
             else //要删的就是兄弟节点
             {
-
+#ifdef _DEBUG
                 if (pRelease != pRelease->m_pSiblings)
                 {
                     //printf("Incorrect erase !");
-                    result = FAIL;
                     return this;
                 }
-                if (pRelease->m_pParent != pResult) //不属于这棵树！
-                {
-                    result = FAIL;
-                    return this;
-                }
-                
-                if (pResult->m_pSiblings == pRelease) //第一个节点
+#endif
+                if (pRelease->m_pLeftNode == pResult) //第一个节点
                 {
                     pResult->m_pSiblings = pRelease->m_pRightNode;
-                    if (pRelease->m_pRightNode)
-                    {
-                        pRelease->m_pRightNode->m_nodeSize = pRelease->m_nodeSize - 1;
-                    }
                 }
                 else
                 {
@@ -322,28 +307,27 @@ public:
                     {
 #endif
                         pRelease->m_pLeftNode->m_pRightNode = pRelease->m_pRightNode;
-                        if (pRelease->m_pRightNode)
-                        {
-                            pRelease->m_pRightNode->m_pLeftNode = pRelease->m_pLeftNode;
-                        }
-                        --pRelease->m_pParent->m_pSiblings->m_nodeSize;
 #ifdef _DEBUG
                     }
 #endif
                 }
-
+                if (pRelease->m_pRightNode)
+                {
+                    pRelease->m_pRightNode->m_nodeSize = pRelease->m_nodeSize - 1;
+                    pRelease->m_pRightNode->m_pLeftNode = pRelease->m_pLeftNode;
+                }
                 pRelease->UnInit();
                 result = SUCCESS;
                 return this;
             }
-
+#ifdef _DEBUG
         }
         else
         {
             result = FAIL;
             return this;
         }
-
+#endif
         return pResult;
     }
 
@@ -1012,14 +996,6 @@ public:
         {
             m_pNow = pNow;
         }
-        void operator=(Iterator &rValue)
-        {
-            m_pNow = rValue.m_pNow;
-        }
-        void operator=(TplMultiKeyMapNode<CItem,CKey>* pNow)
-        {
-            m_pNow = pNow;
-        }
         TInt32 Init(TplMultiKeyMapNode<CItem,CKey>* pNow)
         {
             if(!pNow)
@@ -1134,10 +1110,6 @@ public:
         {
             return m_pNow;
         }
-        operator CItem*()
-        {
-            return m_pNow;
-        }
         bool        operator == (Iterator& itor)
         {
             if (itor.m_pNow == m_pNow)
@@ -1147,6 +1119,10 @@ public:
             return false;
         }
 		TplMultiKeyMapNode<CItem,CKey>* GetItem()
+		{
+			return m_pNow;
+		}
+		operator TplMultiKeyMapNode<CItem,CKey>*()
 		{
 			return m_pNow;
 		}
@@ -1900,6 +1876,7 @@ private:
     //TplMultiKeyMapNode<CItem,CKey>*     m_pItem;
     CPool<TplMultiKeyMapNode<CItem,CKey> > *m_pPool;
     TplMultiKeyMapNode<CItem,CKey>*        m_pTree;
+    TInt32                                 m_nTreeSize;
 private:
     
 public:
@@ -1919,17 +1896,42 @@ public:
 	{
 		if (m_pTree)
 		{
-			return m_pTree->GetTreeSize();
+			return m_nTreeSize;
 		}
 		return 0;
 	}
-    
+    class Iterator
+    {
+//     private:
+//         TplMultiKeyMapNode<CItem,CKey>::Iterator m_iterator;
+//     public:
+//         void        operator ++()
+//                     {
+//                         ++m_iterator;
+//                     }
+//         CItem*      operator ->()
+//                     {
+//                         return m_iterator.GetItem();
+//                     }
+//         bool        operator == (Iterator& itor)
+//                     {  
+//                         if (itor.m_iterator == m_iterator)
+//                         {
+//                             return true;
+//                         }
+//                         return false;
+//                     }
+//     private:
+//         Iterator(){};
+//         ~Iterator(){};
+//         friend class TplMap<CItem,CKey>;
+    };
     friend class Iterator;
 private:
 public:
     typedef TInt32 (CItem::*_PFMSG)(TInt32);
     //Begin是有效的
-    TplMultiKeyMapNode<CItem,CKey> *First()
+    TplMultiKeyMapNode<CItem,CKey> *Begin()
     {
         if (m_pTree)
         {
@@ -1938,7 +1940,7 @@ public:
         return NULL;
     }
     //end也是有效的
-    TplMultiKeyMapNode<CItem,CKey> *Last()
+    TplMultiKeyMapNode<CItem,CKey> *End()
     {
         if (m_pTree)
         {
@@ -1946,25 +1948,17 @@ public:
         }
         return NULL;
     }
-    void clean()
-    {
-        TplMultiKeyMapNode<CItem,CKey>::Iterator it = First();
-        TplMultiKeyMapNode<CItem,CKey> *pNode = it.GetItem();
-        int nRtn;
-        while (pNode)
-        {
-            ++it;
-            m_pTree = m_pTree->SafeReleaseNode(pNode,nRtn);
-            pNode->m_tTree.m_pTree = NULL;
-            
-            m_pPool->ReleaseMem(pNode);
-
-            pNode = it.GetItem();
-        }
-    }
     
+    void RunOnTree(_PFMSG ptr,TInt32 arg)
+    {
+		if (m_pTree)
+		{
+			m_pTree->RunOnTree(ptr, arg);
+		}
+    }
     TplMultiKeyMap()
     {
+        m_nTreeSize = 0;
         m_pPool = NULL;
         m_pTree = NULL;
     };
@@ -1975,6 +1969,7 @@ public:
     {
         m_pPool = pPool;
         m_pTree = NULL;
+        m_nTreeSize = 0;
         return SUCCESS;
     }
     void UnInit()
@@ -2041,15 +2036,7 @@ public:
 
     TInt32      AddInTree(CItem* pItem);
 
-    TplMultiKeyMapNode<CItem,CKey> *GetItemByKey(CKey&  rKey)
-    {
-        if (!m_pTree)
-        {
-            return NULL;
-        }
-        return m_pTree->FindNode(rKey);
-    }
-
+    TplMultiKeyMapNode<CItem,CKey>  *GetItemByKey(CKey& rKey);
     TInt32         GetFreeSize()
                 {
                     return m_pPool->GetFreeNr();
@@ -2068,7 +2055,27 @@ public:
                     }
                     return SUCCESS;
                 }
-
+    TBOOL   IsFull()
+            {
+                if (m_pHead->m_pRightNode == m_pRear)
+                {
+                    return TRUE;
+                }
+                return FALSE;
+            }
+	void clean()
+	{
+		TplMultiKeyMapNode<CItem,CKey>::Iterator it = Begin();
+		TplMultiKeyMapNode<CItem,CKey> *pNode = it;
+		int nRtn;
+		while(pNode)
+		{
+			++it;
+			m_pTree = m_pTree->SafeReleaseNode(pNode,nRtn);
+			m_pPool->ReleaseMem(pNode);
+			pNode = it;
+		}
+	}
 };
 
 // template<class CItem, class CKey>
@@ -2122,6 +2129,16 @@ TInt32 TplMultiKeyMap<CItem,CKey>::AddInTree(CItem* pItem)
     }
     
     return SUCCESS;
+}
+
+template<class CItem, class CKey>
+TplMultiKeyMapNode<CItem,CKey> *TplMultiKeyMap<CItem,CKey>::GetItemByKey(CKey& rKey)
+{
+    if ((NULL == m_pTree))
+    {
+        return NULL;
+    }
+    return m_pTree->FindNode(rKey);
 }
 
 }
