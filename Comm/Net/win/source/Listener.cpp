@@ -136,10 +136,11 @@ TInt32 CListener::Run(TInt32 cnt)
             {
                 pCryptor = NULL;
             }
+			pNew->SetConnectionType(connection_is_postive);
             TInt32 ret = pNew->Init(acceptedSocket,&pair,pAppCallBack,pParser,pCryptor);
-            pNew->SetConnectionType(connection_is_postive);
             if (SUCCESS > ret)
             {
+				pAppCallBack->OnDissconneted(ret);
                 pNew->CloseConnection();
                 m_pConnectionPool->ReleaseItem(pNew);
                 continue;
@@ -148,7 +149,7 @@ TInt32 CListener::Run(TInt32 cnt)
 
             if (h != m_compeltionPort)
             {
-                closesocket(acceptedSocket);
+				pAppCallBack->OnDissconneted(ret);
                 pNew->OnDisconnected();
                 m_pConnectionPool->ReleaseItem(pNew);
                 continue;
@@ -157,6 +158,7 @@ TInt32 CListener::Run(TInt32 cnt)
             ret = pNew->OnConnected();
             if (SUCCESS > ret)
             {
+				pAppCallBack->OnDissconneted(ret);
                 pNew->CloseConnection();
                 m_pConnectionPool->ReleaseItem(pNew);
                 continue;

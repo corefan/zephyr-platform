@@ -236,10 +236,6 @@
 					RelativePath=".\DBValue.h"
 					>
 				</File>
-				<File
-					RelativePath=".\IfConnection.h"
-					>
-				</File>
 			</Filter>
 		</Filter>
 		<Filter
@@ -470,10 +466,6 @@
 				>
 			</File>
 		</Filter>
-		<File
-			RelativePath=".\DBLib.cbp"
-			>
-		</File>
 	</Files>
 	<Globals>
 	</Globals>

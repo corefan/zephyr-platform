@@ -267,6 +267,10 @@
 						>
 					</File>
 					<File
+						RelativePath=".\Interface\Platform\include\IfFinalizer.h"
+						>
+					</File>
+					<File
 						RelativePath=".\Interface\Platform\include\IfLogger.h"
 						>
 					</File>

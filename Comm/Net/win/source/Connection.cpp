@@ -696,6 +696,7 @@ TInt32 CConnection::OnConnected()
     if (pData)
     {
         DWORD dwIoSize=0;
+		m_connectionState = connection_is_using;
         UINT nRetVal = WSARecv(m_socket,
             &pData->m_wsaBuff,
             1,
@@ -732,7 +733,6 @@ TInt32 CConnection::OnConnected()
                             return (-m_errorCode);
                         }
                     }
-                    m_connectionState = connection_is_using;
                     return SUCCESS;
                 }
                 else
@@ -745,13 +745,11 @@ TInt32 CConnection::OnConnected()
             }
             else
             {
-                m_connectionState = connection_is_using;
                 return SUCCESS;
             }
         }
         else
         {
-            m_connectionState = connection_is_using;
             return SUCCESS;
         }
     }

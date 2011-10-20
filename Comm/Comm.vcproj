@@ -223,10 +223,6 @@
 				RelativePath=".\include\MsgParserFactory.h"
 				>
 			</File>
-			<File
-				RelativePath=".\include\TimeSystem.h"
-				>
-			</File>
 		</Filter>
 	</Files>
 	<Globals>

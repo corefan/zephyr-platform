@@ -55,11 +55,13 @@ TUInt32 CTimer::Run(TUInt64 nTimeNow)
     TUInt32 nRunCnt = 0;
     //if (m_tMap.GetActivedSize())
     {
-        TplMultiKeyMapNode<CScheduler,TUInt64> *pNode = m_tMap.First();
+		TplMultiKeyMapNode<CScheduler,TUInt64>::Iterator it = m_tMap.Begin();
+		TplMultiKeyMapNode<CScheduler,TUInt64> *pNode = it;
         while(pNode)
         {
             if (pNode->m_nTime < nTimeNow)
             {
+				++it;
                 m_pRuning = pNode; //保证m_pRuning不会被删除.
                 pNode->m_pScheduler->OnScheduler(pNode,nTimeNow);
                 m_pRuning = NULL;
@@ -81,7 +83,7 @@ TUInt32 CTimer::Run(TUInt64 nTimeNow)
                         m_tPool.ReleaseMem(pNode);
                     }
                 }
-                pNode = m_tMap.First();//这样做效率不高Log(n)，但是最安全，限制最少.
+                pNode = it; //m_tMap.Begin();//这样做效率不高Log(n)，但是最安全，限制最少.
                 ++ nRunCnt;
                 if (nRunCnt > 10000)
                 {

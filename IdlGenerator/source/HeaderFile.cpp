@@ -198,6 +198,7 @@ TInt32 CHeaderFile::Process(char **ppElements,EnType *pTypes,int nProcess2,int n
                     CInterfaceElement *pInterface = CREATE_FROM_STATIC_POOL(CInterfaceElement);
                     if (pInterface)
                     {
+						++nNr;
                         int nRet = pInterface->Process(ppElements,pTypes,(nNr),nTotalEles);
                         if (nRet <= 0)
                         {

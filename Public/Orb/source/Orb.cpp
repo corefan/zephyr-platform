@@ -185,6 +185,7 @@ TInt32 COrb::Run(const TInt32 threadId,const TInt32 runCnt)
     CMessageHeader *pMsg = m_pIfComm->GetMsg();
     while (pMsg)
     {
+		CMessageHeader::UnMsgInfo tInfo = pMsg->m_msgInfo; //先存起来，免得被应用层破坏了
         CDoid *pDest = pMsg->GetDestDoidByIdx();
         CListNode<CArrayPoolNode<CSkeleton> > *pSk = m_tSkeletonPool.FindMem(pDest->m_objId);
         if (pSk->m_pListBelongsTo != &m_tSkeletonPool.m_tFree)
@@ -207,6 +208,7 @@ TInt32 COrb::Run(const TInt32 threadId,const TInt32 runCnt)
             }
         }
         ++nUsedCnt;
+		pMsg->m_msgInfo = tInfo; //再放回去，你应用层就不能破坏了
         m_pIfComm->ReturnMsgBuff(pMsg);
         if (nUsedCnt > runCnt)
         {

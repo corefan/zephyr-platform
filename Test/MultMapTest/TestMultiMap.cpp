@@ -111,7 +111,7 @@ int main(int argc,char *pArgv[])
             unsigned int nTimeNow = timeGetTime();
             unsigned int uGap = nTimeNow - uLastShowTime;
             uLastShowTime = nTimeNow;
-            printf("Test %llu times!time is :%u\n\t",nTotalTestTime,uGap);
+            printf("Test %llu times!time is :%u\n",nTotalTestTime,uGap);
             nLastInfoTime+=1000000;
         }
         if (nTestTime < (nMaxTestTime>>1))
@@ -153,7 +153,7 @@ int main(int argc,char *pArgv[])
         }
        
         //Sleep(15);
-        TplMultiKeyMapNode<CTestClass,int>::Iterator it = m_tMap.First();
+        TplMultiKeyMapNode<CTestClass,int>::Iterator it = m_tMap.Begin();
         int nCount = 0;
         int nLast = 0;
         while (it.GetItem())
@@ -170,7 +170,7 @@ int main(int argc,char *pArgv[])
         }
         cout<<"count is :"<<nCount<<"input "<<nTestTime*4;
         nCount = 0;
-        it = m_tMap.Last();
+        it = m_tMap.End();
         while (it.GetItem())
         {
             ++nCount;
@@ -183,33 +183,36 @@ int main(int argc,char *pArgv[])
             //cout<<nNow<<" ";
             --it;
         }
-        cout<<"count is :"<<nCount<<"input "<<nTestTime*4;
+        cout<<"reverse-iterator test, count is :"<<nCount<<"input "<<nTestTime*4<<endl;
 
-        for (int i=0;i<nTestTime;++i)
-        {
-#ifdef USE_STL_MAP
-            int n = pRand[((i+nTotalTestTime)%nMaxTestTime)];
-            tMap.erase(n);
-#else
-            m_tMap.RemoveFromTreeItem(ppStore[i]);
-            int nRtn = m_tMap.ReleaseItem(ppStore[i]);
-            if (nRtn < SUCCESS)
-            {
-                printf("something wrong!");
-            }
-//             int i1002 = 1002;
-//             TplMultiKeyMapNode<CTestClass,int> *pN = (TplMultiKeyMapNode<CTestClass,int> *)m_tMap.GetItemByKey(&i1002);
-//             if (pN)
-//             {
-//                 if (!pN->m_pSiblings)
-//                 {
-//                     pN = NULL;
-//                 }
-//             }
-            ppStore[i] = NULL;
-#endif
-        }
-        if (m_tMap.GetFreeSize() != nMaxTestTime)
+		for (int j=0;j<4;++j)
+		{
+			for (int i=0;i<nTestTime;++i)
+			{
+	#ifdef USE_STL_MAP
+				int n = pRand[((i+nTotalTestTime)%nMaxTestTime)];
+				tMap.erase(n);
+	#else
+				m_tMap.RemoveFromTreeItem(ppStore[i+j*nTestTime]);
+				int nRtn = m_tMap.ReleaseItem(ppStore[i+j*nTestTime]);
+				if (nRtn < SUCCESS)
+				{
+					printf("something wrong!");
+				}
+	//             int i1002 = 1002;
+	//             TplMultiKeyMapNode<CTestClass,int> *pN = (TplMultiKeyMapNode<CTestClass,int> *)m_tMap.GetItemByKey(&i1002);
+	//             if (pN)
+	//             {
+	//                 if (!pN->m_pSiblings)
+	//                 {
+	//                     pN = NULL;
+	//                 }
+	//             }
+				ppStore[i+j*nTestTime] = NULL;
+	#endif
+			}
+		}
+        if (m_tMap.GetFreeSize() != nMaxTestTime*4)
         {
             printf("something wrong!");
         }

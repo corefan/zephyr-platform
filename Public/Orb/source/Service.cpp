@@ -23,17 +23,13 @@ TInt32 CService::RegisterSession(CSession *pSession)
     return OUT_OF_MEM;
 }
 
-TInt32 CService::Init(TInt32 nInitTimerNr,CClock *pClock,IfCommunicator *pIfComm,IfOrb *pOrb,CDoid *pDoid)
+TInt32 CService::Init(const CClock *pClock,IfCommunicator *pIfComm,IfOrb *pOrb,CDoid *pDoid)
 {
-    TInt32 nRet = m_tTimer.Init(nInitTimerNr);
-    if (nRet < SUCCESS)
-    {
-        return nRet;
-    }
     m_pClock = pOrb->GetClock();
     m_pIfOrb = pOrb;
     m_nServiceId = pDoid->m_srvId;
     m_pIfComm = pIfComm;
+	m_nServiceId = pDoid->m_srvId;
 //     m_pSkeleton = pOrb->RegiterService(this,m_nServiceId);
 //     if (NULL == m_pSkeleton)
 //     {

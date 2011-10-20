@@ -193,6 +193,7 @@ int main(int argc, char* argv[])
                 if (pSkeleton)
                 {
                     pService->SetSkeleton(pSkeleton);
+					pService->Init(pOrb[i].GetCommunicator()->GetClock(),pOrb[i].GetCommunicator(),pOrb+i,pSkeleton->GetMyDoid());
                     TInt32 nRet = pService->OnInit();
                     if (nRet < SUCCESS)
                     {

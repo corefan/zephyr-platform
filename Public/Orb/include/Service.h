@@ -32,7 +32,7 @@ public:
         m_nServiceId = 0;
     }
     virtual ~CService();
-    TInt32 Init(TInt32 nInitTimerNr,CClock *pClock,IfCommunicator *pIfComm,IfOrb *pOrb,CDoid *pDoid);
+    TInt32 Init(const CClock *pClock,IfCommunicator *pIfComm,IfOrb *pOrb,CDoid *pDoid);
     void *SetTimer(TUInt32 uGapInMs,TInt32 nRepeatTime,IfScheduler *pScheduler)
     {
         return m_tTimer.SetTimer(uGapInMs,nRepeatTime,pScheduler,m_pClock->GetPlatformTime());
