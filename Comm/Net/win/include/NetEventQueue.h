@@ -114,6 +114,7 @@ private:
 public:
     TInt32      Init(TInt32 maxEventNr)
     {
+		maxEventNr *= 4; //多分配点，如果突然所有连接中断，就会不够了，每个连接最多3个事件（收到消息*3+连接中断）
         TInt32 rtn = m_netQueue.Init(maxEventNr);
         if (SUCCESS > rtn)
         {

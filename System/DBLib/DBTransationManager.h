@@ -38,11 +38,11 @@ public:
         CLock                                   m_tLocks;
         virtual void WriteLog(const TUInt32 logId,const TUInt32 lvl,const TChar *_pFormat,...);
         virtual void WriteLog(const TUInt32 lvl,const TChar *_pFormat,...);
-        virtual void WriteLog(const TUInt32 logId,const TUInt32 lvl,const TChar* __pFormat,va_list vl);
-        virtual void WriteLog(const TUInt32 lvl,const TChar *__pFormat,va_list vl);
+        virtual void WriteLogV(const TUInt32 logId,const TUInt32 lvl,const TChar* __pFormat,va_list vl);
+        virtual void WriteLogV(const TUInt32 lvl,const TChar *__pFormat,va_list vl);
         //直接写数据，不按格式写
         virtual void WriteRawLog(const TUInt32 lvl,const TChar *__pFormat,...);
-        virtual void WriteRawLog(const TUInt32 lvl,const TChar *__pFormat,va_list vl);
+        virtual void WriteRawLogV(const TUInt32 lvl,const TChar *__pFormat,va_list vl);
         //直接写比特流，不要随便用.
         virtual void WriteBinLog(const TChar *pBin,TUInt32 uLength);
     };

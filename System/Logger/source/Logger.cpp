@@ -362,12 +362,12 @@ void CLogger::WriteLog(const TUInt32 logId,const TUInt32 lvl,const TChar *_pForm
 {
     va_list argList;
     va_start(argList,_pFormat);
-    WriteLog(logId,lvl,_pFormat,argList);
+    WriteLogV(logId,lvl,_pFormat,argList);
     va_end(argList);
 }
 
 
-void CLogger::WriteLog(const TUInt32 logId,const TUInt32 lvl,const TChar *_pFormat,va_list ValueList)
+void CLogger::WriteLogV(const TUInt32 logId,const TUInt32 lvl,const TChar *_pFormat,va_list ValueList)
 {
     if (!(lvl & m_needOperation))
     {
@@ -434,11 +434,11 @@ void CLogger::WriteLog(const TUInt32 lvl,const TChar *_pFormat,...)
 {
     va_list argList;
     va_start(argList,_pFormat);
-    WriteLog(lvl,_pFormat,argList);
+    WriteLogV(lvl,_pFormat,argList);
     va_end(argList);
 }
 
-void CLogger::WriteLog(const TUInt32 lvl,const TChar *_pFormat,va_list ValueList)
+void CLogger::WriteLogV(const TUInt32 lvl,const TChar *_pFormat,va_list ValueList)
 {
     if (!(lvl & m_needOperation))
     {
@@ -499,7 +499,7 @@ void CLogger::WriteLog(const TUInt32 lvl,const TChar *_pFormat,va_list ValueList
     }
 }
 
-void CLogger::WriteRawLog(const TUInt32 lvl,const TChar *__pFormat,va_list argList)
+void CLogger::WriteRawLogV(const TUInt32 lvl,const TChar *__pFormat,va_list argList)
 {
     if (!(lvl & m_needOperation))
     {
@@ -559,7 +559,7 @@ void CLogger::WriteRawLog(const TUInt32 lvl,const TChar *__pFormat,...)
 {
     va_list argList;
     va_start(argList,__pFormat);
-    WriteRawLog(lvl,__pFormat,argList);
+    WriteRawLogV(lvl,__pFormat,argList);
     va_end(argList);
 }
 

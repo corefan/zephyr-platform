@@ -203,7 +203,7 @@ void CDBTransationManager::CDbLoggerWithLock::WriteLog(const TUInt32 lvl,const T
     va_end(argList);
 }
 
-void CDBTransationManager::CDbLoggerWithLock::WriteLog(const TUInt32 logId,const TUInt32 lvl,const TChar* __pFormat,va_list vl)
+void CDBTransationManager::CDbLoggerWithLock::WriteLogV(const TUInt32 logId,const TUInt32 lvl,const TChar* __pFormat,va_list vl)
 {
     //CAutoLock tLock(m_tLocks);
     m_tLocks.Lock();
@@ -222,7 +222,7 @@ void CDBTransationManager::CDbLoggerWithLock::WriteLog(const TUInt32 logId,const
     m_tLocks.Unlock();
 }
 
-void CDBTransationManager::CDbLoggerWithLock::WriteLog(const TUInt32 lvl,const TChar *__pFormat,va_list vl)
+void CDBTransationManager::CDbLoggerWithLock::WriteLogV(const TUInt32 lvl,const TChar *__pFormat,va_list vl)
 {
     m_tLocks.Lock();
 #ifdef _DEBUG
@@ -263,7 +263,7 @@ void CDBTransationManager::CDbLoggerWithLock::WriteRawLog(const TUInt32 lvl,cons
 }
 
 
-void CDBTransationManager::CDbLoggerWithLock::WriteRawLog(const TUInt32 lvl,const TChar *__pFormat,va_list argList)
+void CDBTransationManager::CDbLoggerWithLock::WriteRawLogV(const TUInt32 lvl,const TChar *__pFormat,va_list argList)
 {
     m_tLocks.Lock();
 #ifdef _DEBUG

@@ -190,6 +190,9 @@ TInt32 CConnection::OnSent(CIocpOverlappedDataHeader *pHeader,TUInt32 ioSize)
             if (WSAGetLastError() != WSA_IO_PENDING)
             {
                 CloseConnection();
+				//BEGIN ADDED 少了通知应用层
+				OnNetDisconnected();
+				//END ADDED
                 return 1;
                 //connection broken;
             }
@@ -290,6 +293,7 @@ CIocpOverlappedDataHeader *CConnection::PrepareToRead()
 
 TInt32 CConnection::Disconnect()
 {
+	m_pAppCallBack = NULL;//坚决不要回调
     switch (m_connectionState)
     {
         case connection_is_not_in_use:
@@ -308,7 +312,6 @@ TInt32 CConnection::Disconnect()
         case connection_is_broken:
         case connection_is_aborted:
         {
-            m_pAppCallBack = NULL;
 //             TIOEvent event;
 //             event.m_connectionEvents = event_connection_is_aborted;
 //             event.m_connectionIdx    = m_connectionIdx;
@@ -604,6 +607,7 @@ TInt32 CConnection::AppRoutine(TUChar *pBuff,TUInt32 buffLen)
         if (m_pAppCallBack)
         {
             m_pAppCallBack->OnDissconneted(m_errorCode);
+			m_pAppCallBack = NULL; //清掉
         }
 #ifdef _DEBUG
         //printf("[CConnection::AppRoutine] net is disconnected!");
