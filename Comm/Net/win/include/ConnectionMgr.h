@@ -48,10 +48,11 @@ protected:
     
     IfParserFactory*    m_pParserFactory;
     IfCryptorFactory*   m_pCryptorFactory;
-    
+    IfTaskMgr*			m_pTaskMgr;
     CNetEventQueues     m_netEventQueues;
 
     TUInt32             m_nTimeNow;
+	
 
 //         
 //         //TUInt32           m_lastRunTo;
@@ -89,10 +90,7 @@ public:
 
     TInt32 Init(TUInt32 maxConnectionNum,IfTaskMgr *pTaskMgr,IfParserFactory* pParserFactory,IfCryptorFactory *pIfCryptorfactory,TUInt32 nSendBuffSize,TUInt32 nRecvBuffSize);
     void   Final();
-    void   TestReference(IfTask& task)
-    {
-        task.Begin(1);
-    }
+    void   GiveMoreCpu(IfTaskMgr *pTaskMgr);
 };
 
 

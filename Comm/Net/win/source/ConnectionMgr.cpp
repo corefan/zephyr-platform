@@ -13,7 +13,7 @@ CConnectionMgr::CConnectionMgr()
     m_pCryptorFactory = NULL;
     m_pListeners      = NULL;
     //m_lastRunTo = 0;
-    
+	m_pTaskMgr  = NULL;    
 }
 
 CConnectionMgr::~CConnectionMgr()
@@ -23,6 +23,7 @@ CConnectionMgr::~CConnectionMgr()
 
 TInt32 CConnectionMgr::Init(TUInt32 maxConnectionNum,IfTaskMgr *pTaskMgr,IfParserFactory* pParserFactory,IfCryptorFactory *pIfCryptorfactory,TUInt32 nSendBuffSize,TUInt32 nRecvBuffSize)
 {
+	m_pTaskMgr = pTaskMgr;
     int result = m_conncectionPool.Init(maxConnectionNum);
     if (SUCCESS > result)
     {
@@ -117,6 +118,10 @@ TInt32 CConnectionMgr::Init(TUInt32 maxConnectionNum,IfTaskMgr *pTaskMgr,IfParse
 
 void  CConnectionMgr::Final()
 {
+	if (m_pTaskMgr)
+	{
+		m_pTaskMgr->ReleaseTask(&m_netWorker);
+	}
     m_netWorker.Final();
     while (m_pListeners)
     {
@@ -125,12 +130,18 @@ void  CConnectionMgr::Final()
         delete m_pListeners;
         m_pListeners = pNext;
     }
-    
-    
-    delete m_pParserFactory;
-    m_pParserFactory  = NULL;
-    delete m_pCryptorFactory;
-    m_pCryptorFactory = NULL;
+
+	CloseHandle(m_hCompletionPort);
+	if (m_pBuff)
+	{
+		delete [] m_pBuff;
+		m_pBuff = NULL;
+	}
+	//不是这个生成的，不释放
+//     delete m_pParserFactory;
+//     m_pParserFactory  = NULL;
+//     delete m_pCryptorFactory;
+//     m_pCryptorFactory = NULL;
 }
 
 TInt32 CConnectionMgr::Connect(const TChar *pRemoteIp,const TChar *pMyIp,TUInt16 remotePort,TUInt16 myPort,IfConnectionCallBack *pAppCallBack)
@@ -321,5 +332,9 @@ TInt32 CConnectionMgr::StopListening(void *pListeningPointer)
     return OUT_OF_RANGE;
 }
 
+void CConnectionMgr::GiveMoreCpu(IfTaskMgr *pTaskMgr)
+{
+	pTaskMgr->AddTask(&m_netWorker);
+}
 
 }

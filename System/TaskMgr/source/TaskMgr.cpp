@@ -104,7 +104,7 @@ void CTaskWorkers::Loop()
         }
         if (bIsAllTaskDone)
         {
-            if(m_threadIdx)
+            //if(m_threadIdx)
             {
                 m_pCenter->Sleep();
                 //Sleep(m_threadSleepGap + MIN_SYSTEM_SLEEP_TIME);
@@ -119,14 +119,14 @@ TInt32  CTaskWorkers::Start(CTaskInfo *pInfo,TInt32 threadIdx,TInt32 sleepGap,CW
     m_pTaskInfo = pInfo;
     m_workerThreadHandle = 1;
     m_pCenter = pCenter;
-    
+
+	m_threadIdx = threadIdx;
+	m_threadSleepGap = sleepGap;
 	unsigned long p = _beginthread( CTaskWorkers::Run,(512*1024), (void*)this);  
 	
     if (p)
     {
         m_workerThreadHandle = p;
-        m_threadIdx = threadIdx;
-        m_threadSleepGap = sleepGap;
         return SUCCESS;
     }
     m_threadIdx = 0;

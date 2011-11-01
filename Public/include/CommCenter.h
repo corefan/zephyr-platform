@@ -9,6 +9,8 @@ namespace Zephyr
 
 IfCommunicatorMgr *CreateCommMgr(TInt32 nrOfWorkerThread,IfTaskMgr *pTaskMgr,IfLoggerManager *pLoggerMgr,const TChar *pConfigName=NULL);
 IfCommunicatorMgr *CreateCommMgrWithConfig(TInt32 nrOfWorkerThread,IfTaskMgr *pTaskMgr,IfLoggerManager *pLoggerMgr,const TChar *pConfigName=NULL);
+void ReleaseCommMgr(IfCommunicatorMgr *pIfComm);
+void GiveCommMoreCpu(IfCommunicatorMgr *pMgr,IfTaskMgr *pTaskMgr);
 }
 
 

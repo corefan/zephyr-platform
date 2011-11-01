@@ -79,6 +79,7 @@ TInt32 CLoggerManager::AddLogger(const TChar *pName,TInt32 loggerIdx,TUInt32 log
 
 void CLoggerManager::ReleaseLogger(IfLogger *pLogger)
 {
+	CAutoLockP autolock(m_cLock);
     for(TInt32 i=0;i<MAX_LOGGER_NUM;i++)
     {
         if (m_pLogger[i] == pLogger)
@@ -128,7 +129,7 @@ TInt32 CLoggerManager::Run(const TInt32 threadId,const TInt32 runCnt)
     time ( &rawTime );
 
     pTimeInfo = localtime ( &rawTime );
-    
+    CAutoLockP autolock(m_cLock);
     for (TInt32 i = 0;i<MAX_LOGGER_NUM;i++)
     {
         if (m_pLogger[i])

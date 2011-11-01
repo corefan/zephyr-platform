@@ -425,7 +425,7 @@ void CLogger::WriteLogV(const TUInt32 logId,const TUInt32 lvl,const TChar *_pFor
     if (lvl & m_printToScreen)
     {
         pBuff[strLen] = '\0';
-        printf("%s",m_buff);
+        printf("%s",pBuff);
     }
 }
 
@@ -495,7 +495,7 @@ void CLogger::WriteLogV(const TUInt32 lvl,const TChar *_pFormat,va_list ValueLis
     if (lvl & m_printToScreen)
     {
          pBuff[strLen] = '\0';
-        printf("%s",m_buff);
+        printf("%s",pBuff);
     }
 }
 
@@ -551,7 +551,7 @@ void CLogger::WriteRawLogV(const TUInt32 lvl,const TChar *__pFormat,va_list argL
     if (lvl & m_printToScreen)
     {
         pBuff[strLen] = '\0';
-        printf("%s",m_buff);
+        printf("%s",pBuff);
     }
 }
 

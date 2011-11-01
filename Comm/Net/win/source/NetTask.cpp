@@ -67,10 +67,7 @@ TInt32 CNetTask::Init(HANDLE completionPort,ItemClassPool<CConnection> *pPool,CN
 }
 TInt32 CNetTask::Begin(TInt32 threadId)
 {
-    if (NULL == m_completionPort)
-    {
-        return NOT_INITIALIZED;
-    }
+    m_tLocks.TryLock();
     return SUCCESS;
 }
 TInt32 CNetTask::Run(const TInt32 threadId,const TInt32 runCnt)
@@ -194,13 +191,18 @@ TInt32 CNetTask::Run(const TInt32 threadId,const TInt32 runCnt)
                 return usedCnt;
             }
         }
-        //只等一次，因为如果成功后，可能应用层会需要处理消息，开始发送消息。
-        waitTime = 0;
+        
 
         if(bIORet && lpOverlapped && pConnection) 
         {
             CIocpOverlappedDataHeader *pHeader = CONTAINING_RECORD(lpOverlapped, CIocpOverlappedDataHeader, m_ol);
-            if(pHeader->m_pConnection == pConnection)
+            if (overlapped_try_reading == pHeader->m_operation)
+			{
+				//只等一次，因为如果成功后，可能应用层会需要处理消息，开始发送消息。
+				waitTime = 0;
+			}
+			//else //否则则继续不停的发和等，因为所有事件都是从网络消息触发的，不然的话就是不停的内部循环，也不需要这里来触发			
+			if(pHeader->m_pConnection == pConnection)
             {
                 usedCnt += ProcessIOMessage(pHeader,dwIoSize);
             }
@@ -221,6 +223,7 @@ TInt32 CNetTask::Run(const TInt32 threadId,const TInt32 runCnt)
 }
 TInt32 CNetTask::End(TInt32 threadId)
 {
+	m_tLocks.Unlock();
     return SUCCESS;
 }
 

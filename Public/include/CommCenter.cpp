@@ -19,5 +19,23 @@ IfCommunicatorMgr *CreateCommMgrWithConfig(TInt32 nrOfWorkerThread,IfTaskMgr *pT
     return pCommMgr;
 }
 
+void ReleaseCommMgr(IfCommunicatorMgr *pIfComm)
+{
+	CCommMgr *pCommMgr = dynamic_cast<CCommMgr*>(pIfComm);
+	if (pCommMgr)
+	{
+        pCommMgr->OnFinal();
+		delete pCommMgr;
+	}
+}
+
+void GiveCommMoreCpu(IfCommunicatorMgr *pIfComm,IfTaskMgr *pTaskMgr)
+{
+	CCommMgr *pCommMgr = dynamic_cast<CCommMgr*>(pIfComm);
+	if (pCommMgr)
+	{
+		pCommMgr->GiveMoreCpu(pTaskMgr);
+	}
+}
 
 }

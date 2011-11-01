@@ -12,6 +12,7 @@ namespace Zephyr
     //service->comm,但是service不唤醒net,net阻塞在网络底层上1ms轮一次.
 IfNet *CreateNet(IfTaskMgr *pTaskMgr,IfParserFactory *pParserFactory,IfCryptorFactory *pCryptorFactory=NULL,TInt32 maxConnectionNr=40,TUInt32 nSendBuffSize=256*1024,TUInt32 nRecvBuffSize=256*1024);
 TInt32  DestoryNet(IfNet *pIfNet);
+void  GiveNetMoveCpu(IfNet *pNet,IfTaskMgr *pTaskMgr);
 };
 
 #endif;v

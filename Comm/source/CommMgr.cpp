@@ -8,11 +8,28 @@ namespace Zephyr
 {
 
 
+
+TInt32 CCommMgr::Begin(TInt32 threadId)
+{
+	if (m_tLocks.TryLock())
+	{
+		return SUCCESS;
+	}
+	return FAIL;
+}
+
+TInt32 CCommMgr::End(TInt32 threadId)
+{
+	m_tLocks.Unlock();
+	return SUCCESS;
+}
+
 TInt32 CCommMgr::Init(TInt32 nrOfWorkerThread,IfTaskMgr *pTaskMgr,IfLoggerManager *pIfLogMgr,const TChar *pConfigName)
 {
     //初始化网络底层
     
     //先读取配置
+	m_pTaskMgr = pTaskMgr;
     if (MAX_COMM_NR < nrOfWorkerThread)
     {
         //也就是32个
@@ -189,6 +206,7 @@ TInt32 CCommMgr::Init(TInt32 nrOfWorkerThread,IfTaskMgr *pTaskMgr,IfLoggerManage
 
 TInt32 CCommMgr::InitWithConfig(TInt32 nrOfWorkerThread,IfTaskMgr *pTaskMgr,IfLoggerManager *pIfLogMgr,const TChar *pConfigStr)
 {
+	m_pTaskMgr = pTaskMgr;
     //先读取配置
     if (MAX_COMM_NR < nrOfWorkerThread)
     {
@@ -877,6 +895,46 @@ void CCommMgr::HandleOneSystemMsg(CMessageHeader *pMsg)
 
         }
         break;
+    }
+}
+
+
+void CCommMgr::GiveMoreCpu(IfTaskMgr *pTaskMgr)
+{
+	pTaskMgr->AddTask(this);
+	GiveNetMoveCpu(m_pNet,pTaskMgr);
+}
+
+void CCommMgr::OnFinal()
+{
+	if (m_pNet)
+    {
+		DestoryNet(m_pNet);
+	    m_pNet = NULL;
+    }
+	if (m_pTaskMgr)
+	{
+		m_pTaskMgr->ReleaseTask(this);
+	}
+	if ((m_pLoggerMgr)&&(m_pLogger))
+	{
+		m_pLoggerMgr->ReleaseLogger(m_pLogger);
+		m_pLogger = NULL;
+	}
+	if (m_pParserFactory)
+	{
+		delete m_pParserFactory;
+		m_pParserFactory = NULL;
+	}
+    if (m_pCommunicators)
+    {
+        delete [] m_pCommunicators;
+        m_pCommunicators =NULL;
+    }
+    if (m_pBuff)
+    {
+        delete [] m_pBuff;
+        m_pBuff = NULL;
     }
 }
 

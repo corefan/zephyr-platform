@@ -15,32 +15,10 @@ void RecordOneMsg(CMessageHeader *pMsg)
         pDoid->m_nodeId,pDoid->m_virtualIp,pDoid->m_srvId,pDoid->m_objId,
         pDest->m_nodeId,pDest->m_virtualIp,pDest->m_srvId,pDest->m_objId,pMsg->GetMethodId());
     int bodyLen = pMsg->GetBodyLength();
-    TUChar *pMsgBody = pMsg->GetBody();
+    TChar *pMsgBody = (TChar*)pMsg->GetBody();
     int recordTo = 0;
     //¼ÇÂ¼body.
-    while (bodyLen > 0)
-    {
-        char buff[2048+4];
-        int to;
-        if (1024 > (bodyLen - recordTo))
-        {
-            to = 1024;
-        }
-        else
-        {
-            to = (bodyLen - recordTo);
-        }
-        for (int i=0;i<to;++i)
-        {
-            char octOne = (pMsgBody[i+recordTo]>>4) + '0';
-            char octTwo = (pMsgBody[i+recordTo]&0x0F) + '0';
-            buff[(i+recordTo)<<1]     = octOne;
-            buff[((i+recordTo)<<1)+1] = octTwo;
-        }
-        buff[((recordTo + to)<<1)] = '\0';
-        g_pCommLogger->WriteRawLog(log_critical,"%s",buff);
-        bodyLen -= to;
-    }
+    g_pCommLogger->WriteBinLog(pMsgBody,pMsg->GetLength());
     int broadcastDoidNr = pMsg->GetBroadcastDoidNr();
     if (broadcastDoidNr)
     {

@@ -23,4 +23,10 @@ TInt32  DestoryNet(IfNet *pIfNet)
     return SUCCESS;
 }
 
+
+void  GiveNetMoveCpu(IfNet *pNet,IfTaskMgr *pTaskMgr)
+{
+
+}
+
 };

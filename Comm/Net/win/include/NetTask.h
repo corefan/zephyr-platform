@@ -15,6 +15,7 @@
 #include "IfTask.h"
 #include "Connection.h"
 #include "ConnectionPool.h"
+#include "../../../../System/include/Lock.h"
 namespace Zephyr
 {
 
@@ -42,6 +43,8 @@ protected:
     
     CNetEventQueues*     m_pEventQueues;
     
+	CLock				 m_tLocks;
+
     volatile  TUInt32    m_connectionAborted;
 
 #ifdef _DEBUG

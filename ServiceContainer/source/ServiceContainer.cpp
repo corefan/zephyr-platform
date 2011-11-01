@@ -210,7 +210,7 @@ int main(int argc, char* argv[])
         }
         nRegisterSuccess = pTaskMgr->AddTask(pOrb+i);
     }
-    pTaskMgr->AddTask((CLoggerManager*)pLogMgr);
+    //pTaskMgr->AddTask((CLoggerManager*)pLogMgr);
     pTaskMgr->StartWorking(tRead.m_tCfg.m_nWorkerNr,tRead.m_tCfg.m_nCpuNr);
     TChar cStop = 'n';
     while((cStop!='y')&&(cStop!='Y'))
@@ -237,7 +237,8 @@ int main(int argc, char* argv[])
             }
         }
     }
-    pTaskMgr->StopWorking();
+	GiveCommMoreCpu(pMgr,pTaskMgr);
+	pTaskMgr->StopWorking();
     printf("All Worker Stopped! Now Finalize the Services!\n\r");
     //อ๊มห
 	return 0;

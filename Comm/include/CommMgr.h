@@ -12,6 +12,7 @@
 #include "MsgParserFactory.h"
 #include "../../Public/include/Clock.h"
 #include "IfLoggerMgr.h"
+#include "../../System/include/Lock.h"
 namespace Zephyr
 {
 
@@ -52,6 +53,8 @@ private:
     IfLoggerManager     *m_pLoggerMgr;
     IfLogger            *m_pLogger;
     CConPair             m_cLoopBack;
+	IfTaskMgr			*m_pTaskMgr;
+	CLock				m_tLocks;
 public:
     //taskMgr由ServerContainer生成.
     TInt32 Init(TInt32 nrOfWorkerThread,IfTaskMgr *pTaskMgr,IfLoggerManager *pIfLogMgr,const TChar *pConfigName=szDefaultCommConfigName);
@@ -65,15 +68,10 @@ public:
     {
         return &m_tClock;
     }
-    virtual TInt32 Begin(TInt32 threadId)
-    {
-        return SUCCESS;
-    }
     virtual TInt32 Run(const TInt32 threadId,const TInt32 runCnt);
-    virtual TInt32 End(TInt32 threadId)
-    {
-        return SUCCESS;
-    }
+
+	virtual TInt32 Begin(TInt32 threadId);
+	virtual TInt32 End(TInt32 threadId);
 private:
     //返回值为是否需要丢弃消息,网络层阻塞了
 
@@ -117,8 +115,9 @@ public:
     virtual TInt32 Disconnect();
 
     //TInt32 DistributeSrvMsg(TInt32 idx);
-
+	void GiveMoreCpu(IfTaskMgr *pTaskMgr);
 public:
+	void OnFinal();
     virtual IfConnectionCallBack *OnNewConnection(CConPair *pPair);
     //获取虚信息.
     CIpMapItem *GetIpMapInfo(CConPair *pPair);
