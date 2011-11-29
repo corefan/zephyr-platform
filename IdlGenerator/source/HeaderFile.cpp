@@ -75,6 +75,8 @@ CHeaderFile::CHeaderFile()
          AddKeyWords("extern",key_extern       );
          AddKeyWords("virtual",key_virtual);
          AddKeyWords("typedef",key_type_define);
+		 AddKeyWords("using",key_using);
+		 AddKeyWords("enum",key_enum);
     }
 }
 
@@ -193,6 +195,23 @@ TInt32 CHeaderFile::Process(char **ppElements,EnType *pTypes,int nProcess2,int n
         {
             switch (pBase->m_nElmentType)
             {
+			case key_enum:
+				{
+					++nNr;
+					//直接找到下一个
+					while(semicolon_type != pTypes[nNr])
+					{
+						++nNr;
+						if (nProcess2 >= nTotalEles)
+						{
+							char *pAt = ppElements[(nNr-1)];
+							OnError(pAt);
+							return -1;
+						}
+					}
+					++nNr;
+				}
+				break;
             case key_class:
                 {
                     CInterfaceElement *pInterface = CREATE_FROM_STATIC_POOL(CInterfaceElement);

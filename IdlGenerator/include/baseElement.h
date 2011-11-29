@@ -94,6 +94,8 @@ enum EnRawTypes
     key_extern      ,
     key_virtual     ,
     key_type_define ,
+	key_using,
+	key_enum,
     raw_base_element_type,    //这个是未知类型.
     raw_TInt32_type,
     raw_TInt16_type,
@@ -113,6 +115,7 @@ enum EnRawTypes
     raw_parameter_type,
     raw_full_type_type,
     raw_header_file_type,
+	raw_struct_type,
 };
 
 template <class T,class KEY>

@@ -409,7 +409,8 @@ TInt32 CCommMgr::Run(const TInt32 threadId,const TInt32 runCnt)
         {
             continue;
         }
-        //if(CheckNetState(pMsg))
+        TInt32 nRet = (CheckNetState(pMsg));
+        if (nRet)
         {
             SendAppMsg(pMsg);
             if (m_pBuff != (TUChar *)pMsg)
@@ -487,12 +488,33 @@ TInt32 CCommMgr::Run(const TInt32 threadId,const TInt32 runCnt)
     return usedCnt;
 }
 
-TBOOL CCommMgr::CheckNetState(CMessageHeader *pMsg)
+TInt32 CCommMgr::CheckNetState(CMessageHeader *pMsg)
 {
     //无论如何都成功
-    return TRUE;
     //计算需要发给几个ip,首先node不同
-//     int nrOfDest = pMsg->GetBroadcastDoidNr();
+     TInt32 nrOfDest = pMsg->GetBroadcastDoidNr();
+     for (TInt32 i=0;i<nrOfDest;++i)
+     {
+        CDoid *pDoid = pMsg->GetDestDoidByIdx(i);
+        CIpMapItem *pItem =  m_ipMaps.RouteTo(pDoid);
+        if (pItem)
+        {
+            IfConnection *pConn = pItem->m_pIfConnection;
+            if (pConn)
+            {
+                TUInt32 freeLen = pConn->GetFreeBuffLength();
+                if (pMsg->GetLength() <= freeLen)
+                {
+                    return 1;
+                }
+                else
+                {
+                    return 0;
+                }
+            }
+        }
+        return -1;
+     }
 //     //有广播
 //     if (nrOfDest)
 //     { 

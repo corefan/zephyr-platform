@@ -210,6 +210,13 @@ public:
             p = m_tUsingMemBlocks.pop_front();
             delete pDel;
         }
+        p = m_tFullMemBlocks.pop_front();
+        while (p)
+        {
+            CListNode<CMemBlock> *pDel = p;
+            p = m_tFullMemBlocks.pop_front();
+            delete pDel;
+        }
     }
     bool IsNotMainBlock(CMemBlock* pBlock)
     {

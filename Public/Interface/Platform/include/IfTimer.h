@@ -25,6 +25,7 @@ public:
     //这就会死循环！
     virtual void *SetTimer(TUInt32 uGapInMs,TInt32 nRepeatTime,IfScheduler *pScheduler,TUInt64 nTimeNow) = 0;
 
+    virtual void ResetTimer(void *pIfScheduler,TUInt32 uGapInMs,TInt32 nRepeatTime,IfScheduler *pScheduler,TUInt64 nTimeNow) = 0;
     //删除定时器pTimer是SetTimer返回的结果
     virtual IfScheduler *KillTimer(void *pTimer) = 0;
 

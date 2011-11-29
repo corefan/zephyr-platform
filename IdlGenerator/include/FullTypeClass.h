@@ -33,12 +33,50 @@ public:
     std::string  m_szRawTxt;
     std::string  m_szRawNoPrefix;
     std::vector<CFullTypeDef*> m_pTplSubs;
+	std::vector<string> m_vArrays;
 public:
     std::string &GetRawTxt()
     {
         return m_szRawTxt;
     }
     CFullTypeDef();
+
+	void AddDimension(const char *pD)
+	{
+		m_vArrays.push_back(string(pD));
+	}
+	int GetDimension()
+	{
+		return m_vArrays.size();
+	}
+	string *GetDimension(int iDimension)
+	{
+		if (iDimension < m_vArrays.size())
+		{
+			return &m_vArrays[iDimension];
+		}
+		return NULL;
+	}
+
+	bool IsPointer()
+	{
+		for (int i=0;i<4;++i)
+		{
+			if (en_star_operator == m_tOprs[i])
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	//获取模板参数的个数
+	int GetTplTypeSize()
+	{
+		return m_pTplSubs.size();
+	}
+
+
 
     void AddPrefix(EnPrefix);
     void AddOpr(EnOperator enOpr);

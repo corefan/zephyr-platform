@@ -30,6 +30,27 @@ void *CTimer::SetTimer(TUInt32 uGapInMs,TInt32 nRepeatTime,IfScheduler *pSchedul
     return pNode;
 }
 
+void CTimer::ResetTimer(void *pIfScheduler,TUInt32 uGapInMs,TInt32 nRepeatTime,IfScheduler *pScheduler,TUInt64 nTimeNow)
+{
+    TplMultiKeyMapNode<CScheduler,TUInt64> *pNode = (TplMultiKeyMapNode<CScheduler,TUInt64> *)pIfScheduler;
+    if (pNode == m_pRuning) //正是当前节点，自己删自己！
+    {
+        pNode->m_nRepeatTime = nRepeatTime + 1;
+        pNode->m_pScheduler = pScheduler;
+        pNode->m_nGap = uGapInMs;
+        pNode->m_nTime = nTimeNow;
+    }
+    else
+    {
+        m_tMap.RemoveFromTreeItem(pNode);
+        pNode->m_nTime = nTimeNow + uGapInMs;
+        pNode->m_nGap  = uGapInMs;
+        pNode->m_nRepeatTime = nRepeatTime;
+        pNode->m_pScheduler = pScheduler;
+        m_tMap.AddInTree(pNode);
+    }
+}
+
     //删除定时器pTimer是SetTimer返回的结果
 IfScheduler *CTimer::KillTimer(void *pTimer)
 {

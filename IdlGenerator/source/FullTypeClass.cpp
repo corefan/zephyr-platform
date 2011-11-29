@@ -66,7 +66,7 @@ void CFullTypeDef::AddOpr(EnOperator enOpr)
                 {
                     m_szFull += "_pt";
                     m_szRawTxt += "*";
-                    m_szRawNoPrefix += "*";
+                    //m_szRawNoPrefix += "*";
                     m_tOprs[i] = en_star_operator;
                 }
                 break;

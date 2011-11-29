@@ -81,7 +81,7 @@ private:
     TBOOL IsAppStillBlocked();
     TBOOL IsNetStillBlocked();
 
-    TBOOL CheckNetState(CMessageHeader *pMsg);
+    TInt32 CheckNetState(CMessageHeader *pMsg);
     void SendAppMsg(CMessageHeader *pMsg);
 
     void HandleOneNetMsg(CMessageHeader *pMsg);

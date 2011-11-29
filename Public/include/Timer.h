@@ -57,6 +57,7 @@ public:
 
     void *SetTimer(TUInt32 uGapInMs,TInt32 nRepeatTime,IfScheduler *pScheduler,TUInt64 nTimeNow);
 
+    virtual void ResetTimer(void *pIfScheduler,TUInt32 uGapInMs,TInt32 nRepeatTime,IfScheduler *pScheduler,TUInt64 nTimeNow);
     //删除定时器pTimer是SetTimer返回的结果
     IfScheduler *KillTimer(void *pTimer);
 

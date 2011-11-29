@@ -1,5 +1,5 @@
 /*-------------------------------------------------------------
- Copyright (C)| 2008-2010 TDGame Info. Co. Ltd.
+ Copyright (C)| 2008-2010 
  File: Lock.h
  Author: Yipeng.Zhang
  Date: 2009-3-6 9:43:44

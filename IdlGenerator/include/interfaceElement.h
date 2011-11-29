@@ -36,8 +36,8 @@ private:
         en_class_name_risk,   //:
         en_class_derive_virtual, //virtual 
         en_class_derive_class_name, //CDerive 
+		en_class_left_brace,
         en_class_right_brace,     //
-        en_class_left_brace,
     };
 public:
     CInterfaceElement();

@@ -29,12 +29,12 @@ CInterfaceElement::EnState CInterfaceElement::GetState(char *pAlphabets)
 TInt32 CInterfaceElement::Process(char **ppElements,EnType *pTypes,int nProcess2,int nTotalEles)
 {
     EnState enLastState = en_class_key_word;
-    EnType enterAndDividerTypes[2] = {enter_type,divider_type};
-    struct Tt
-    {
-        char *m_pszTxt;
-        EnState   m_enType;
-    };
+//     EnType enterAndDividerTypes[2] = {enter_type,divider_type};
+//     struct Tt
+//     {
+//         char *m_pszTxt;
+//         EnState   m_enType;
+//     };
     vector<char*> pHeap;
     int nOld = nProcess2;
     
@@ -94,7 +94,7 @@ TInt32 CInterfaceElement::Process(char **ppElements,EnType *pTypes,int nProcess2
                             }
                             else if (ppElements[nProcess2][0] == '{')
                             {
-                                enLastState = en_class_right_brace;
+                                enLastState = en_class_left_brace;
                                 ++nProcess2;
                             }
                             else
@@ -204,7 +204,7 @@ TInt32 CInterfaceElement::Process(char **ppElements,EnType *pTypes,int nProcess2
                 {
                     if (ppElements[nProcess2][0] == '{')
                     {
-                        enLastState = en_class_right_brace;
+                        enLastState = en_class_left_brace;
                         ++nProcess2;
                     }
                     else
@@ -220,7 +220,7 @@ TInt32 CInterfaceElement::Process(char **ppElements,EnType *pTypes,int nProcess2
                 }
             } //
             break;
-        case         en_class_right_brace:     //{ 这个时候需要的是一个type类型，或者 virtual \ pubic \ protected \private \ class \enum \struct \const \static \volatile \mutal 
+        case         en_class_left_brace:     //{ 这个时候需要的是一个type类型，或者 virtual \ pubic \ protected \private \ class \enum \struct \const \static \volatile \mutal 
             {
 //                 int nRet = IgnorTypes(ppElements,pTypes,nProcess2,nTotalEles,2,enterAndDividerTypes); //
 //                 nProcess2 += nRet;
@@ -279,6 +279,27 @@ TInt32 CInterfaceElement::Process(char **ppElements,EnType *pTypes,int nProcess2
                             bNeedHandle = false;
                             switch (pEle->m_nElmentType)
                             {
+							case key_using:
+								{
+									OnError(ppElements[nProcess2]);
+									return INCORRECT_END;
+								}
+								break;
+							case key_enum:
+								{
+									++nProcess2;
+									while(semicolon_type != pTypes[nProcess2])
+									{
+										if (nProcess2 >= nTotalEles)
+										{
+											char *pAt = ppElements[(nProcess2-1)];
+											OnError(pAt);
+											return -1;
+										}
+									}
+									++nProcess2;
+								}
+								break;
                             case key_class:
                                 {
                                     //新的 class
@@ -400,7 +421,7 @@ TInt32 CInterfaceElement::Process(char **ppElements,EnType *pTypes,int nProcess2
                         }
                     }
                 }
-            } //case         en_class_right_brace:
+            } //case         en_class_left_brace:
             break;
         }
     }
@@ -497,7 +518,7 @@ int CInterfaceElement::HandleAStatement(char **ppElements,EnType *pTypes,int& nP
         else
         {
             //处理数组？ 
-            printf("Find a menber of the class!");
+			printf("Find a member:%s of the class!",m_szName.c_str());
             while(semicolon_type != pTypes[nProcess2])
             {
                 ++nProcess2;
@@ -775,6 +796,16 @@ TInt32 CInterfaceElement::GenerateSkeletonSourceFile(const char *pPath)
         //         nLength -= n;
         if (m_pFather)
         {
+			for (int i=0;i<m_pFather->m_tChilds.size();++i)
+			{
+				CBaseElement *pBase = m_pFather->m_tChilds[i].m_pPt;
+				if (raw_struct_type == pBase->m_nElmentType)
+				{
+					n = sprintf_s(pBuff+nUsed,nLength,"#include \"../include/%sMarshaller.h\"\n",pBase->m_szName.c_str());
+					nUsed += n;
+					nLength -= n;
+				}
+			}
             if (raw_namespace_type == m_pFather->m_nElmentType)
             {
                 CNamespace *pNS = dynamic_cast<CNamespace *>(m_pFather);
@@ -783,6 +814,16 @@ TInt32 CInterfaceElement::GenerateSkeletonSourceFile(const char *pPath)
                 nLength -= n;
             }
         }
+		for (int i=0;i<m_tChilds.size();++i)
+		{
+			CBaseElement *pBase = m_tChilds[i].m_pPt;
+			if (raw_struct_type == pBase->m_nElmentType)
+			{
+				n = sprintf_s(pBuff+nUsed,nLength,"#include \"../include/%sMarshaller.h\"\n",pBase->m_szName.c_str());
+				nUsed += n;
+				nLength -= n;
+			}
+		}
         // 
         //         n = sprintf_s(pBuff+nUsed,nLength,"class %sStub : public %s\n"
         //             "{\n"
@@ -1027,9 +1068,28 @@ TInt32 CInterfaceElement::GenerateMethodIdFile(const char *pPath,int nInterfaceI
                 nLength -= n;
             }
         }
-        n = sprintf_s(pBuff+nUsed,nLength,"#endif\n\n");
+
+		n = sprintf_s(pBuff+nUsed,nLength,"#define ");
+		nUsed += n;
+		nLength -= n;
+
+		n = sprintf_s(pBuff+nUsed,nLength,"%s_INTERFACE_ID_END (",m_szName.c_str());
+		for (int i=0;i<n;++i)
+		{
+			pBuff[nUsed+i] = toupper(pBuff[nUsed+i]);
+		}
+		nUsed += n;
+		nLength -= n;
+		n = sprintf_s(pBuff+nUsed,nLength,"");
+		nUsed += n;
+		nLength -= n;
+
+        n = GetMethodIdStr(pBuff+nUsed,nLength);//sprintf_s(pBuff+nUsed,nLength,"#endif\n\n");
         nUsed += n;
         nLength -= n;
+		n = sprintf_s(pBuff+nUsed,nLength,"+(Ox%08X)\n",m_tChilds.size());
+		nUsed += n;
+		nLength -= n;
 
         fwrite(pBuff,1,nUsed,pFile);
         //sprintf_s()
@@ -1103,7 +1163,7 @@ TInt32 CInterfaceElement::GenerateStubHeaderFile(const char *pPath)
             "public:\n"
             "    IfSkeleton *m_pOnwerObj;\n"
             "    CDoid  m_tTarget;\n"
-            "    void Init(IfSkeleton *pSkeleton,CDoid *pDoid)\n"
+            "    void Init(IfSkeleton *pSkeleton,const CDoid *pDoid)\n"
             "    {\n"
             "        m_pOnwerObj = pSkeleton;\n"
             "        m_tTarget = *pDoid;\n"
@@ -1214,6 +1274,16 @@ TInt32 CInterfaceElement::GenerateStubSourceFile(const char *pPath)
 //         nLength -= n;
         if (m_pFather)
         {
+			for (int i=0;i<m_pFather->m_tChilds.size();++i)
+			{
+				CBaseElement *pBase = m_pFather->m_tChilds[i].m_pPt;
+				if (raw_struct_type == pBase->m_nElmentType)
+				{
+					n = sprintf_s(pBuff+nUsed,nLength,"#include \"../include/%sMarshaller.h\"\n",pBase->m_szName.c_str());
+					nUsed += n;
+					nLength -= n;
+				}
+			}
             if (raw_namespace_type == m_pFather->m_nElmentType)
             {
                 CNamespace *pNS = dynamic_cast<CNamespace *>(m_pFather);
@@ -1222,6 +1292,16 @@ TInt32 CInterfaceElement::GenerateStubSourceFile(const char *pPath)
                 nLength -= n;
             }
         }
+		for (int i=0;i<m_tChilds.size();++i)
+		{
+			CBaseElement *pBase = m_tChilds[i].m_pPt;
+			if (raw_struct_type == pBase->m_nElmentType)
+			{
+				n = sprintf_s(pBuff+nUsed,nLength,"#include \"../include/%sMarshaller.h\"\n",pBase->m_szName.c_str());
+				nUsed += n;
+				nLength -= n;
+			}
+		}
 // 
 //         n = sprintf_s(pBuff+nUsed,nLength,"class %sStub : public %s\n"
 //             "{\n"
