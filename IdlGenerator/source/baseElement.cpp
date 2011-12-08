@@ -1,4 +1,6 @@
 #include "../include/baseElement.h"
+#pragma warning(push)
+#pragma warning(disable:4267)
 
 namespace Zephyr
 {
@@ -247,3 +249,4 @@ TInt32 CBaseElement::GenerateMethodId(const char *pPath)
 
 
 }
+#pragma warning(pop)

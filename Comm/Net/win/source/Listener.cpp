@@ -67,7 +67,7 @@ TInt32 CListener::Init(HANDLE completionPort,TUInt32 myIp,TUInt16 listeningPort,
     if ( ret == SOCKET_ERROR )
 	{
 		closesocket(m_listeningSocket);
-		return FALSE;
+		return False;
 	}
     m_maxAcceptNr            = maxAcceptNr;
     m_pListenerCallBack      = pListenerCallBack;

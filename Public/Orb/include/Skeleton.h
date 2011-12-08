@@ -19,6 +19,9 @@
 #include "../../Interface/Platform/include/IfCommunicator.h"
 #include "OrbErrorCode.h"
 
+#pragma warning(push)
+#pragma warning(disable:4244)
+
 namespace Zephyr
 {
 
@@ -69,7 +72,7 @@ public:
         {
             return (pDoid->m_objId == m_tDoid.m_objId);
         }
-        return FALSE;
+        return False;
     }
     TInt32  OnRecv(CMessageHeader *pMsg)
     {
@@ -98,5 +101,5 @@ public:
 
 
 }
-
+#pragma warning(pop)
 #endif

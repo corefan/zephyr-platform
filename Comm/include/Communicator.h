@@ -22,6 +22,8 @@ protected:
     TUChar* m_pBuff;
     TUInt32 m_buffSize;
 
+	TUChar *m_pWriteBuffer;
+	TUInt32 m_nWriteBufferSize;
     CClock *m_pClock;
     TUInt64  m_nLastBlockTimes;
     

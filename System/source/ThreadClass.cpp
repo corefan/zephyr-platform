@@ -7,7 +7,8 @@ TInt32 CThread::OnStart()
 {
     return SUCCESS;
 }
-
+#pragma warning(push)
+#pragma warning(disable:4244)
 TInt32 CThread::Start()
 {
 #ifdef _WIN32
@@ -22,7 +23,7 @@ TInt32 CThread::Start()
 #endif
     return FAIL;
 }
-
+#pragma warning(pop)
 TInt32 CThread::OnStop()
 {
     return SUCCESS;

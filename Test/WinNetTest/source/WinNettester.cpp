@@ -1,6 +1,11 @@
 #include "WinNetTester.h"
 #include "Mmsystem.h"
 #include "time.h"
+#pragma warning(push)
+#pragma warning(disable:4311)
+
+#pragma warning(disable:4244)
+
 CWinNetTester::CWinNetTester(IfTaskMgr *pTaskMgr,int maxConnectionNr)
 {
     m_pNet = CreateNet(pTaskMgr,&m_parserFactory,NULL,maxConnectionNr);
@@ -119,3 +124,4 @@ TInt32 CWinNetTester::Run(const TInt32 threadId,const TInt32 runCnt)
     }
     return usedCnt;
 }
+#pragma warning(pop)

@@ -38,7 +38,7 @@ public:
         return m_tTimer.SetTimer(uGapInMs,nRepeatTime,pScheduler,m_pClock->GetPlatformTime());
     }
     //删除定时器pTimer是SetTimer返回的结果
-    IfScheduler *KillTimer(void *pTimer)
+    const IfScheduler *KillTimer(void *pTimer)
     {
         return m_tTimer.KillTimer(pTimer);
     }

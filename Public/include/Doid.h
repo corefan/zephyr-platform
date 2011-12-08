@@ -71,13 +71,13 @@ public:
     {
         if (m_nodeId != another.m_nodeId)
         {
-            return FALSE;
+            return False;
         }
         if (m_virtualIp != another.m_virtualIp)
         {
-            return FALSE;
+            return False;
         }
-        return TRUE;
+        return True;
     }
     
 	inline bool operator==(const CDoid& rvalue) const 

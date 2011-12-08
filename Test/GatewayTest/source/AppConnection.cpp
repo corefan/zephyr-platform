@@ -10,7 +10,9 @@
 #include "../include/GatewayTestErrorCode.h"
 using namespace Zephyr;
 
-
+#pragma warning(push)
+#pragma warning(disable:4311)
+#pragma warning(disable:4018)
 
 CAppConnection::CAppConnection()
 {
@@ -247,3 +249,4 @@ void CAppConnection::OnTryConnecting()
     m_nStepStartTime = m_pConnectionMgr->GetClock()->GetLocalTime();
     m_pConnectionMgr->AddToTryingList(this);
 }
+#pragma warning(pop)

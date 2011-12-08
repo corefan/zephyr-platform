@@ -13,6 +13,9 @@
 #include "TypeDef.h"
 #include "SysMacros.h"
 
+#pragma warning(push)
+#pragma warning(disable:4311)
+
 namespace Zephyr
 {
 
@@ -158,7 +161,7 @@ public:
 
     TUInt32 GetDataLen();
 
-    TInt32 GetFreeLen();
+    TUInt32 GetFreeLen();
     
     TInt32 GetAvailFreeLen();
 
@@ -186,5 +189,6 @@ public:
 };
 
 }
+#pragma warning(pop)
 
 #endif

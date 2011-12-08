@@ -88,9 +88,9 @@ public:
     {
         if (m_maxPendingConnection <= m_pendingSocket.GetActivedSize())
         {
-            return TRUE;
+            return True;
         }
-        return FALSE;
+        return False;
     }
 private:
     TInt32 AddToPendingList(CConnection *pConnection);

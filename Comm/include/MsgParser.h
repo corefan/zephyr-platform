@@ -24,9 +24,9 @@ public:
     {
         if (m_ip)
         {
-            return TRUE;
+            return True;
         }
-        return FALSE;
+        return False;
     }
     void OnInit()
     {

@@ -82,7 +82,6 @@ int main()
             CMapTest *pMap = map.GetItemByKey(ran);
             if (!pMap)
             {
-                TInt32 result;
                 pMap = map.PrepareItem();
                 if (pMap)
                 {

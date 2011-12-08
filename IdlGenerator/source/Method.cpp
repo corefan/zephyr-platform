@@ -3,6 +3,11 @@
 #include "../include/IdlGeneratorErrorCode.h"
 #include "../include/interfaceElement.h"
 #include "../include/HeaderFile.h"
+
+#pragma warning(push)
+#pragma warning(disable:4018)
+
+
 namespace Zephyr
 {
 
@@ -582,6 +587,5 @@ TInt32 CMethod::GenerateSkeletonSourceCode(char *pszBuff,int nLength)
     return nUsed;
 }
 
-
-
 }
+#pragma warning(pop)

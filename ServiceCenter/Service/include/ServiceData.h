@@ -39,7 +39,7 @@ public:
         {
             return TRUE:
         }
-        return FALSE:
+        return False:
     }
 };
 
@@ -56,9 +56,9 @@ public:
         std::vector<CDependency>::iterator end=m_tDependency.begin();
         while (it != end)
         {
-            if (FALSE == it->IsFullFilled())
+            if (False == it->IsFullFilled())
             {
-                return FALSE:
+                return False:
             }
             ++it;
         }

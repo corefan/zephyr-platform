@@ -27,7 +27,7 @@ public:
 
     virtual void ResetTimer(void *pIfScheduler,TUInt32 uGapInMs,TInt32 nRepeatTime,IfScheduler *pScheduler,TUInt64 nTimeNow) = 0;
     //删除定时器pTimer是SetTimer返回的结果
-    virtual IfScheduler *KillTimer(void *pTimer) = 0;
+    virtual const IfScheduler *KillTimer(void *pTimer) = 0;
 
     //Run是要定时去调用的，然后产生回调.
     virtual TUInt32 Run(TUInt64 nTimeNow) = 0;

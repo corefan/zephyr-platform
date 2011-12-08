@@ -1,6 +1,9 @@
 #include "Communicator.h"
 #include "CommLogger.h"
 #include "../System/include/SysInc.h"
+#pragma warning(push)
+#pragma warning(disable:4244)
+
 namespace Zephyr
 {
 
@@ -9,11 +12,14 @@ CCommunicator::CCommunicator()
     m_pBuff     = NULL;
     m_buffSize  = 0;
     m_pClock = NULL;
+	m_pWriteBuffer = NULL;
+    m_nWriteBufferSize = 0;
 }
 
 CCommunicator::~CCommunicator()
 {
     DELETEP(m_pBuff);
+    DELETEP(m_pWriteBuffer);
 }
 
 TInt32 CCommunicator::Init(CClock *pClock,TUInt32 inPipeSize,TUInt32 outPipeSize,TUInt32 maxMessageSize)
@@ -30,12 +36,18 @@ TInt32 CCommunicator::Init(CClock *pClock,TUInt32 inPipeSize,TUInt32 outPipeSize
         return ret;
     }
     NEW(m_pBuff,TUChar,maxMessageSize);
-    if (m_pBuff)
+    if (!m_pBuff)
     {
-        return SUCCESS;
+        return OUT_OF_MEM;
     }
     m_buffSize = maxMessageSize;
-    return OUT_OF_MEM;
+    NEW(m_pWriteBuffer,TUChar,maxMessageSize);
+    if (!m_pWriteBuffer)
+    {
+        return OUT_OF_MEM;
+    }
+    m_buffSize = maxMessageSize;
+    return SUCCESS;
 }
 
 TInt32 CCommunicator::InitEventPool(TUInt32 maxEventNr)
@@ -99,7 +111,7 @@ CMessageHeader *CCommunicator::PrepareMsg(TInt32 bodyLength,TUInt32 methodId,CDo
     }
     if (getLen < len)
     {
-        pRtn = (CMessageHeader *)m_pBuff;
+        pRtn = (CMessageHeader *)m_pWriteBuffer;
     }
     len = pRtn->Init(bodyLength,methodId,srcId,pDestDoid,destDoidNum,bRearrangeDest);
     if (SUCCESS > len)
@@ -113,7 +125,7 @@ CMessageHeader *CCommunicator::PrepareMsg(TInt32 bodyLength,TUInt32 methodId,CDo
     //do not need the para bNeedCopy any more, I will check it!`
 TInt32 CCommunicator::SendMsg(CMessageHeader *pMsg)
 {
-    if (m_pBuff != (TUChar*)pMsg)
+    if (m_pWriteBuffer != (TUChar*)pMsg)
     {
         return m_outPipe.ConfirmAddMsg((TUChar*)pMsg,pMsg->GetLength());
     }
@@ -172,7 +184,7 @@ void CCommunicator::AddNetEvent(CConnectionEvent event)
 
 TInt32 CCommunicator::AddNetMsg(CMessageHeader *pMsg)
 {
-    TInt32 freeLen = m_inPipe.GetFreeLen();
+    TUInt32 freeLen = m_inPipe.GetFreeLen();
     if (freeLen > pMsg->GetLength())
     {
          return m_inPipe.WriteData((TUChar*)pMsg,pMsg->GetLength());
@@ -202,3 +214,4 @@ TInt32 CCommunicator::AddNetMsg(CMessageHeader *pMsg)
 }
 
 }
+#pragma warning(pop)

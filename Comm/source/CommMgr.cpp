@@ -382,7 +382,7 @@ TInt32 CCommMgr::InitWithConfig(TInt32 nrOfWorkerThread,IfTaskMgr *pTaskMgr,IfLo
 }
 
 
-IfCommunicator *CCommMgr::GetComm(TUInt16& nSrvBegin,TUInt16& nSrvEnd,TInt32 nCommIdx)
+IfCommunicator *CCommMgr::GetComm(TUInt16& nSrvBegin,TUInt16& nSrvEnd,TUInt32 nCommIdx)
 {
     if (nCommIdx < m_nNrOfComm)
     {
@@ -392,6 +392,10 @@ IfCommunicator *CCommMgr::GetComm(TUInt16& nSrvBegin,TUInt16& nSrvEnd,TInt32 nCo
     }
     return NULL;
 }
+
+#pragma warning(push)
+#pragma warning(disable:4244)
+
 
 TInt32 CCommMgr::Run(const TInt32 threadId,const TInt32 runCnt)
 {
@@ -487,7 +491,7 @@ TInt32 CCommMgr::Run(const TInt32 threadId,const TInt32 runCnt)
     }
     return usedCnt;
 }
-
+#pragma warning(pop)
 TInt32 CCommMgr::CheckNetState(CMessageHeader *pMsg)
 {
     //无论如何都成功
@@ -505,7 +509,7 @@ TInt32 CCommMgr::CheckNetState(CMessageHeader *pMsg)
                 TUInt32 freeLen = pConn->GetFreeBuffLength();
                 if (pMsg->GetLength() <= freeLen)
                 {
-                    return 1;
+                    continue;
                 }
                 else
                 {
@@ -515,6 +519,7 @@ TInt32 CCommMgr::CheckNetState(CMessageHeader *pMsg)
         }
         return -1;
      }
+     return 1;
 //     //有广播
 //     if (nrOfDest)
 //     { 
@@ -543,7 +548,7 @@ TInt32 CCommMgr::CheckNetState(CMessageHeader *pMsg)
 //                     {
 //                         if (pConn->GetFreeBuffLength() < needLen)
 //                         {
-//                             return FALSE;
+//                             return False;
 //                         }
 //                     }
 //                 }
@@ -563,7 +568,7 @@ TInt32 CCommMgr::CheckNetState(CMessageHeader *pMsg)
 //             {
 //                 if (pConn->GetFreeBuffLength() < needLen)
 //                 {
-//                     return FALSE;
+//                     return False;
 //                 }
 //             }
 //         }
@@ -577,10 +582,10 @@ TInt32 CCommMgr::CheckNetState(CMessageHeader *pMsg)
 //             TUInt32 freeLen = pConn->GetFreeBuffLength();
 //             if (pMsg->GetLength() <= freeLen)
 //             {
-//                 return TRUE;
+//                 return True;
 //             }
 //         }
-//         return FALSE;
+//         return False;
 //     }
 }
 
@@ -699,7 +704,7 @@ void CCommMgr::SendAppMsg(CMessageHeader *pMsg)
         {
             RecordOneMsg(pMsg);
         }
-        //return FALSE;
+        //return False;
     }
 
 }

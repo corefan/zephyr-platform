@@ -2,6 +2,9 @@
 #include "Mmsystem.h"
 #include "time.h"
 #include "GatewayTestErrorCode.h"
+#pragma warning(push)
+#pragma warning(disable:4244)
+#pragma warning(disable:4311)
 
 CWinNetTester::CWinNetTester(IfTaskMgr *pTaskMgr,int maxConnectionNr)
 {
@@ -102,3 +105,4 @@ TInt32 CWinNetTester::Run(const TInt32 threadId,const TInt32 runCnt)
     }
     return usedCnt;
 }
+#pragma warning(pop)

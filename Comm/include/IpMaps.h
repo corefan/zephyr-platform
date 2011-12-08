@@ -95,16 +95,16 @@ public:
         CIpMapItem *pItem = m_pVirtualIps + idx;
         if (pItem->m_nNodeId < m_localNodeId)
         {
-            return TRUE;
+            return True;
         }
         if (pItem->m_nNodeId == m_localNodeId)
         {
             if (pItem->m_nVirtualIp < m_localVirtualIp)
             {
-                return TRUE;
+                return True;
             }
         }
-        return FALSE;
+        return False;
     }
     //只有被动连接调用这个，
     CIpMapItem *GetIpMapInfo(CConPair *pConn)
@@ -158,17 +158,17 @@ public:
     {
         if ((pItem->m_nNodeId == m_localNodeId)&&(pItem->m_nVirtualIp == m_localVirtualIp))
         {
-            return TRUE;
+            return True;
         }
-        return FALSE;
+        return False;
     }
     TBOOL IsLocal(CDoid *pDoId)
     {
         if((pDoId->m_nodeId == m_localNodeId) && (pDoId->m_virtualIp == m_localVirtualIp))
         {
-            return TRUE;
+            return True;
         }
-        return FALSE;
+        return False;
     }
 
     CIpMapItem *RouteTo(CDoid *pDoId)
@@ -201,12 +201,12 @@ private:
             {
                 if (m_pVirtualIps[m_vListening[i]].m_tKey.GetMyPort() == pItem->m_tKey.GetMyPort())
                 {
-                    return TRUE;
+                    return True;
                 }
             }
         }
         m_vListening.push_back(nIdx);
-        return FALSE;
+        return False;
     }
 };
 

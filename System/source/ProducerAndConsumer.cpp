@@ -19,7 +19,7 @@ TBOOL    CProduerAndConsumer::OnProduced()
 {
 
 #ifdef _WIN32
-    return SetEvent(m_cond);
+    return (SetEvent(m_cond) == TRUE);
 #else
     pthread_mutex_lock(&m_mutex); //貌似这个可以不要，加快速度
     m_productsNr = 1;

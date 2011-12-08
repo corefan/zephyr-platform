@@ -42,6 +42,9 @@ TInt32 Unmarshall(TUChar *pBuffer,TInt32 uBufferLen,TYPE &tType) \
  
  IMPL_UNMARSHALLERS(TBOOL) 
 #endif
+#pragma warning(push)
+#pragma warning(disable:4267)
+
 
 TInt32 Unmarshall(TUChar *pBuffer,TInt32 uBuffLen,TChar *&psz)
 {
@@ -53,5 +56,5 @@ TInt32 Unmarshall(TUChar *pBuffer,TInt32 uBuffLen,TChar *&psz)
      psz = (TChar*)pBuffer;
      return nRet;
 }
-
+#pragma warning(pop)
 }

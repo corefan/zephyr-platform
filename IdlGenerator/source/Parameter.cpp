@@ -37,8 +37,9 @@ TInt32 CParamerter::Process(char **ppElements,EnType *pTypes,int nProcess2,int n
     else
     {
         static int nName = 0;
-        char szBuff[16];
-        sprintf(szBuff,"nonName%d",nName++);
+        char szBuff[32];
+        
+        sprintf_s(szBuff,16,"nonName%d",nName++);
         SetName(szBuff);
     }
      m_pFullType = pFullType;

@@ -3,6 +3,9 @@
 #include <iostream>
 #include "../../../System/include/SysInc.h"
 #include "../include/OrbLogger.h"
+#pragma warning(push)
+#pragma warning(disable:4244)
+
 namespace Zephyr
 {
 
@@ -195,7 +198,7 @@ TInt32 COrb::Run(const TInt32 threadId,const TInt32 runCnt)
                 pSk->OnRecv(pMsg);
             }
         }
-        for (int i=1;i<=pMsg->GetBroadcastDoidNr();++i)
+        for (TUInt32 i=1;i<=pMsg->GetBroadcastDoidNr();++i)
         {
             pDest = pMsg->GetDestDoidByIdx(i);
             CListNode<CArrayPoolNode<CSkeleton> > *pSk = m_tSkeletonPool.FindMem(pDest->m_objId);
@@ -242,3 +245,4 @@ IfCommunicator *COrb::GetCommunicator()
 }
 
 }
+#pragma warning(pop)

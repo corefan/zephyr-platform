@@ -4,6 +4,9 @@
 
 #include "Public/include/Message.h"
 
+#pragma warning(push)
+#pragma warning(disable:4244)
+
 namespace Zephyr
 {
 TInt32  CGatewayParser::GetMaxHeaderLength()
@@ -35,3 +38,4 @@ TInt32  CGatewayParser::OnRecv(TUChar *pNetData,TInt32 dataLen)
 }
 
 }
+#pragma warning(pop)

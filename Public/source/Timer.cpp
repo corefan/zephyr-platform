@@ -52,13 +52,14 @@ void CTimer::ResetTimer(void *pIfScheduler,TUInt32 uGapInMs,TInt32 nRepeatTime,I
 }
 
     //删除定时器pTimer是SetTimer返回的结果
-IfScheduler *CTimer::KillTimer(void *pTimer)
+const IfScheduler *CTimer::KillTimer(void *pTimer)
 {
     TplMultiKeyMapNode<CScheduler,TUInt64> *pNode = (TplMultiKeyMapNode<CScheduler,TUInt64> *)pTimer;
     if (pNode == m_pRuning) //正是当前节点，自己删自己！
     {
-        IfScheduler *pScheduler = pNode->m_pScheduler;
+        //IfScheduler *pScheduler = pNode->m_pScheduler;
         pNode->m_nRepeatTime = 0;
+        return pNode->m_pScheduler;
     }
     else
     {

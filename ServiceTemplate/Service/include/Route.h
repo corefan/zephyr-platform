@@ -43,7 +43,7 @@ public:
                     }
                     //使用新的权重
                     m_uPriority = rNew.m_uPriority;
-                    return TRUE;
+                    return True;
                     //可以融合
                 }
             }
@@ -55,10 +55,10 @@ public:
                     m_uIdEnd = rNew.m_uIdEnd;
                 }
                 m_uPriority = rNew.m_uPriority;
-                return TRUE;
+                return True;
             }
         }
-        return FALSE;
+        return False;
     }
     //如果是-1不匹配，0，则表示不需要任何删减操作,1表示要删除一个，即this，2表示增加一个（值即rRmvPart）,3，表示完全匹配
     TInt32 Separate(CRoute &rRmvPart)

@@ -1247,7 +1247,7 @@ TplMultiKeyMapNode<CItem,CKey> *TplMultiKeyMapNode<CItem,CKey>::AddNode(TplMulti
 #endif
     if (CItem::GetKey() > pNode->GetKey())
     {
-        if (NeedRearrange(FALSE))
+        if (NeedRearrange(False))
         {
 #ifdef _DEBUG
             if (NULL == m_pLeftNode)
@@ -1416,7 +1416,7 @@ TplMultiKeyMapNode<CItem,CKey> *TplMultiKeyMapNode<CItem,CKey>::AddNode(TplMulti
     }
 
     //add to right node.
-    if (NeedRearrange(TRUE))
+    if (NeedRearrange(True))
     {
 #ifdef _DEBUG
         if (NULL == m_pRightNode)
@@ -1676,7 +1676,7 @@ TplMultiKeyMapNode<CItem,CKey> *TplMultiKeyMapNode<CItem,CKey>::ReleaseNode(CKey
 #endif
         TplMultiKeyMapNode<CItem,CKey>*   pNewRoot = this;
         //minus a left node equals to add a right node
-        if (NeedRearrange(TRUE))
+        if (NeedRearrange(True))
         {
             /*
             #ifdef _DEBUG
@@ -1796,7 +1796,7 @@ TplMultiKeyMapNode<CItem,CKey> *TplMultiKeyMapNode<CItem,CKey>::ReleaseNode(CKey
         }
         TplMultiKeyMapNode<CItem,CKey>*   pNewRoot = this;
         //minus a right node equals to add a left node
-        if (NeedRearrange(FALSE))
+        if (NeedRearrange(False))
         {
 
 #ifdef _DEBUG
@@ -2059,9 +2059,9 @@ public:
             {
                 if (m_pHead->m_pRightNode == m_pRear)
                 {
-                    return TRUE;
+                    return True;
                 }
-                return FALSE;
+                return False;
             }
 	void clean()
 	{

@@ -38,7 +38,7 @@ class IfCommunicatorMgr
 public:
     //注意了，Comm不负责返回的IfCommunicator的线程安全，级使用者要保证每一个IfCommunicator只有一个线程使用
     virtual TInt32          GetNrOfComm() = 0;
-    virtual IfCommunicator *GetComm(TUInt16& nSrvBegin,TUInt16& nSrvEnd,TInt32 nCommIdx) = 0;
+    virtual IfCommunicator *GetComm(TUInt16& nSrvBegin,TUInt16& nSrvEnd,TUInt32 nCommIdx) = 0;
 };
 
 }

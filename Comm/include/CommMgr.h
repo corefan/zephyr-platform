@@ -63,7 +63,7 @@ public:
     {
         return m_nNrOfComm;
     }
-    virtual IfCommunicator *GetComm(TUInt16& nSrvBegin,TUInt16& nSrvEnd,TInt32 nCommIdx);
+    virtual IfCommunicator *GetComm(TUInt16& nSrvBegin,TUInt16& nSrvEnd,TUInt32 nCommIdx);
     CClock *GetClock()
     {
         return &m_tClock;
@@ -123,7 +123,7 @@ public:
     CIpMapItem *GetIpMapInfo(CConPair *pPair);
 
     void   OnConnected(CCommConnection *pConnection);
-    void   OnDisconnected(CCommConnection *pConnection,TBOOL bIsNegative = TRUE);
+    void   OnDisconnected(CCommConnection *pConnection,TBOOL bIsNegative = True);
 };
 
 }

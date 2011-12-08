@@ -8,7 +8,11 @@
 
 #include <vector>
 
+#pragma warning(push)
+#pragma warning(disable:4996)
+#pragma warning(disable:4018)
 
+#pragma warning(disable:4267)
 namespace Zephyr
 {
 
@@ -1098,6 +1102,7 @@ TInt32 CInterfaceElement::GenerateMethodIdFile(const char *pPath,int nInterfaceI
         return nUsed;
 
     }
+    return -1;
 }
 
 TInt32 CInterfaceElement::GenerateStubHeaderFile(const char *pPath)
@@ -1374,3 +1379,4 @@ TInt32 CInterfaceElement::GetMethodIdStr(char *pBuff,int nLength)
 }
 
 }
+#pragma warning(pop)

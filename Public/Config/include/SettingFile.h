@@ -16,6 +16,10 @@
 #include <stdlib.h>
 #include <string>
 
+#pragma warning(push)
+#pragma warning(disable:4996)
+
+
 typedef long long LONGLONG;
 inline void TrimStr(std::string& str,char TrimChar)
 {
@@ -197,7 +201,7 @@ protected:
 
 			if( *p == '[' && *(p+sectionlength+1)==']' )
 			{
-				if( strnicmp( p+1, pszSection, sectionlength ) == 0 )
+				if( _strnicmp( p+1, pszSection, sectionlength ) == 0 )
 					return (i+1);
 			}
 		}
@@ -224,7 +228,7 @@ protected:
 			//	如果是ItemName=这样的句式，进入进一步搜索
 			if( *(p+itemnamelength) == '=' )
 			{
-				if( strnicmp( p, pszItemName, itemnamelength ) == 0 )
+				if( _strnicmp( p, pszItemName, itemnamelength ) == 0 )
 				{
 					if( *(p+itemnamelength+1) == '\"' )
 					{
@@ -257,3 +261,4 @@ protected:
 		return NULL;
 	}
 };
+#pragma warning(pop)

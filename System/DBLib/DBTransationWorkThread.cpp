@@ -1,5 +1,9 @@
 #include "DBLib.h"
 
+#pragma warning(push)
+#pragma warning(disable:4244)
+#pragma warning(disable:4800)
+
 
 namespace DBLib
 {
@@ -53,7 +57,7 @@ bool CDBTransationWorkThread::Init(IDBConnection * pConnection,LPCTSTR ConnectSt
 bool CDBTransationWorkThread::AddTransaction(CDBTransaction * pDBTansaction)
 {
 	if(pDBTansaction)
-		return m_TransQueue.PushBack(pDBTansaction);
+		return (m_TransQueue.PushBack(pDBTansaction));
 	else
 		return false;
 }
@@ -133,7 +137,7 @@ BOOL CDBTransationWorkThread::OnRun()
 		}
 		pDBTansaction->SetResult(Ret);
 		BOOL bRet = m_FinishTransQueue.PushBack(pDBTansaction);
-        while(bRet == FALSE)
+        while(bRet == False)
         {
             SleepT(1);
             bRet = m_FinishTransQueue.PushBack(pDBTansaction);
@@ -163,3 +167,4 @@ void CDBTransationWorkThread::OnBeginTerminate()
 }
 
 }
+#pragma warning(pop)

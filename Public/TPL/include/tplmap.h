@@ -1060,7 +1060,7 @@ TplNode<CItem,CKey> *TplNode<CItem,CKey>::AddNode(TplNode *pNode)
 #endif
     if (CItem::GetKey() > pNode->GetKey())
     {
-        if (NeedRearrange(FALSE))
+        if (NeedRearrange(False))
         {
 #ifdef _DEBUG
             if (NULL == m_pLeftNode)
@@ -1228,7 +1228,7 @@ TplNode<CItem,CKey> *TplNode<CItem,CKey>::AddNode(TplNode *pNode)
     }
 
     //add to right node.
-    if (NeedRearrange(TRUE))
+    if (NeedRearrange(True))
     {
 #ifdef _DEBUG
         if (NULL == m_pRightNode)
@@ -1488,7 +1488,7 @@ TplNode<CItem,CKey> *TplNode<CItem,CKey>::ReleaseNode(CKey& key)
 #endif
         TplNode<CItem,CKey>*   pNewRoot = this;
         //minus a left node equals to add a right node
-        if (NeedRearrange(TRUE))
+        if (NeedRearrange(True))
         {
             /*
             #ifdef _DEBUG
@@ -1605,7 +1605,7 @@ TplNode<CItem,CKey> *TplNode<CItem,CKey>::ReleaseNode(CKey& key)
         }
         TplNode<CItem,CKey>*   pNewRoot = this;
         //minus a right node equals to add a left node
-        if (NeedRearrange(FALSE))
+        if (NeedRearrange(False))
         {
 #ifdef _DEBUG
             if (NULL == m_pLeftNode)

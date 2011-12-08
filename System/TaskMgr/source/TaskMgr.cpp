@@ -87,7 +87,7 @@ void CTaskWorkers::Loop()
         for (TInt32 i =0;i<MAX_TASK_NR_IN_MGR;++i)
         {
             int taskIdx = (i+m_threadIdx)%MAX_TASK_NR_IN_MGR;
-            if (TRUE == m_pTaskInfo[taskIdx].IsUsed())
+            if (True == m_pTaskInfo[taskIdx].IsUsed())
             {
                 if (SUCCESS == m_pTaskInfo[taskIdx].ApplyTask(m_threadIdx))
                 {
@@ -113,6 +113,8 @@ void CTaskWorkers::Loop()
     }
     m_pTaskInfo = NULL;
 }
+#pragma warning(push)
+#pragma warning(disable:4244)
 
 TInt32  CTaskWorkers::Start(CTaskInfo *pInfo,TInt32 threadIdx,TInt32 sleepGap,CWorkerControler *pCenter)
 {
@@ -132,6 +134,7 @@ TInt32  CTaskWorkers::Start(CTaskInfo *pInfo,TInt32 threadIdx,TInt32 sleepGap,CW
     m_threadIdx = 0;
     return FAIL;
 }
+#pragma warning(pop)
 
 TInt32  CTaskWorkers::Stop()
 {
@@ -208,7 +211,7 @@ TInt32 CTaskMgr::AddTask(IfTask *pTask,EnTaskPriority priority)
     m_listLock.Lock();
     for (TInt32 i=0;i<MAX_TASK_NR_IN_MGR;i++)
     {
-        if (FALSE == m_taskList[i].IsUsed())
+        if (False == m_taskList[i].IsUsed())
         {
             TInt32 result = m_taskList[i].LoadTask(pTask,priority);
             m_listLock.Unlock();

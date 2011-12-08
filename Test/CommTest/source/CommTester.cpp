@@ -1,6 +1,7 @@
 #include "CommTester.h"
 #include "../Config/include/SettingFile.h"
-
+#pragma warning(push)
+#pragma warning(disable:4018)
 CDoid *CCommTester::sm_pDoids = NULL;
 
 TInt32 CCommTester::Run(const TInt32 threadId,const TInt32 runCnt)
@@ -277,3 +278,4 @@ void CCommTester::OnRecv(CDoid *pSrcDoid)
         m_nMsgReced += 1;
     }
 }
+#pragma warning(pop)

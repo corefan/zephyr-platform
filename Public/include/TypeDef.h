@@ -106,11 +106,11 @@ public:
 
 
 
-#ifndef FALSE
-#define FALSE false 
+#ifndef False
+#define False false 
 #endif
-#ifndef TRUE
-#define TRUE true 
+#ifndef True
+#define True true 
 #endif
 }
 

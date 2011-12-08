@@ -29,8 +29,8 @@ int main(int argc,char *pArgv[])
     }
     else
     {
-        strncpy(szFileName,pArgv[1],sizeof(szFileName));
-        strncpy(szPath,pArgv[2],sizeof(szPath));
+        strncpy_s(szFileName,pArgv[1],sizeof(szFileName));
+        strncpy_s(szPath,pArgv[2],sizeof(szPath));
     }
     CHeaderFile file;
     int t = TEST_CONST - 1;

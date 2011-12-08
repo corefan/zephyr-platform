@@ -32,7 +32,7 @@ TBOOL CCommConnection::IsActived()
             return SUCCESS;
         }
     }
-    return  FALSE;
+    return  False;
 }
 
 TInt32 CCommConnection::OnInit()
@@ -136,7 +136,7 @@ TInt32 CCommConnection::OnDissconneted(TInt32 erroCode)
         if (m_pCommMgr)
         {
             //因为连接还没建立，所以不用通知应用层，因为这个时候应用层还是认为连接没有建立的。
-            m_pCommMgr->OnDisconnected(this,FALSE);
+            m_pCommMgr->OnDisconnected(this,False);
         }
     }
     return SUCCESS;
@@ -159,7 +159,7 @@ TInt32 CCommConnection::Disconnect()
     }
     if (m_pCommMgr)
     {
-        m_pCommMgr->OnDisconnected(this,FALSE);
+        m_pCommMgr->OnDisconnected(this,False);
     }
     //内存由mgr负责释放
     return SUCCESS;

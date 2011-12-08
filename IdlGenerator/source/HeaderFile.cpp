@@ -2,6 +2,11 @@
 #include "../include/interfaceElement.h"
 #include "../include/nameSpace.h"
 #include<iostream>
+
+#pragma warning(push)
+#pragma warning(disable:4018)
+#pragma warning(disable:4267)
+
 namespace Zephyr
 {
 
@@ -2194,19 +2199,19 @@ TBOOL  CHeaderFile::IsDivider(char c)
         break;
     default:
         {
-            return FALSE;
+            return False;
         }
     }
-    return TRUE;
+    return True;
 }
 
 TBOOL CHeaderFile::IsEnter(char c )
 {
     if ('\n' == c)
     {
-        return TRUE;
+        return True;
     }
-    return FALSE;
+    return False;
 }
 
 TBOOL CHeaderFile::IsOperator(char c)
@@ -2302,35 +2307,35 @@ TBOOL CHeaderFile::IsOperator(char c)
         break;
     default:
         {
-            return FALSE;
+            return False;
         }
     }
-    return TRUE;
+    return True;
 }
 
 TBOOL  CHeaderFile::IsAlphabet(char c)
 {
     if ((c>='a')&&(c<='z'))
     {
-        return TRUE;
+        return True;
     }
     if ((c>='A')&&(c<='Z'))
     {
-        return TRUE;
+        return True;
     }
     if (c == '_')
     {
-        return TRUE;
+        return True;
     }
-    return FALSE;
+    return False;
 }
 TBOOL  CHeaderFile::IsNum(char c)
 {
     if ((c>='0')&&(c<='9'))
     {
-        return TRUE;
+        return True;
     }
-    return FALSE;
+    return False;
 }
 
 TInt32 CHeaderFile::GeneratorIdlCode()
@@ -2397,3 +2402,5 @@ TInt32 CHeaderFile::GenerateStub(const char *pPath)
 }
 
 }
+
+#pragma warning(pop)

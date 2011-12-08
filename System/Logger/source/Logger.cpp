@@ -8,7 +8,8 @@
 #include <sys/stat.h>
 #endif
 
-
+#pragma warning(push)
+#pragma warning(disable:4018)
  
 
 namespace Zephyr
@@ -158,7 +159,7 @@ inline void CLogger::AppRun(TInt32 needLength)
     //the writer will lock this lock, when it finish writing the datas,
     //it will unlock this lock, the blocked user will rescheduled to continue the process
     
-    TUInt32 freeLength = m_pipe.GetFreeLen();
+    TInt32 freeLength = m_pipe.GetFreeLen();
     //check again
     TUInt32 writenSize = 0;
     if (freeLength < needLength)
@@ -596,3 +597,4 @@ void CLogger::WriteBinLog(const TChar *pBin,TUInt32 uLength)
 }
 
 }
+#pragma warning(pop)

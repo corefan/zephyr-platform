@@ -7,6 +7,10 @@
 #include <time.h> 
 using namespace Zephyr;
 
+#pragma warning(push)
+#pragma warning(disable:4018)
+
+
 
 int CAppConnection::sm_averageMsgLen = 0;
 
@@ -257,6 +261,6 @@ TInt32 CAppConnection::Disconnect()
     }
     return SUCCESS;
 }
-
+#pragma warning(pop)
 
 

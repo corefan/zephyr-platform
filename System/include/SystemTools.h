@@ -10,6 +10,10 @@
 #define CLOCKS_PER_MILLISEC		(CLOCKS_PER_SEC/1000)
 
 #ifdef WIN32
+
+#pragma warning(push)
+#pragma warning(disable:4996)
+
 namespace Zephyr
 {
 
@@ -165,27 +169,28 @@ struct NO_CASE_CHAR_NAME
 	}
 	NO_CASE_CHAR_NAME(const char * szName)
 	{
-		strncpy_0(szCharName,szName,64);
+		strncpy(szCharName,szName,64);
 	}
 	bool operator>(const char * szName)
 	{
-		return strnicmp(szCharName,szName,64)>0;
+		return _strnicmp(szCharName,szName,64)>0;
 	}
 	bool operator<(const char * szName)
 	{
-		return strnicmp(szCharName,szName,64)<0;
+		return _strnicmp(szCharName,szName,64)<0;
 	}
 	bool operator>(const NO_CASE_CHAR_NAME& Name)
 	{
-		return strnicmp(szCharName,Name.szCharName,64)>0;
+		return _strnicmp(szCharName,Name.szCharName,64)>0;
 	}
 	bool operator<(const NO_CASE_CHAR_NAME& Name)
 	{
-		return strnicmp(szCharName,Name.szCharName,64)<0;
+		return _strnicmp(szCharName,Name.szCharName,64)<0;
 	}
 
 };
 
 }
+#pragma warning(pop)
 
 #endif

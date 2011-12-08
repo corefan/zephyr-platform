@@ -48,7 +48,7 @@ public:
         {
             return TRUE;
         }
-        return FALSE;
+        return False;
     }
     CDBAuthenticateTrans();
     virtual bool OnExecute(void * pConnection);

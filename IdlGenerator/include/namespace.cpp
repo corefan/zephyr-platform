@@ -1,5 +1,7 @@
 #include "../include/nameSpace.h"
 #include "../include/interfaceElement.h" 
+#pragma warning(push)
+#pragma warning(disable:4267)
 
 namespace Zephyr
 {
@@ -449,4 +451,4 @@ TInt32 CNamespace::GenerateNamespaceCodeEnd(char *pBuff,int nLength)
 }
 
 }
-
+#pragma warning(pop)

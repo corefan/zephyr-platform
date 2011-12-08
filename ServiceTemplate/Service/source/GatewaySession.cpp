@@ -2,6 +2,8 @@
 #include "../../Interface/include/IfConnectingSkeleton.h"
 #include "../include/GatewayService.h"
 #include <time.h>
+#pragma warning(push)
+#pragma warning(disable:4244)
 
 namespace Zephyr
 {
@@ -194,3 +196,4 @@ IfLogger *CGatewaySession::GetLogger()
 }
 
 }
+#pragma warning(pop)

@@ -49,9 +49,9 @@ public:
     {
          if (m_pTask)
          {
-            return TRUE;
+            return True;
          }
-         return FALSE;
+         return False;
     }
     TInt32 LoadTask(IfTask *pTask ,EnTaskPriority priority )
     {

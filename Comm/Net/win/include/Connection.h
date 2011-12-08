@@ -177,9 +177,9 @@ public:
     {
         if (connection_is_using == m_connectionState)
         {
-            return TRUE;
+            return True;
         }
-        return FALSE;
+        return False;
     }
     TBOOL IsActived()
     {
@@ -261,10 +261,10 @@ public:
         {
             if (m_readDataHeader.m_seqNum == m_seqNum)
             {
-                return TRUE;
+                return True;
             }
         }
-        return FALSE;
+        return False;
     }
 
     TBOOL CheckWriteHeader(CIocpOverlappedDataHeader *pHeader)
@@ -273,10 +273,10 @@ public:
         {
             if (m_writeDataHeader.m_seqNum == m_seqNum)
             {
-                return TRUE;
+                return True;
             }
         }
-        return FALSE;
+        return False;
     }
     
     //TInt32 SetSocketOptions();

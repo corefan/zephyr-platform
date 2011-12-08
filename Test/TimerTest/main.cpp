@@ -4,6 +4,10 @@
 using namespace Zephyr;
 using namespace std;
 
+#pragma warning(push)
+#pragma warning(disable:4244)
+
+
 
 unsigned long long setTime  = 0;
 unsigned long long releaseTime = 0;
@@ -102,3 +106,4 @@ int main()
 
     return 0;
 }
+#pragma warning(pop)

@@ -4,6 +4,9 @@
 #include "SysMacros.h"
 
 
+#pragma warning(push)
+#pragma warning(disable:4244)
+
 namespace Zephyr
 {
 
@@ -68,7 +71,7 @@ TInt32 CPipe::ReturnMsgBuff(TUChar *pMsg,TUInt32 len)
 
 TUChar *CPipe::PrepareMsg(TUInt32& len)
 {
-    TInt32 nFreeLen = GetFreeLen();
+    TUInt32 nFreeLen = GetFreeLen();
 	if (len > nFreeLen)
 	{
 		len = 0;
@@ -197,11 +200,11 @@ TUInt32 CPipe::GetDataLen()
 }
 
 
-TInt32 CPipe::GetFreeLen()
+TUInt32 CPipe::GetFreeLen()
 {
     TUChar *pHeader = (TUChar*)m_pHeader;
 	TUChar *pRear   = (TUChar*)m_pRear;
-	TInt32 result = 0;
+	TUInt32 result = 0;
     if (pHeader < pRear)
     {
         //to make sure that m_pHeader would never catch up with m_pUsed;
@@ -211,17 +214,6 @@ TInt32 CPipe::GetFreeLen()
 	{
 		result = ((m_memPoolSize - (pHeader - pRear)) - 1 );
 	}
-#ifdef _DEBUG
-    if (result < 0)
-    {
-        if (m_pHeader < m_pRear)
-        {
-            //to make sure that m_pHeader would never catch up with m_pUsed;
-            result = ( ( m_pRear - m_pHeader ) - 1 );
-        }
-        result = ((m_memPoolSize - (m_pHeader - m_pRear)) - 1 );
-    }
-#endif
     return result;
 }
 
@@ -243,7 +235,7 @@ TInt32 CPipe::GetAvailFreeLen()
 
 TInt32 CPipe::WriteData(TUChar *pSrc,TUInt32 len)
 {
-    TInt32 freeLen = GetFreeLen();
+    TUInt32 freeLen = GetFreeLen();
 	if (freeLen <= 0)
 	{
 		return OUT_OF_MEM;
@@ -357,4 +349,4 @@ TInt32 CPipe::ReadData(TUChar *pTo,TUInt32 len)
 
 
 }
-
+#pragma warning(pop)

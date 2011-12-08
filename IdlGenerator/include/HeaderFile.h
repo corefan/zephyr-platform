@@ -29,9 +29,9 @@ protected:
     char         **m_ppWords;
     EnType         *m_pWordsTypes;
     char          *m_pszFileInPiece;
-    TUInt32       m_nNrOfWords;
-    TUInt32       m_nNrOfElements;
-    TUInt32       m_nFileLength;
+    TInt32       m_nNrOfWords;
+    TInt32       m_nNrOfElements;
+    TInt32       m_nFileLength;
     char    *m_pszFile;
     std::string   m_szFileName;
     
@@ -63,79 +63,79 @@ private:
         {
             return TRUE;
         }
-        return FALSE;
+        return False;
     }
     TBOOL IsSmallerMark(char c)
     {
         if ('<' == c)
         {
-            return TRUE;
+            return True;
         }
-        return FALSE;
+        return False;
     }
     TBOOL  IsSlashMark(char c)
     {
         if ('/'==c)
         {
-            return TRUE;
+            return True;
         }
-        return FALSE;
+        return False;
     }
     TBOOL IsBackSlash(char c)
     {
         if ('\\'==c)
         {
-            return TRUE;
+            return True;
         }
-        return FALSE;
+        return False;
     }
     TBOOL  IsStarMark(char c)
     {
         if ('*'==c)
         {
-            return TRUE;
+            return True;
         }
-        return FALSE;
+        return False;
     }
     TBOOL IsSingleQuote(char c)
     {
         if ('\''==c)
         {
-            return TRUE;
+            return True;
         }
-        return FALSE;
+        return False;
     }
     TBOOL IsQuote(char c)
     {
         if ('"'==c)
         {
-            return TRUE;
+            return True;
         }
-        return FALSE;
+        return False;
     }
     TBOOL IsBlanket1(char c)
     {
         if('('==c)
         {
-            return TRUE;
+            return True;
         }
-        return FALSE;
+        return False;
     }
     TBOOL IsBlanket2(char c)
     {
         if (')'==c)
         {
-            return TRUE;
+            return True;
         }
-        return FALSE;
+        return False;
     }
     TBOOL IsSemicolon(char c)
     {
          if (';' == c)
          {
-             return TRUE;
+             return True;
          }
-         return FALSE;
+         return False;
     }
     virtual TInt32 Process(char **ppElements,EnType *pTypes,int nProcess2,int nTotalEles);
     virtual const char *GetHierachyName()

@@ -124,7 +124,7 @@ public:
 	//获得整个消息的长度
     inline TUInt32 GetLength()
     {
-        return  m_msgInfo.m_msgBodyLength + sizeof(CMessageHeader) + (m_msgInfo.m_nrOfBroadcastDoid) * sizeof(CDoid);
+        return GetBodyLength() + sizeof(CMessageHeader) + (GetBroadcastDoidNr()) * sizeof(CDoid);
     }
 
     inline void SetPriority(TUInt32 prioity)
@@ -250,9 +250,9 @@ public:
     {
         if (m_msgInfo.m_systemCall)
         {
-            return TRUE;
+            return True;
         }
-        return FALSE;
+        return False;
     }
 private:
 	//to make sure you could only create the message by msgPool.

@@ -19,6 +19,10 @@ using namespace Zephyr;
 
 #ifdef WIN32
 
+#pragma warning(push)
+#pragma warning(disable:4244)
+
+
 HMODULE LoadDynamicLib(const char * LibFileName)
 {
     return LoadLibrary(LibFileName);
@@ -36,7 +40,7 @@ void * GetDynamicLibFunction(HMODULE LibHandle,char * FunctionName)
 
 char * dlerror()
 {
-    static char ErrBuff[20];
+    static char ErrBuff[32];
     sprintf(ErrBuff,"%d",GetLastError());
     return ErrBuff;
 }
@@ -243,4 +247,4 @@ int main(int argc, char* argv[])
     //อ๊มห
 	return 0;
 }
-
+#pragma warning(pop)

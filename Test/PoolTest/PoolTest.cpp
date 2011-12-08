@@ -5,6 +5,8 @@
 #include "time.h"
 #include "stdlib.h"
 #include <windows.h>
+#pragma warning(push)
+#pragma warning(disable:4244)
 
 class CTestClass
 {
@@ -89,4 +91,4 @@ int main()
     }
 	return 0;
 }
-
+#pragma warning(pop)

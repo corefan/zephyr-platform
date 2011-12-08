@@ -281,7 +281,7 @@ TInt32 CNetTask::ProcessIOMessage(CIocpOverlappedDataHeader *pHeader,TUInt32 ioS
         break;
         case overlapped_try_reading:
         {
-            if (TRUE == pHeader->m_pConnection->CheckReadHeader(pHeader))
+            if (True == pHeader->m_pConnection->CheckReadHeader(pHeader))
             {
                 usedCnt += pHeader->m_pConnection->OnRecv(pHeader,ioSize);
                 //OnRecv(pHeader->m_pConnection);
@@ -295,7 +295,7 @@ TInt32 CNetTask::ProcessIOMessage(CIocpOverlappedDataHeader *pHeader,TUInt32 ioS
         break;
         case overlapped_try_reading_with_zero_mem:
         {
-            if (TRUE == pHeader->m_pConnection->CheckReadHeader(pHeader))
+            if (True == pHeader->m_pConnection->CheckReadHeader(pHeader))
             {
                 usedCnt += pHeader->m_pConnection->OnRecv(pHeader,ioSize);
             }

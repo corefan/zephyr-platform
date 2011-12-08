@@ -1,4 +1,7 @@
 #include "DBLib.h"
+#pragma warning(push)
+#pragma warning(disable:4018)
+
 
 
 namespace DBLib
@@ -298,3 +301,4 @@ void CDBTransationManager::CDbLoggerWithLock::WriteBinLog(const TChar *pBin,TUIn
 
 
 }
+#pragma warning(pop)

@@ -2,7 +2,9 @@
 #define __ZEPHYR_IDL_GENERATOR_FULL_TYPE_CLASS_H__
 
 #include "./baseElement.h"
-
+#pragma warning(push)
+#pragma warning(disable:4018)
+#pragma warning(disable:4267)
 namespace Zephyr
 {
 
@@ -86,5 +88,5 @@ public:
 };
 
 }
-
+#pragma warning(pop)
 #endif

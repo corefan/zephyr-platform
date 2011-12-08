@@ -46,11 +46,14 @@ TInt32 GetLength(TYPE c) \
  
  IMPL_MARSHALLERS(TBOOL)  
 #endif
+#pragma warning(push)
+#pragma warning(disable:4267)
 
 TInt32 Marshall(TUChar *pBuffer,TInt32 uBuffLen,const TChar *psz)
 {
     strncpy((char*)pBuffer,psz,uBuffLen);
     return strlen((char*)pBuffer);
 }
+#pragma warning(pop)
 
 }
