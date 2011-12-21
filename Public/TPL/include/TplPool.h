@@ -253,7 +253,9 @@ public:
                     pBlock->m_pBelongsTo->Detach(pBlock);
                     if (m_pMainBlock == m_tUsingMemBlocks.header())
                     {
-                        m_pMainBlock->InsertNode(pBlock);
+                        m_tUsingMemBlocks.pop_front();
+                        m_tUsingMemBlocks.push_front(pBlock);
+                        m_tUsingMemBlocks.push_front(m_pMainBlock);
                     }
                     else
                     {

@@ -261,14 +261,10 @@ if (pClass)\
 }\
     m_##LISTCLASS##List.m_pNext = pClass;\
 }\
-void InsertNode(LISTCLASS* pClass)\
+void CleanList()\
 {\
-    if (pClass)\
-{\
-    pClass->m_##LISTCLASS##List.m_pPrev = this;\
-    pClass->m_##LISTCLASS##List.m_pNext = m_##LISTCLASS##List.m_pNext;\
-}\
-    m_##LISTCLASS##List.m_pNext = pClass;\
-}\
+    m_##LISTCLASS##List.m_pNext = NULL;\
+    m_##LISTCLASS##List.m_pPrev = NULL;\
+}
 
 #endif 
