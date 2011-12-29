@@ -50,6 +50,7 @@ TInt32 CCommConnection::OnInit()
     m_nVirtualIp    = 0;
     m_nNodeId       = 0;
     m_pCommMgr      = NULL;
+    m_pIpMapItem = NULL;
     return SUCCESS;
 }
 
@@ -59,6 +60,7 @@ TInt32 CCommConnection::OnFinal()
     {
         m_pIfConnection->Disconnect();
     }
+    m_pIpMapItem = NULL;
     m_pIfConnection = NULL;
     m_usedTime      = 0;
     //#ifdef _DEBUG

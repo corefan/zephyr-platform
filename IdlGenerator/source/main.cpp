@@ -41,7 +41,7 @@ int main(int argc,char *pArgv[])
     INIT_STATIC_POOL(CMethod,128);
     INIT_STATIC_POOL(CNamespace,16);
     INIT_STATIC_POOL(CParamerter,16);
-
+    
     file.GeneratorIdl(szFileName,szPath);
     return t;
 }

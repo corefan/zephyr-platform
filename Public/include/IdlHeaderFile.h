@@ -46,6 +46,14 @@
     pointer = &tmp_##IfClass##Stub##pRemoteDoid;\
 }\
 
+
+#define GET_REMOTE_CALLER(pointer,IfClass) \
+    IfClass##Stub tmp_##IfClass##Stub;\
+    tmp_##IfClass##Stub.Init((GetSkeleton()),(CetCallerDoid()));\
+{\
+    pointer = &tmp_##IfClass##Stub;\
+}\
+
 #define GET_REMOTE_STUB_BY_DOID(pointer,IfClass,remoteDoid) \
     IfClass##Stub tmp_##IfClass##Stub##pRemoteDoid;\
     tmp_##IfClass##Stub##pRemoteDoid.Init(GetSkeleton(),(& remoteDoid));\

@@ -80,11 +80,11 @@ TInt32 CCommMgr::Init(TInt32 nrOfWorkerThread,IfTaskMgr *pTaskMgr,IfLoggerManage
         return OUT_OF_MEM;
     }
     int nRet = m_connectionPool.InitPool(m_ipMaps.m_nrOfVirtualIp + m_ipMaps.m_nrOfNodes);
-    if (nRet)
+    if (nRet<SUCCESS)
     {
-
+        return nRet;
     }
-
+    
     
     NEW(m_pBuff,TUChar,maxMsgSize);
     if (!m_pBuff)
@@ -158,6 +158,7 @@ TInt32 CCommMgr::Init(TInt32 nrOfWorkerThread,IfTaskMgr *pTaskMgr,IfLoggerManage
 #endif
                     return OUT_OF_MEM;
                 }
+                pConnection->OnInit();
                 CIpMapItem *pIp = m_ipMaps.GetConnection(i);
                 TInt32 rtn = m_pNet->Connect(pIp->m_tKey.GetRemoteIp(),pIp->m_tKey.GetMyIp(),pIp->m_tKey.GetRemotePort(),pIp->m_tKey.GetMyPort(),pConnection);
                 if (rtn < SUCCESS)
@@ -165,6 +166,7 @@ TInt32 CCommMgr::Init(TInt32 nrOfWorkerThread,IfTaskMgr *pTaskMgr,IfLoggerManage
 #ifdef _DEBUG
                     printf("Connection Failed!");
 #endif
+                    //pConnection->OnFinal();
                     m_connectionPool.ReleaseMem(pConnection);
                     return rtn;
                 }
@@ -258,9 +260,9 @@ TInt32 CCommMgr::InitWithConfig(TInt32 nrOfWorkerThread,IfTaskMgr *pTaskMgr,IfLo
         return OUT_OF_MEM;
     }
     int nRet = m_connectionPool.InitPool(m_ipMaps.m_nrOfVirtualIp + m_ipMaps.m_nrOfNodes);
-    if (nRet)
+    if (nRet<SUCCESS)
     {
-
+        return nRet;
     }
 
 
@@ -336,6 +338,7 @@ TInt32 CCommMgr::InitWithConfig(TInt32 nrOfWorkerThread,IfTaskMgr *pTaskMgr,IfLo
 #endif
                     return OUT_OF_MEM;
                 }
+                pConnection->OnInit();
                 CIpMapItem *pIp = m_ipMaps.GetConnection(i);
                 TInt32 rtn = m_pNet->Connect(pIp->m_tKey.GetRemoteIp(),pIp->m_tKey.GetMyIp(),pIp->m_tKey.GetRemotePort(),pIp->m_tKey.GetMyPort(),pConnection);
                 if (rtn < SUCCESS)
@@ -343,6 +346,7 @@ TInt32 CCommMgr::InitWithConfig(TInt32 nrOfWorkerThread,IfTaskMgr *pTaskMgr,IfLo
 #ifdef _DEBUG
                     printf("Connection Failed!");
 #endif
+                    //pConnection->OnFinal();
                     m_connectionPool.ReleaseMem(pConnection);
                     return rtn;
                 }
@@ -467,12 +471,14 @@ TInt32 CCommMgr::Run(const TInt32 threadId,const TInt32 runCnt)
 #endif
                             return usedCnt;
                         }
+                        pConnection->OnInit();
                         TInt32 rtn = m_pNet->Connect(pItem->m_tKey.GetRemoteIp(),pItem->m_tKey.GetMyIp(),pItem->m_tKey.GetRemotePort(),pItem->m_tKey.GetMyPort(),pConnection);
                         if (rtn < SUCCESS)
                         {
 #ifdef _DEBUG
                             printf("Connection Failed!");
 #endif
+                            //pConnection->OnFinal();
                             m_connectionPool.ReleaseMem(pConnection);
                             continue;
                         }
@@ -793,6 +799,7 @@ void   CCommMgr::OnConnected(CCommConnection *pConnection)
         if (pLast != pConnection)
         {
             pLast->Disconnect();
+            pLast->OnFinal();
             m_connectionPool.ReleaseMem(pLast);
         }
     }
@@ -801,7 +808,7 @@ void   CCommMgr::OnDisconnected(CCommConnection *pConnection,TBOOL bIsNegative)
 {
     //Çåipmap±í
     m_ipMaps.OnDisconnected(pConnection,m_tClock.GetLocalTime());
-
+    pConnection->OnFinal();
     m_connectionPool.ReleaseMem(pConnection);
 
     if (bIsNegative)
@@ -827,6 +834,7 @@ IfConnectionCallBack *CCommMgr::OnNewConnection(CConPair *pPair)
     }
     //
     CCommConnection *pConn = m_connectionPool.GetMem();
+    pConn->OnInit();
     pConn->SetAllInfo(this,pItem);
     return pConn;
 }
