@@ -99,8 +99,8 @@ TUInt32 CTimer::Run(TUInt64 nTimeNow)
                 else if (pNode->m_nRepeatTime > 0)
                 {
                     //É¾³ý
-                    --pNode->m_nRepeatTime;
                     pNode->m_pScheduler->OnScheduler(nTimeNow,pNode,pNode->m_nRepeatTime);
+                    --pNode->m_nRepeatTime;
                     pNode->m_nTime += pNode->m_nGap;
                     m_tMap.AddInTree(pNode);
                 }
