@@ -22,7 +22,7 @@ public:
     CTimer           *m_pTimer;
     void *           m_pIf;
 public:
-    virtual TInt32 OnScheduler(void *pTimer,TUInt64 nTimeNow)
+    virtual TInt32 OnScheduler(TUInt64 nTimeNow,void *pTimer,TInt32 nRepeatTimeRemains)
     {
         ++releaseTime;
         if (nTimeNow >= m_nTrigerTime)

@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9.00"
-	Name="Service"
+	Name="DBService"
 	ProjectGUID="{E38FB79D-565C-45CD-98BC-F1F82BC55EF6}"
 	RootNamespace="Service"
 	Keyword="Win32Proj"

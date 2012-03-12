@@ -44,25 +44,31 @@ TInt32 CMessageHeader::Init(TUInt32 bodyLength,TUInt32 methodId,CDoid srcId,CDoi
 
 TInt32 CMessageHeader::ResetBodyLength(TUInt32 bodyLength)
 {
-	TUInt32 destDoidNum = m_msgInfo.m_nrOfBroadcastDoid;
-	TUInt32 OldBodyLength = m_msgInfo.m_msgBodyLength;
-	
-	if(bodyLength>OldBodyLength)
-	{
-	    return OUT_OF_RANGE;
-	}
-	else
-	{
-		CDoid  *pOldDest = GetDestDoidByIdx(1);
-		m_msgInfo.m_msgBodyLength = bodyLength;
-		
-		CDoid  *pNewDest = GetDestDoidByIdx(1);
-		if (destDoidNum > 1)
-		{
-			memmove(pNewDest,pOldDest,(sizeof(CDoid)*(destDoidNum)));
-		}
-		return SUCCESS;
-	}
+    TUInt32 OldBodyLength = m_msgInfo.m_msgBodyLength;
+    if (OldBodyLength != bodyLength)
+    {
+
+        if(bodyLength>OldBodyLength)
+        {
+            return OUT_OF_RANGE;
+        }
+        else
+        {
+
+            TUInt32 destDoidNum = m_msgInfo.m_nrOfBroadcastDoid;
+            if (destDoidNum > 1)
+            {
+                CDoid  *pOldDest = GetDestDoidByIdx(1);
+                CDoid  *pNewDest = GetDestDoidByIdx(1);
+                memmove(pNewDest,pOldDest,(sizeof(CDoid)*(destDoidNum)));
+            }
+            else
+            {
+                m_msgInfo.m_msgBodyLength = bodyLength;
+            }
+        }
+    }
+    return SUCCESS;
 }
 //不检查有效性，有调用者负责
 void CMessageHeader::ReInitMsg4Send(TInt32 fromDest,TInt32 to)
