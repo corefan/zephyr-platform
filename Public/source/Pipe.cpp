@@ -156,14 +156,16 @@ TUChar *CPipe::Peek(TUChar *pBuffer,TUInt32 len)
     {
         return NULL;
     }
-    TUInt32 buffLen = 0;
-    if (m_pHeader >= m_pRear)
+    TUChar *pHeader = (TUChar *)m_pHeader;
+    TUChar *pRear = (TUChar *)m_pRear;
+    
+    if (pHeader >= pRear)
     {
-        buffLen = m_pHeader - m_pRear;
+        TUInt32 buffLen = pHeader - pRear;
         if (len <= buffLen)
         {
             //memcpy(pBuffer,m_pRear,len);
-            return (TUChar*)(m_pRear);
+            return (TUChar*)(pRear);
         }
         else
         {
@@ -173,15 +175,15 @@ TUChar *CPipe::Peek(TUChar *pBuffer,TUInt32 len)
     }
     else
     {
-        buffLen = m_pMemPool + m_memPoolSize - m_pRear;
+        TUInt32 buffLen = m_pMemPool + m_memPoolSize - pRear;
         if (buffLen >= len)
         {
             //memcpy(pBuffer,(const void*)(m_pRear),len);
-            return (TUChar*)(m_pRear);
+            return (TUChar*)(pRear);
         }
         else
         {
-            memcpy(pBuffer,(const void*)(m_pRear),buffLen);
+            memcpy(pBuffer,(const void*)(pRear),buffLen);
             memcpy(pBuffer + buffLen,m_pMemPool,(len - buffLen));
             return pBuffer;
         }
