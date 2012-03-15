@@ -47,7 +47,6 @@ TInt32 CMessageHeader::ResetBodyLength(TUInt32 bodyLength)
     TUInt32 OldBodyLength = m_msgInfo.m_msgBodyLength;
     if (OldBodyLength != bodyLength)
     {
-
         if(bodyLength>OldBodyLength)
         {
             return OUT_OF_RANGE;
@@ -56,9 +55,10 @@ TInt32 CMessageHeader::ResetBodyLength(TUInt32 bodyLength)
         {
 
             TUInt32 destDoidNum = m_msgInfo.m_nrOfBroadcastDoid;
-            if (destDoidNum > 1)
+            if (destDoidNum > 0)
             {
                 CDoid  *pOldDest = GetDestDoidByIdx(1);
+                m_msgInfo.m_msgBodyLength = bodyLength;
                 CDoid  *pNewDest = GetDestDoidByIdx(1);
                 memmove(pNewDest,pOldDest,(sizeof(CDoid)*(destDoidNum)));
             }
@@ -88,7 +88,7 @@ void CMessageHeader::ReInitMsg4Send(TInt32 fromDest,TInt32 to)
         ++fromDest;
         if(nrOfBroadcastDoid)
         {
-            memmove(((TUChar*)this + sizeof(CMessageHeader) + GetBodyLength()),GetDestDoidByIdx(fromDest),sizeof(CDoid)*(nrOfBroadcastDoid));
+            memmove((((TUChar*)this) + sizeof(CMessageHeader) + GetBodyLength()),GetDestDoidByIdx(fromDest),sizeof(CDoid)*(nrOfBroadcastDoid));
         }
         m_msgInfo.m_nrOfBroadcastDoid  = nrOfBroadcastDoid;
     }

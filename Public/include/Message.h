@@ -160,7 +160,7 @@ public:
             //不检查了,记住调用者必须自己保证idx的可靠性
             //if (idx < m_msgInfo.m_nrOfDestDoid)
             {
-                return (CDoid  *) ((TUChar*)this + sizeof(CMessageHeader) + GetBodyLength() + sizeof(CDoid) * (idx - 1));
+                return (CDoid  *) (((TUChar*)this) + sizeof(CMessageHeader) + GetBodyLength() + sizeof(CDoid) * (idx - 1));
             }
         }
     }
