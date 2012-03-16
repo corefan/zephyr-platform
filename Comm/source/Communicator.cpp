@@ -100,9 +100,13 @@ void CCommunicator::ReturnMsgBuff(CMessageHeader *pMsg)
     }
 }
 
-CMessageHeader *CCommunicator::PrepareMsg(TInt32 bodyLength,TUInt32 methodId,CDoid srcId,CDoid* pDestDoid,TInt32 destDoidNum,bool bRearrangeDest)
+CMessageHeader *CCommunicator::PrepareMsg(TInt32 bodyLength,TUInt32 methodId,CDoid srcId,CDoid* pDestDoid,TUInt32 destDoidNum,bool bRearrangeDest)
 {
-    TUInt32 len = sizeof(CMessageHeader) + (destDoidNum-1)*sizeof(CDoid) + bodyLength;
+    if (destDoidNum > 63)
+    {
+        return SUCCESS;
+    }
+    TInt32 len = sizeof(CMessageHeader) + (destDoidNum-1)*sizeof(CDoid) + bodyLength;
     TUInt32 getLen = len;
     CMessageHeader *pRtn = (CMessageHeader *)m_outPipe.PrepareMsg(getLen);
     if (!pRtn)

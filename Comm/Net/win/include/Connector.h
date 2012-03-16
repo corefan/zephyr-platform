@@ -50,6 +50,16 @@ public:
     {
         return m_key;
     }
+    CConnectingList()
+    {
+        OnFinal();
+    }
+    void OnFinal()
+    {
+        m_key = SOCKET_ERROR;
+        m_pConnection = NULL;
+        m_tryTimes = 0;
+    }
 };
 
 class CConnectionMgr;

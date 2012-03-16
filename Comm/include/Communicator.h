@@ -42,7 +42,7 @@ public:
 
     virtual void ReturnMsgBuff(CMessageHeader *pMsg);
 
-    virtual CMessageHeader *PrepareMsg(TInt32 bodyLength,TUInt32 methodId,CDoid srcId,CDoid* pDestDoid,TInt32 destDoidNum,bool bRearrangeDest);
+    virtual CMessageHeader *PrepareMsg(TInt32 bodyLength,TUInt32 methodId,CDoid srcId,CDoid* pDestDoid,TUInt32 destDoidNum,bool bRearrangeDest);
 
     //virtual int SendMsg(SCTDMessageHeader *,bool bNeedCopy = false) = 0;
     //do not need the para bNeedCopy any more, I will check it!`

@@ -59,7 +59,7 @@ TInt32 CConnector::Run(const TUInt32 runCnt)
     FD_ZERO(&wset);
     FD_ZERO(&exceptSet);
     
-    TplNode<CConnectingList,SOCKET>::Iterator it(m_pendingSocket.GetRoot());
+    TplNode<CConnectingList,SOCKET>::Iterator it(m_pendingSocket.First());
     
     while ((usedCnt < runCnt) && (!it.IsNull()))
     {
@@ -79,11 +79,23 @@ TInt32 CConnector::Run(const TUInt32 runCnt)
 //                 continue;
 //             }
             wset.fd_array[wset.fd_count] = it->m_pConnection->GetSocket();
-            ++wset.fd_count;
-            ++it;
-            if (wset.fd_count >= FD_SETSIZE)
+            if (SOCKET_ERROR == wset.fd_array[wset.fd_count])
             {
-                break;
+                CConnectingList *pItem = it.GetItem();
+                ++it;
+                OnDisconnected(pItem->m_pConnection);
+                m_pendingSocket.RemoveFromTree(pItem);
+                pItem->OnFinal();
+                m_pendingSocket.ReleaseItem(pItem);
+            }
+            else
+            {
+                ++wset.fd_count;
+                ++it;
+                if (wset.fd_count >= FD_SETSIZE)
+                {
+                    break;
+                }
             }
         }
         if (!it.IsNull())
@@ -97,11 +109,23 @@ TInt32 CConnector::Run(const TUInt32 runCnt)
         tm.tv_usec=0;
         int nfds = select(wset.fd_count,NULL,&wset,&exceptSet,&tm);
         //TInt32 usedCnt = 0;
+        CConnectingList *pItNow = it.GetItem();
         switch (nfds) 
         {
         case -1:
             {
                 int errCode = WSAGetLastError();
+                //Delete all node
+                it = m_pendingSocket.First();
+                while (!it.IsNull())
+                {
+                    CConnectingList *pItem = it.GetItem();
+                    ++it;
+                    OnDisconnected(pItem->m_pConnection);
+                    m_pendingSocket.RemoveFromTree(pItem);
+                    pItem->OnFinal();
+                    m_pendingSocket.ReleaseItem(pItem);
+                }
                 return -errCode;
             }
         case 0: // nothing happened!
@@ -113,8 +137,14 @@ TInt32 CConnector::Run(const TUInt32 runCnt)
                     CConnectingList *pCItem = m_pendingSocket.GetItemByKey(wset.fd_array[i]);
                     if (pCItem)
                     {
+                        if (pCItem == pItNow)
+                        {
+                            ++it;
+                            pItNow = it.GetItem();
+                        }
                         OnConnectionEstablish(pCItem->m_pConnection);
                         m_pendingSocket.RemoveFromTree(pCItem);
+                        pCItem->OnFinal();
                         m_pendingSocket.ReleaseItem(pCItem);
                     }
                     else
@@ -128,8 +158,14 @@ TInt32 CConnector::Run(const TUInt32 runCnt)
                     CConnectingList *pCItem = m_pendingSocket.GetItemByKey(exceptSet.fd_array[i]);
                     if (pCItem)
                     {
+                        if (pCItem == pItNow)
+                        {
+                            ++it;
+                            pItNow = it.GetItem();
+                        }
                         OnDisconnected(pCItem->m_pConnection);
                         m_pendingSocket.RemoveFromTree(pCItem);
+                        pCItem->OnFinal();
                         int ret = m_pendingSocket.ReleaseItem(pCItem);
                         if (ret < SUCCESS)
                         {
