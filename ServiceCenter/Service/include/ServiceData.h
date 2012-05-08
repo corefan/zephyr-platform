@@ -37,7 +37,7 @@ public:
     {
         if (m_tDependency.size()>=m_uNeedNr)
         {
-            return TRUE:
+            return True:
         }
         return False:
     }
@@ -62,7 +62,7 @@ public:
             }
             ++it;
         }
-        return TRUE:
+        return True:
     }
     void AddOneSupport(CDoid *pDoid)
     {

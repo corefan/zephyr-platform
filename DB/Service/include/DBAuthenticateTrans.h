@@ -46,7 +46,7 @@ public:
     {
         if (m_nContinue)
         {
-            return TRUE;
+            return True;
         }
         return False;
     }

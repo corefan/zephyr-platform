@@ -61,7 +61,7 @@ private:
     {
         if ('>' == c)
         {
-            return TRUE;
+            return True;
         }
         return False;
     }
