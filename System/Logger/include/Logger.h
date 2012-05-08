@@ -81,7 +81,7 @@ public:
 //do not call this !
     TInt32 Run(TUInt32 runCnt,struct tm *pTime);
     void OnDateChanged();
-    TBOOL NeedUnlock();
+    //TBOOL NeedUnlock();
     void OnException(FILE *pDump = NULL);
 };
 

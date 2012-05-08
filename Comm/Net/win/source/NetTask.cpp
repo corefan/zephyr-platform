@@ -281,9 +281,9 @@ TInt32 CNetTask::ProcessIOMessage(CIocpOverlappedDataHeader *pHeader,TUInt32 ioS
         break;
         case overlapped_try_reading:
         {
-            if (True == pHeader->m_pConnection->CheckReadHeader(usedCnt))
+            if (True == pHeader->m_pConnection->CheckReadHeader(pHeader))
             {
-                pHeader += pHeader->m_pConnection->OnRecv(pHeader,ioSize);
+                usedCnt += pHeader->m_pConnection->OnRecv(pHeader,ioSize);
                 //OnRecv(pHeader->m_pConnection);
                 
             }

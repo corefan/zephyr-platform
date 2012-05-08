@@ -78,8 +78,8 @@ private:
     //返回值为是否需要丢弃消息,应用层阻塞了
 
 
-    TBOOL IsAppStillBlocked();
-    TBOOL IsNetStillBlocked();
+    //TBOOL IsAppStillBlocked();
+    //TBOOL IsNetStillBlocked();
 
     TInt32 CheckNetState(CMessageHeader *pMsg);
     void SendAppMsg(CMessageHeader *pMsg);

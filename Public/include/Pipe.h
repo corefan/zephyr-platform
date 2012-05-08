@@ -169,9 +169,9 @@ public:
     {
         if ( (m_pMemPool > pBuffer) && (m_pMemPool + m_memPoolSize <= pBuffer) )
         {
-            return false;
+            return False;
         }
-        return true;
+        return True;
     }
     void Reset()
     {

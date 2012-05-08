@@ -106,7 +106,7 @@ CMessageHeader *CCommunicator::PrepareMsg(TInt32 bodyLength,TUInt32 methodId,CDo
     {
         return SUCCESS;
     }
-    TInt32 len = sizeof(CMessageHeader) + (destDoidNum-1)*sizeof(CDoid) + bodyLength;
+    TUInt32 len = sizeof(CMessageHeader) + (destDoidNum-1)*sizeof(CDoid) + bodyLength;
     TUInt32 getLen = len;
     CMessageHeader *pRtn = (CMessageHeader *)m_outPipe.PrepareMsg(getLen);
     if (!pRtn)
@@ -117,8 +117,7 @@ CMessageHeader *CCommunicator::PrepareMsg(TInt32 bodyLength,TUInt32 methodId,CDo
     {
         pRtn = (CMessageHeader *)m_pWriteBuffer;
     }
-    len = pRtn->Init(bodyLength,methodId,srcId,pDestDoid,destDoidNum,bRearrangeDest);
-    if (SUCCESS > len)
+    if (pRtn->Init(bodyLength,methodId,srcId,pDestDoid,destDoidNum,bRearrangeDest) < SUCCESS)
     {
         return NULL;
     }

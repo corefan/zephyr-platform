@@ -29,7 +29,7 @@ TBOOL CCommConnection::IsActived()
     {
         if (connection_is_using == m_pIfConnection->GetConnctionState())
         {
-            return SUCCESS;
+            return True;
         }
     }
     return  False;
