@@ -46,14 +46,16 @@ CAuthenticateService::~CAuthenticateService()
 TInt32 CAuthenticateService::Authenticate(TLV<TUInt16,TUInt16> tAuthenticateData)
 {
     CDoid *pFrom = GetMyDoid();
+    IfAuthResp *pResp;
+    GET_REMOTE_STUB_PT(pResp,IfAuthResp,pFrom);
     if (pFrom)
     {
+        //之前已经在请求登陆了，不必
         CDBAuthenticateTrans *pDB = m_tUsingMaps.GetItemByKey(*pFrom);
         if (pDB)
         {
-            pDB->OnDisconnected();
-            m_tUsingMaps.ReleaseItem(pDB);
-            //等数据库返回后在释放回内存池
+            pResp->RespAuthenticate(-((TInt32)en_reading_db),tAuthenticateData);
+            return SUCCESS;
         }
         if (m_nPendingDBTrans < m_nMaxTransNum)
         {
@@ -79,20 +81,18 @@ TInt32 CAuthenticateService::Authenticate(TLV<TUInt16,TUInt16> tAuthenticateData
                         {
                             m_tUsingMaps.ReleaseItem(pDB);
                         }
+                        return SUCCESS;
                     }
                 }
             }
         }
-        else
+        //else
         {
-            IfAuthResp *pResp;
-            GET_REMOTE_STUB_PT(pResp,IfAuthResp,pFrom);
+           
             //把原数据发回
-            pResp->RespAuthenticate(-((TInt32)en_incorrect_data_length),tAuthenticateData);
+            pResp->RespAuthenticate(-((TInt32)en_system_is_too_busy),tAuthenticateData);
             //写日志
-            TChar szDoid[64];
-            pFrom->ToStr(szDoid);
-            LOG_RUN(en_incorrect_data_length,"Recive incorrect data from Doid:%s\n",szDoid);
+            LOG_RUN(en_system_is_too_busy,"System is to busy!");
         }
     }
     return SUCCESS;
@@ -188,10 +188,9 @@ TInt32 CAuthenticateService::InitService(IfOrb *pIfOrb,IfTaskMgr *pIfTaskMgr,IfL
 }
 
 //结束是回调.
-TInt32 CAuthenticateService::OnFinal()
+void CAuthenticateService::OnFinal()
 {
     m_tUsingMaps.UnInit();
-    return SUCCESS;
 }
 
 void CAuthenticateService::OnDbFinished(CDBAuthenticateTrans *pTrans)
@@ -212,6 +211,7 @@ void CAuthenticateService::OnDbFinished(CDBAuthenticateTrans *pTrans)
             tAuthTLV.m_nTag = pTrans->m_nResult; //表示成功.其实没用
             tAuthTLV.m_pBuffer = (TUChar*)&pTrans->m_unAllData.m_tAuthorityData;
             pResp->RespAuthenticate(-((TInt32)en_incorrect_data_length),tAuthTLV);
+            //成功后，要为其创建后续的Session..
         }
         else
         {

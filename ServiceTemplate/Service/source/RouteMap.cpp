@@ -14,7 +14,7 @@ CDoid *CRouteMap::FindService(TUInt32 uServiceId)
     CRoute *pRtn(NULL);
     while ((pRount)&&(pRount->m_uKey == uSvr))
     {
-        if ((uServiceId <= pRount->m_uIdBegin)&&(uServiceId> pRount->m_uIdEnd))
+        if ((uServiceId >= pRount->m_uIdBegin)&&(uServiceId < pRount->m_uIdEnd))
         {
             if (pRtn)
             {
@@ -69,59 +69,44 @@ TInt32 CRouteMap::AddRoute(CDoid *pDoid,TUInt32 uSrvId,TUInt32 uBegin,TUInt32 uE
     }
     //查找有没有，没的话再说.
     TplMultiKeyMapNode<CRoute,TUInt32>::Iterator it = m_tServiceRoute.GetItemByKey(uSrvId);
-    CRoute *pRount = it;
-    if (pRount)
+
+    if ((CRoute *)it)
     {
-        CRoute tNew;
-        tNew.m_tRouteTo = *pDoid;
-        tNew.m_uIdBegin = uBegin;
-        tNew.m_uIdEnd   = uEnd;
-        tNew.m_uKey     = uSrvId;
-        tNew.m_uPriority = uPriority;
-        CRoute *pMerge = &tNew;
-        while ((pRount)&&(pRount->m_uKey == uSrvId))
+        while (((CRoute *)it)&&(it->m_uKey == uSrvId))
         {
-            if (pRount->Merge(*pMerge)) //成功融合
+            if (it->m_tRouteTo == *pDoid) //有老的
             {
-                if (&tNew == pMerge)
-                {
-                    pMerge = pRount;
-                }
-                else
-                {
-                    //把老的删掉.因为已经融到pRount里了
-                    m_tServiceRoute.RemoveFromTreeItem(pMerge);
-                    pMerge = pRount;
-                }
+                //则替换老的
+                it->m_uIdBegin = uBegin;
+                it->m_uIdEnd   = uEnd;
+                it->m_uPriority= uPriority;
+                return SUCCESS;
             }
             ++it;
         }
-        if (&tNew != pMerge)
-        {
-            //好了，数据已经插入了，可以返回了
-            return SUCCESS;
-        }
-    }
-
-    CRoute *pRoute = m_tServiceRoute.PrepareItem();
-    if (pRoute)
-    {
-        pRoute->m_uKey = uSrvId;//CMessageHeader::GetServiceID();不用了
-        pRoute->m_uIdBegin = uBegin;
-        pRoute->m_uIdEnd = uEnd;
-        pRoute->m_tRouteTo = *pDoid;
-        pRoute->m_uPriority = uPriority;
-        m_tServiceRoute.AddInTree(pRoute);
     }
     else
     {
-        //写日志.内存
-//         char szBufferRegister[64];
-//         pRegister->ToStr(szBufferRegister);
-//         char szBufferDoid[64];
-//         pDoid->ToStr(szBufferDoid);
-//         LOG_CRITICAL(en_allocate_route_mem_failed,"Servcie Id,Register:%s ,doid:%s, uSrvId:%u,uBegin:%u,uEnd:%u,uPriority:%u",szBufferRegister,szBufferDoid,uSrvId,uBegin,uEnd,uPriority);
-        return OUT_OF_MEM;
+        CRoute *pRoute = m_tServiceRoute.PrepareItem();
+        if (pRoute)
+        {
+            pRoute->m_uKey = uSrvId;//CMessageHeader::GetServiceID();不用了
+            pRoute->m_uIdBegin = uBegin;
+            pRoute->m_uIdEnd = uEnd;
+            pRoute->m_tRouteTo = *pDoid;
+            pRoute->m_uPriority = uPriority;
+            m_tServiceRoute.AddInTree(pRoute);
+        }
+        else
+        {
+            //写日志.内存
+            //         char szBufferRegister[64];
+            //         pRegister->ToStr(szBufferRegister);
+            //         char szBufferDoid[64];
+            //         pDoid->ToStr(szBufferDoid);
+            //         LOG_CRITICAL(en_allocate_route_mem_failed,"Servcie Id,Register:%s ,doid:%s, uSrvId:%u,uBegin:%u,uEnd:%u,uPriority:%u",szBufferRegister,szBufferDoid,uSrvId,uBegin,uEnd,uPriority);
+            return OUT_OF_MEM;
+        }
     }
     return SUCCESS;
 }
@@ -140,65 +125,17 @@ TInt32 CRouteMap::RmvRoute(CDoid *pDoid,TUInt32 uSrvId,TUInt32 uBegin,TUInt32 uE
     }
 
     TplMultiKeyMapNode<CRoute,TUInt32>::Iterator it = m_tServiceRoute.GetItemByKey(uSrvId);
-    CRoute *pRount = it;
     TInt32 nResult = -((TInt32)en_no_much_service_id_found);
-    if (pRount)
+    if ((CRoute*)it)
     {
-        CRoute tRmvPart;
-        tRmvPart.m_tRouteTo = *pDoid;
-        tRmvPart.m_uIdBegin = uBegin;
-        tRmvPart.m_uIdEnd   = uEnd;
-        tRmvPart.m_uKey     = uSrvId;
-        //tNew.m_uPriority = 0;先不写
-        
-        while ((pRount)&&(pRount->m_uKey == uSrvId))
+        while (((CRoute*)it)&&(it->m_uKey == uSrvId))
         {
-            TInt32 nRet = pRount->Separate(tRmvPart);
-            switch (nRet)
+            if (it->m_tRouteTo == *pDoid)
             {
-            case 0:
-                {
-                    nResult = 0; 
-                }
-                break;
-            case 3:
-                {
-                    //删除并返回
-                    m_tServiceRoute.RemoveFromTreeItem(pRount);
-                    m_tServiceRoute.ReleaseItem(pRount);
-                    return 3;
-                }
-                break;
-            case 1: //继续
-                {
-                    m_tServiceRoute.RemoveFromTreeItem(pRount);
-                    m_tServiceRoute.ReleaseItem(pRount);
-                    nResult = 0;
-                }
-                break;
-            case 2:
-                {
-                    //增加并停止
-                    CRoute *pNew = m_tServiceRoute.PrepareItem();
-                    if (pNew)
-                    {
-                        pNew->m_tRouteTo = tRmvPart.m_tRouteTo;
-                        pNew->m_uKey = tRmvPart.m_uKey;
-                        pNew->m_uIdBegin = tRmvPart.m_uIdBegin;
-                        pNew->m_uIdEnd = tRmvPart.m_uIdEnd;
-                        pNew->m_uPriority = pRount->m_uPriority;
-                        m_tServiceRoute.AddInTree(pNew);
-                        return 2;
-                    }
-                    else
-                    {
-                        return OUT_OF_MEM;
-                    }
-                }
-                break;
+                m_tServiceRoute.RemoveFromTreeItem(it);
+                m_tServiceRoute.ReleaseItem(it);
             }
             ++it;
-            pRount = it;
         }
     }
 

@@ -193,12 +193,18 @@ int main(int argc, char* argv[])
             if(pService)
             {
                 tRead.m_tCfg.m_pOrbs[i].m_pServices[j].m_pService = pService;
+                TInt32 nRet = pService->OnInit();
+                if (nRet < SUCCESS)
+                {
+                    printf("Init Service %s Failed!\n\r",tRead.m_tCfg.m_pOrbs[i].m_pServices[j].m_pszServiceDllName.c_str());
+                    return nRet;
+                }
                 IfSkeleton *pSkeleton = pOrb[i].RegiterService(pService,pService->GetServiceId());
                 if (pSkeleton)
                 {
                     pService->SetSkeleton(pSkeleton);
 					pService->Init(pOrb[i].GetCommunicator()->GetClock(),pOrb[i].GetCommunicator(),pOrb+i,pSkeleton->GetMyDoid());
-                    TInt32 nRet = pService->OnInit();
+                    TInt32 nRet = pService->OnInited();
                     if (nRet < SUCCESS)
                     {
                         printf("Init Service %s Failed!\n\r",tRead.m_tCfg.m_pOrbs[i].m_pServices[j].m_pszServiceDllName.c_str());

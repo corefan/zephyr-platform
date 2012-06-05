@@ -3,6 +3,7 @@
 #include "../../Interface/include/IfGatewaySvcSkeleton.h"
 #include "../include/GatewayBasicConfig.h"
 #include "Public/include/NetCenter.h"
+#include "../../../DB/Interface/include/IfAuthServiceMethodId.h"
 namespace Zephyr
 {
 
@@ -76,45 +77,51 @@ TInt32 CGatewayService::ChangePriorty(TUInt32 uServiceId,CDoid *pMyDoid,TUInt32 
 //开始接收登陆，供管理使用。主控服务器在所有内部服务器协调启动完成后，让gateway开始接收登陆.
 TInt32 CGatewayService::StartLogin(TUInt32 uIp,TUInt16 nListeningPort,TUInt16 nMaxConnection)
 {
-    if ((0 == m_uListeningPort)&&(0 == m_uIp))
+    if (NULL == m_pListener)
     {
-        IfListenerCallBack *pCallBack = this; //必须转一下，不位不对，Listen的参数void*,不是IfListenerCallBack*
-        char szBuffer[64];
-        GetCallerDoid()->ToStr(szBuffer);
-        LOG_RUN(en_start_listing,"Caller(%s) start Listening at Ip:%u,port:%u,MaxConnection:%u",szBuffer,uIp,(TUInt32)nListeningPort,(TUInt32)nMaxConnection);
-        
-        m_pListener = m_pNet->Listen(uIp,nListeningPort,nMaxConnection,pCallBack);
-        
-        if (NULL == m_pListener)
+        if ((0 == m_uListeningPort)&&(0 == m_uIp))
         {
-            LOG_RUN(en_start_listening_failed,"Listen failed! Ip:%u,port:%u",uIp,(TUInt32)nListeningPort);
-            return -(en_start_listening_failed);
+            IfListenerCallBack *pCallBack = this; //必须转一下，不位不对，Listen的参数void*,不是IfListenerCallBack*
+            char szBuffer[64];
+            GetCallerDoid()->ToStr(szBuffer);
+            LOG_RUN(en_start_listing,"Caller(%s) start Listening at Ip:%u,port:%u,MaxConnection:%u",szBuffer,uIp,(TUInt32)nListeningPort,(TUInt32)nMaxConnection);
+
+            m_pListener = m_pNet->Listen(uIp,nListeningPort,nMaxConnection,pCallBack);
+
+            if (NULL == m_pListener)
+            {
+                LOG_RUN(en_start_listening_failed,"Listen failed! Ip:%u,port:%u",uIp,(TUInt32)nListeningPort);
+                return -(en_start_listening_failed);
+            }
         }
-    }
-    else
-    {
-        //重复启动
-        CDoid *pRegister = GetCallerDoid();
-        char szBufferRegister[64];
-        pRegister->ToStr(szBufferRegister);
-        LOG_RUN(en_restart_listening,"Restart listening from doid:%s , New Ip:%u,port:%u,max connection:%u",szBufferRegister,uIp,(TUInt32)nListeningPort,(TUInt32)nMaxConnection);
+        else
+        {
+            //重复启动
+            CDoid *pRegister = GetCallerDoid();
+            char szBufferRegister[64];
+            pRegister->ToStr(szBufferRegister);
+            LOG_RUN(en_restart_listening,"Restart listening from doid:%s , New Ip:%u,port:%u,max connection:%u",szBufferRegister,uIp,(TUInt32)nListeningPort,(TUInt32)nMaxConnection);
+        }
     }
     return SUCCESS;
 }
 //停止接入登陆，供管理使用。开始停服.这个时候Gateway只是停止接收新的连接，老连接还是维持的
 TInt32 CGatewayService::StopLogin()
 {
-    char szBuffer[64];
-    GetCallerDoid()->ToStr(szBuffer);
     if (m_pListener)
     {
-        LOG_RUN(en_stop_listening,"Caller(%s) stop Listening",szBuffer);
-        m_pNet->StopListening(m_pListener); //肯定成功.
-        m_pListener = NULL;
-    }
-    else
-    {
-        LOG_RUN(en_listening_not_started,"Caller(%s) try stop Listening,but there's no listening.",szBuffer);
+        char szBuffer[64];
+        GetCallerDoid()->ToStr(szBuffer);
+        if (m_pListener)
+        {
+            LOG_RUN(en_stop_listening,"Caller(%s) stop Listening",szBuffer);
+            m_pNet->StopListening(m_pListener); //肯定成功.
+            m_pListener = NULL;
+        }
+        else
+        {
+            LOG_RUN(en_listening_not_started,"Caller(%s) try stop Listening,but there's no listening.",szBuffer);
+        }
     }
     return SUCCESS;
 }
@@ -137,7 +144,7 @@ void CGatewayService::OnDisconnected(CGatewaySession *pSession,IfParser *pParser
 }
 
     //以下是Service专有的.
-TInt32 CGatewayService::OnInit()
+TInt32 CGatewayService::OnInited()
 {
     //根据ServiceID来获取配置
     CDoid *pDoid = GetMyDoid();
@@ -167,30 +174,35 @@ TInt32 CGatewayService::OnInit()
     }
     m_pLogger = m_pLoggerManager->GetLogger(nRet);
     m_pIfComm = m_pOrb->GetCommunicator();
-    m_pOrb->RegisterRun(m_pSkeleton,500);
+    m_pOrb->RegisterRun(m_pSkeleton,15);
     //临时的
     IfListenerCallBack *pCallback = this;
-    m_pListener = m_pNet->Listen((TUInt32)0,12222,64,pCallback);
+    m_pListener = m_pNet->Listen(tConfig.m_uListeningIp,tConfig.m_uListeningPort,tConfig.m_uMaxIncomingConnection4Listner,pCallback);
     //
-    m_nMaxConnections = 1100;
-    m_tSessionPool.InitPool(1100);
+    
+    m_nMaxConnections = tConfig.m_uMaxConnections;
+    nRet = m_tRoutePool.InitPool(m_nMaxConnections*4);
+    if (nRet < SUCCESS)
+    {
+        return nRet;
+    }
+    m_tServiceRoute.Init(&m_tRoutePool);
+    m_tServiceRoute.AddRoute(&tConfig.m_tASDoid,IFAUTHSERVICE_INTERFACE_ID,IFAUTHSERVICE_INTERFACE_ID,ONDISCONNETED_CDOID_ID+1,0);
+    m_tSessionPool.InitPool(m_nMaxConnections);
     if (m_pListener)
     {
         return SUCCESS;
     }
-    
-    
     return FAIL;
     //
 }
     //结束是回调.
-TInt32 CGatewayService::OnFinal()
+void CGatewayService::OnFinal()
 {
     DestoryNet(m_pNet);
     m_pNet = NULL;
     m_pLoggerManager->ReleaseLogger(m_pLogger);
     m_pLogger = NULL;
-    return SUCCESS;
 }
 
     //定时  器到时了

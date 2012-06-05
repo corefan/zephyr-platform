@@ -206,7 +206,15 @@
 				>
 			</File>
 			<File
+				RelativePath=".\interface\IfConnectingResp.h"
+				>
+			</File>
+			<File
 				RelativePath=".\interface\IfGateway.h"
+				>
+			</File>
+			<File
+				RelativePath=".\interface\IfGatewayResp.h"
 				>
 			</File>
 		</Filter>

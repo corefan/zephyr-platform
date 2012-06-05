@@ -35,6 +35,24 @@ TInt32  CGatewayBasicConfig::ReadFile(TUInt16 uVIp,TUInt16 uServiceId)
         m_uInputCacheInKBs  = tFile.GetInteger(szMain,"input_cache_in_kbs",16);
         const char *psz = tFile.GetString(szMain,"logger_name","gateway_logger");
         strncpy_s(m_szLoggerName,psz,sizeof(m_szLoggerName));
+        TInt32 nTmp = tFile.GetInteger(szMain,"node_id",-1);
+        if (nTmp < 0)
+        {
+            return FAIL;
+        }
+        m_tASDoid.m_nodeId = nTmp;
+        nTmp = tFile.GetInteger(szMain,"virtual_ip",-1);
+        if (nTmp < 0)
+        {
+            return FAIL;
+        }
+        m_tASDoid.m_virtualIp = nTmp;
+        nTmp = tFile.GetInteger(szMain,"svr_id",-1);
+        if (nTmp < 0)
+        {
+            return FAIL;
+        }
+        m_tASDoid.m_srvId = nTmp;
         return SUCCESS;
     }
     return FAIL;

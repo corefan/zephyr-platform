@@ -29,7 +29,7 @@ void CGatewaySession::OnConnected(TUInt32 uIp,TUInt16 uPortId)
 {
     m_uIp = uIp;
     m_uPort = uPortId;
-    m_enState = en_shake_hands;
+    m_enState = en_connection_established;
 }
 
 TInt32 CGatewaySession::OnRecv(TUChar *pMsg, TUInt32 msgLen)
@@ -39,6 +39,10 @@ TInt32 CGatewaySession::OnRecv(TUChar *pMsg, TUInt32 msgLen)
     if (pMsgInfo->m_msgBodyLength + sizeof(CMessageHeader::UnMsgInfo) == msgLen) //这个是肯定的
     {
         CDoid *pDoid = m_tServiceRoute.FindService(uMsgId);
+        if (NULL == pDoid)
+        {
+            pDoid = m_pService->FindService(uMsgId);
+        }
         if (pDoid)
         {
             CMessageHeader *pMsgHeader = PrepareMsg(pMsgInfo->m_msgBodyLength,uMsgId,pDoid,1,false);
@@ -62,6 +66,8 @@ TInt32 CGatewaySession::OnConnected(IfConnection *pIfConnection,IfParser *pParse
     m_pIfConnection = pIfConnection;
     m_pParser = pParser;
     m_pCryptor = pCryptor;
+    CConPair *pConn = pIfConnection->GetConnectionInfo();
+    OnConnected(pConn->GetMyIp(),pConn->GetMyPort());
     return SUCCESS;
 }
     //任何socket异常都会自动关闭网络连接
@@ -88,7 +94,7 @@ TInt32 CGatewaySession::OnInit()
     return SUCCESS;
 }
     //结束是回调.
-TInt32 CGatewaySession::OnFinal()
+void CGatewaySession::OnFinal()
 {
     m_tServiceRoute.OnFinal();
     m_enState = en_connection_not_using;
@@ -97,7 +103,6 @@ TInt32 CGatewaySession::OnFinal()
     m_pIfConnection = NULL;
     m_pParser = NULL;
     m_pCryptor = NULL;
-    return SUCCESS;
 }
 
 TInt32 CGatewaySession::RegisterService(CDoid *pDoid,TUInt32 uServiceId,TUInt32 uServiceIdBegin,TUInt32 uServcieIdEnd,TUInt32 uPriority)

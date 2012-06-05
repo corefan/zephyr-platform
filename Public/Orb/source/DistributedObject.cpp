@@ -20,10 +20,19 @@ TInt32      CObject::OnInit()
     return SUCCESS;
 }
 
-TInt32 CObject::OnFinal()
+void CObject::OnFinal()
+{
+}
+
+TInt32 CObject::OnInited()
 {
     return SUCCESS;
 }
+
+void CObject::OnFinaled()
+{;
+}
+
 
 CDoid *CObject::GetMyDoid()
 {

@@ -25,7 +25,7 @@ public:
     enum EnSessionState
     {
         en_connection_not_using,   //未使用
-        en_shake_hands,            //握手
+        en_shake_hands_0,            //握手,接受对端发来RSA加密密码,
         en_connection_established, //连接创建
         en_trying_to_disconnected, //尝试断链
     };
@@ -78,7 +78,7 @@ public:
     //在初始化的时候会被调.
     virtual TInt32      OnInit();
     //结束是回调.
-    virtual TInt32      OnFinal();
+    virtual void      OnFinal();
 
     virtual TInt32 RegisterService(CDoid *pDoid,TUInt32 uServiceId,TUInt32 uServiceIdBegin,TUInt32 uServcieIdEnd,TUInt32 uPriority);
     virtual TInt32 UnregisterService(TUInt32 uServiceId,TUInt32 uServiceIdBegin,TUInt32 uServcieIdEnd);

@@ -33,6 +33,13 @@ public:
     }
     virtual ~CService();
     TInt32 Init(const CClock *pClock,IfCommunicator *pIfComm,IfOrb *pOrb,CDoid *pDoid);
+    TInt32 InitTimer(TInt32 nTimerNr)
+    {
+        return m_tTimer.Init(nTimerNr);
+    }
+
+    void UnRegisterSession(CSession *pSession);
+
     void *SetTimer(TUInt32 uGapInMs,TInt32 nRepeatTime,IfScheduler *pScheduler)
     {
         return m_tTimer.SetTimer(uGapInMs,nRepeatTime,pScheduler,m_pClock->GetPlatformTime());

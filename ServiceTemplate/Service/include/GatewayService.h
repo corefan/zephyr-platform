@@ -77,9 +77,9 @@ public:
     virtual TInt32  DisconnectedAllClient();
 
     //以下是Service专有的.
-    virtual TInt32      OnInit();
+    virtual TInt32      OnInited();
     //结束是回调.
-    virtual TInt32      OnFinal();
+    virtual void      OnFinal();
 
 
     //定时  器到时了
