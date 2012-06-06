@@ -1088,13 +1088,15 @@ TInt32 CInterfaceElement::GenerateMethodIdFile(const char *pPath,int nInterfaceI
 		nUsed += n;
 		nLength -= n;
 
-        n = GetMethodIdStr(pBuff+nUsed,nLength);//sprintf_s(pBuff+nUsed,nLength,"#endif\n\n");
+        n = GetMethodIdStr(pBuff+nUsed,nLength);//
         nUsed += n;
         nLength -= n;
 		n = sprintf_s(pBuff+nUsed,nLength,"+(Ox%08X)\n",m_tChilds.size());
 		nUsed += n;
 		nLength -= n;
-
+        n = sprintf_s(pBuff+nUsed,nLength,"#endif\n\n");
+        nUsed += n;
+        nLength -= n;
         fwrite(pBuff,1,nUsed,pFile);
         //sprintf_s()
         fclose (pFile);
@@ -1132,21 +1134,26 @@ TInt32 CInterfaceElement::GenerateStubHeaderFile(const char *pPath)
     int nUsed = 0;
     if (pFile)
     {
-        int nBegin = 10000;
-        int n = sprintf_s(pBuff+nBegin,1000,"__%s_STUB_H__",m_szName.c_str());
+        char szNameBuffer[256];
+        int n = sprintf_s(szNameBuffer,256,"__%s_STUB_H__",m_szName.c_str());
 
         for (int i=0;i<n;++i)
         {
-            pBuff[nBegin] = toupper(pBuff[nBegin]);
-            ++nBegin;
+            szNameBuffer[i] = toupper(szNameBuffer[i]);
         }
 
-        n = sprintf_s(pBuff,nLength,"#ifndef %s\n#define %s\n#include \"Public/include/TypeDef.h\"\n#include \"Public/include/Doid.h\"\n#include \"Public/Interface/Platform/include/IfSkeleton.h\"\n",(pBuff+10000),(pBuff+10000));
+        n = sprintf_s(pBuff,nLength,"#ifndef %s\n"
+                                    "#define %s\n"
+                                    "#include \"Public/include/TypeDef.h\"\n"
+                                    "#include \"Public/include/Doid.h\"\n"
+                                    "#include \"Public/Interface/Platform/include/IfSkeleton.h\"\n",
+                                    szNameBuffer,szNameBuffer);
         nUsed += n;
         nLength -= n;
-        n = sprintf_s(pBuff+nUsed,nLength,"#include \"../Interface/%s\"\n",CHeaderFile::m_pFileName);
+        const TChar *pszOrigFileName = CHeaderFile::m_pFileName;
+        n = sprintf_s(pBuff+nUsed,nLength,"#include \"../Interface/%s\"\n",pszOrigFileName);
         nUsed +=n;
-        nLength+=n;
+        nLength-=n;
 //         n = sprintf_s(pBuff+nUsed,nLength,"#include \"%s\";\n",m_szName.c_str());
 //         nUsed += n;
 //         nLength -= n;
