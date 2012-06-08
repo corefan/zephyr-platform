@@ -93,32 +93,8 @@ TUInt32 CTimer::Run(TUInt64 nTimeNow)
                 if (pNode->m_nRepeatTime < 0)
                 {
                     pNode->m_pScheduler->OnScheduler(nTimeNow,pNode,-1);
-                    pNode->m_nTime += pNode->m_nGap;
-                    m_tMap.AddInTree(pNode);
-                }
-                else if (pNode->m_nRepeatTime > 0)
-                {
-                    //删除
-                    pNode->m_pScheduler->OnScheduler(nTimeNow,pNode,pNode->m_nRepeatTime);
-                    --pNode->m_nRepeatTime;
-                    pNode->m_nTime += pNode->m_nGap;
-                    m_tMap.AddInTree(pNode);
-                }
-                else 
-                {
-                    //
-                    pNode->m_pScheduler->OnScheduler(nTimeNow,pNode,0);
-                    m_tPool.ReleaseMem(pNode);
-                }
-                m_pRuning = NULL;
-                //if (pNode->m_pScheduler)
-                {
-                    if (pNode->m_nRepeatTime)
+                    if (0 != pNode->m_nRepeatTime)
                     {
-                        if (pNode->m_nRepeatTime > 0)
-                        {
-                            --pNode->m_nRepeatTime;
-                        }
                         pNode->m_nTime += pNode->m_nGap;
                         m_tMap.AddInTree(pNode);
                     }
@@ -128,9 +104,33 @@ TUInt32 CTimer::Run(TUInt64 nTimeNow)
                         m_tPool.ReleaseMem(pNode);
                     }
                 }
+                else if (pNode->m_nRepeatTime > 0)
+                {
+                    //删除
+                    pNode->m_pScheduler->OnScheduler(nTimeNow,pNode,pNode->m_nRepeatTime);
+                    if (0 != pNode->m_nRepeatTime)
+                    {
+                        --pNode->m_nRepeatTime;
+                        pNode->m_nTime += pNode->m_nGap;
+                        m_tMap.AddInTree(pNode);
+                    }
+                    else
+                    {
+                        pNode->Clean();
+                        m_tPool.ReleaseMem(pNode);
+                    }
+                }
+                else 
+                {
+                    //
+                    pNode->m_pScheduler->OnScheduler(nTimeNow,pNode,0);
+                    pNode->Clean();
+                    m_tPool.ReleaseMem(pNode);
+                }
+                m_pRuning = NULL;
                 pNode = m_tMap.Begin(); //m_tMap.Begin();//这样做效率不高Log(n)，但是最安全，限制最少.
                 ++ nRunCnt;
-                if (nRunCnt > 10000)
+                if (nRunCnt > 1024) //限制次数
                 {
                     break;
                 }
