@@ -421,7 +421,7 @@ TInt32 CNamespace::GenerateNamespaceCode(char *pBuff,int nLength)
             }
         }
     }
-    n = sprintf_s(pBuff+nUsed,nLength,"namespace %s \n{\n",m_szName.c_str());
+    n = sprintf(pBuff+nUsed,"namespace %s \n{\n",m_szName.c_str());
     nUsed += n;
     nLength -= n;
     return nUsed;
@@ -444,7 +444,7 @@ TInt32 CNamespace::GenerateNamespaceCodeEnd(char *pBuff,int nLength)
             }
         }
     }
-    n = sprintf_s(pBuff+nUsed,nLength,"}\n");
+    n = sprintf(pBuff+nUsed,"}\n");
     nUsed += n;
     nLength -= n;
     return nUsed;

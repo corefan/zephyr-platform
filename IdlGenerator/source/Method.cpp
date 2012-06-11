@@ -120,7 +120,7 @@ const char *CMethod::GetHierachyName()
 
 TInt32 CMethod::GetFullMethodTxt(char *pszBuff,int nLength)
 {
-    int nRet = sprintf_s(pszBuff,nLength,"virtual %s %s(",m_pFullRetType->m_szRawTxt.c_str(),m_szName.c_str());
+    int nRet = sprintf(pszBuff,"virtual %s %s(",m_pFullRetType->m_szRawTxt.c_str(),m_szName.c_str());
     int nUsed = nRet;
     nLength -= nRet;
     for (int i=0;i<m_tChilds.size();++i)
@@ -138,7 +138,7 @@ TInt32 CMethod::GetFullMethodTxt(char *pszBuff,int nLength)
                 pFormat = "%s %s";
             }
             CParamerter *pPar = dynamic_cast<CParamerter *>(p);
-            nRet = sprintf_s(pszBuff+nUsed,nLength,pFormat,pPar->m_pFullType->m_szRawTxt.c_str(),pPar->m_szName.c_str());
+            nRet = sprintf(pszBuff+nUsed,pFormat,pPar->m_pFullType->m_szRawTxt.c_str(),pPar->m_szName.c_str());
             nUsed += nRet;
             nLength -= nRet;
         }
@@ -147,7 +147,7 @@ TInt32 CMethod::GetFullMethodTxt(char *pszBuff,int nLength)
             return -1;
         }
     }
-    nRet = sprintf_s(pszBuff+nUsed,nLength,");");
+    nRet = sprintf(pszBuff+nUsed,");");
     nUsed += nRet;
     //nLength-=nRet;
     return nUsed;
@@ -155,7 +155,7 @@ TInt32 CMethod::GetFullMethodTxt(char *pszBuff,int nLength)
 
 TInt32 CMethod::GetFullSkeletonMethodTxt(char *pszBuff,int nLength)
 {
-    return sprintf_s(pszBuff,nLength,"Handle%s(CMessageHeader *pMsg)",m_szFullName.c_str());
+    return sprintf(pszBuff,"Handle%s(CMessageHeader *pMsg)",m_szFullName.c_str());
 }
 
 
@@ -165,15 +165,9 @@ TInt32 CMethod::GetMethodFunPtTxt(char *pszBuff,int nLength)
     {
         CBaseElement *pBase = m_pFather;
         CInterfaceElement *pIf = dynamic_cast<CInterfaceElement*>(pBase);
-        int nUsed = sprintf_s(pszBuff,nLength,"{(%s_SERVICE_ID|",CHeaderFile::sm_szServiceName.c_str());
-        if (nUsed>0)
-        {
-            nLength -= nUsed;
-        }
-        else
-        {
-            return nUsed;
-        }
+        int nUsed = 1;
+        pszBuff[0] = '{';
+        --nLength;
         int n = pIf->GetMethodIdStr(pszBuff+nUsed,nLength);
         if (n > SUCCESS)
         {
@@ -184,20 +178,7 @@ TInt32 CMethod::GetMethodFunPtTxt(char *pszBuff,int nLength)
         {
             return n;
         }
-        pszBuff[nUsed] = '|';
-        ++nUsed;
-        --nLength;
-        n = GetMethodIdStr(pszBuff+nUsed,nLength);
-        if (n > SUCCESS)
-        {
-            nUsed += n;
-            nLength -= n;
-        }
-        else
-        {
-            return n;
-        }
-        n = sprintf_s(pszBuff+nUsed,nLength,"), &%sSkeleton::Handle%s}",pIf->m_szName.c_str(),m_szFullName.c_str());
+        n = sprintf(pszBuff+nUsed,", &%sSkeleton::Handle%s}",pIf->m_szName.c_str(),m_szFullName.c_str());
         if (n > SUCCESS)
         {
             nUsed += n;
@@ -228,7 +209,7 @@ TInt32 CMethod::GenerateStubSourceCode(char *pszBuff,int nLength)
     if ((m_pFather)&&(raw_interface_type == m_pFather->m_nElmentType))
     {
         pIf = dynamic_cast<CInterfaceElement*>(m_pFather);
-        nRet = sprintf_s(pszBuff,nLength,"%s %sStub::%s(",m_pFullRetType->m_szRawTxt.c_str(),pIf->m_szName.c_str(),m_szName.c_str());
+        nRet = sprintf(pszBuff,"%s %sStub::%s(",m_pFullRetType->m_szRawTxt.c_str(),pIf->m_szName.c_str(),m_szName.c_str());
         nUsed += nRet;
         nLength -= nRet;
     }
@@ -252,7 +233,7 @@ TInt32 CMethod::GenerateStubSourceCode(char *pszBuff,int nLength)
                 pFormat = "%s %s";
             }
             CParamerter *pPar = dynamic_cast<CParamerter *>(p);
-            nRet = sprintf_s(pszBuff+nUsed,nLength,pFormat,pPar->m_pFullType->m_szRawTxt.c_str(),pPar->m_szName.c_str());
+            nRet = sprintf(pszBuff+nUsed,pFormat,pPar->m_pFullType->m_szRawTxt.c_str(),pPar->m_szName.c_str());
             nUsed += nRet;
             nLength -= nRet;
         }
@@ -261,11 +242,11 @@ TInt32 CMethod::GenerateStubSourceCode(char *pszBuff,int nLength)
             return -1;
         }
     }
-    nRet = sprintf_s(pszBuff+nUsed,nLength,")\n{\n");
+    nRet = sprintf(pszBuff+nUsed,")\n{\n");
     nUsed += nRet;
     nLength -= nRet;
     
-    nRet = sprintf_s(pszBuff+nUsed,nLength, "    TInt32 nLen = "
+    nRet = sprintf(pszBuff+nUsed, "    TInt32 nLen = "
                                             ,pIf->m_szName.c_str(),m_szFullName.c_str()); 
     nUsed += nRet;
     nLength -= nRet;
@@ -286,7 +267,7 @@ TInt32 CMethod::GenerateStubSourceCode(char *pszBuff,int nLength)
                     pFormat = "sizeof(%s)";
                 }
                 CParamerter *pPar = dynamic_cast<CParamerter *>(p);
-                nRet = sprintf_s(pszBuff+nUsed,nLength,pFormat,pPar->m_pFullType->m_pType->m_szName.c_str());
+                nRet = sprintf(pszBuff+nUsed,pFormat,pPar->m_pFullType->m_pType->m_szName.c_str());
                 nUsed += nRet;
                 nLength -= nRet;
             }
@@ -304,21 +285,14 @@ TInt32 CMethod::GenerateStubSourceCode(char *pszBuff,int nLength)
     }
     
     
-    nRet = sprintf_s(pszBuff+nUsed,nLength, ";\n    CMessageHeader *pMsg = m_pOnwerObj->PrepareMsg(nLen,(%s_SERVICE_ID|",CHeaderFile::sm_szServiceName.c_str());
+    nRet = sprintf(pszBuff+nUsed, ";\n    CMessageHeader *pMsg = m_pOnwerObj->PrepareMsg(nLen,(");
     nUsed += nRet;
     nLength -= nRet;
-    nRet = pIf->GetMethodIdStr(pszBuff+nUsed,nLength);
-    nUsed += nRet;
-    nLength -= nRet;
-
-    pszBuff[nUsed] = '|';
-    ++nUsed;
-    ++nLength;
     nRet = GetMethodIdStr(pszBuff+nUsed,nLength);
     nUsed += nRet;
     nLength -= nRet;
    
-    nRet = sprintf_s(pszBuff+nUsed,nLength,"),&m_tTarget,1,false);\n"
+    nRet = sprintf(pszBuff+nUsed,"),&m_tTarget,1,false);\n"
                                             "    if (NULL == pMsg)\n"
                                             "    {\n"
                                             "        return OUT_OF_MEM;\n"
@@ -336,7 +310,7 @@ TInt32 CMethod::GenerateStubSourceCode(char *pszBuff,int nLength)
         if (raw_parameter_type == p->m_nElmentType)
         {
             CParamerter *pPar = dynamic_cast<CParamerter *>(p);
-            nRet = sprintf_s(pszBuff+nUsed,nLength,"    nRet = Marshall(pBuffer+nUsed,nLen,%s);\n"
+            nRet = sprintf(pszBuff+nUsed,"    nRet = Marshall(pBuffer+nUsed,nLen,%s);\n"
                                                    "    if (nRet < SUCCESS)\n"
                                                    "    {\n"
                                                    "        return nRet;\n"
@@ -351,7 +325,7 @@ TInt32 CMethod::GenerateStubSourceCode(char *pszBuff,int nLength)
         {
             return -1;
         }
-        nRet = sprintf_s(pszBuff+nUsed,nLength,"    if (nRet < SUCCESS)\n"
+        nRet = sprintf(pszBuff+nUsed,"    if (nRet < SUCCESS)\n"
             "    {\n"
             "        return nRet;\n"
             "    }\n"
@@ -362,12 +336,12 @@ TInt32 CMethod::GenerateStubSourceCode(char *pszBuff,int nLength)
 
     if (m_tChilds.size())
     {
-        nRet = sprintf_s(pszBuff+nUsed,nLength,"    pMsg->ResetBodyLength(nUsed);\n");
+        nRet = sprintf(pszBuff+nUsed,"    pMsg->ResetBodyLength(nUsed);\n");
         nUsed += nRet;
         nLength -= nRet;
     }
     
-    nRet = sprintf_s(pszBuff+nUsed,nLength,"    return m_pOnwerObj->SendMsg(pMsg);\n}\n");
+    nRet = sprintf(pszBuff+nUsed,"    return m_pOnwerObj->SendMsg(pMsg);\n}\n");
     nUsed += nRet;
     nLength -= nRet;
     return nUsed;
@@ -376,7 +350,7 @@ TInt32 CMethod::GenerateStubSourceCode(char *pszBuff,int nLength)
 
 TInt32 CMethod::GetMethodIdStr(char *pBuff,int nLength)
 {
-    int nRet = sprintf_s(pBuff,nLength,"%s_ID",m_szFullName.c_str());
+    int nRet = sprintf(pBuff,"%s_ID",m_szFullName.c_str());
     for (int i=0;i<nRet;++i)
     {
         pBuff[i] = toupper(pBuff[i]);
@@ -429,15 +403,15 @@ TInt32 CMethod::GetMethodIdStr(char *pBuff,int nLength)
 //         ++nBegin;
 //     }
 // 
-//     n = sprintf_s(pszBuff,nLength,"#ifndef %s \n #define %s\n",(pszBuff+10000),(pszBuff+10000));
+//     n = sprintf(pszBuff,"#ifndef %s \n #define %s\n",(pszBuff+10000),(pszBuff+10000));
 //     nUsed += n;
 //     nLength -= n;
 //     
-//     n = sprintf_s(pszBuff,nLength,"#include \"Public/include/TypeDef.h\"\n");
+//     n = sprintf(pszBuff,"#include \"Public/include/TypeDef.h\"\n");
 //     nUsed += n;
 //     nLength -= n;
 // 
-//     n = sprintf_s(pszBuff+nUsed,nLength,"class %s%sPresenter \n"
+//     n = sprintf(pszBuff+nUsed,"class %s%sPresenter \n"
 //                                         "{\n"
 //                                         "public:\n"
 //                                         ,pInterface->m_szName.c_str(),m_szName.c_str());
@@ -450,7 +424,7 @@ TInt32 CMethod::GetMethodIdStr(char *pBuff,int nLength)
 //         {
 //             char *pFormat;
 //             CParamerter *pPar = dynamic_cast<CParamerter *>(p);
-//             n = sprintf_s(pszBuff+nUsed,nLength,"%s m_%s;\n",pPar->m_pFullType->m_szRawTxt.c_str(),pPar->m_szName);
+//             n = sprintf(pszBuff+nUsed,"%s m_%s;\n",pPar->m_pFullType->m_szRawTxt.c_str(),pPar->m_szName);
 //             nUsed += n;
 //             nLength -= n;
 //         }
@@ -459,7 +433,7 @@ TInt32 CMethod::GetMethodIdStr(char *pBuff,int nLength)
 //             return -1;
 //         }
 //     }
-//     n = sprintf_s(pszBuff+nUsed,nLength,"void OnInit(");
+//     n = sprintf(pszBuff+nUsed,"void OnInit(");
 //     nUsed += n;
 //     nLength -= n;
 //     
@@ -484,7 +458,7 @@ TInt32 CMethod::GetMethodIdStr(char *pBuff,int nLength)
 //     nUsed += n;
 //     nLength -= n;
 // 
-//     n = sprintf_s(pszBuff+nUsed,nLength,");\n"
+//     n = sprintf(pszBuff+nUsed,");\n"
 //                                         "};\n#endif\n");
 //     nUsed += n;
 //     nLength -= n;
@@ -504,7 +478,7 @@ TInt32 CMethod::GenerateSkeletonSourceCode(char *pszBuff,int nLength)
     if ((m_pFather)&&(raw_interface_type == m_pFather->m_nElmentType))
     {
         pIf = dynamic_cast<CInterfaceElement*>(m_pFather);
-        nRet = sprintf_s(pszBuff,nLength,"%s %sSkeleton::Handle%s(CMessageHeader *pMsg)\n"
+        nRet = sprintf(pszBuff,"%s %sSkeleton::Handle%s(CMessageHeader *pMsg)\n"
                                          "{\n"
                                          "    TInt32 nLen = pMsg->GetBodyLength();\n"
                                          ,m_pFullRetType->m_szRawTxt.c_str(),pIf->m_szName.c_str(),m_szFullName.c_str());
@@ -518,7 +492,7 @@ TInt32 CMethod::GenerateSkeletonSourceCode(char *pszBuff,int nLength)
     }
     if (m_tChilds.size())
     {
-        nRet = sprintf_s(pszBuff+nUsed,nLength,"    TUChar *pBuffer =pMsg->GetBody();\n"
+        nRet = sprintf(pszBuff+nUsed,"    TUChar *pBuffer =pMsg->GetBody();\n"
                                                "    TInt32 nRet;\n");
         nUsed += nRet;
         nLength -= nRet;
@@ -528,7 +502,7 @@ TInt32 CMethod::GenerateSkeletonSourceCode(char *pszBuff,int nLength)
             if (raw_parameter_type == p->m_nElmentType)
             {
                 CParamerter *pPar = dynamic_cast<CParamerter *>(p);
-                nRet = sprintf_s(pszBuff+nUsed,nLength,"    %s %s;\n"
+                nRet = sprintf(pszBuff+nUsed,"    %s %s;\n"
                                                        "    nRet = Unmarshall(pBuffer,nLen,%s);\n"
                                                        "    if (nRet<SUCCESS)\n"
                                                        "    {\n"
@@ -549,7 +523,7 @@ TInt32 CMethod::GenerateSkeletonSourceCode(char *pszBuff,int nLength)
             }
         }
     }
-    nRet = sprintf_s(pszBuff+nUsed,nLength,"    m_pImplementObj->%s(",
+    nRet = sprintf(pszBuff+nUsed,"    m_pImplementObj->%s(",
                                             m_szName.c_str());
     nUsed += nRet;
     nLength-=nRet;
@@ -563,13 +537,27 @@ TInt32 CMethod::GenerateSkeletonSourceCode(char *pszBuff,int nLength)
             char *pFormat;
             if (i)
             {
-                pFormat = ",%s";
+                if (pPar->m_pFullType->IsPointer())
+                {
+                    pFormat = ",&%s";
+                }
+                else
+                {
+                    pFormat = ",%s";
+                }
             }
             else
             {
-                pFormat = "%s";
+                if (pPar->m_pFullType->IsPointer())
+                {
+                    pFormat = "&%s";
+                }
+                else
+                {
+                    pFormat = "%s";
+                }
             }
-            nRet = sprintf_s(pszBuff+nUsed,nLength,pFormat,pPar->m_szName.c_str());
+            nRet = sprintf(pszBuff+nUsed,pFormat,pPar->m_szName.c_str());
             nUsed += nRet;
             nLength -= nRet;
         }
@@ -579,7 +567,7 @@ TInt32 CMethod::GenerateSkeletonSourceCode(char *pszBuff,int nLength)
         }
     }
 
-    nRet = sprintf_s(pszBuff+nUsed,nLength,");\n"
+    nRet = sprintf(pszBuff+nUsed,");\n"
         "    return SUCCESS;\n"
         "}");
     nUsed += nRet;
