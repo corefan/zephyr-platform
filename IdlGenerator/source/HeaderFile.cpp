@@ -1,6 +1,7 @@
 #include "../include/HeaderFile.h" 
 #include "../include/interfaceElement.h"
 #include "../include/nameSpace.h"
+#include "../include/Struct.h"
 #include<iostream>
 
 #pragma warning(push)
@@ -254,7 +255,18 @@ TInt32 CHeaderFile::Process(char **ppElements,EnType *pTypes,int nProcess2,int n
                 break;
             case key_struct:
                 {
-
+                    CStruct *pStruct = CREATE_FROM_STATIC_POOL(CStruct);
+                    if (pStruct)
+                    {
+                        ++nNr;
+                        int nRet = pStruct->Process(ppElements,pTypes,(nNr),nTotalEles);
+                        if (nRet <= 0)
+                        {
+                            return nRet;
+                        }
+                        nNr += nRet;
+                        AddChildElement(pStruct);
+                    }
                 }
                 break;
             }

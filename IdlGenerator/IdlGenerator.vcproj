@@ -206,6 +206,10 @@
 				RelativePath=".\source\Parameter.cpp"
 				>
 			</File>
+			<File
+				RelativePath=".\source\struct.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="include"
@@ -242,6 +246,10 @@
 			</File>
 			<File
 				RelativePath=".\include\Parameter.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\Struct.h"
 				>
 			</File>
 		</Filter>

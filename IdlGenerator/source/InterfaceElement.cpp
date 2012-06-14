@@ -307,6 +307,7 @@ TInt32 CInterfaceElement::Process(char **ppElements,EnType *pTypes,int nProcess2
                             case key_class:
                                 {
                                     //ÐÂµÄ class
+                                    ++nProcess2;
                                     CInterfaceElement *p = CREATE_FROM_STATIC_POOL(CInterfaceElement);
                                     if (p)
                                     {
@@ -1024,11 +1025,16 @@ TInt32 CInterfaceElement::GenerateMethodIdFile(const char *pPath,int nInterfaceI
     szFileName += m_szName;
     szFileName += "MethodId.h";
     FILE *pFile = fopen(szFileName.c_str(),"w");
+    if (NULL == pFile)
+    {
+        return FAIL;
+    }
     int nLength = 2*1024*1024;
     char *pBuff = NULL;
     NEW(pBuff,char,nLength);
     if (!pBuff)
     {
+        fclose(pFile);
         return OUT_OF_MEM;
     }
     int nUsed = 0;
