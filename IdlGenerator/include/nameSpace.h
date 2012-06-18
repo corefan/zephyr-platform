@@ -45,6 +45,7 @@ public:
     //其实nLength其实没啥用
     TInt32 GenerateNamespaceCode(char *pBuff,int nLength);
     TInt32 GenerateNamespaceCodeEnd(char *pBuff,int nLength);
+    TInt32 GenerateUsingNamespaceCode(char *pBuff,int nLength,int nLayer);
 };
 
 }

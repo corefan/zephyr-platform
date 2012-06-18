@@ -427,6 +427,46 @@ TInt32 CNamespace::GenerateNamespaceCode(char *pBuff,int nLength)
     return nUsed;
 }
 
+TInt32 CNamespace::GenerateUsingNamespaceCode(char *pBuff,int nLength,int nLayer)
+{
+    int n =0;
+    int nUsed = 0;
+    bool bRoot = true;
+    if (m_pFather)
+    {
+        if (raw_namespace_type == m_pFather->m_nElmentType)
+        {
+            CNamespace *pNS = dynamic_cast<CNamespace*>(m_pFather);
+            if (pNS)
+            {
+                bRoot = false;
+                n = pNS->GenerateUsingNamespaceCode(pBuff,nLength,nLayer+1);
+                nLength -= n;
+                nUsed += n;
+            }
+        }
+    }
+    if (bRoot)
+    {
+        n = sprintf(pBuff,"using namespace %s",m_szName.c_str());
+    }
+    else
+    {
+        n = sprintf(pBuff,"::%s",m_szName.c_str());
+    }
+    nLength -= n;
+    nUsed += n;
+    if (0 == nLayer)
+    {
+        n = sprintf(pBuff + nUsed,";\n");
+        nUsed += n;
+        nLength -= n;
+    }
+    return nUsed;
+}
+
+
+
 TInt32 CNamespace::GenerateNamespaceCodeEnd(char *pBuff,int nLength)
 {
     int n = 0;
