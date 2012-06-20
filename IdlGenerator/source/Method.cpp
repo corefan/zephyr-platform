@@ -226,11 +226,11 @@ TInt32 CMethod::GenerateStubSourceCode(char *pszBuff,int nLength)
             char *pFormat;
             if (i)
             {
-                pFormat = ",%s %s";
+                pFormat = ",%s _%s";
             }
             else
             {
-                pFormat = "%s %s";
+                pFormat = "%s _%s";
             }
             CParamerter *pPar = dynamic_cast<CParamerter *>(p);
             nRet = sprintf(pszBuff+nUsed,pFormat,pPar->m_pFullType->m_szRawTxt.c_str(),pPar->m_szName.c_str());
@@ -260,14 +260,14 @@ TInt32 CMethod::GenerateStubSourceCode(char *pszBuff,int nLength)
                 char *pFormat;
                 if (i)
                 {
-                    pFormat = "+sizeof(%s)"; //请自定义getLength函数.
+                    pFormat = "+GetLength(_%s)"; //请自定义getLength函数.
                 }
                 else
                 {
-                    pFormat = "sizeof(%s)";
+                    pFormat = "GetLength(_%s)";
                 }
                 CParamerter *pPar = dynamic_cast<CParamerter *>(p);
-                nRet = sprintf(pszBuff+nUsed,pFormat,pPar->m_pFullType->m_pType->m_szName.c_str());
+                nRet = sprintf(pszBuff+nUsed,pFormat,pPar->m_szName.c_str());
                 nUsed += nRet;
                 nLength -= nRet;
             }
@@ -310,7 +310,7 @@ TInt32 CMethod::GenerateStubSourceCode(char *pszBuff,int nLength)
         if (raw_parameter_type == p->m_nElmentType)
         {
             CParamerter *pPar = dynamic_cast<CParamerter *>(p);
-            nRet = sprintf(pszBuff+nUsed,"    nRet = Marshall(pBuffer+nUsed,nLen,%s);\n"
+            nRet = sprintf(pszBuff+nUsed,"    nRet = Marshall(pBuffer+nUsed,nLen,_%s);\n"
                                                    "    if (nRet < SUCCESS)\n"
                                                    "    {\n"
                                                    "        return nRet;\n"
@@ -325,13 +325,6 @@ TInt32 CMethod::GenerateStubSourceCode(char *pszBuff,int nLength)
         {
             return -1;
         }
-        nRet = sprintf(pszBuff+nUsed,"    if (nRet < SUCCESS)\n"
-            "    {\n"
-            "        return nRet;\n"
-            "    }\n"
-            );
-        nUsed += nRet;
-        nLength -= nRet;
     }
 
     if (m_tChilds.size())
@@ -502,18 +495,27 @@ TInt32 CMethod::GenerateSkeletonSourceCode(char *pszBuff,int nLength)
             if (raw_parameter_type == p->m_nElmentType)
             {
                 CParamerter *pPar = dynamic_cast<CParamerter *>(p);
-                nRet = sprintf(pszBuff+nUsed,"    %s %s;\n"
-                                                       "    nRet = Unmarshall(pBuffer,nLen,%s);\n"
-                                                       "    if (nRet<SUCCESS)\n"
-                                                       "    {\n"
-                                                       "        pBuffer += nRet;\n"
-                                                       "        nLen -= nRet;\n"
-                                                       "    }\n"
-                                                       "    else\n"
-                                                       "    {\n"
-                                                       "        return nRet;\n"
-                                                       "    }\n"
-                                                       ,pPar->m_pFullType->m_szRawNoPrefix.c_str(),pPar->m_szName.c_str(),pPar->m_szName.c_str());
+                if (pPar->m_pFullType->IsStrPoint())
+                {
+                    nRet = sprintf(pszBuff+nUsed,"    %s* _%s;\n",pPar->m_pFullType->m_szRawNoPrefix.c_str(),pPar->m_szName.c_str());
+                }
+                else
+                {
+                    nRet = sprintf(pszBuff+nUsed,"    %s _%s;\n",pPar->m_pFullType->m_szRawNoPrefix.c_str(),pPar->m_szName.c_str());
+                }
+                nUsed += nRet;
+                nLength -= nRet;
+                nRet = sprintf(pszBuff+nUsed,"    nRet = Unmarshall(pBuffer,nLen,_%s);\n"
+                                             "    if (nRet<SUCCESS)\n"
+                                             "    {\n"
+                                             "        pBuffer += nRet;\n"
+                                             "        nLen -= nRet;\n"
+                                             "    }\n"
+                                             "    else\n"
+                                             "    {\n"
+                                             "        return nRet;\n"
+                                             "    }\n"
+                                            ,pPar->m_szName.c_str());
                 nUsed += nRet;
                 nLength -= nRet;
             }
@@ -537,24 +539,24 @@ TInt32 CMethod::GenerateSkeletonSourceCode(char *pszBuff,int nLength)
             char *pFormat;
             if (i)
             {
-                if (pPar->m_pFullType->IsPointer())
+                if (pPar->m_pFullType->IsPointer() && (false == pPar->m_pFullType->IsStrPoint()))//是指针，但是非char*
                 {
-                    pFormat = ",&%s";
+                    pFormat = ",&_%s";
                 }
                 else
                 {
-                    pFormat = ",%s";
+                    pFormat = ",_%s";
                 }
             }
             else
             {
-                if (pPar->m_pFullType->IsPointer())
+                if (pPar->m_pFullType->IsPointer() && (false == pPar->m_pFullType->IsStrPoint()))//是指针，但是非char*
                 {
-                    pFormat = "&%s";
+                    pFormat = "&_%s";
                 }
                 else
                 {
-                    pFormat = "%s";
+                    pFormat = "_%s";
                 }
             }
             nRet = sprintf(pszBuff+nUsed,pFormat,pPar->m_szName.c_str());

@@ -677,7 +677,7 @@ TInt32 CInterfaceElement::GenerateSkeletonHeaderFile(const char *pPath)
         }
         nUsed +=n;
         nLength -=n;
-        n = sprintf(pBuff+nUsed,")&(pMsg->GetMethodId()));\n     }\n");
+        n = sprintf(pBuff+nUsed,")==(pMsg->GetMethodId()));\n     }\n");
         if (n<SUCCESS)
         {
             printf("Out of Mem!\n");

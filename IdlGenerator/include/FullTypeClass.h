@@ -71,7 +71,17 @@ public:
 		}
 		return false;
 	}
-	
+	bool IsStrPoint()
+    {
+        if (IsPointer())
+        {
+            if ((0 == m_szRawNoPrefix.compare("TChar"))||(0 == m_szRawNoPrefix.compare("char")))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
 	//获取模板参数的个数
 	int GetTplTypeSize()
 	{
