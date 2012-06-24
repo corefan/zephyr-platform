@@ -246,7 +246,16 @@ TInt32 CBaseElement::GenerateMethodId(const char *pPath)
     }
     return nTotalSize;
 }
-
+TInt32 CBaseElement::WriteEtch(char *psz,int nLayers)
+{
+    int nUsed = 0;
+    for (int k=0;k<nLayers;++k)
+    {
+        int n = sprintf(psz+nUsed,"    ");
+        nUsed +=n;
+    }
+    return nUsed;
+}
 
 }
 #pragma warning(pop)

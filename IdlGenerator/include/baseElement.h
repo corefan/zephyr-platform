@@ -219,7 +219,7 @@ public:
 
     bool IsBracesBegin(char *pStr,EnType nType);
     bool IsBracesEnd(char *pStr,EnType nType);
-    
+    TInt32 WriteEtch(char *pstr,int nLayers);
     void OnError(const char *pWord);
 };
 
