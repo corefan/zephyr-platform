@@ -3,6 +3,7 @@
 
 #include "TypeDef.h"
 #include "SysMacros.h"
+#include "string.h"
 namespace Zephyr
 {
 #ifndef _USE_LINK_2_MARSHALL
@@ -10,19 +11,44 @@ namespace Zephyr
 #define DECLARE_MARSHALLERS(TYPE) \
     inline TInt32 Marshall(TUChar *pBuffer,TInt32 uBufferLen,TYPE tType) \
     { \
-    if (uBufferLen >= sizeof( TYPE )) \
-    { \
-    *(( TYPE *)pBuffer) = tType; \
-    return sizeof( TYPE ); \
-} \
-    return OUT_OF_MEM; \
-} \
+        if (uBufferLen >= sizeof( TYPE )) \
+        { \
+            *(( TYPE *)pBuffer) = tType; \
+            return sizeof( TYPE ); \
+        } \
+        return OUT_OF_MEM; \
+    } \
     TInt32 GetLength(TYPE c) \
     { \
     return sizeof(TYPE); \
-}
+    } \
+    TInt32 GetLength(TYPE *pC)\
+    {\
+        return sizeof(TYPE);\
+    }
 
-    DECLARE_MARSHALLERS(TChar) 
+
+    inline TInt32 Marshall(TUChar *pBuffer,TInt32 uBufferLen,TChar tType) 
+    { 
+        if (uBufferLen >= sizeof( TChar )) 
+        { 
+            *(( TChar *)pBuffer) = tType; 
+            return sizeof( TChar ); 
+        } 
+        return OUT_OF_MEM; 
+    } 
+    TInt32 GetLength(TChar c) 
+    { 
+        return sizeof(TChar); 
+    }
+    TInt32 GetLength(TChar *pC) 
+    { 
+        return sizeof(TChar); 
+    }
+    TInt32 GetLength(const TChar *pC) 
+    { 
+        return (strlen(pC)+(sizeof(TUChar)+sizeof(TInt32))); 
+    }
 
         //IMPL_MARSHALLERS(TInt8) 
 

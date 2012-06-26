@@ -212,6 +212,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\include\GatewayDefAndConst.h"
+				>
+			</File>
+			<File
 				RelativePath=".\include\GatewayLogger.h"
 				>
 			</File>

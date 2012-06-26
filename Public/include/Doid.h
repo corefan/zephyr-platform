@@ -110,6 +110,9 @@ public:
 
 ostream & operator<<(ostream &os,CDoid &tDoid);
 
+TInt32 GetLength(CDoid &rDoid);
+TInt32 GetLength(CDoid *pDoid);
+
 TInt32 Unmarshall(TUChar *pBuffer,TUInt32 nLen,CDoid *&pDoid);
 TInt32 Marshall(TUChar *pBuffer,TUInt32 nLen,CDoid *pDoid);
 

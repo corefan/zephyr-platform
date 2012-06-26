@@ -11,7 +11,7 @@ class IfConnectingStub : public IfConnecting
 public:
     IfSkeleton *m_pOnwerObj;
     CDoid  m_tTarget;
-    void Init(IfSkeleton *pSkeleton,CDoid *pDoid)
+    void Init(IfSkeleton *pSkeleton,const CDoid *pDoid)
     {
         m_pOnwerObj = pSkeleton;
         m_tTarget = *pDoid;

@@ -9,14 +9,14 @@ TInt32 IfGatewaySvcSkeleton::HandleMsg(CMessageHeader *pMsg)
     struct _MSGMAP_ENTRY { TUInt32 m_uMsgID; _PFMSG m_pHandlerFunc; };
     static _MSGMAP_ENTRY sMsgMapEntries[] = 
     {
-        {(GATEWAY_SERVICE_ID|IFGATEWAYSVC_INTERFACE_ID|SYN2MAP_TUINT32_TLV_TPL_BEGIN_TUINT8_AND_TUINT16_TPL_END__REF_ID), &IfGatewaySvcSkeleton::HandleSyn2Map_TUInt32_TLV_tpl_begin_TUInt8_and_TUInt16_tpl_end__ref},
-        {(GATEWAY_SERVICE_ID|IFGATEWAYSVC_INTERFACE_ID|REGISTERSERVICE_TUINT32_TUINT32_TUINT32_TUINT32_OCTSEQ_TPL_BEGIN_TUINT16_TPL_END__REF_ID), &IfGatewaySvcSkeleton::HandleRegisterService_TUInt32_TUInt32_TUInt32_TUInt32_OctSeq_tpl_begin_TUInt16_tpl_end__ref},
-        {(GATEWAY_SERVICE_ID|IFGATEWAYSVC_INTERFACE_ID|UNREGISTERSERVICE_TUINT32_TUINT32_TUINT32_ID), &IfGatewaySvcSkeleton::HandleUnRegisterService_TUInt32_TUInt32_TUInt32},
-        {(GATEWAY_SERVICE_ID|IFGATEWAYSVC_INTERFACE_ID|BROADCASTTEAMMSG_TUINT32_OCTSEQ_TPL_BEGIN_TUINT16_TPL_END__REF_ID), &IfGatewaySvcSkeleton::HandleBroadcastTeamMsg_TUInt32_OctSeq_tpl_begin_TUInt16_tpl_end__ref},
-        {(GATEWAY_SERVICE_ID|IFGATEWAYSVC_INTERFACE_ID|CHANGEPRIORTY_TUINT32_CDOID_PT_TUINT32_ID), &IfGatewaySvcSkeleton::HandleChangePriorty_TUInt32_CDoid_pt_TUInt32},
-        {(GATEWAY_SERVICE_ID|IFGATEWAYSVC_INTERFACE_ID|STARTLOGIN_TUINT32_TUINT16_TUINT16_ID), &IfGatewaySvcSkeleton::HandleStartLogin_TUInt32_TUInt16_TUInt16},
-        {(GATEWAY_SERVICE_ID|IFGATEWAYSVC_INTERFACE_ID|STOPLOGIN_ID), &IfGatewaySvcSkeleton::HandleStopLogin},
-        {(GATEWAY_SERVICE_ID|IFGATEWAYSVC_INTERFACE_ID|DISCONNECTEDALLCLIENT_ID), &IfGatewaySvcSkeleton::HandleDisconnectedAllClient},
+        {IFGATEWAYSVC_INTERFACE_ID, &IfGatewaySvcSkeleton::HandleSyn2Map_TUInt32_TLV_tpl_begin_TUInt8_and_TUInt16_tpl_end__ref},
+        {IFGATEWAYSVC_INTERFACE_ID, &IfGatewaySvcSkeleton::HandleRegisterService_TUInt32_TUInt32_TUInt32_TUInt32_OctSeq_tpl_begin_TUInt16_tpl_end__ref},
+        {IFGATEWAYSVC_INTERFACE_ID, &IfGatewaySvcSkeleton::HandleUnRegisterService_TUInt32_TUInt32_TUInt32},
+        {IFGATEWAYSVC_INTERFACE_ID, &IfGatewaySvcSkeleton::HandleBroadcastTeamMsg_TUInt32_OctSeq_tpl_begin_TUInt16_tpl_end__ref},
+        {IFGATEWAYSVC_INTERFACE_ID, &IfGatewaySvcSkeleton::HandleChangePriorty_TUInt32_CDoid_pt_TUInt32},
+        {IFGATEWAYSVC_INTERFACE_ID, &IfGatewaySvcSkeleton::HandleStartLogin_TUInt32_TUInt16_TUInt16},
+        {IFGATEWAYSVC_INTERFACE_ID, &IfGatewaySvcSkeleton::HandleStopLogin},
+        {IFGATEWAYSVC_INTERFACE_ID, &IfGatewaySvcSkeleton::HandleDisconnectedAllClient},
     };
     TInt32 nBegin = 0;
     TInt32 nEnd = 8;
@@ -241,7 +241,7 @@ TInt32 IfGatewaySvcSkeleton::HandleChangePriorty_TUInt32_CDoid_pt_TUInt32(CMessa
     {
         return nRet;
     }
-    CDoid* pMyDoid;
+    CDoid pMyDoid;
     nRet = Unmarshall(pBuffer,nLen,pMyDoid);
     if (nRet<SUCCESS)
     {
@@ -263,7 +263,7 @@ TInt32 IfGatewaySvcSkeleton::HandleChangePriorty_TUInt32_CDoid_pt_TUInt32(CMessa
     {
         return nRet;
     }
-    m_pImplementObj->ChangePriorty(uServiceId,pMyDoid,uPriority);
+    m_pImplementObj->ChangePriorty(uServiceId,&pMyDoid,uPriority);
     return SUCCESS;
 }
 TInt32 IfGatewaySvcSkeleton::HandleStartLogin_TUInt32_TUInt16_TUInt16(CMessageHeader *pMsg)

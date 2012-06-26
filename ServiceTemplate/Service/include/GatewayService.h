@@ -39,7 +39,8 @@ private:
     CPool<CListNode<CGatewaySession> >         m_tSessionPool;
 
     CList<CGatewaySession>                     m_tUsingSessions;
-
+    //session in this list will disconnect in 5 sec after pending 2 this list.
+    CList<CGatewaySession>                     m_tWaitingDisconnect;
     CRouteMap                                  m_tServiceRoute;
 
     IfLogger                                   *m_pLogger;
@@ -51,6 +52,7 @@ public:
     virtual IfConnectionCallBack *OnNewConnection(CConPair *pPair);
 
 public:
+    void Wait2Disconnect(CGatewaySession *pSession);
     CPool<TplMultiKeyMapNode<CRoute,TUInt32> > *GetRoutePool()
     {
         return &m_tRoutePool;

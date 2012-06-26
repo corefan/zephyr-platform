@@ -150,11 +150,27 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath=".\source\IfConnectingRespSkeleton.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\source\IfConnectingRespStub.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\source\IfConnectingSkeleton.cpp"
 				>
 			</File>
 			<File
 				RelativePath=".\source\IfConnectingStub.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\source\IfGatewayRespSkeleton.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\source\IfGatewayRespStub.cpp"
 				>
 			</File>
 			<File
@@ -176,11 +192,35 @@
 				>
 			</File>
 			<File
+				RelativePath=".\include\IfConnectingRespMethodId.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\IfConnectingRespSkeleton.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\IfConnectingRespStub.h"
+				>
+			</File>
+			<File
 				RelativePath=".\include\IfConnectingSkeleton.h"
 				>
 			</File>
 			<File
 				RelativePath=".\include\IfConnectingStub.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\IfGatewayRespMethodId.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\IfGatewayRespSkeleton.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\IfGatewayRespStub.h"
 				>
 			</File>
 			<File

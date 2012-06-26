@@ -11,13 +11,14 @@ class CClock
 {
 private:
     volatile TUInt64 m_nPlatformTime[4];
-    
+    TUInt32 m_uAccumlateGap;    
 public:
     volatile TUInt32 m_timeIdx; //系统开启时间
     volatile TUInt32 m_timeNow;
     //这个是全平台的统一时间，由Comm来同步，就是说无论在那个Comm上层，只要使用Comm都可能获得相同的m_nPlatformTime,希望能精确到40ms以内
     
-    
+
+    volatile TUInt32 m_uTimeInSec;
 public:
     CClock();
     TUInt32 GetLocalTime() const
@@ -38,6 +39,10 @@ public:
         }
     }
     TUInt64 GetPlatformTime() const;
+    TUInt32 GetTimeInSec() const
+    {
+        return m_uTimeInSec;
+    }
     void Update();
     
 };

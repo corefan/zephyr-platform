@@ -5,6 +5,12 @@
 
 namespace Zephyr
 {
+    enum EnDisconnectType
+    {
+        en_direct_dis,                //disconnected the client directly,
+        en_disconnect_with_delay,     //delay 5 sec for the client 2 recv all the data.
+        en_disconnect_without_reply,  //disconnect the client directly and need no info to the register.
+    };
     class IfConnecting
     {
     public:

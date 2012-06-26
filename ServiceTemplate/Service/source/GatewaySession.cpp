@@ -1,6 +1,7 @@
 #include "../include/GatewaySession.h"
 #include "../../Interface/include/IfConnectingSkeleton.h"
 #include "../include/GatewayService.h"
+#include "../../Interface/include/IfConnectingRespStub.h"
 #include <time.h>
 #pragma warning(push)
 #pragma warning(disable:4244)
@@ -34,6 +35,7 @@ void CGatewaySession::OnConnected(TUInt32 uIp,TUInt16 uPortId)
 
 TInt32 CGatewaySession::OnRecv(TUChar *pMsg, TUInt32 msgLen)
 {
+    OnNetIO();
     CMessageHeader::UnMsgInfo *pMsgInfo = (CMessageHeader::UnMsgInfo *)pMsg;
     TUInt32 uMsgId = pMsgInfo->m_methodId;
     if (pMsgInfo->m_msgBodyLength + sizeof(CMessageHeader::UnMsgInfo) == msgLen) //这个是肯定的
@@ -55,6 +57,13 @@ TInt32 CGatewaySession::OnRecv(TUChar *pMsg, TUInt32 msgLen)
     }
     return msgLen;
 }
+
+//redirct 2 client;
+TInt32 CGatewaySession::OnRecvUnacceptableMsg(CMessageHeader *pMsg)
+{
+    OnNetIO();
+    return SUCCESS;
+}
     //virtual TInt32 OnRecvIn2Piece(TUChar *pMsg, TUInt32 msgLen,TUChar *pMsg2,TUInt32 msgLen2) = 0;
     //网络层会自动从factory生成parser和crypter,请应用层对这连个东西进行设置
     //应用层应该明确知道IfParser 和 IfCryptor的实现类，并在OnConnected的时候对其进行设置.
@@ -71,11 +80,19 @@ TInt32 CGatewaySession::OnConnected(IfConnection *pIfConnection,IfParser *pParse
     return SUCCESS;
 }
     //任何socket异常都会自动关闭网络连接
-TInt32 CGatewaySession::OnDissconneted(TInt32 erroCode)
+TInt32 CGatewaySession::OnDissconneted(TInt32 nErrorCode)
 {
     m_pIfConnection = NULL;
+    if (nErrorCode != en_disconnect_without_reply)
+    {
+        m_tServiceRoute.ReleaseAndInfoRegister(GetSkeleton(),nErrorCode);
+    }
+    else
+    {
+        m_tServiceRoute.OnFinal(); //release the route map!
+    }
     //注意，这个操作之后，可能内存即释放了，不能再做其它操作.
-    m_pService->OnDisconnected(this,m_pParser,m_pCryptor,erroCode);
+    m_pService->OnDisconnected(this,m_pParser,m_pCryptor,nErrorCode);
     return SUCCESS;
 }
 
@@ -84,13 +101,14 @@ TInt32 CGatewaySession::OnInit()
 {
     m_uUserId = 0;
     m_uSystemId = 0;
-    m_uLastOprTime = time(NULL);
+    m_uLastOprTime = 0;
     m_enState = en_connection_not_using;
     m_uIp = 0;
     m_uPort = 0;
     m_pIfConnection = NULL;
     m_pParser = NULL;
     m_pCryptor = NULL;
+    m_uStartDisconnectTime = 0;
     return SUCCESS;
 }
     //结束是回调.
@@ -103,6 +121,7 @@ void CGatewaySession::OnFinal()
     m_pIfConnection = NULL;
     m_pParser = NULL;
     m_pCryptor = NULL;
+    m_uStartDisconnectTime = 0;
 }
 
 TInt32 CGatewaySession::RegisterService(CDoid *pDoid,TUInt32 uServiceId,TUInt32 uServiceIdBegin,TUInt32 uServcieIdEnd,TUInt32 uPriority)
@@ -124,6 +143,9 @@ TInt32 CGatewaySession::RegisterService(CDoid *pDoid,TUInt32 uServiceId,TUInt32 
             LOG_CRITICAL((-nRet),"Register:%s ,doid:%s, uSrvId:%u,uBegin:%u,uEnd:%u,uPriority:%u",szBufferRegister,szBufferDoid,uServiceId,uServiceIdBegin,uServcieIdEnd,uPriority);
         }
     }
+    IfConnectingResp *pResp;
+    GET_REMOTE_CALLER(pResp,IfConnectingResp);
+    pResp->RespRegisterService(pDoid,uServiceId,nRet);
     return nRet;
 }
 
@@ -144,6 +166,9 @@ TInt32 CGatewaySession::UnregisterService(TUInt32 uServiceId,TUInt32 uServiceIdB
             LOG_CRITICAL((-nRet),"UnRegister from :%s , uSrvId:%u,uBegin:%u,uEnd:%u,",szBufferRegister,uServiceId,uServiceIdBegin,uServcieIdEnd);
         }
     }
+    IfConnectingResp *pResp;
+    GET_REMOTE_STUB_PT(pResp,IfConnectingResp,pRegister);
+    pResp->ConfirmUnregisterService(uServiceId);
     return SUCCESS;
 }
     //注册广播
@@ -154,10 +179,24 @@ TInt32 CGatewaySession::RegisterTeam(TUInt32 uTeamID)
 
 TInt32 CGatewaySession::Disconnect(TUInt32 uReason)
 {
-    m_pIfConnection->Disconnect();
-    OnDissconneted(uReason);
+    if (en_disconnect_with_delay == uReason)
+    {
+        m_pService->Wait2Disconnect(this);
+    }
+    else
+    {
+        m_pIfConnection->Disconnect();
+        OnDissconneted(uReason);
+    }
     return SUCCESS;
 }
+
+void CGatewaySession::DelayedDisconnect()
+{
+    m_pIfConnection->Disconnect();
+    OnDissconneted(en_direct_dis);
+}
+
 TInt32 CGatewaySession::SetId(TUInt32 uId)
 {
     m_uSystemId = uId;
@@ -177,6 +216,7 @@ TInt32 CGatewaySession::CheckId(TUInt32 uId)
 
 void CGatewaySession::HeartBeat()
 {
+
     TUInt32 nGap = m_pService->GetClock()->GetTimeGap(m_uLastOprTime);
     if (nGap > 30000) //心跳时间30秒
     {
@@ -187,6 +227,11 @@ void CGatewaySession::HeartBeat()
 void CGatewaySession::SendHeartBeat()
 {
 
+}
+
+void CGatewaySession::OnNetIO()
+{
+    m_uLastOprTime = m_pService->GetClock()->GetLocalTime();
 }
 
 IfLogger *CGatewaySession::GetLogger()

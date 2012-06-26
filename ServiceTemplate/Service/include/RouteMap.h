@@ -5,6 +5,7 @@
 #include "Public/tpl/include/TplPool.h"
 #include "Public/Interface/Platform/include/IfLogger.h"
 #include "Public/include/Doid.h"
+#include "Public/Interface/Platform/include/IfSkeleton.h"
 
 namespace Zephyr
 {
@@ -27,7 +28,9 @@ public:
     //×ó¿ªÓÒ±Õ
     TInt32 RmvRoute(CDoid *pDoid,TUInt32 uSrvId,TUInt32 uBegin,TUInt32 uEnd);
     TInt32 ChangePriorty(TUInt32 uServiceId,CDoid *pMyDoid,TUInt32 uPriority);
+
     CDoid *FindService(TUInt32);
+    void ReleaseAndInfoRegister(IfSkeleton *pSkeleton,TUInt32 nReason);
     void OnFinal();
 };
 

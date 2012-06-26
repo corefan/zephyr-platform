@@ -1,7 +1,7 @@
 #include "../include/RouteMap.h"
 #include "Public/include/Message.h"
 #include "../include/GatewayLogger.h"
-
+#include "../../Interface/include/IfConnectingRespStub.h"
 namespace Zephyr
 {
 
@@ -138,10 +138,25 @@ TInt32 CRouteMap::RmvRoute(CDoid *pDoid,TUInt32 uSrvId,TUInt32 uBegin,TUInt32 uE
             ++it;
         }
     }
-
     return nResult;
 }
 
+void CRouteMap::ReleaseAndInfoRegister(IfSkeleton *pSkeleton,TUInt32 nReason)
+{
+    TplMultiKeyMapNode<CRoute,TUInt32>::Iterator it = m_tServiceRoute.Begin();
+    TplMultiKeyMapNode<CRoute,TUInt32> *pNode = it;
+
+    IfConnectingRespStub tStub;
+    while(pNode)
+    {
+        ++it;
+        tStub.Init(pSkeleton,&pNode->m_tRouteTo);
+        tStub.OnDisconnect(nReason);
+        m_tServiceRoute.RemoveFromTreeItem(pNode);
+        m_tServiceRoute.ReleaseItem(pNode);
+        pNode = it;
+    }
+}
 
 void CRouteMap::OnFinal()
 {

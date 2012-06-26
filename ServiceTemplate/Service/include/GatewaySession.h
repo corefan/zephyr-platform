@@ -43,8 +43,9 @@ private:
     IfConnection    *m_pIfConnection;
     IfParser        *m_pParser;
     IfCryptor       *m_pCryptor;
-
+    
 public:
+    TUInt32         m_uStartDisconnectTime;
     TUInt64 GetUserId()
     {
         return m_uUserId;
@@ -72,6 +73,7 @@ public:
     virtual TInt32 OnConnected(IfConnection *pIfConnection,IfParser *pParser,IfCryptor *pCryptor);
     //任何socket异常都会自动关闭网络连接
     virtual TInt32 OnDissconneted(TInt32 erroCode);
+    virtual TInt32 OnRecvUnacceptableMsg(CMessageHeader *pMsg);
     void HeartBeat();
 public:
 
@@ -85,14 +87,15 @@ public:
     //注册广播
     virtual TInt32 RegisterTeam(TUInt32 uTeamID);
     virtual TInt32 Disconnect(TUInt32 uReason);
+    
     virtual TInt32 SetId(TUInt32 uId);
     virtual TInt32 CheckId(TUInt32 uId);
     //使用inline
     IfLogger *GetLogger();
+    void DelayedDisconnect();
 private:
     void   SendHeartBeat();
-    
-    
+    void OnNetIO();
 };
 
 

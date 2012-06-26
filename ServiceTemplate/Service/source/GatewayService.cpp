@@ -4,6 +4,7 @@
 #include "../include/GatewayBasicConfig.h"
 #include "Public/include/NetCenter.h"
 #include "../../../DB/Interface/include/IfAuthServiceMethodId.h"
+#include "../include/GatewayDefAndConst.h"
 namespace Zephyr
 {
 
@@ -136,10 +137,18 @@ void CGatewayService::OnDisconnected(CGatewaySession *pSession,IfParser *pParser
     //pParser \ pCryptor都不用释放.
     LOG_RUN(en_on_disconnected,"OnDisconnected,UserId:%llu,SystemId:%u,Reason%d",pSession->GetUserId(),pSession->GetSystemId(),uReason);
 
-    m_pOrb->UnRegisterObj(pSession->GetSkeleton());
     CListNode<CGatewaySession> *pListNode = (CListNode<CGatewaySession> *)pSession;
-    m_tUsingSessions.Detach(pListNode);
-    pSession->OnFinal();
+    if (pSession->m_uStartDisconnectTime) //this is delayedd release
+    {
+        m_tWaitingDisconnect.Detach(pListNode);
+    }
+    else
+    {
+        m_tUsingSessions.Detach(pListNode);
+    }
+    m_pOrb->UnRegisterObj(pSession->GetSkeleton());
+    
+    //pSession->OnFinal();
     m_tSessionPool.ReleaseMem(pListNode);
 }
 
@@ -242,9 +251,24 @@ TInt32 CGatewayService::OnRoutine(TUInt32 nRunCnt)
             }
         }
     }
+    CGatewaySession *pFirst = m_tWaitingDisconnect.header();
+    if (pFirst && (pFirst->m_uStartDisconnectTime > m_pClock->GetTimeInSec()))
+    {
+        //断开
+        pFirst->DelayedDisconnect();
+    }
 
     return nRet;
 }
+
+//U must detach pSession from the prev list first by yourself.
+void CGatewayService::Wait2Disconnect(CGatewaySession *pSession)
+{
+    CListNode<CGatewaySession> *pListNode = (CListNode<CGatewaySession>*)pSession;
+    pSession->m_uStartDisconnectTime = m_pClock->GetTimeInSec() + WAIT_DISCONNECT_TIME;
+    m_tWaitingDisconnect.push_back(pListNode);
+}
+
     //网络时间
 TInt32 CGatewayService::OnNetEvent(CConnectionEvent *pEvent)
 {

@@ -3,7 +3,7 @@
 #ifdef _WIN32
 //#include  <mmsystem.h>
 #include <windows.h>
-
+#include "time.h"
 #else
 #include<sys/time.h>
 #endif
@@ -25,6 +25,8 @@ CClock::CClock()
     {
         m_nPlatformTime[i] = 0;
     }
+    m_uAccumlateGap = 0;
+    m_uTimeInSec = (TUInt32)time(NULL);
 }
     
 void CClock::Update()
@@ -45,7 +47,13 @@ void CClock::Update()
     {
         gap = (((TUInt32)0xFFFFFFFF) - m_timeNow) + timeNow;
     }
+    m_uAccumlateGap += gap;
     m_timeNow = timeNow;
+    if (gap > 1000)
+    {
+        ++m_uTimeInSec;
+        gap -= 1000;
+    }
     TUInt64 nT = m_nPlatformTime[m_timeIdx] + gap;
     TUInt32 nNew = m_timeIdx + 1;
     

@@ -257,5 +257,15 @@ TInt32 CBaseElement::WriteEtch(char *psz,int nLayers)
     return nUsed;
 }
 
+TInt32 CBaseElement::GenerateCSharpCode(const char *pPath)
+{
+    TInt32 nFileNr = 0;
+    for(int i=0;i<m_tChilds.size();++i)
+    {
+        nFileNr += m_tChilds[i]->GenerateCSharpCode(pPath);
+    }
+    return SUCCESS;
+}
+
 }
 #pragma warning(pop)

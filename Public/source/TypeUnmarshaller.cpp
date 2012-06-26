@@ -1,6 +1,7 @@
 #include "../include/TypeUnmarshaller.h"
 #include "../include/SysMacros.h"
 #include <string.h>
+#include <assert.h>
 namespace Zephyr
 {
 #ifdef _USE_LINK_2_MARSHALL
@@ -48,13 +49,44 @@ TInt32 Unmarshall(TUChar *pBuffer,TInt32 uBufferLen,TYPE &tType) \
 
 TInt32 Unmarshall(TUChar *pBuffer,TInt32 uBuffLen,TChar *&psz)
 {
-     TInt32 nRet = strnlen((const char *)pBuffer,uBuffLen);
-     if (nRet == uBuffLen)
-     {
-         pBuffer[nRet-1] = '\0';
-     }
-     psz = (TChar*)pBuffer;
-     return nRet;
+    if (uBuffLen < (sizeof(TUInt32)+sizeof(TChar)))
+    {
+        return OUT_OF_RANGE;
+    }
+    TInt32 n = *((TInt32*)pBuffer);
+    uBuffLen -= sizeof(TInt32);
+    if (uBuffLen < (n+sizeof(TChar))) //must larger than it.!
+    {
+#ifdef _DEBUG
+        assert(0);
+#endif
+        return OUT_OF_RANGE;
+    }
+    pBuffer[n+sizeof(TInt32)] = 0; //force add '\0';
+    psz = (TChar *)(pBuffer+sizeof(TInt32));
+    return (n + ((TUInt32)+sizeof(TChar)));
 }
+
+TInt32 Unmarshall(TUChar *pBuffer,TInt32 uBuffLen,const TChar *&psz)
+{
+    if (uBuffLen < (sizeof(TUInt32)+sizeof(TChar)))
+    {
+        return OUT_OF_RANGE;
+    }
+    TInt32 n = *((TInt32*)pBuffer);
+    uBuffLen -= sizeof(TInt32);
+    if (uBuffLen < (n+sizeof(TChar))) //must larger than it.!
+    {
+#ifdef _DEBUG
+        assert(0);
+#endif
+        return OUT_OF_RANGE;
+    }
+    pBuffer[n+sizeof(TInt32)] = 0; //force add '\0';
+    psz = (TChar *)(pBuffer+sizeof(TInt32));
+    return (n + ((TUInt32)+sizeof(TChar)));
+}
+
+
 #pragma warning(pop)
 }

@@ -49,7 +49,7 @@
 
 #define GET_REMOTE_CALLER(pointer,IfClass) \
     IfClass##Stub tmp_##IfClass##Stub;\
-    tmp_##IfClass##Stub.Init((GetSkeleton()),(CetCallerDoid()));\
+    tmp_##IfClass##Stub.Init((GetSkeleton()),(GetCallerDoid()));\
 {\
     pointer = &tmp_##IfClass##Stub;\
 }\
