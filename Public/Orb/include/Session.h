@@ -13,7 +13,7 @@ class CService;
 
 class CSession : public CObject
 {
-private:
+public:
     CService    *m_pService;
 public:
     CSession();
@@ -23,6 +23,8 @@ public:
     {
         m_pService = pService;
     }
+    virtual IfTimer *GetTimer();
+    virtual const CClock  *GetClock();
 };
 
 }

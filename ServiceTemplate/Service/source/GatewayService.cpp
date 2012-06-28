@@ -264,9 +264,13 @@ TInt32 CGatewayService::OnRoutine(TUInt32 nRunCnt)
 //U must detach pSession from the prev list first by yourself.
 void CGatewayService::Wait2Disconnect(CGatewaySession *pSession)
 {
-    CListNode<CGatewaySession> *pListNode = (CListNode<CGatewaySession>*)pSession;
-    pSession->m_uStartDisconnectTime = m_pClock->GetTimeInSec() + WAIT_DISCONNECT_TIME;
-    m_tWaitingDisconnect.push_back(pListNode);
+    if (0 == pSession->m_uStartDisconnectTime)
+    {
+        CListNode<CGatewaySession> *pListNode = (CListNode<CGatewaySession>*)pSession;
+        pSession->m_uStartDisconnectTime = m_pClock->GetTimeInSec() + WAIT_DISCONNECT_TIME;
+        m_tUsingSessions.Detach(pListNode);
+        m_tWaitingDisconnect.push_back(pListNode);
+    }
 }
 
     //ÍøÂçÊ±¼ä

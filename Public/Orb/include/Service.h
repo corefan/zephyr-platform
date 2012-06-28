@@ -50,11 +50,14 @@ public:
         return m_tTimer.KillTimer(pTimer);
     }
 
-    const CClock *GetClock()
+    virtual const CClock *GetClock()
     {
         return m_pClock;
     }
-    
+    virtual IfTimer *GetTimer()
+    {
+        return &m_tTimer;
+    }
     TInt32 RegisterSession(CSession *pSession);
 
 };

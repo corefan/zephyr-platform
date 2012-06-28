@@ -17,6 +17,8 @@
 #include "../../Interface/App/include/IfObj.h"
 #include "../../Interface/Platform/include/IfCommunicator.h"
 #include "../../Interface/Platform/include/IfSkeleton.h"
+#include "../../Interface/Platform/include/IfTimer.h"
+#include "../../include/Clock.h"
 namespace Zephyr
 {
 
@@ -94,6 +96,8 @@ public:
     {
         return m_pSkeleton;
     }
+    virtual IfTimer *GetTimer() = 0;
+    virtual const CClock  *GetClock() = 0;
 };
 
 }

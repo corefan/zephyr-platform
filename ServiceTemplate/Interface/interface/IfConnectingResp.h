@@ -2,7 +2,7 @@
 #define __ZEPHYR_IF_CONNECTING_RESP_H__
 
 #include "Public/include/TypeDef.h"
-
+#include "Public/include/Doid.h"
 namespace Zephyr
 {
 
