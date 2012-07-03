@@ -18,6 +18,7 @@
 #include "../../Interface/Platform/include/IfCommunicator.h"
 #include "../../Interface/Platform/include/IfSkeleton.h"
 #include "../../Interface/Platform/include/IfTimer.h"
+#include "../../include/IdlHeaderFile.h"
 #include "../../include/Clock.h"
 namespace Zephyr
 {

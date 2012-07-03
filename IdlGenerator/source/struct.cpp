@@ -732,6 +732,22 @@ TInt32 CStruct::GenerateStubSourceFile(const char *pPath) //生成Marshaller.cpp
     WRITE_LINE("#include \"Public/include/TypeMarshaller.h\"",m_szName.c_str());
     WRITE_LINE("#include \"../include/%sMarshaller.h\"",m_szName.c_str());
     WRITE_LINE("#include \"../include/%sGetLength.h\"",m_szName.c_str());
+    if (m_pFather)
+    {
+        for (int i=0;i<m_pFather->m_tChilds.size();++i)
+        {
+            CBaseElement *pBase = m_pFather->m_tChilds[i].m_pPt;
+            if ((raw_struct_type == pBase->m_nElmentType)&&(pBase != this))
+            {
+                n = sprintf(pBuff+nUsed,"#include \"../include/%sMarshaller.h\"\n",pBase->m_szName.c_str());
+                nUsed += n;
+                nLength -= n;
+                n = sprintf(pBuff+nUsed,"#include \"../include/%sGetLength.h\"\n",pBase->m_szName.c_str());
+                nUsed += n;
+                nLength -= n;
+            }
+        }
+    }
     WRITE_LINE("TInt32 Marshall(TUChar *pBuff,TInt32 nLength,%s &_rValue)",m_szName.c_str());
     WRITE_LINE("{");
     WRITE_LINE("    TInt32 nUsed=0;");
@@ -902,6 +918,22 @@ TInt32 CStruct::GenerateSkeletonSourceFile(const char *pPath) //生成UnMarshaller
     WRITE_LINE("#include \"Public/include/TypeMarshaller.h\"",m_szName.c_str());
     WRITE_LINE("#include \"../include/%sUnmarshaller.h\"",m_szName.c_str());
     WRITE_LINE("#include \"../include/%sGetLength.h\"",m_szName.c_str());
+    if (m_pFather)
+    {
+        for (int i=0;i<m_pFather->m_tChilds.size();++i)
+        {
+            CBaseElement *pBase = m_pFather->m_tChilds[i].m_pPt;
+            if ((raw_struct_type == pBase->m_nElmentType)&&(pBase != this))
+            {
+                n = sprintf(pBuff+nUsed,"#include \"../include/%sUnmarshaller.h\"\n",pBase->m_szName.c_str());
+                nUsed += n;
+                nLength -= n;
+            }
+        }
+    }
+
+
+
     WRITE_LINE("TInt32 UnMarshall(TUChar *pBuff,TInt32 nLength,%s &_rValue)",m_szName.c_str());
     WRITE_LINE("{");
     WRITE_LINE("    TInt32 nUsed=0;");

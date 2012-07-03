@@ -109,7 +109,7 @@ public:
     //´ÓMessageId
     static TUInt32 GetServiceID(TUInt32 uMethodId)
     {
-        return (uMethodId&0x000FFF00);
+        return (uMethodId/1000);
     }
 
 	inline TUInt32 GetBodyLength()

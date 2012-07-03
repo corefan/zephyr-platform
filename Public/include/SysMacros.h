@@ -165,6 +165,14 @@ const unsigned int REPLY_MSG			= 0x10000000;
 #define NET_CONNECTION_BROKEN       (0x04)
 
 
+#ifdef _DEBUG
+#define RETRY_REMOTE_CALL_TIME_IN_MS 500000
+#else
+#define RETRY_REMOTE_CALL_TIME_IN_MS 5000
+#endif
+
+
+
 //
 // Formats used in printf function, for eg:
 // printf("The int64 number is: "FMT_I64, llNumber);

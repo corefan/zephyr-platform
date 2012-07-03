@@ -40,10 +40,10 @@
 
 
 #define GET_REMOTE_STUB_PT(pointer,IfClass,pRemoteDoid) \
-    IfClass##Stub tmp_##IfClass##Stub##pRemoteDoid;\
-    tmp_##IfClass##Stub##pRemoteDoid.Init((GetSkeleton()),(pRemoteDoid));\
+    IfClass##Stub tmp_##IfClass##Stub;\
+    tmp_##IfClass##Stub.Init((GetSkeleton()),(pRemoteDoid));\
 {\
-    pointer = &tmp_##IfClass##Stub##pRemoteDoid;\
+    pointer = &tmp_##IfClass##Stub;\
 }\
 
 
@@ -55,10 +55,10 @@
 }\
 
 #define GET_REMOTE_STUB_BY_DOID(pointer,IfClass,remoteDoid) \
-    IfClass##Stub tmp_##IfClass##Stub##pRemoteDoid;\
-    tmp_##IfClass##Stub##pRemoteDoid.Init(GetSkeleton(),(& remoteDoid));\
+    IfClass##Stub tmp_##IfClass##Stub;\
+    tmp_##IfClass##Stub.Init(GetSkeleton(),(& remoteDoid));\
 {\
-    pointer = &tmp_##IfClass##Stub##pRemoteDoid;\
+    pointer = &tmp_##IfClass##Stub;\
 }\
 
 
