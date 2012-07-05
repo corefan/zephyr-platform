@@ -5,6 +5,7 @@
 #include "../include/Parameter.h"
 #include "../include/FullTypeClass.h"
 #include "../include/baseElement.h"
+#include "../include/Struct.h"
 #include "../../Public/tpl/include/TplPool.h"
 #include "iostream"
 
@@ -41,7 +42,7 @@ int main(int argc,char *pArgv[])
     INIT_STATIC_POOL(CMethod,128);
     INIT_STATIC_POOL(CNamespace,16);
     INIT_STATIC_POOL(CParamerter,16);
-    
+    INIT_STATIC_POOL(CStruct,16);
     file.GeneratorIdl(szFileName,szPath);
     return t;
 }

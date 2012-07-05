@@ -227,6 +227,26 @@ TInt32 CNamespace::Process(char **ppElements,EnType *pTypes,int nProcess2,int nT
                 ++nNr;
                 switch (pBase->m_nElmentType)
                 {
+                case key_using:
+                    {
+                        OnError(ppElements[nNr-1]);
+                        printf("using should not use in namespace!");
+                        return OUT_OF_MEM;
+                    }
+                    break;
+                case key_enum:
+                    {
+                        while(semicolon_type != pTypes[nProcess2+nNr])
+                        {
+                            ++nNr;
+                            if (nNr >= nTotalEles)
+                            {
+                                OnError(ppElements[nNr-1]);
+                                return OUT_OF_MEM;
+                            }
+                        }
+                    }
+                    break;
                 case key_class:
                     {
                         CInterfaceElement *pTmp  = CREATE_FROM_STATIC_POOL(CInterfaceElement);
