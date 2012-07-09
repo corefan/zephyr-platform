@@ -49,6 +49,20 @@ TInt32 GetLength(TYPE c) \
 #pragma warning(push)
 #pragma warning(disable:4267)
 
+
+TInt32 GetLength(TChar *psz)
+{
+    TInt32 n = strlen(psz);
+    return (n+(sizeof(TInt32)+sizeof(TChar)));
+}
+
+
+TInt32 GetLength(const TChar *psz)
+{
+     TInt32 n = strlen(psz);
+     return (n+(sizeof(TInt32)+sizeof(TChar)));
+}
+
 TInt32 Marshall(TUChar *pBuffer,TInt32 uBuffLen,const TChar *psz)
 {
     TInt32 n = strnlen(psz,uBuffLen);

@@ -3,6 +3,14 @@
 
 #include "TypeDef.h"
 #include "SysMacros.h"
+#include <vector>
+#include <list>
+#include <map>
+#include <set>
+
+using namespace std;
+
+
 namespace Zephyr
 {
 #ifndef _USE_LINK_2_MARSHALL
@@ -105,6 +113,143 @@ TInt32 Unmarshall(TUChar *pBuffer,TInt32 uBuffLen,const TChar *&psz);
         tTLV.m_nTag = *((TAG_TYPE*)pBuffer);
         tTLV.m_pBuffer = pBuffer + sizeof(TAG_TYPE);
         return nLength;
+    }
+}
+
+
+
+
+
+
+ 
+template<class TYPE>
+TInt32 Unmarshall(TUChar *pBuffer,TInt32 uBuffLen,vector<TYPE> &tVector)
+{
+    if (sizeof(TInt32) > uBuffLen)
+    {
+        return OUT_OF_MEM;
+    }
+    TInt32 nLen = *((TInt32*)pBuffer);
+    tVector.resize(nLen);
+    if (nLen)
+    {
+        TInt32 nUsed = sizeof(TInt32);
+        for(TInt32 i=0;i<nLen;++i)
+        {
+            TInt32 nRet = Unmarshall(pBuffer+nUsed,uBuffLen-nUsed,tVector[i]);
+            if (nRet < SUCCESS)
+            {
+                return nRet;
+            }
+            nUsed += nRet;
+        }
+        return nUsed;
+    }
+    else
+    {
+        return sizeof(TInt32);
+    }
+}
+
+template<class TYPE>
+TInt32 Unmarshall(TUChar *pBuffer,TInt32 uBuffLen,list<TYPE> &tList)
+{
+    if (sizeof(TInt32) > uBuffLen)
+    {
+        return OUT_OF_MEM;
+    }
+    TInt32 nLen = *((TInt32*)pBuffer);
+    if (nLen)
+    {
+        TInt32 nUsed = sizeof(TInt32);
+
+        for(TInt32 i=0;i<nLen;++i)
+        {
+            TYPE t;
+            TInt32 nRet = Unmarshall(pBuffer+nUsed,uBuffLen-nUsed,t);
+            if (nRet < SUCCESS)
+            {
+                return nRet;
+            }
+            nUsed += nRet;
+            tList.push_back(t);
+        }
+        return nUsed;
+    }
+    else
+    {
+        return sizeof(TInt32);
+    }
+}
+
+
+template<class TYPE>
+TInt32 Unmarshall(TUChar *pBuffer,TInt32 uBuffLen,set<TYPE> &tSet)
+{
+    if (sizeof(TInt32) > uBuffLen)
+    {
+        return OUT_OF_MEM;
+    }
+    TInt32 nLen = *((TInt32*)pBuffer);
+    if (nLen)
+    {
+        TInt32 nUsed = sizeof(TInt32);
+
+        for(TInt32 i=0;i<nLen;++i)
+        {
+            TYPE t;
+            TInt32 nRet = Unmarshall(pBuffer+nUsed,uBuffLen-nUsed,t);
+            if (nRet < SUCCESS)
+            {
+                return nRet;
+            }
+            nUsed += nRet;
+            tSet.insert(t);
+        }
+        return nUsed;
+    }
+    else
+    {
+        return sizeof(TInt32);
+    }
+}
+
+template<class CKEY,class TYPE>
+TInt32 Unmarshall(TUChar *pBuffer,TInt32 uBuffLen,map<CKEY,TYPE> &tMap)
+{
+    if (sizeof(TInt32) > uBuffLen)
+    {
+        return OUT_OF_MEM;
+    }
+    TInt32 nLen = *((TInt32*)pBuffer);
+    if (nLen)
+    {
+        TInt32 nUsed = sizeof(TInt32);
+
+        for(TInt32 i=0;i<nLen;++i)
+        {
+            CKEY tKey;
+            TInt32 nRet = Unmarshall(pBuffer+nUsed,uBuffLen-nUsed,tKey);
+            if (nRet < SUCCESS)
+            {
+                return nRet;
+            }
+            nUsed += nRet;
+
+            TYPE t;
+            nRet = Unmarshall(pBuffer+nUsed,uBuffLen-nUsed,t);
+            if (nRet < SUCCESS)
+            {
+                return nRet;
+            }
+            nUsed += nRet;
+            tMap[tKey] = t;
+        }
+        return nUsed;
+    }
+    else
+    {
+        return sizeof(TInt32);
     }
 }
 

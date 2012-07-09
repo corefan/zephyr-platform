@@ -298,7 +298,7 @@ void *CConnectionMgr::Listen(const TChar *pIp,TUInt16 port,TUInt16 maxConnection
     {
         p->Final();
         delete p;
-        return 0;
+        return NULL;
     }
     p->AttachToList(m_pListeners);
     m_pListeners = p;

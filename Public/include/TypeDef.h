@@ -104,6 +104,49 @@ public:
     }
 };
 
+template<class TYPE>
+class CAutoPt
+{
+private:
+    TYPE *m_pType;
+    TBOOL m_bAutoDel;
+    TYPE operator *()
+    {
+        return m_pType;
+    }
+public:
+    CAutoPt(TYPE *p)
+    {
+        m_pType = p;
+        m_bAutoDel = False;
+    }
+    CAutoPt()
+    {
+        m_pType = new TYPE();
+        m_bAutoDel = True;
+    }
+    //一旦赋值，就失去了控制权
+    void operator=(CAutoPt &rValue)
+    {
+        m_pType = rValue.m_pType;
+        m_bAutoDel = True;
+        rValue.m_bAutoDel = False;
+    }
+    TBOOL HasControl()
+    {
+        return m_bAutoDel;
+    }
+
+    TYPE *GetControl()
+    {
+        m_bAutoDel = False;
+        return m_pType;
+    }
+    TYPE *GetPoint4Use()
+    {
+        return m_pType;
+    }
+};
 
 
 #ifndef False
@@ -116,7 +159,7 @@ public:
 
 
 
-
+using namespace Zephyr;
 
 
 

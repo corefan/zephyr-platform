@@ -85,6 +85,11 @@ public:
 			//服务10个bit, 接口2,方法8比特 // 一个服务只要4个接口，应该足够了（(Service/Session) * 2(Reply)）,(每个接口256个方法应该也足够了，一个类不应该提供过多方法的)
 			TUInt64    m_methodId:20;
         };
+        struct 
+        {
+            TUInt32 m_uMsgLength;
+            TUInt32 m_uMsgId;
+        };
         TUInt64 m_data;
     };
 public: //改公共的，不要麻烦了
@@ -98,6 +103,24 @@ public: //改公共的，不要麻烦了
 	CDoid m_srcDoid;           //the source obj id
     
     UnMsgInfo m_msgInfo;
+
+    static void MsgInfoC2S(UnMsgInfo &uInfo)
+    {
+        TUInt32 uMsgId = uInfo.m_uMsgId;
+        TUInt32 uMsgLen = uInfo.m_uMsgLength;
+        uInfo.m_data = 0;
+        uInfo.m_methodId = uMsgId;
+        uInfo.m_msgBodyLength = uMsgLen;
+    }
+
+    static void MsgInfoS2C(UnMsgInfo &uInfo)
+    {
+        TUInt32 uMsgLen = uInfo.m_msgBodyLength;
+        TUInt32 uMsgId  = uInfo.m_methodId;
+        uInfo.m_data  = 0;
+        uInfo.m_uMsgId = uMsgId;
+        uInfo.m_uMsgLength = uMsgLen; 
+    }
 
 	//不要了,timeStamp放到m_data中
     //TUInt16 m_timeStamp;

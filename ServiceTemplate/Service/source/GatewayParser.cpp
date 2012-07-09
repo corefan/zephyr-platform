@@ -26,13 +26,10 @@ TInt32  CGatewayParser::GetMinHeaderLength()
     //每次返回一条消息的长度，如果返回后，还有多余的数据，Net会多次调用
 TInt32  CGatewayParser::OnRecv(TUChar *pNetData,TInt32 dataLen)
 {
-    CMessageHeader::UnMsgInfo msgInfo;
-    memcpy(&msgInfo,pNetData,sizeof(CMessageHeader::UnMsgInfo));
-    //msgInfo.m_data = *(TUInt64*)pNetData;
-    TInt32 nLen = (msgInfo.m_msgBodyLength+sizeof(msgInfo));
-    if (nLen>dataLen)
+    TInt32 uMsgLength = *((TInt32*)pNetData);
+    if ((dataLen-sizeof(CMessageHeader::UnMsgInfo)) >= uMsgLength)
     {
-        return nLen;
+        return uMsgLength;
     }
     return 0;
 }
