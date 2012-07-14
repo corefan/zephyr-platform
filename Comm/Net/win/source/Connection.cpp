@@ -678,8 +678,9 @@ TInt32 CConnection::OnConnected()
     #endif
     TInt32 ret = m_pAppCallBack->OnConnected(this,m_pIfParser,m_pIfCryptor);
     
-    if (SUCCESS != ret)
+    if (SUCCESS > ret)
     {
+        m_pAppCallBack = NULL;
         //CloseConnection();
         m_appDisconnect = 1;
         return ret;

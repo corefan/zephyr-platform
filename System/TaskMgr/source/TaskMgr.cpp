@@ -98,7 +98,6 @@ void CTaskWorkers::Loop()
                         bIsAllTaskDone = false;
                         m_pCenter->WakeUp();
                     }
-                    
                 }
             }
         }
