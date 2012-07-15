@@ -114,6 +114,8 @@
 
 #define ALREADY_IN_TREE (-33)
 
+#define OUT_OF_MEM_BUFFER (-34)
+
 #define NR_OF_NET_WORKER (1)
 
 #define ABS(n)   (n>0 ? n : -n)

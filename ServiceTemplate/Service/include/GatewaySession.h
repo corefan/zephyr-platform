@@ -95,7 +95,10 @@ public:
     void DelayedDisconnect();
 private:
     void   SendHeartBeat();
-    void OnNetIO();
+    void   OnNetIO();
+    //GW处理客户端请求，返回值是这个消息是否被使用
+    TBOOL  HandleClientMsg(CMessageHeader::UnMsgInfo *pMsgInfo);
+    TInt32 SendMsg2Client(CMessageHeader *pMsg);
 };
 
 

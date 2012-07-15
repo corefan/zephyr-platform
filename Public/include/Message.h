@@ -243,6 +243,10 @@ public:
         //6bytes for compacked header
         return GetBodyLength() + sizeof(m_msgInfo);
     }
+    TUChar *GetCompactedBody()
+    {
+        return (TUChar*)(&m_msgInfo);
+    }
     //只能从0开始从生成消息头，并且递增
     //该函数将[fromDest,to)的广播地址复制到[0,(to-fromDest))地址
     void ReInitMsg4Send(TInt32 fromDest,TInt32 to);

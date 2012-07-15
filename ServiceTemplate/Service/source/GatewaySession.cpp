@@ -41,6 +41,10 @@ TInt32 CGatewaySession::OnRecv(TUChar *pMsg, TUInt32 msgLen)
     TUInt32 uMsgId = pMsgInfo->m_methodId;
     if (pMsgInfo->m_msgBodyLength + sizeof(CMessageHeader::UnMsgInfo) == msgLen) //这个是肯定的
     {
+        if (HandleClientMsg(pMsgInfo))
+        {
+            return msgLen;
+        }
         CDoid *pDoid = m_tServiceRoute.FindService(uMsgId);
         if (NULL == pDoid)
         {
@@ -57,6 +61,23 @@ TInt32 CGatewaySession::OnRecv(TUChar *pMsg, TUInt32 msgLen)
         }
     }
     return msgLen;
+}
+
+TBOOL  CGatewaySession::HandleClientMsg(CMessageHeader::UnMsgInfo *pMsgInfo)
+{
+    if (20 == pMsgInfo->m_methodId)
+    {
+        //回发一条消息。
+        TUChar szBufferRtn[12];
+        CMessageHeader::UnMsgInfo *pMsgInfo = (CMessageHeader::UnMsgInfo *)szBufferRtn;
+        pMsgInfo->m_uMsgLength = 4;
+        pMsgInfo->m_uMsgId = 20;
+        if(m_pIfConnection->SendMsg(szBufferRtn,12))
+        {
+            return True;
+        }
+    }
+    return False;
 }
 
 //redirct 2 client;
@@ -246,5 +267,18 @@ IfLogger *CGatewaySession::GetLogger()
     return m_pService->GetLogger();
 }
 
+TInt32 CGatewaySession::SendMsg2Client(CMessageHeader *pMsg)
+{
+    if (m_pIfConnection)
+    {
+        TInt32 nBuffLen = m_pIfConnection->GetFreeBuffLength();
+        TInt32 nCompactLen = pMsg->GetCompackedLen();
+        if (nBuffLen > pMsg->GetCompackedLen())
+        {
+            return m_pIfConnection->SendMsg(pMsg->GetCompactedBody(),nCompactLen);
+        }
+    }
+    return OUT_OF_MEM_BUFFER;
+}
 }
 #pragma warning(pop)
