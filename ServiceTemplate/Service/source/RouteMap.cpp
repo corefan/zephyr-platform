@@ -29,6 +29,7 @@ CDoid *CRouteMap::FindService(TUInt32 uServiceId)
             }
         }
         ++it;
+        pRount = it;
     }
     if (pRtn)
     {

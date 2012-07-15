@@ -37,6 +37,7 @@ TInt32 CGatewaySession::OnRecv(TUChar *pMsg, TUInt32 msgLen)
 {
     OnNetIO();
     CMessageHeader::UnMsgInfo *pMsgInfo = (CMessageHeader::UnMsgInfo *)pMsg;
+    CMessageHeader::MsgInfoC2S(*pMsgInfo);
     TUInt32 uMsgId = pMsgInfo->m_methodId;
     if (pMsgInfo->m_msgBodyLength + sizeof(CMessageHeader::UnMsgInfo) == msgLen) //这个是肯定的
     {

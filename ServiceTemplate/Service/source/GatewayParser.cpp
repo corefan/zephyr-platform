@@ -29,7 +29,7 @@ TInt32  CGatewayParser::OnRecv(TUChar *pNetData,TInt32 dataLen)
     TInt32 uMsgLength = *((TInt32*)pNetData);
     if ((dataLen-sizeof(CMessageHeader::UnMsgInfo)) >= uMsgLength)
     {
-        return uMsgLength;
+        return uMsgLength + sizeof(CMessageHeader::UnMsgInfo);
     }
     return 0;
 }
