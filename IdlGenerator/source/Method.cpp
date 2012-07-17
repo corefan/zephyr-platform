@@ -495,14 +495,14 @@ TInt32 CMethod::GenerateSkeletonSourceCode(char *pszBuff,int nLength)
             if (raw_parameter_type == p->m_nElmentType)
             {
                 CParamerter *pPar = dynamic_cast<CParamerter *>(p);
-                if (pPar->m_pFullType->IsStrPoint())
-                {
-                    nRet = sprintf(pszBuff+nUsed,"    %s* _%s;\n",pPar->m_pFullType->m_szRawNoPrefix.c_str(),pPar->m_szName.c_str());
-                }
-                else
+                //if (pPar->m_pFullType->IsStrPoint())
                 {
                     nRet = sprintf(pszBuff+nUsed,"    %s _%s;\n",pPar->m_pFullType->m_szRawNoPrefix.c_str(),pPar->m_szName.c_str());
                 }
+//                 else
+//                 {
+//                     nRet = sprintf(pszBuff+nUsed,"    %s _%s;\n",pPar->m_pFullType->m_szRawNoPrefix.c_str(),pPar->m_szName.c_str());
+//                 }
                 nUsed += nRet;
                 nLength -= nRet;
                 nRet = sprintf(pszBuff+nUsed,"    nRet = Unmarshall(pBuffer,nLen,_%s);\n"
@@ -574,6 +574,36 @@ TInt32 CMethod::GenerateSkeletonSourceCode(char *pszBuff,int nLength)
         "}");
     nUsed += nRet;
     //nLength -= nRet;
+    return nUsed;
+}
+
+TInt32 CMethod::GenerateCSharpInterface(char *pBuff,int nLength)
+{
+    int nUsed = 0;
+    int n = sprintf(pBuff,"int %s(",m_szName.c_str());
+    nUsed = n;
+    nLength -= n;
+    for (int j=0;j<m_tChilds.size();++j)
+    {
+        CBaseElement *p = m_tChilds[j].m_pPt;
+        if (raw_parameter_type == p->m_nElmentType)
+        {
+            CParamerter *pParm = (CParamerter*)p; 
+            if (0 == j)
+            {
+                n = sprintf(pBuff+nUsed,"%s _%s",pParm->m_pFullType->GetCSharpTypeCode().c_str(),pParm->m_szName.c_str());
+            }
+            else
+            {
+                n = sprintf(pBuff+nUsed,",%s _%s",pParm->m_pFullType->GetCSharpTypeCode().c_str(),pParm->m_szName.c_str());
+            }
+            nUsed += n;
+            nLength -= n;
+        }
+    }
+    n = sprintf(pBuff+nUsed,");\n");
+    nUsed += n;
+    nLength -= n;
     return nUsed;
 }
 

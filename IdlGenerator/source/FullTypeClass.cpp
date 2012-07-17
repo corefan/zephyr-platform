@@ -41,6 +41,10 @@ void CFullTypeDef::AddPrefix(EnPrefix enPrefix)
     }
 }
 
+string CFullTypeDef::GetCSharpTypeCode()
+{
+    return m_szCSharpCode;
+}
 
 CFullTypeDef::CFullTypeDef()
 {
@@ -130,6 +134,7 @@ TInt32 CFullTypeDef::Process(char **ppElements,EnType *pTypes,int nProcess2,int 
         m_szFull += ppElements[nProcess2];
         m_szRawTxt += ppElements[nProcess2];
         m_szRawNoPrefix += ppElements[nProcess2];
+        m_szCSharpCode += ppElements[nProcess2];
         ++nProcess2;
         //处理模板
         if (smaller_mark_type == pTypes[nProcess2])
@@ -138,6 +143,7 @@ TInt32 CFullTypeDef::Process(char **ppElements,EnType *pTypes,int nProcess2,int 
             m_szFull += "_tpl_begin_";
             m_szRawTxt += ppElements[nProcess2];
             m_szRawNoPrefix += ppElements[nProcess2];
+            m_szCSharpCode  += ppElements[nProcess2];
             {
                 ++nProcess2;
                 //一个类型
@@ -157,6 +163,7 @@ TInt32 CFullTypeDef::Process(char **ppElements,EnType *pTypes,int nProcess2,int 
                     m_szFull += pFullType->m_szFull;
                     m_szRawTxt += pFullType->m_szRawTxt;
                     m_szRawNoPrefix += pFullType->m_szRawTxt;
+                    m_szCSharpCode += pFullType->m_szCSharpCode;
 
                     nProcess2 += n;
                     m_pTplSubs.push_back(pFullType);
@@ -167,7 +174,7 @@ TInt32 CFullTypeDef::Process(char **ppElements,EnType *pTypes,int nProcess2,int 
                             m_szFull += "_and_";
                             m_szRawTxt += ",";
                             m_szRawNoPrefix += ",";
-
+                            m_szCSharpCode  += ",";
                             bMoreTplSubTypes = true;
                             nProcess2++;
                         }
@@ -189,6 +196,7 @@ TInt32 CFullTypeDef::Process(char **ppElements,EnType *pTypes,int nProcess2,int 
                         m_szFull += "_tpl_end_";
                         m_szRawTxt += ppElements[nProcess2];
                         m_szRawNoPrefix += ppElements[nProcess2];
+                        m_szCSharpCode += ppElements[nProcess2];
                         ++nProcess2;
                     }
                 }

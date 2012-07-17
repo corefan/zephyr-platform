@@ -49,6 +49,8 @@ public:
     virtual TInt32 GenerateStub(const char *pPath);
     virtual TInt32 GenerateMethodId(const char *pPath);
 
+    virtual TInt32 GenerateCSharpCode(const char *pPath);
+
     //void OnError(int nProcess2);
     EnState GetState(char *pAlphabets);
     int HandleAStatement(char **ppElements,EnType *pTypes,int& nProcess2,int nTotalEles);
@@ -59,6 +61,8 @@ private:
     TInt32 GenerateStubSourceFile(const char *pPath);
     TInt32 GenerateSkeletonHeaderFile(const char *pPath);
     TInt32 GenerateSkeletonSourceFile(const char *pPath);
+    TInt32 GenerateCSharpSkeleton(const char*pPath);
+    TInt32 GenerateCSharpStub(const char*pPath);
 };
 
 }

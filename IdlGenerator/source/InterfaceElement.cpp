@@ -1393,5 +1393,77 @@ TInt32 CInterfaceElement::GetMethodIdStr(char *pBuff,int nLength)
     return nRet;
 }
 
+TInt32 CInterfaceElement::GenerateCSharpCode(const char *pPath)
+{
+    std::string szFileName = pPath;
+    int nPathLen = szFileName.size();
+    if (szFileName[nPathLen-1]=='/')
+    {
+    }
+    else
+    {
+        szFileName +="/";
+    }
+    szFileName +=m_szName;
+    szFileName += "Interface.cs";
+    FILE *pFile = fopen(szFileName.c_str(),"w");
+    int nLength = 2*1024*1024;
+    char *pBuff = NULL;
+    NEW(pBuff,char,nLength);
+    if (!pBuff)
+    {
+        return OUT_OF_MEM;
+    }
+    int nUsed = 0;
+    int n = 0;
+    WRITE_LINE("using UnityEngine;");
+    WRITE_LINE("using System.Collections;");
+    WRITE_LINE("using System.Collections.Generic;");
+    WRITE_LINE("using System;");
+    n = sprintf(pBuff+nUsed,"interface %s\n{\n",m_szName.c_str());
+    nUsed += n; 
+    nLength -=n;
+    n = WriteEtch(pBuff+nUsed,1);
+    nUsed += n; 
+    nLength -=n;
+    for (int i=0;i<m_tChilds.size();++i)
+    {
+        CBaseElement *p = m_tChilds[i].m_pPt;
+        if (raw_method_type == p->m_nElmentType)
+        {
+            CMethod *pMethod = (CMethod*)p;
+            n = pMethod->GenerateCSharpInterface(pBuff+nUsed,nLength);
+            nUsed += n;
+            nLength -= n;
+        }
+    }
+    WRITE_LINE("}\n");
+
+    fwrite(pBuff,1,nUsed,pFile);
+    //sprintf_s()
+    fclose (pFile);
+    delete [] pBuff;
+    pBuff = NULL;
+
+    int nRet = GenerateCSharpSkeleton(pPath);
+    if (nRet < SUCCESS)
+    {
+        return nRet;
+    }
+    nRet = GenerateCSharpStub(pPath);
+    return  nRet;
+}
+
+TInt32 CInterfaceElement::GenerateCSharpSkeleton(const char*pPath)
+{
+
+    return SUCCESS;
+}
+
+TInt32 CInterfaceElement::GenerateCSharpStub(const char*pPath)
+{
+    return SUCCESS;
+}
+
 }
 #pragma warning(pop)

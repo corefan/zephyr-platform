@@ -19,6 +19,7 @@
 #include "../../Public/tpl/include/tplmap.h"
 #include <string>
 #include <vector>
+#include <map>
 
 using namespace std;
 namespace Zephyr
@@ -137,6 +138,13 @@ public:
     }
 };
 
+#define WRITE_LINE(PSZ_FORMAT,...)  n = sprintf(pBuff+nUsed,PSZ_FORMAT"\n",__VA_ARGS__); \
+    nUsed += n; \
+    nLength -=n; \
+
+#define WRITE_CODE(PSZ_FORMAT,...)  n = sprintf(pBuff+nUsed,PSZ_FORMAT,__VA_ARGS__); \
+    nUsed += n; \
+    nLength -=n; \
 
 class CBaseElement
 {
@@ -150,6 +158,8 @@ public:
     static TplMap<TplPtPack<CBaseElement,string >,string> *sm_pBaseElements;
 
     static TplMap<TplPtPack<CBaseElement,string >,string> *sm_pBaseKeyWords;
+
+    static std::map<string,string> sm_tCType2CSharp;
 
     static TInt32 sm_nInterfaceIdBegin;
     string m_szName; //
@@ -177,6 +187,8 @@ public:
         return m_szName;
     }
 
+    static void AddCSharpType(const char *pOrigianl,const char* pNew);
+    string *GetCSharpType(const char *pCType);
 public:
     CBaseElement()
     {
@@ -187,7 +199,7 @@ public:
     {
 
     }
-
+    static void InitTypeMap();
     void SetName(const char* pName)
     {
         m_szName = pName;

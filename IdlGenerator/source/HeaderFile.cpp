@@ -142,6 +142,13 @@ TInt32 CHeaderFile::GeneratorIdl(const char *pFileName,const char *pPath)
     GenerateStub(pPath);
     GenerateSkeleton(pPath);
     GenerateMethodId(pPath);
+    printf("Do U wanna genearte csharp code?(Y/N)");
+    char cYOrN('n');;
+    std::cin>>cYOrN;
+    if (('Y' == cYOrN)||('y' == cYOrN))
+    {
+        GenerateCSharpCode(pPath);
+    }
     return SUCCESS;
 }
 

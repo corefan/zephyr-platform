@@ -70,6 +70,7 @@ public:
 
     TInt32 GetMethodIdStr(char *pBuff,int nlength);
 
+    TInt32 GenerateCSharpInterface(char *pBuffer,int nLength);
 };
 
 }

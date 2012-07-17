@@ -43,6 +43,7 @@ int main(int argc,char *pArgv[])
     INIT_STATIC_POOL(CNamespace,16);
     INIT_STATIC_POOL(CParamerter,16);
     INIT_STATIC_POOL(CStruct,16);
+    CBaseElement::InitTypeMap();
     file.GeneratorIdl(szFileName,szPath);
     return t;
 }

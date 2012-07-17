@@ -464,14 +464,6 @@ TInt32 CStruct::GenerateStub(const char *pPath)
 }
 
 
-#define WRITE_LINE(PSZ_FORMAT,...)  n = sprintf(pBuff+nUsed,PSZ_FORMAT"\n",__VA_ARGS__); \
-nUsed += n; \
-nLength -=n; \
-
-#define WRITE_CODE(PSZ_FORMAT,...)  n = sprintf(pBuff+nUsed,PSZ_FORMAT,__VA_ARGS__); \
-    nUsed += n; \
-    nLength -=n; \
-
 TInt32 CStruct::GenerateMethodId(const char *pPath)
 {
     {
@@ -1132,6 +1124,28 @@ int CStruct::HandleAStatement(char **ppElements,EnType *pTypes,int &nProcess2,in
         OnError(pAt);
         return -1;
     }
+}
+
+TInt32 CStruct::GenerateCSharpCode(const char *pPath)
+{
+    int nRet = GenerateCSharpSkeleton(pPath);
+    if (nRet < SUCCESS)
+    {
+        return nRet;
+    }
+    nRet = GenerateCSharpStub(pPath);
+    return  nRet;
+}
+
+
+TInt32 CStruct::GenerateCSharpSkeleton(const char*pPath)
+{
+    return SUCCESS;
+}
+
+TInt32 CStruct::GenerateCSharpStub(const char*pPath)
+{
+    return SUCCESS;
 }
 
 

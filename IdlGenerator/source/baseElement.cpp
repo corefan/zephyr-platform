@@ -12,7 +12,7 @@ TInt32 CBaseElement::sm_nInterfaceIdBegin = 0;
 
 TplMap<TplPtPack<CBaseElement,string >,string> *CBaseElement::sm_pBaseElements = NULL;
 TplMap<TplPtPack<CBaseElement,string >,string> *CBaseElement::sm_pBaseKeyWords = NULL;
-
+std::map<string,string> CBaseElement::sm_tCType2CSharp;
 TInt32   CBaseElement::AddType(CBaseElement *pBaseElement)
 {
     TplPtPack<CBaseElement,string > *pItem = sm_pBaseElements->PrepareItem();
@@ -265,6 +265,49 @@ TInt32 CBaseElement::GenerateCSharpCode(const char *pPath)
         nFileNr += m_tChilds[i]->GenerateCSharpCode(pPath);
     }
     return SUCCESS;
+}
+
+void CBaseElement::AddCSharpType(const char *pOrigianl,const char* pNew)
+{
+    string szOrig = pOrigianl;
+    sm_tCType2CSharp[szOrig] = pNew;
+}
+
+string *CBaseElement::GetCSharpType(const char *pCType)
+{
+    map<string,string>::iterator it = sm_tCType2CSharp.find(pCType);
+    if (it != sm_tCType2CSharp.end())
+    {
+        return &it->second;
+    }
+    return NULL;
+}
+
+
+#define ADD_TYPE_MAP(C_TYPE,CS_TYPE) AddCSharpType(#C_TYPE,#CS_TYPE);
+
+void CBaseElement::InitTypeMap()
+{
+    ADD_TYPE_MAP(TChar,char);
+    ADD_TYPE_MAP(TUInt8,byte);
+    ADD_TYPE_MAP(TInt8,sbyte);
+    ADD_TYPE_MAP(TInt16,short);
+    ADD_TYPE_MAP(TUInt16,ushort);
+    ADD_TYPE_MAP(TUInt32,uint);
+    ADD_TYPE_MAP(TInt32,int);
+    ADD_TYPE_MAP(TInt64,long);
+    ADD_TYPE_MAP(TUInt64,ulong);
+    ADD_TYPE_MAP(TFloat,float);
+    ADD_TYPE_MAP(TDouble,double);
+    ADD_TYPE_MAP(double,double);
+    ADD_TYPE_MAP(char,char);
+    ADD_TYPE_MAP(int,int);
+    ADD_TYPE_MAP(unsigned int,uin);
+    ADD_TYPE_MAP(short,short);
+    ADD_TYPE_MAP(unsigned short,ushort);
+    ADD_TYPE_MAP(longlong,long);
+    ADD_TYPE_MAP(unsigned longlong,ulong);
+    ADD_TYPE_MAP(float,float);
 }
 
 }

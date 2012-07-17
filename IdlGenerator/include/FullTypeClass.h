@@ -34,6 +34,7 @@ public:
     std::string  m_szFull;
     std::string  m_szRawTxt;
     std::string  m_szRawNoPrefix;
+    std::string  m_szCSharpCode;
     std::vector<CFullTypeDef*> m_pTplSubs;
 	std::vector<string> m_vArrays;
 public:
@@ -60,6 +61,7 @@ public:
 		return NULL;
 	}
 
+    string GetCSharpTypeCode();
 	bool IsPointer()
 	{
 		for (int i=0;i<4;++i)
