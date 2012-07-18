@@ -1432,7 +1432,7 @@ TInt32 CInterfaceElement::GenerateCSharpCode(const char *pPath)
         if (raw_method_type == p->m_nElmentType)
         {
             CMethod *pMethod = (CMethod*)p;
-            n = pMethod->GenerateCSharpInterface(pBuff+nUsed,nLength);
+            n = pMethod->GenerateCSharpInterfaceMethodCode(pBuff+nUsed,nLength);
             nUsed += n;
             nLength -= n;
         }
@@ -1456,7 +1456,82 @@ TInt32 CInterfaceElement::GenerateCSharpCode(const char *pPath)
 
 TInt32 CInterfaceElement::GenerateCSharpSkeleton(const char*pPath)
 {
+    std::string szFileName = pPath;
+    int nPathLen = szFileName.size();
+    if (szFileName[nPathLen-1]=='/')
+    {
+    }
+    else
+    {
+        szFileName +="/";
+    }
+    szFileName +=m_szName;
+    szFileName += "Skeleton.cs";
+    FILE *pFile = fopen(szFileName.c_str(),"w");
+    int nLength = 2*1024*1024;
+    char *pBuff = NULL;
+    NEW(pBuff,char,nLength);
+    if (!pBuff)
+    {
+        return OUT_OF_MEM;
+    }
+    int nUsed = 0;
+    int n = 0;
 
+    n = sprintf(pBuff,"class %sSkeleton : CSkeleton\n{\n",m_szName.c_str());
+    nUsed += n;
+    nLength -= n;
+    int nEtchNr = 1;
+    WRITE_LINE_ETCH("%s m_pImplementObj;",m_szName);
+    WRITE_LINE_ETCH("public %sSkeleton(%s pIf)",m_szName.c_str(),m_szName.c_str());
+    WRITE_LINE_ETCH("{");
+    ++nEtchNr;
+    WRITE_LINE_ETCH("m_pImplementObj = pIf;");
+    --nEtchNr;
+    WRITE_LINE_ETCH("}");
+    WRITE_LINE_ETCH("public override int HandleMsg(CMessage pMsg)");
+    WRITE_LINE_ETCH("{");
+    WRITE_LINE_ETCH("pMsg.UnmarshallHeader();");
+    WRITE_LINE_ETCH("switch (pMsg.m_uMsgId)");
+    WRITE_LINE_ETCH("{");
+    ++nEtchNr;
+    for (int i=0;i<m_tChilds.size();++i)
+    {
+        CBaseElement *p = m_tChilds[i].m_pPt;
+        if (raw_method_type == p->m_nElmentType)
+        {
+            CMethod *pMethod = (CMethod*)p;
+            WRITE_LINE_ETCH("case %sMethodId.%s%sMethodId:",m_szName.c_str(),m_szName.c_str(),pMethod->m_szName.c_str());
+            ++nEtchNr;
+            WRITE_CODE_ETCH("{");
+            ++nEtchNr;
+            WRITE_CODE_ETCH("return %s(pMsg);",pMethod->m_szFullName.c_str());
+            --nEtchNr;
+            WRITE_LINE_ETCH("}");
+            WRITE_LINE_ETCH("break;");
+            --nEtchNr;
+        }
+    }
+    WRITE_LINE_ETCH("return MacrosAndDef.MSG_NOT_HANDLED;");
+    --nEtchNr;
+    WRITE_LINE_ETCH("}");
+    for (int i=0;i<m_tChilds.size();++i)
+    {
+        CBaseElement *p = m_tChilds[i].m_pPt;
+        if (raw_method_type == p->m_nElmentType)
+        {
+            CMethod *pMethod = (CMethod*)p;
+            n = pMethod->GenerateCSharpSkeletonMethodCode(pBuff+nUsed,nLength,nEtchNr);
+            nUsed += n;
+            nLength -= n;
+        }
+    }
+
+    fwrite(pBuff,1,nUsed,pFile);
+    //sprintf_s()
+    fclose (pFile);
+    delete [] pBuff;
+    pBuff = NULL;
     return SUCCESS;
 }
 

@@ -146,6 +146,21 @@ public:
     nUsed += n; \
     nLength -=n; \
 
+#define WRITE_CODE_ETCH(PSZ_FORMAT,...) n = WriteEtch(pBuff+nUsed,nEtchNr);\
+nUsed += n; \
+nLength -=n;\
+n = sprintf(pBuff+nUsed,PSZ_FORMAT,__VA_ARGS__); \
+nUsed += n; \
+nLength -=n; \
+
+#define WRITE_LINE_ETCH(PSZ_FORMAT,...) n = WriteEtch(pBuff+nUsed,nEtchNr);\
+    nUsed += n; \
+    nLength -=n;\
+    n = sprintf(pBuff+nUsed,PSZ_FORMAT"\n",__VA_ARGS__); \
+    nUsed += n; \
+    nLength -=n; \
+
+
 class CBaseElement
 {
 public:

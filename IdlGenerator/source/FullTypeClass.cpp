@@ -41,9 +41,22 @@ void CFullTypeDef::AddPrefix(EnPrefix enPrefix)
     }
 }
 
-string CFullTypeDef::GetCSharpTypeCode()
+string *CFullTypeDef::GetCSharpTypeCode()
 {
-    return m_szCSharpCode;
+    return &m_szCSharpCode;
+}
+
+string *CFullTypeDef::GetCSharpBaseTypeCode()
+{
+    if (1 == m_pTplSubs.size())
+    {
+        return m_pTplSubs[0]->GetCSharpBaseTypeCode();
+    }
+    else if (2== m_pTplSubs.size())
+    {
+        return m_pTplSubs[1]->GetCSharpBaseTypeCode();
+    }
+    return &m_szCSharpCode;
 }
 
 CFullTypeDef::CFullTypeDef()

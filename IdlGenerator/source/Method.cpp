@@ -577,7 +577,7 @@ TInt32 CMethod::GenerateSkeletonSourceCode(char *pszBuff,int nLength)
     return nUsed;
 }
 
-TInt32 CMethod::GenerateCSharpInterface(char *pBuff,int nLength)
+TInt32 CMethod::GenerateCSharpInterfaceMethodCode(char *pBuff,int nLength)
 {
     int nUsed = 0;
     int n = sprintf(pBuff,"int %s(",m_szName.c_str());
@@ -591,11 +591,11 @@ TInt32 CMethod::GenerateCSharpInterface(char *pBuff,int nLength)
             CParamerter *pParm = (CParamerter*)p; 
             if (0 == j)
             {
-                n = sprintf(pBuff+nUsed,"%s _%s",pParm->m_pFullType->GetCSharpTypeCode().c_str(),pParm->m_szName.c_str());
+                n = sprintf(pBuff+nUsed,"%s _%s",pParm->m_pFullType->GetCSharpTypeCode()->c_str(),pParm->m_szName.c_str());
             }
             else
             {
-                n = sprintf(pBuff+nUsed,",%s _%s",pParm->m_pFullType->GetCSharpTypeCode().c_str(),pParm->m_szName.c_str());
+                n = sprintf(pBuff+nUsed,",%s _%s",pParm->m_pFullType->GetCSharpTypeCode()->c_str(),pParm->m_szName.c_str());
             }
             nUsed += n;
             nLength -= n;
@@ -604,6 +604,35 @@ TInt32 CMethod::GenerateCSharpInterface(char *pBuff,int nLength)
     n = sprintf(pBuff+nUsed,");\n");
     nUsed += n;
     nLength -= n;
+    return nUsed;
+}
+
+TInt32 CMethod::GenerateCSharpSkeletonMethodCode(char *pBuff,int nLength,int nEtchNr)
+{
+    int nUsed = 0;
+    int n = 0;
+    WRITE_LINE_ETCH("int %s(CMessage pMsg)",m_szFullName.c_str());
+    WRITE_LINE_ETCH("{");
+    ++nEtchNr;
+    WRITE_LINE_ETCH("int nUsed = MacrosAndDef.MSG_HEADER_LEN;");
+    WRITE_LINE_ETCH("int nBufferLen = pMsg.m_pBuffers.Length;");
+
+    for(int i=0;i<m_tChilds.size();++i)
+    {
+        //call
+
+        WRITE_LINE_ETCH("if (nLen < MacrosAndDef.SUCCESS)");
+        WRITE_LINE_ETCH("{");
+        ++nEtchNr;
+        WRITE_LINE_ETCH("return MacrosAndDef.OUT_OF_MEM;");
+        --nEtchNr;
+        WRITE_LINE_ETCH("{");
+        WRITE_LINE_ETCH("nUsed += nLen;");
+        //return
+    }
+    --nEtchNr;
+    WRITE_LINE_ETCH("}");
+    
     return nUsed;
 }
 

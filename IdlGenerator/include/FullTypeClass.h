@@ -61,7 +61,9 @@ public:
 		return NULL;
 	}
 
-    string GetCSharpTypeCode();
+    string *GetCSharpTypeCode();
+
+    string *GetCSharpBaseTypeCode();
 	bool IsPointer()
 	{
 		for (int i=0;i<4;++i)

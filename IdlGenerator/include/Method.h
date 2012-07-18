@@ -28,6 +28,7 @@ protected:
     int              m_nIsVirtual;  //0 不是，1是虚的，2是纯虚
     //name
     CFullTypeDef    *m_pFullRetType;;
+public:
     string          m_szFullName;
 public:
     CFullTypeDef *GetFullRetType()
@@ -70,7 +71,10 @@ public:
 
     TInt32 GetMethodIdStr(char *pBuff,int nlength);
 
-    TInt32 GenerateCSharpInterface(char *pBuffer,int nLength);
+    //
+    TInt32 GenerateCSharpInterfaceMethodCode(char *pBuffer,int nLength);
+
+    TInt32 GenerateCSharpSkeletonMethodCode(char *pBuffer,int nLength,int nEtch);
 };
 
 }
