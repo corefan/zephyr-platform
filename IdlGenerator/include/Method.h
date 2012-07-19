@@ -75,6 +75,8 @@ public:
     TInt32 GenerateCSharpInterfaceMethodCode(char *pBuffer,int nLength);
 
     TInt32 GenerateCSharpSkeletonMethodCode(char *pBuffer,int nLength,int nEtch);
+
+    TInt32 GenerateCSharpStubMethodCode(char *pBuffer,const char *pIfName, int nLength,int nEtch);
 };
 
 }

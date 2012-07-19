@@ -56,6 +56,11 @@ string *CFullTypeDef::GetCSharpBaseTypeCode()
     {
         return m_pTplSubs[1]->GetCSharpBaseTypeCode();
     }
+    if (IsStrPoint())
+    {
+        static string szStr("string");
+        return &szStr;
+    }
     return &m_szCSharpCode;
 }
 

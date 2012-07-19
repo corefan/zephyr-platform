@@ -620,21 +620,168 @@ TInt32 CMethod::GenerateCSharpSkeletonMethodCode(char *pBuff,int nLength,int nEt
     for(int i=0;i<m_tChilds.size();++i)
     {
         //call
-
-        WRITE_LINE_ETCH("if (nLen < MacrosAndDef.SUCCESS)");
-        WRITE_LINE_ETCH("{");
-        ++nEtchNr;
-        WRITE_LINE_ETCH("return MacrosAndDef.OUT_OF_MEM;");
-        --nEtchNr;
-        WRITE_LINE_ETCH("{");
-        WRITE_LINE_ETCH("nUsed += nLen;");
+        CBaseElement *p = m_tChilds[i].m_pPt;
+        if (raw_parameter_type == p->m_nElmentType)
+        {
+            CParamerter *pPar = (CParamerter*)p;
+            const string *pCsType =  GetCSharpType(pPar->m_pFullType->GetCSharpBaseTypeCode()->c_str());
+            if (pCsType)
+            {
+                WRITE_LINE_ETCH("%s _%s;",pCsType->c_str(),pPar->m_szName.c_str());
+                WRITE_LINE_ETCH("int nLen = TypeUnmarshaller.Unmarshall(pMsg.m_pBuffers, nBufferLen, nUsed, out _%s);",pPar->m_szName.c_str());
+            }
+            else
+            {
+                WRITE_LINE_ETCH("%s _%s;",pPar->m_pFullType->GetCSharpTypeCode()->c_str(),pPar->m_szName.c_str());
+                WRITE_LINE_ETCH("int nLen = %s.Unmarshall(pMsg.m_pBuffers, nBufferLen, nUsed, out _%s);",pPar->m_pFullType->GetCSharpTypeCode()->c_str(),pPar->m_szName.c_str());
+            }
+            WRITE_LINE_ETCH("if (nLen < MacrosAndDef.SUCCESS)");
+            WRITE_LINE_ETCH("{");
+            ++nEtchNr;
+            WRITE_LINE_ETCH("return MacrosAndDef.OUT_OF_MEM;");
+            --nEtchNr;
+            WRITE_LINE_ETCH("{");
+            WRITE_LINE_ETCH("nUsed += nLen;");
+        }
         //return
     }
     --nEtchNr;
     WRITE_LINE_ETCH("}");
-    
+    WRITE_CODE_ETCH("return m_pImplementObj.%s(",m_szName.c_str());
+    for(int i=0;i<m_tChilds.size();++i)
+    {
+        //call
+        CBaseElement *p = m_tChilds[i].m_pPt;
+        if (raw_parameter_type == p->m_nElmentType)
+        {
+            CParamerter *pPar = (CParamerter*)p;
+            if (0 == i)
+            {
+                WRITE_CODE("_%s",pPar->m_szName.c_str());
+            }
+            else
+            {
+                WRITE_CODE(",_%s",pPar->m_szName.c_str());
+            }
+        }
+    }
+    WRITE_LINE(");");
+    --nEtchNr;
+    WRITE_LINE_ETCH("}");
     return nUsed;
 }
+
+TInt32 CMethod::GenerateCSharpStubMethodCode(char *pBuff,const char *pIfName,int nLength,int nEtchNr)
+{
+    int nUsed = 0;
+    int n = 0;
+    WRITE_CODE_ETCH("int %s.%s(",pIfName,m_szName.c_str());
+    for (int j=0;j<m_tChilds.size();++j)
+    {
+        CBaseElement *p = m_tChilds[j].m_pPt;
+        if (raw_parameter_type == p->m_nElmentType)
+        {
+            CParamerter *pParm = (CParamerter*)p; 
+            if (0 == j)
+            {
+                n = sprintf(pBuff+nUsed,"%s _%s",pParm->m_pFullType->GetCSharpTypeCode()->c_str(),pParm->m_szName.c_str());
+            }
+            else
+            {
+                n = sprintf(pBuff+nUsed,",%s _%s",pParm->m_pFullType->GetCSharpTypeCode()->c_str(),pParm->m_szName.c_str());
+            }
+            nUsed += n;
+            nLength -= n;
+        }
+    }
+    n = sprintf(pBuff+nUsed,")");
+    nUsed += n;
+    nLength -= n;
+
+    WRITE_LINE_ETCH("{");
+    ++nEtchNr;
+    WRITE_CODE_ETCH("int nLength =");
+    for(int i=0;i<m_tChilds.size();++i)
+    {
+        //call
+        CBaseElement *p = m_tChilds[i].m_pPt;
+        if (raw_parameter_type == p->m_nElmentType)
+        {
+            CParamerter *pPar = (CParamerter*)p;
+            const string *pCsType =  GetCSharpType(pPar->m_pFullType->GetCSharpBaseTypeCode()->c_str());
+            if (i)
+            {
+                WRITE_CODE("+");
+            }
+            if (pCsType)
+            {
+                WRITE_CODE("TypeMarshaller.GetLength(_%s)",pPar->m_szName.c_str());
+            }
+            else
+            {
+                WRITE_CODE("%s.GetLength(_%s)",pPar->m_pFullType->GetCSharpBaseTypeCode()->c_str(),pPar->m_szName.c_str());
+            }
+        }
+        //return
+    }
+    WRITE_LINE(";");
+
+    WRITE_LINE_ETCH("CMessage pMsg = new CMessage(%sMethodId.%s%sMethondId, nLength);",pIfName,pIfName,m_szName.c_str());
+    WRITE_LINE_ETCH("if (null == pMsg.m_pBuffers)");
+    WRITE_LINE_ETCH("{");
+    ++nEtchNr;
+    WRITE_LINE_ETCH("return MacrosAndDef.OUT_OF_MEM;");
+    --nEtchNr;
+    WRITE_LINE_ETCH("}");
+    WRITE_LINE_ETCH("int nBufferLen = pMsg.m_pBuffers.Length;");
+    WRITE_LINE_ETCH("int nUsed = TypeMarshaller.Marshall(pMsg.m_pBuffers, nBufferLen, nUsed, nLength);");
+    WRITE_LINE_ETCH("nUsed += TypeMarshaller.Marshall(pMsg.m_pBuffers, nBufferLen, nUsed,pMsg.m_uMsgId);");
+
+    for(int i=0;i<m_tChilds.size();++i)
+    {
+        //call
+        CBaseElement *p = m_tChilds[i].m_pPt;
+        if (raw_parameter_type == p->m_nElmentType)
+        {
+            CParamerter *pPar = (CParamerter*)p;
+            const string *pCsType =  GetCSharpType(pPar->m_pFullType->GetCSharpBaseTypeCode()->c_str());
+            if (0 == i)
+            {
+                WRITE_CODE_ETCH("int ");
+            }
+            if (pCsType)
+            {
+                WRITE_LINE("nLen = TypeMarshaller.Marshall(pMsg.m_pBuffers, nBufferLen, nUsed, _%s)",pPar->m_szName.c_str());
+            }
+            else
+            {
+                WRITE_LINE("nLen = %s.Marshall(pMsg.m_pBuffers, nBufferLen, nUsed,_%s)",pPar->m_pFullType->GetCSharpBaseTypeCode()->c_str(),pPar->m_szName.c_str());
+            }
+        }
+        WRITE_LINE_ETCH("if (nLen < MacrosAndDef.SUCCESS))");
+        WRITE_LINE_ETCH("{");
+        ++nEtchNr;
+        WRITE_LINE_ETCH("return nLen;");
+        --nEtchNr;
+        WRITE_LINE_ETCH("}");
+        WRITE_LINE_ETCH("nUsed += nLen;");
+        //return
+    }
+    WRITE_LINE_ETCH("if (nUsed != nBufferLen)");
+    WRITE_LINE_ETCH("{");
+    ++nEtchNr;
+    WRITE_LINE_ETCH("Debug.Log(\"the nUsed is:\"+nUsed);");
+    WRITE_LINE_ETCH("TypeMarshaller.Marshall(pMsg.m_pBuffers, nBufferLen, sizeof(uint), nUsed);");
+    --nEtchNr;
+    WRITE_LINE_ETCH("}");
+    //send on net.
+    WRITE_LINE_ETCH("CMessage.sm_pSocket.SendMsg(pMsg);");
+    WRITE_LINE_ETCH("return nUsed;");
+    --nEtchNr;
+    WRITE_LINE_ETCH("}");
+    return nUsed;
+}
+
 
 }
 #pragma warning(pop)

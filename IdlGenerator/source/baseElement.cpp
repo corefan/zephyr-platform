@@ -284,7 +284,9 @@ string *CBaseElement::GetCSharpType(const char *pCType)
 }
 
 
-#define ADD_TYPE_MAP(C_TYPE,CS_TYPE) AddCSharpType(#C_TYPE,#CS_TYPE);
+#define ADD_TYPE_MAP(C_TYPE,CS_TYPE) AddCSharpType(#C_TYPE,#CS_TYPE); \
+                                     AddCSharpType(#C_TYPE"*",#CS_TYPE); \
+                                     AddCSharpType(#C_TYPE" *",#CS_TYPE);\
 
 void CBaseElement::InitTypeMap()
 {
@@ -308,6 +310,7 @@ void CBaseElement::InitTypeMap()
     ADD_TYPE_MAP(longlong,long);
     ADD_TYPE_MAP(unsigned longlong,ulong);
     ADD_TYPE_MAP(float,float);
+    ADD_TYPE_MAP(string,string);
 }
 
 }

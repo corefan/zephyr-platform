@@ -1478,9 +1478,12 @@ TInt32 CInterfaceElement::GenerateCSharpSkeleton(const char*pPath)
     int nUsed = 0;
     int n = 0;
 
-    n = sprintf(pBuff,"class %sSkeleton : CSkeleton\n{\n",m_szName.c_str());
-    nUsed += n;
-    nLength -= n;
+    WRITE_LINE("using UnityEngine;");
+    WRITE_LINE("using System.Collections;");
+    WRITE_LINE("using System.Collections.Generic;");
+    WRITE_LINE("using System;");
+
+    WRITE_LINE("class %sSkeleton : CSkeleton\n{\n",m_szName.c_str());
     int nEtchNr = 1;
     WRITE_LINE_ETCH("%s m_pImplementObj;",m_szName);
     WRITE_LINE_ETCH("public %sSkeleton(%s pIf)",m_szName.c_str(),m_szName.c_str());
@@ -1537,6 +1540,55 @@ TInt32 CInterfaceElement::GenerateCSharpSkeleton(const char*pPath)
 
 TInt32 CInterfaceElement::GenerateCSharpStub(const char*pPath)
 {
+    std::string szFileName = pPath;
+    int nPathLen = szFileName.size();
+    if (szFileName[nPathLen-1]=='/')
+    {
+    }
+    else
+    {
+        szFileName +="/";
+    }
+    szFileName +=m_szName;
+    szFileName += "Stub.cs";
+    FILE *pFile = fopen(szFileName.c_str(),"w");
+    int nLength = 2*1024*1024;
+    char *pBuff = NULL;
+    NEW(pBuff,char,nLength);
+    if (!pBuff)
+    {
+        return OUT_OF_MEM;
+    }
+    int nUsed = 0;
+    int n = 0;
+    WRITE_LINE("using UnityEngine;");
+    WRITE_LINE("using System.Collections;");
+    WRITE_LINE("using System.Collections.Generic;");
+    WRITE_LINE("using System;");
+
+    int nEtchNr = 1;
+    WRITE_LINE("class %sStub :%s",m_szName.c_str(),m_szName.c_str());
+    WRITE_LINE("{");
+    
+    for (int i=0;i<m_tChilds.size();++i)
+    {
+        CBaseElement *p = m_tChilds[i].m_pPt;
+        if (raw_method_type == p->m_nElmentType)
+        {
+            CMethod *pMethod = (CMethod*)p;
+            n = pMethod->GenerateCSharpStubMethodCode(pBuff+nUsed,m_szName.c_str(),nLength,nEtchNr);
+            nUsed += n;
+            nLength -= n;
+        }
+    }
+
+    WRITE_LINE("}");
+    fwrite(pBuff,1,nUsed,pFile);
+    //sprintf_s()
+    fclose (pFile);
+    delete [] pBuff;
+    pBuff = NULL;
+    return SUCCESS;
     return SUCCESS;
 }
 
