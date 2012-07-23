@@ -1423,14 +1423,15 @@ TInt32 CInterfaceElement::GenerateCSharpCode(const char *pPath)
     n = sprintf(pBuff+nUsed,"interface %s\n{\n",m_szName.c_str());
     nUsed += n; 
     nLength -=n;
-    n = WriteEtch(pBuff+nUsed,1);
-    nUsed += n; 
-    nLength -=n;
+
     for (int i=0;i<m_tChilds.size();++i)
     {
         CBaseElement *p = m_tChilds[i].m_pPt;
         if (raw_method_type == p->m_nElmentType)
         {
+            n = WriteEtch(pBuff+nUsed,1);
+            nUsed += n; 
+            nLength -=n;
             CMethod *pMethod = (CMethod*)p;
             n = pMethod->GenerateCSharpInterfaceMethodCode(pBuff+nUsed,nLength);
             nUsed += n;
@@ -1438,6 +1439,8 @@ TInt32 CInterfaceElement::GenerateCSharpCode(const char *pPath)
         }
     }
     WRITE_LINE("}\n");
+
+    nUsed = Replace4CSharp(pBuff);
 
     fwrite(pBuff,1,nUsed,pFile);
     //sprintf_s()
@@ -1485,7 +1488,7 @@ TInt32 CInterfaceElement::GenerateCSharpSkeleton(const char*pPath)
 
     WRITE_LINE("class %sSkeleton : CSkeleton\n{\n",m_szName.c_str());
     int nEtchNr = 1;
-    WRITE_LINE_ETCH("%s m_pImplementObj;",m_szName);
+    WRITE_LINE_ETCH("%s m_pImplementObj;",m_szName.c_str());
     WRITE_LINE_ETCH("public %sSkeleton(%s pIf)",m_szName.c_str(),m_szName.c_str());
     WRITE_LINE_ETCH("{");
     ++nEtchNr;
@@ -1506,9 +1509,9 @@ TInt32 CInterfaceElement::GenerateCSharpSkeleton(const char*pPath)
             CMethod *pMethod = (CMethod*)p;
             WRITE_LINE_ETCH("case %sMethodId.%s%sMethodId:",m_szName.c_str(),m_szName.c_str(),pMethod->m_szName.c_str());
             ++nEtchNr;
-            WRITE_CODE_ETCH("{");
+            WRITE_LINE_ETCH("{");
             ++nEtchNr;
-            WRITE_CODE_ETCH("return %s(pMsg);",pMethod->m_szFullName.c_str());
+            WRITE_LINE_ETCH("return %s(pMsg);",pMethod->m_szFullName.c_str());
             --nEtchNr;
             WRITE_LINE_ETCH("}");
             WRITE_LINE_ETCH("break;");
@@ -1529,6 +1532,8 @@ TInt32 CInterfaceElement::GenerateCSharpSkeleton(const char*pPath)
             nLength -= n;
         }
     }
+    nUsed = Replace4CSharp(pBuff);
+
 
     fwrite(pBuff,1,nUsed,pFile);
     //sprintf_s()
@@ -1583,6 +1588,7 @@ TInt32 CInterfaceElement::GenerateCSharpStub(const char*pPath)
     }
 
     WRITE_LINE("}");
+    nUsed = Replace4CSharp(pBuff);
     fwrite(pBuff,1,nUsed,pFile);
     //sprintf_s()
     fclose (pFile);

@@ -250,6 +250,9 @@ public:
     bool IsBracesEnd(char *pStr,EnType nType);
     TInt32 WriteEtch(char *pstr,int nLayers);
     void OnError(const char *pWord);
+
+    static int ReplaceStr(char *pBuffer,const TChar *pszOrig,const TChar *pNew,char *pszNew);
+    static int Replace4CSharp(char *pBuffer);
 };
 
 }

@@ -284,6 +284,54 @@ string *CBaseElement::GetCSharpType(const char *pCType)
 }
 
 
+int CBaseElement::ReplaceStr(char *pBuffer,const TChar *pszOrig,const TChar *pNew,char *pszNew)
+{
+    int nUsed(0);
+    int nOrigUsed(0);
+    const char *pFound = strstr(pBuffer,pszOrig);
+    int nOrigLen = strlen(pszOrig);
+    int nNewLen = strlen(pNew);
+    while(pFound)
+    {
+        int nLen = (pFound - pBuffer+nOrigUsed);
+        memcpy(pszNew+nUsed,pBuffer+nOrigUsed,nLen);
+        nUsed += nLen;
+        nOrigUsed += nLen + nOrigLen;
+        memcpy(pszNew+nUsed,pNew,nNewLen+1);
+        nUsed += nNewLen;
+        pFound = strstr(pBuffer+nOrigUsed,pszOrig);
+    }
+    ++nUsed;
+    memcpy(pBuffer,pszNew,nUsed);
+    delete [] pszNew;
+    return nUsed;
+}
+
+int CBaseElement::Replace4CSharp(char *pBuff)
+{
+    char *pszNew = new char[2*1024*1024];
+    int nUsed = ReplaceStr(pBuff,"map<","Dictionary<",pszNew);
+    nUsed = ReplaceStr(pBuff,"vector<","List<",pszNew);
+    nUsed = ReplaceStr(pBuff,"list<","list<",pszNew);
+    nUsed = ReplaceStr(pBuff,"set<","list<",pszNew);
+    nUsed = ReplaceStr(pBuff,"OctSeq<ushort>","OctSeqUS",pszNew);
+    nUsed = ReplaceStr(pBuff,"OctSeq<short>","OctSeqS",pszNew);
+    nUsed = ReplaceStr(pBuff,"OctSeq<uint>","OctSeqUI",pszNew);
+    nUsed = ReplaceStr(pBuff,"OctSeq<int>","OctSeqI",pszNew);
+    nUsed = ReplaceStr(pBuff,"OctSeq<long>","OctSeqL",pszNew);
+    nUsed = ReplaceStr(pBuff,"OctSeq<long>","OctSeqUL",pszNew);
+
+    nUsed = ReplaceStr(pBuff,"TLV<ushort,ushort>","OctSeqUSUS",pszNew);
+    nUsed = ReplaceStr(pBuff,"TLV<short,short>","OctSeqSS",pszNew);
+    nUsed = ReplaceStr(pBuff,"TLV<int,int>","OctSeqII",pszNew);
+    nUsed = ReplaceStr(pBuff,"TLV<uint,uint>","OctSeqUIUI",pszNew);
+    nUsed = ReplaceStr(pBuff,"TLV<long,uint>","OctSeqLUI",pszNew);
+    nUsed = ReplaceStr(pBuff,"TLV<ulong,uint>","OctSeqULUI",pszNew);
+    delete [] pszNew;
+    return nUsed;
+}
+
+
 #define ADD_TYPE_MAP(C_TYPE,CS_TYPE) AddCSharpType(#C_TYPE,#CS_TYPE); \
                                      AddCSharpType(#C_TYPE"*",#CS_TYPE); \
                                      AddCSharpType(#C_TYPE" *",#CS_TYPE);\

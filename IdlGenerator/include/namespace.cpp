@@ -245,6 +245,7 @@ TInt32 CNamespace::Process(char **ppElements,EnType *pTypes,int nProcess2,int nT
                                 return OUT_OF_MEM;
                             }
                         }
+                        ++nNr;
                     }
                     break;
                 case key_class:
@@ -301,6 +302,7 @@ TInt32 CNamespace::Process(char **ppElements,EnType *pTypes,int nProcess2,int nT
                     }
                     break;
                 }
+                continue;
             }
             int n = findAType(ppElements,pTypes,nProcess2+nNr,nTotalEles);
             if (n<=0)

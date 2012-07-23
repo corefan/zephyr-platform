@@ -640,7 +640,7 @@ TInt32 CMethod::GenerateCSharpSkeletonMethodCode(char *pBuff,int nLength,int nEt
             ++nEtchNr;
             WRITE_LINE_ETCH("return MacrosAndDef.OUT_OF_MEM;");
             --nEtchNr;
-            WRITE_LINE_ETCH("{");
+            WRITE_LINE_ETCH("}");
             WRITE_LINE_ETCH("nUsed += nLen;");
         }
         //return
@@ -694,7 +694,7 @@ TInt32 CMethod::GenerateCSharpStubMethodCode(char *pBuff,const char *pIfName,int
             nLength -= n;
         }
     }
-    n = sprintf(pBuff+nUsed,")");
+    n = sprintf(pBuff+nUsed,")\n");
     nUsed += n;
     nLength -= n;
 
@@ -755,7 +755,7 @@ TInt32 CMethod::GenerateCSharpStubMethodCode(char *pBuff,const char *pIfName,int
             }
             else
             {
-                WRITE_LINE("nLen = %s.Marshall(pMsg.m_pBuffers, nBufferLen, nUsed,_%s)",pPar->m_pFullType->GetCSharpBaseTypeCode()->c_str(),pPar->m_szName.c_str());
+                WRITE_LINE_ETCH("nLen = %s.Marshall(pMsg.m_pBuffers, nBufferLen, nUsed,_%s)",pPar->m_pFullType->GetCSharpBaseTypeCode()->c_str(),pPar->m_szName.c_str());
             }
         }
         WRITE_LINE_ETCH("if (nLen < MacrosAndDef.SUCCESS))");
