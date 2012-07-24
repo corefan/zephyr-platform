@@ -1,5 +1,6 @@
 #include "../include/nameSpace.h"
 #include "../include/interfaceElement.h" 
+#include "../include/struct.h"
 #pragma warning(push)
 #pragma warning(disable:4267)
 
@@ -298,7 +299,25 @@ TInt32 CNamespace::Process(char **ppElements,EnType *pTypes,int nProcess2,int nT
                     break;
                 case key_struct:
                     {
-
+                        CStruct *pStru = CREATE_FROM_STATIC_POOL(CStruct);
+                        if (pStru)
+                        {
+                            int nRet = pStru->Process(ppElements,pTypes,(nProcess2+nNr),nTotalEles);
+                            if (nRet >= 0)
+                            {
+                                nNr += nRet;
+                                AddChildElement(pStru);
+                                continue;
+                            }
+                            else
+                            {
+                                return -1;
+                            }
+                        }
+                        else
+                        {
+                            return -1;
+                        }
                     }
                     break;
                 }
