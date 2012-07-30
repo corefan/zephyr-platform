@@ -291,19 +291,28 @@ int CBaseElement::ReplaceStr(char *pBuffer,const TChar *pszOrig,const TChar *pNe
     const char *pFound = strstr(pBuffer,pszOrig);
     int nOrigLen = strlen(pszOrig);
     int nNewLen = strlen(pNew);
-    while(pFound)
+    if (pFound)
     {
-        int nLen = (pFound - pBuffer+nOrigUsed);
-        memcpy(pszNew+nUsed,pBuffer+nOrigUsed,nLen);
-        nUsed += nLen;
-        nOrigUsed += nLen + nOrigLen;
-        memcpy(pszNew+nUsed,pNew,nNewLen+1);
-        nUsed += nNewLen;
-        pFound = strstr(pBuffer+nOrigUsed,pszOrig);
+        while(pFound)
+        {
+            int nLen = (pFound - pBuffer+nOrigUsed);
+            memcpy(pszNew+nUsed,pBuffer+nOrigUsed,nLen);
+            nUsed += nLen;
+            nOrigUsed += nLen + nOrigLen;
+            memcpy(pszNew+nUsed,pNew,nNewLen+1);
+            nUsed += nNewLen;
+            pFound = strstr(pBuffer+nOrigUsed,pszOrig);
+        }
+        int nRemain = strlen(pBuffer+nOrigUsed) + 1;
+        memcpy(pszNew+nUsed,pBuffer+nOrigUsed,nRemain+1);
+        nUsed += nRemain;
+        strcpy(pBuffer,pszNew);
     }
-    ++nUsed;
-    memcpy(pBuffer,pszNew,nUsed);
-    delete [] pszNew;
+    else
+    {
+        return strlen(pBuffer);
+    }
+    //delete [] pszNew;
     return nUsed;
 }
 

@@ -616,7 +616,7 @@ TInt32 CMethod::GenerateCSharpSkeletonMethodCode(char *pBuff,int nLength,int nEt
     ++nEtchNr;
     WRITE_LINE_ETCH("int nUsed = MacrosAndDef.MSG_HEADER_LEN;");
     WRITE_LINE_ETCH("int nBufferLen = pMsg.m_pBuffers.Length;");
-
+    WRITE_LINE_ETCH("int nLen = 0;");
     for(int i=0;i<m_tChilds.size();++i)
     {
         //call
@@ -628,12 +628,12 @@ TInt32 CMethod::GenerateCSharpSkeletonMethodCode(char *pBuff,int nLength,int nEt
             if (pCsType)
             {
                 WRITE_LINE_ETCH("%s _%s;",pCsType->c_str(),pPar->m_szName.c_str());
-                WRITE_LINE_ETCH("int nLen = TypeUnmarshaller.Unmarshall(pMsg.m_pBuffers, nBufferLen, nUsed, out _%s);",pPar->m_szName.c_str());
+                WRITE_LINE_ETCH("nLen = TypeUnmarshaller.Unmarshall(pMsg.m_pBuffers, nBufferLen, nUsed, out _%s);",pPar->m_szName.c_str());
             }
             else
             {
                 WRITE_LINE_ETCH("%s _%s;",pPar->m_pFullType->GetCSharpTypeCode()->c_str(),pPar->m_szName.c_str());
-                WRITE_LINE_ETCH("int nLen = %s.Unmarshall(pMsg.m_pBuffers, nBufferLen, nUsed, out _%s);",pPar->m_pFullType->GetCSharpTypeCode()->c_str(),pPar->m_szName.c_str());
+                WRITE_LINE_ETCH("nLen = %s.Unmarshall(pMsg.m_pBuffers, nBufferLen, nUsed, out _%s);",pPar->m_pFullType->GetCSharpTypeCode()->c_str(),pPar->m_szName.c_str());
             }
             WRITE_LINE_ETCH("if (nLen < MacrosAndDef.SUCCESS)");
             WRITE_LINE_ETCH("{");
@@ -715,11 +715,11 @@ TInt32 CMethod::GenerateCSharpStubMethodCode(char *pBuff,const char *pIfName,int
             }
             if (pCsType)
             {
-                WRITE_CODE("TypeMarshaller.GetLength(_%s)",pPar->m_szName.c_str());
+                WRITE_CODE("TypeMarshaller.GetLength( _%s)",pPar->m_szName.c_str());
             }
             else
             {
-                WRITE_CODE("%s.GetLength(_%s)",pPar->m_pFullType->GetCSharpBaseTypeCode()->c_str(),pPar->m_szName.c_str());
+                WRITE_CODE("%s.GetLength(ref _%s)",pPar->m_pFullType->GetCSharpBaseTypeCode()->c_str(),pPar->m_szName.c_str());
             }
         }
         //return
@@ -736,7 +736,6 @@ TInt32 CMethod::GenerateCSharpStubMethodCode(char *pBuff,const char *pIfName,int
     WRITE_LINE_ETCH("int nBufferLen = pMsg.m_pBuffers.Length;");
     WRITE_LINE_ETCH("int nUsed = TypeMarshaller.Marshall(pMsg.m_pBuffers, nBufferLen, nUsed, nLength);");
     WRITE_LINE_ETCH("nUsed += TypeMarshaller.Marshall(pMsg.m_pBuffers, nBufferLen, nUsed,pMsg.m_uMsgId);");
-
     for(int i=0;i<m_tChilds.size();++i)
     {
         //call
@@ -749,13 +748,17 @@ TInt32 CMethod::GenerateCSharpStubMethodCode(char *pBuff,const char *pIfName,int
             {
                 WRITE_CODE_ETCH("int ");
             }
+            else
+            {
+                n = WriteEtch(pBuff+nUsed,nEtchNr);
+            }
             if (pCsType)
             {
                 WRITE_LINE("nLen = TypeMarshaller.Marshall(pMsg.m_pBuffers, nBufferLen, nUsed, _%s)",pPar->m_szName.c_str());
             }
             else
             {
-                WRITE_LINE_ETCH("nLen = %s.Marshall(pMsg.m_pBuffers, nBufferLen, nUsed,_%s)",pPar->m_pFullType->GetCSharpBaseTypeCode()->c_str(),pPar->m_szName.c_str());
+                WRITE_LINE("nLen = %s.Marshall(pMsg.m_pBuffers, nBufferLen, nUsed,ref _%s)",pPar->m_pFullType->GetCSharpBaseTypeCode()->c_str(),pPar->m_szName.c_str());
             }
         }
         WRITE_LINE_ETCH("if (nLen < MacrosAndDef.SUCCESS))");

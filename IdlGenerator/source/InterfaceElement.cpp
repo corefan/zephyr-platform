@@ -1416,7 +1416,6 @@ TInt32 CInterfaceElement::GenerateCSharpCode(const char *pPath)
     }
     int nUsed = 0;
     int n = 0;
-    WRITE_LINE("using UnityEngine;");
     WRITE_LINE("using System.Collections;");
     WRITE_LINE("using System.Collections.Generic;");
     WRITE_LINE("using System;");
@@ -1594,7 +1593,6 @@ TInt32 CInterfaceElement::GenerateCSharpStub(const char*pPath)
     fclose (pFile);
     delete [] pBuff;
     pBuff = NULL;
-    return SUCCESS;
     return SUCCESS;
 }
 
