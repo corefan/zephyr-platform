@@ -1285,7 +1285,7 @@ TInt32 CStruct::GenerateCSharpSkeleton(const char*pPath)
                 for (int j=nDimension;j>0;--j)
                 {
                     --nEtchNr;
-                    WRITE_LINE_ETCH("}\n");
+                    WRITE_LINE_ETCH("}");
                 }
             }
         }
@@ -1296,7 +1296,7 @@ TInt32 CStruct::GenerateCSharpSkeleton(const char*pPath)
     WRITE_LINE_ETCH("public static int Unmarshall(byte[] pBuffers,int nBufferLen,int nUsed, out %s rValue)",m_szName.c_str());
     WRITE_LINE_ETCH("{");
     ++nEtchNr;
-
+    WRITE_LINE_ETCH("rValue = new %s()",m_szName.c_str());
     WRITE_LINE_ETCH("int nLen=0;");
     for(int i=0;i<m_tChilds.size();++i)
     {
@@ -1360,7 +1360,7 @@ TInt32 CStruct::GenerateCSharpSkeleton(const char*pPath)
                 for (int j=nDimension;j>0;--j)
                 {
                     --nEtchNr;
-                    WRITE_LINE_ETCH("}\n");
+                    WRITE_LINE_ETCH("}");
                 }
             }
             else
@@ -1413,7 +1413,7 @@ TInt32 CStruct::GenerateCSharpSkeleton(const char*pPath)
                 }
                 else
                 {
-                    WRITE_CODE("%s.GetLength(ref rValue.%s[0",pPar->m_pFullType->m_szName.c_str(),pPar->m_szName.c_str());
+                    WRITE_CODE("%s.GetLength(ref rValue.%s[0",pPar->m_pFullType->GetCSharpBaseTypeCode()->c_str(),pPar->m_szName.c_str());
                 }
                 for (int j=1;j<pPar->m_pFullType->GetDimension();++j)
                 {
@@ -1520,14 +1520,14 @@ TInt32 CStruct::GenerateCSharpSkeleton(const char*pPath)
                 for (int j=nDimension;j>0;--j)
                 {
                     --nEtchNr;
-                    WRITE_LINE_ETCH("}\n");
+                    WRITE_LINE_ETCH("}");
                 }
             }
             else
             {
                 if (pCsType)
                 {
-                    WRITE_LINE_ETCH("nLen = TypeMarshaller.Marshall(pBuffers, nBufferLen, nUsed, ref rValue.%s);",pPar->m_szName.c_str());
+                    WRITE_LINE_ETCH("nLen = TypeMarshaller.Marshall(pBuffers, nBufferLen, nUsed, rValue.%s);",pPar->m_szName.c_str());
                 }
                 else
                 {
@@ -1549,9 +1549,20 @@ TInt32 CStruct::GenerateCSharpSkeleton(const char*pPath)
     WRITE_LINE_ETCH("}");
 
 
+
+    
+    n = GenerateCommonTypeMarshallerCSharpCode(pBuff+nUsed,m_szName.c_str(),True);
+    nUsed += n;
+    nLength -= n;
+
+    n = GenerateCommonTypeUnMarshallerCSharpCode(pBuff+nUsed,m_szName.c_str());
+    nUsed += n;
+    nLength -= n;
+
+
     --nEtchNr;
     WRITE_LINE_ETCH("}");
-    
+
     nUsed = Replace4CSharp(pBuff);
     fwrite(pBuff,1,nUsed,pFile);
     //sprintf_s()

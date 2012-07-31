@@ -1197,11 +1197,6 @@ TplNode<CItem,CKey> *TplNode<CItem,CKey>::AddNode(TplNode *pNode)
 
             pNewRoot->AddRightNodeNum();
             */
-#ifdef _NEED_TREE_CHECK
-            pNewRoot->CheckTree();
-#endif
-            return pNewRoot;
-
         }
         else
         {

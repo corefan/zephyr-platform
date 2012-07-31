@@ -210,6 +210,9 @@ public:
         m_nElmentType = raw_base_element_type;
         m_pFather = NULL;
     }
+    static int WriteCSharpCode(const TChar *pPath);
+    static int GenerateCommonTypeMarshallerCSharpCode(TChar *pBuffer,const TChar *pszCommonType,TBOOL bBasicType);
+    static int GenerateCommonTypeUnMarshallerCSharpCode(TChar *pBuffer,const TChar *pszCommonType);
     virtual ~CBaseElement()
     {
 
@@ -248,7 +251,7 @@ public:
 
     bool IsBracesBegin(char *pStr,EnType nType);
     bool IsBracesEnd(char *pStr,EnType nType);
-    TInt32 WriteEtch(char *pstr,int nLayers);
+    static TInt32 WriteEtch(char *pstr,int nLayers);
     void OnError(const char *pWord);
 
     static int ReplaceStr(char *pBuffer,const TChar *pszOrig,const TChar *pNew,char *pszNew);

@@ -283,6 +283,237 @@ string *CBaseElement::GetCSharpType(const char *pCType)
     return NULL;
 }
 
+int CBaseElement::WriteCSharpCode(const TChar *pPath)
+{
+    std::string szFileName = pPath;
+    int nPathLen = szFileName.size();
+    if (szFileName[nPathLen-1]=='/')
+    {
+    }
+    else
+    {
+        szFileName +="/";
+    }
+    szFileName += "BaseType.cs";
+    FILE *pFile = fopen(szFileName.c_str(),"w");
+    int nLength = 2*1024*1024;
+    char *pBuff = NULL;
+    NEW(pBuff,char,nLength);
+    if (!pBuff)
+    {
+        return OUT_OF_MEM;
+    }
+    int nUsed = 0;
+
+    return nUsed;
+}
+
+int CBaseElement::GenerateCommonTypeMarshallerCSharpCode(TChar *pBuff,const TChar *pszCommonType,TBOOL bBasicType)
+{
+    int nLength = 2*1024*1024;
+    int nUsed = 0;
+    int n = 0;
+    int nEtchNr=1;
+    WRITE_LINE_ETCH("static public int Marshall(byte[] pBuffers, int nBuferLength, int nUsed, List<%s> tValue)",pszCommonType);
+    WRITE_LINE_ETCH("{");
+    ++nEtchNr;
+    const TChar *pNeedRef="";
+    if (bBasicType)
+    {
+        pNeedRef = "ref ";
+    }
+    WRITE_LINE_ETCH("if ((nUsed + GetLength(%stValue)) > nBuferLength)",pNeedRef);
+    WRITE_LINE_ETCH("{");
+    ++nEtchNr;
+    WRITE_LINE_ETCH("return MacrosAndDef.NOT_ENOUGH_BUFFER;");
+    --nEtchNr;
+    WRITE_LINE_ETCH("}");
+    WRITE_LINE_ETCH("int nRet = TypeMarshaller.Marshall(pBuffers, nBuferLength, nUsed, (int)tValue.Count);");
+    WRITE_LINE_ETCH("if (nRet < MacrosAndDef.SUCCESS)");
+    WRITE_LINE_ETCH("{");
+    ++nEtchNr;
+    WRITE_LINE_ETCH("return nRet;");
+    --nEtchNr;
+    WRITE_LINE_ETCH("}");
+    WRITE_LINE_ETCH("int nMarshalled = nRet;");
+    WRITE_LINE_ETCH("foreach(%s item in tValue)",pszCommonType);
+    WRITE_LINE_ETCH("{");
+    ++nEtchNr;
+    WRITE_LINE_ETCH("nRet = Marshall(pBuffers, nBuferLength, nUsed+nMarshalled,%s item);",pNeedRef);
+    WRITE_LINE_ETCH("if (nRet < MacrosAndDef.SUCCESS)");
+    WRITE_LINE_ETCH("{");
+    ++nEtchNr;
+    WRITE_LINE_ETCH("return nRet;");
+    --nEtchNr;
+    WRITE_LINE_ETCH("}");
+    WRITE_LINE_ETCH("nMarshalled += nRet;");
+    --nEtchNr;
+    WRITE_LINE_ETCH("}");
+    WRITE_LINE_ETCH("return nMarshalled;");
+    --nEtchNr;
+    WRITE_LINE_ETCH("}");
+ 
+
+    WRITE_LINE_ETCH("static public int GetLength(List<%s> tValue)",pszCommonType);
+    WRITE_LINE_ETCH("{");
+    WRITE_LINE_ETCH("int nLen = sizeof(int);");
+    WRITE_LINE_ETCH("foreach (%s item in tValue)",pszCommonType);
+    WRITE_LINE_ETCH("{");
+    ++nEtchNr;
+    WRITE_LINE_ETCH("nLen += GetLength(%sitem);",pNeedRef);
+    --nEtchNr;
+    WRITE_LINE_ETCH("}");
+    WRITE_LINE_ETCH("return nLen;");
+    WRITE_LINE_ETCH("}");
+
+    
+    char *szTypes[4]={"uint","int","ulong","long"};
+    for (int i=0;i<4;++i)
+    {
+        WRITE_LINE_ETCH("static public int Marshall(byte[] pBuffers, int nBuferLength, int nUsed, Dictionary<%s,%s> tValue)",szTypes[i],pszCommonType);
+        WRITE_LINE_ETCH("{");
+        ++nEtchNr;
+        WRITE_LINE_ETCH("if ((nUsed + GetLength(tValue)) > nBuferLength)");
+        WRITE_LINE_ETCH("{");
+        ++nEtchNr;
+        WRITE_LINE_ETCH("return MacrosAndDef.NOT_ENOUGH_BUFFER;");
+        --nEtchNr;
+        WRITE_LINE_ETCH("}");
+        WRITE_LINE_ETCH("int nRet = TypeMarshaller.Marshall(pBuffers, nBuferLength, nUsed, (int)tValue.Count);");
+        WRITE_LINE_ETCH("if (nRet < MacrosAndDef.SUCCESS)");
+        WRITE_LINE_ETCH("{");
+        ++nEtchNr;
+        WRITE_LINE_ETCH("return nRet;");
+        --nEtchNr;
+        WRITE_LINE_ETCH("}");
+        WRITE_LINE_ETCH("int nMarshalled = nRet;");
+        WRITE_LINE_ETCH("foreach (KeyValuePair<%s, %s> item in tValue)",szTypes[i],pszCommonType);
+        WRITE_LINE_ETCH("{");
+        ++nEtchNr;
+        WRITE_LINE_ETCH("nRet = TypeMarshaller.Marshall(pBuffers, nBuferLength, nUsed + nMarshalled, item.Key);");
+        WRITE_LINE_ETCH("if (nRet < MacrosAndDef.SUCCESS)");
+        WRITE_LINE_ETCH("{");
+        ++nEtchNr;
+        WRITE_LINE_ETCH("return nRet;");
+        --nEtchNr;
+        WRITE_LINE_ETCH("}");
+        WRITE_LINE_ETCH("nMarshalled += nRet;");
+        WRITE_LINE_ETCH("nRet = Marshall(pBuffers, nBuferLength, nUsed + nMarshalled,%s item.Value);",pNeedRef);
+        WRITE_LINE_ETCH("if (nRet < MacrosAndDef.SUCCESS)");
+        WRITE_LINE_ETCH("{");
+        ++nEtchNr;
+        WRITE_LINE_ETCH("return nRet;");
+        --nEtchNr;
+        WRITE_LINE_ETCH("}");
+        WRITE_LINE_ETCH("nMarshalled += nRet;");
+        --nEtchNr;
+        WRITE_LINE_ETCH("}");
+        WRITE_LINE_ETCH("return nMarshalled;");
+        --nEtchNr;
+        WRITE_LINE_ETCH("}");
+
+        WRITE_LINE_ETCH("static public int GetLength(Dictionary<%s,%s> tValue)",szTypes[i],pszCommonType);
+        WRITE_LINE_ETCH("{");
+        ++nEtchNr;
+        WRITE_LINE_ETCH("int nLen = sizeof(int);");
+        WRITE_LINE_ETCH("foreach (KeyValuePair<%s,%s> item in tValue)",szTypes[i],pszCommonType);
+        WRITE_LINE_ETCH("{");
+        ++nEtchNr;
+        WRITE_LINE_ETCH("nLen += TypeMarshaller.GetLength(item.Key);");
+        WRITE_LINE_ETCH("nLen += GetLength(%sitem.Value);",pNeedRef);
+        --nEtchNr;
+        WRITE_LINE_ETCH("}");
+        WRITE_LINE_ETCH("return nLen;");
+        --nEtchNr;
+        WRITE_LINE_ETCH("}");
+    }
+    return nUsed;
+}
+
+int CBaseElement::GenerateCommonTypeUnMarshallerCSharpCode(TChar *pBuff,const TChar *pszCommonType)
+{
+    int nLength = 2*1024*1024;
+    int nUsed = 0;
+    int n = 0;
+    int nEtchNr=1;
+    WRITE_LINE_ETCH("static public int Unmarshall(byte[] pBuffers, int nBuferLength, int nUsed, out List<%s> tValue)",pszCommonType);
+    WRITE_LINE_ETCH("{");
+    ++nEtchNr;
+    WRITE_LINE_ETCH("tValue = new List<%s>();",pszCommonType);
+    WRITE_LINE_ETCH("int nLen = 0;");
+    WRITE_LINE_ETCH("int nRet = TypeUnmarshaller.Unmarshall(pBuffers, nBuferLength, nUsed, out nLen);");
+    WRITE_LINE_ETCH("if (nRet < MacrosAndDef.SUCCESS)");
+    WRITE_LINE_ETCH("{");
+    ++nEtchNr;
+    WRITE_LINE_ETCH("return nRet;");
+    --nEtchNr;
+    WRITE_LINE_ETCH("}");
+    WRITE_LINE_ETCH("int nUnmarshalled = nRet;");
+    WRITE_LINE_ETCH("for (int i = 0; i < nLen; ++i)");
+    WRITE_LINE_ETCH("{");
+    ++nEtchNr;
+    WRITE_LINE_ETCH("%s tOut;",pszCommonType);
+    WRITE_LINE_ETCH("nRet = Unmarshall(pBuffers, nBuferLength, nUsed + nUnmarshalled, out tOut);");
+    WRITE_LINE_ETCH("if (nRet < MacrosAndDef.SUCCESS)");
+    WRITE_LINE_ETCH("{");
+    ++nEtchNr;
+    WRITE_LINE_ETCH("return nRet;");
+    --nEtchNr;
+    WRITE_LINE_ETCH("}");
+    WRITE_LINE_ETCH("nUnmarshalled += nRet;");
+    WRITE_LINE_ETCH("tValue.Add(tOut);");
+    --nEtchNr;
+    WRITE_LINE_ETCH("}");
+    WRITE_LINE_ETCH("return nUnmarshalled;");
+    --nEtchNr;
+    WRITE_LINE_ETCH("}");
+
+    char *szTypes[4]={"uint","int","ulong","long"};
+    for (int i=0;i<4;++i)
+    {
+        WRITE_LINE_ETCH("static public int Unmarshall(byte[] pBuffers, int nBuferLength, int nUsed, out Dictionary<%s,%s> tValue)",szTypes[i],pszCommonType);
+        WRITE_LINE_ETCH("{");
+        ++nEtchNr;
+        WRITE_LINE_ETCH("tValue = new Dictionary<%s, %s>();",szTypes[i],pszCommonType);
+        WRITE_LINE_ETCH("int nLen = 0;");
+        WRITE_LINE_ETCH("int nRet = TypeUnmarshaller.Unmarshall(pBuffers, nBuferLength, nUsed, out nLen);");
+        WRITE_LINE_ETCH("if (nRet < MacrosAndDef.SUCCESS)");
+        WRITE_LINE_ETCH("{");
+        ++nEtchNr;
+        WRITE_LINE_ETCH("return nRet;");
+        --nEtchNr;
+        WRITE_LINE_ETCH("}");
+        WRITE_LINE_ETCH("int nUnmarshalled = nRet;");
+        WRITE_LINE_ETCH("for (int i = 0; i < nLen; ++i)");
+        WRITE_LINE_ETCH("{");
+        ++nEtchNr;
+        WRITE_LINE_ETCH("%s uKey;",szTypes[i]);
+        WRITE_LINE_ETCH("nRet = TypeUnmarshaller.Unmarshall(pBuffers, nBuferLength, nUsed + nUnmarshalled, out uKey);")
+        WRITE_LINE_ETCH("if (nRet < MacrosAndDef.SUCCESS)");
+        WRITE_LINE_ETCH("{");
+        ++nEtchNr;
+        WRITE_LINE_ETCH("return nRet;");
+        --nEtchNr;
+        WRITE_LINE_ETCH("}");
+        WRITE_LINE_ETCH("%s tOut;",pszCommonType);
+        WRITE_LINE_ETCH("nRet = Unmarshall(pBuffers, nBuferLength, nUsed + nUnmarshalled, out tOut);");
+        WRITE_LINE_ETCH("if (nRet < MacrosAndDef.SUCCESS)");
+        WRITE_LINE_ETCH("{");
+        ++nEtchNr;
+        WRITE_LINE_ETCH("return nRet;");
+        --nEtchNr;
+        WRITE_LINE_ETCH("}");
+        WRITE_LINE_ETCH("nUnmarshalled += nRet;");
+        WRITE_LINE_ETCH("tValue.Add(uKey, tOut);");
+        --nEtchNr;
+        WRITE_LINE_ETCH("}");
+        WRITE_LINE_ETCH("return nUnmarshalled;");
+        --nEtchNr;
+        WRITE_LINE_ETCH("}");
+    }
+    return nUsed;
+}
+
 
 int CBaseElement::ReplaceStr(char *pBuffer,const TChar *pszOrig,const TChar *pNew,char *pszNew)
 {
