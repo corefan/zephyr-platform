@@ -294,7 +294,7 @@ int CBaseElement::WriteCSharpCode(const TChar *pPath)
     {
         szFileName +="/";
     }
-    szFileName += "BaseType.cs";
+    szFileName += "BaseTypeMarshaller.cs";
     FILE *pFile = fopen(szFileName.c_str(),"w");
     int nLength = 2*1024*1024;
     char *pBuff = NULL;
@@ -305,6 +305,41 @@ int CBaseElement::WriteCSharpCode(const TChar *pPath)
     }
     int nUsed = 0;
 
+    char *pBaseTypes[12] = {"byte","sbyte","char","short","ushort","int","uint","long","ulong","float","double","string"};
+    for (int i=0;i<12;++i)
+    {
+        int n = GenerateCommonTypeMarshallerCSharpCode(pBuff+nUsed,pBaseTypes[i],True);
+        nUsed += n;
+    }
+
+    fwrite(pBuff,1,nUsed,pFile);
+    //sprintf_s()
+    fclose (pFile);
+
+    szFileName = pPath;
+    nPathLen = szFileName.size();
+    if (szFileName[nPathLen-1]=='/')
+    {
+    }
+    else
+    {
+        szFileName +="/";
+    }
+    szFileName += "BaseTypeUnMarshaller.cs";
+    pFile = fopen(szFileName.c_str(),"w");
+
+    nUsed = 0;
+    for (int i=0;i<12;++i)
+    {
+        int n = GenerateCommonTypeUnMarshallerCSharpCode(pBuff+nUsed,pBaseTypes[i]);
+        nUsed += n;
+    }
+
+    fwrite(pBuff,1,nUsed,pFile);
+    //sprintf_s()
+    fclose (pFile);
+    delete [] pBuff;
+    pBuff = NULL;
     return nUsed;
 }
 
@@ -318,7 +353,7 @@ int CBaseElement::GenerateCommonTypeMarshallerCSharpCode(TChar *pBuff,const TCha
     WRITE_LINE_ETCH("{");
     ++nEtchNr;
     const TChar *pNeedRef="";
-    if (bBasicType)
+    if (!bBasicType)
     {
         pNeedRef = "ref ";
     }

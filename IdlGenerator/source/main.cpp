@@ -34,7 +34,6 @@ int main(int argc,char *pArgv[])
         strncpy_s(szPath,pArgv[2],sizeof(szPath));
     }
     CHeaderFile file;
-    int t = TEST_CONST - 1;
     INIT_STATIC_POOL(CBaseElement,64);
     INIT_STATIC_POOL(CFullTypeDef,128);
     INIT_STATIC_POOL(CHeaderFile,16);
@@ -45,5 +44,5 @@ int main(int argc,char *pArgv[])
     INIT_STATIC_POOL(CStruct,16);
     CBaseElement::InitTypeMap();
     file.GeneratorIdl(szFileName,szPath);
-    return t;
+    return 1;
 }

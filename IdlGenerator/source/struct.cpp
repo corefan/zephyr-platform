@@ -1551,7 +1551,7 @@ TInt32 CStruct::GenerateCSharpSkeleton(const char*pPath)
 
 
     
-    n = GenerateCommonTypeMarshallerCSharpCode(pBuff+nUsed,m_szName.c_str(),True);
+    n = GenerateCommonTypeMarshallerCSharpCode(pBuff+nUsed,m_szName.c_str(),false);
     nUsed += n;
     nLength -= n;
 
