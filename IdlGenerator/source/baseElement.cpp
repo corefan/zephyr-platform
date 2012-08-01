@@ -9,6 +9,7 @@ IMPLEMENT_STATIC_CLASS_POOL(CBaseElement)
 
 
 TInt32 CBaseElement::sm_nInterfaceIdBegin = 0;
+TInt32 CBaseElement::sm_nInterfaceNr = 0;
 
 TplMap<TplPtPack<CBaseElement,string >,string> *CBaseElement::sm_pBaseElements = NULL;
 TplMap<TplPtPack<CBaseElement,string >,string> *CBaseElement::sm_pBaseKeyWords = NULL;

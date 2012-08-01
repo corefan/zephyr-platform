@@ -1439,6 +1439,26 @@ TInt32 CInterfaceElement::GenerateCSharpCode(const char *pPath)
     }
     WRITE_LINE("}\n");
 
+    int nEtchNr = 0;
+    WRITE_LINE("enum %sMethodId",m_szName.c_str());
+    WRITE_LINE("{");
+
+    TUInt32 nMethodBegin = 200 * CBaseElement::sm_nInterfaceIdBegin + 1000 * sm_nInterfaceNr;
+    WRITE_LINE("    %sMethodIdBegin=%u,",m_szName.c_str(),nMethodBegin);;
+    for (int i=0;i<m_tChilds.size();++i)
+    {
+        CBaseElement *p = m_tChilds[i].m_pPt;
+        if (raw_method_type == p->m_nElmentType)
+        {
+            CMethod *pMethod = (CMethod*)p;
+            WRITE_LINE("    %s%sMethodId,",m_szName.c_str(),pMethod->m_szName.c_str());
+        }
+    }
+    WRITE_LINE("    %sMethodIdEnd,",m_szName.c_str());;
+
+    WRITE_LINE("}");
+    
+
     nUsed = Replace4CSharp(pBuff);
 
     fwrite(pBuff,1,nUsed,pFile);
@@ -1496,6 +1516,7 @@ TInt32 CInterfaceElement::GenerateCSharpSkeleton(const char*pPath)
     WRITE_LINE_ETCH("}");
     WRITE_LINE_ETCH("public override int HandleMsg(CMessage pMsg)");
     WRITE_LINE_ETCH("{");
+    ++nEtchNr;
     WRITE_LINE_ETCH("pMsg.UnmarshallHeader();");
     WRITE_LINE_ETCH("switch (pMsg.m_uMsgId)");
     WRITE_LINE_ETCH("{");
@@ -1506,7 +1527,7 @@ TInt32 CInterfaceElement::GenerateCSharpSkeleton(const char*pPath)
         if (raw_method_type == p->m_nElmentType)
         {
             CMethod *pMethod = (CMethod*)p;
-            WRITE_LINE_ETCH("case %sMethodId.%s%sMethodId:",m_szName.c_str(),m_szName.c_str(),pMethod->m_szName.c_str());
+            WRITE_LINE_ETCH("case (uint)%sMethodId.%s%sMethodId:",m_szName.c_str(),m_szName.c_str(),pMethod->m_szName.c_str());
             ++nEtchNr;
             WRITE_LINE_ETCH("{");
             ++nEtchNr;
@@ -1517,6 +1538,8 @@ TInt32 CInterfaceElement::GenerateCSharpSkeleton(const char*pPath)
             --nEtchNr;
         }
     }
+    --nEtchNr;
+    WRITE_LINE_ETCH("}");
     WRITE_LINE_ETCH("return MacrosAndDef.MSG_NOT_HANDLED;");
     --nEtchNr;
     WRITE_LINE_ETCH("}");
@@ -1531,6 +1554,8 @@ TInt32 CInterfaceElement::GenerateCSharpSkeleton(const char*pPath)
             nLength -= n;
         }
     }
+    --nEtchNr;
+    WRITE_LINE_ETCH("}");
     nUsed = Replace4CSharp(pBuff);
 
 

@@ -147,6 +147,8 @@ TInt32 CHeaderFile::GeneratorIdl(const char *pFileName,const char *pPath)
     std::cin>>cYOrN;
     if (('Y' == cYOrN)||('y' == cYOrN))
     {
+        printf("Input Interface Nr:");
+        std::cin>>CBaseElement::sm_nInterfaceNr;
         GenerateCSharpCode(pPath);
     }
     return SUCCESS;

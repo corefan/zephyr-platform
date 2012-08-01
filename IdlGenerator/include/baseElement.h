@@ -177,6 +177,7 @@ public:
     static std::map<string,string> sm_tCType2CSharp;
 
     static TInt32 sm_nInterfaceIdBegin;
+    static TInt32 sm_nInterfaceNr;
     string m_szName; //
     EnRawTypes     m_nElmentType;
     CBaseElement *m_pFather;
