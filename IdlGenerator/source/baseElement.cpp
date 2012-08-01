@@ -613,9 +613,7 @@ int CBaseElement::Replace4CSharp(char *pBuff)
 
 void CBaseElement::InitTypeMap()
 {
-    //ADD_TYPE_MAP(TChar,char);
-    AddCSharpType("TChar","char");
-    AddCSharpType("TChar*","string");
+    ADD_TYPE_MAP(TChar,char);
     ADD_TYPE_MAP(TUInt8,byte);
     ADD_TYPE_MAP(TInt8,sbyte);
     ADD_TYPE_MAP(TInt16,short);
@@ -627,7 +625,7 @@ void CBaseElement::InitTypeMap()
     ADD_TYPE_MAP(TFloat,float);
     ADD_TYPE_MAP(TDouble,double);
     ADD_TYPE_MAP(double,double);
-    //ADD_TYPE_MAP(char,char);
+    ADD_TYPE_MAP(char,char);
     ADD_TYPE_MAP(int,int);
     ADD_TYPE_MAP(unsigned int,uin);
     ADD_TYPE_MAP(short,short);
