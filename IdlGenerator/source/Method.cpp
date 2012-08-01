@@ -719,7 +719,7 @@ TInt32 CMethod::GenerateCSharpStubMethodCode(char *pBuff,const char *pIfName,int
             }
             else
             {
-                WRITE_CODE("%s.GetLength(ref _%s)",pPar->m_pFullType->GetCSharpBaseTypeCode()->c_str(),pPar->m_szName.c_str());
+                WRITE_CODE("%s.GetLength(_%s)",pPar->m_pFullType->GetCSharpBaseTypeCode()->c_str(),pPar->m_szName.c_str());
             }
         }
         //return
@@ -758,7 +758,7 @@ TInt32 CMethod::GenerateCSharpStubMethodCode(char *pBuff,const char *pIfName,int
             }
             else
             {
-                WRITE_LINE("nLen = %s.Marshall(pMsg.m_pBuffers, nBufferLen, nUsed,ref _%s)",pPar->m_pFullType->GetCSharpBaseTypeCode()->c_str(),pPar->m_szName.c_str());
+                WRITE_LINE("nLen = %s.Marshall(pMsg.m_pBuffers, nBufferLen, nUsed, _%s)",pPar->m_pFullType->GetCSharpBaseTypeCode()->c_str(),pPar->m_szName.c_str());
             }
         }
         WRITE_LINE_ETCH("if (nLen < MacrosAndDef.SUCCESS))");

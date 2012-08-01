@@ -308,7 +308,7 @@ int CBaseElement::WriteCSharpCode(const TChar *pPath)
     char *pBaseTypes[12] = {"byte","sbyte","char","short","ushort","int","uint","long","ulong","float","double","string"};
     for (int i=0;i<12;++i)
     {
-        int n = GenerateCommonTypeMarshallerCSharpCode(pBuff+nUsed,pBaseTypes[i],True);
+        int n = GenerateCommonTypeMarshallerCSharpCode(pBuff+nUsed,pBaseTypes[i]);
         nUsed += n;
     }
 
@@ -343,7 +343,7 @@ int CBaseElement::WriteCSharpCode(const TChar *pPath)
     return nUsed;
 }
 
-int CBaseElement::GenerateCommonTypeMarshallerCSharpCode(TChar *pBuff,const TChar *pszCommonType,TBOOL bBasicType)
+int CBaseElement::GenerateCommonTypeMarshallerCSharpCode(TChar *pBuff,const TChar *pszCommonType)
 {
     int nLength = 2*1024*1024;
     int nUsed = 0;
@@ -352,12 +352,7 @@ int CBaseElement::GenerateCommonTypeMarshallerCSharpCode(TChar *pBuff,const TCha
     WRITE_LINE_ETCH("static public int Marshall(byte[] pBuffers, int nBuferLength, int nUsed, List<%s> tValue)",pszCommonType);
     WRITE_LINE_ETCH("{");
     ++nEtchNr;
-    const TChar *pNeedRef="";
-//     if (!bBasicType)
-//     {
-//         pNeedRef = "ref ";
-//     }
-    WRITE_LINE_ETCH("if ((nUsed + GetLength(%stValue)) > nBuferLength)",pNeedRef);
+    WRITE_LINE_ETCH("if ((nUsed + GetLength(tValue)) > nBuferLength)");
     WRITE_LINE_ETCH("{");
     ++nEtchNr;
     WRITE_LINE_ETCH("return MacrosAndDef.NOT_ENOUGH_BUFFER;");
@@ -374,7 +369,7 @@ int CBaseElement::GenerateCommonTypeMarshallerCSharpCode(TChar *pBuff,const TCha
     WRITE_LINE_ETCH("foreach(%s item in tValue)",pszCommonType);
     WRITE_LINE_ETCH("{");
     ++nEtchNr;
-    WRITE_LINE_ETCH("nRet = Marshall(pBuffers, nBuferLength, nUsed+nMarshalled,%s item);",pNeedRef);
+    WRITE_LINE_ETCH("nRet = Marshall(pBuffers, nBuferLength, nUsed+nMarshalled, item);");
     WRITE_LINE_ETCH("if (nRet < MacrosAndDef.SUCCESS)");
     WRITE_LINE_ETCH("{");
     ++nEtchNr;
@@ -395,7 +390,7 @@ int CBaseElement::GenerateCommonTypeMarshallerCSharpCode(TChar *pBuff,const TCha
     WRITE_LINE_ETCH("foreach (%s item in tValue)",pszCommonType);
     WRITE_LINE_ETCH("{");
     ++nEtchNr;
-    WRITE_LINE_ETCH("nLen += GetLength(%sitem);",pNeedRef);
+    WRITE_LINE_ETCH("nLen += GetLength(item);");
     --nEtchNr;
     WRITE_LINE_ETCH("}");
     WRITE_LINE_ETCH("return nLen;");
@@ -433,7 +428,7 @@ int CBaseElement::GenerateCommonTypeMarshallerCSharpCode(TChar *pBuff,const TCha
         --nEtchNr;
         WRITE_LINE_ETCH("}");
         WRITE_LINE_ETCH("nMarshalled += nRet;");
-        WRITE_LINE_ETCH("nRet = Marshall(pBuffers, nBuferLength, nUsed + nMarshalled,%s item.Value);",pNeedRef);
+        WRITE_LINE_ETCH("nRet = Marshall(pBuffers, nBuferLength, nUsed + nMarshalled, item.Value);");
         WRITE_LINE_ETCH("if (nRet < MacrosAndDef.SUCCESS)");
         WRITE_LINE_ETCH("{");
         ++nEtchNr;
@@ -455,7 +450,7 @@ int CBaseElement::GenerateCommonTypeMarshallerCSharpCode(TChar *pBuff,const TCha
         WRITE_LINE_ETCH("{");
         ++nEtchNr;
         WRITE_LINE_ETCH("nLen += TypeMarshaller.GetLength(item.Key);");
-        WRITE_LINE_ETCH("nLen += GetLength(%sitem.Value);",pNeedRef);
+        WRITE_LINE_ETCH("nLen += GetLength(item.Value);");
         --nEtchNr;
         WRITE_LINE_ETCH("}");
         WRITE_LINE_ETCH("return nLen;");

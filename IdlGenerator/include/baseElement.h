@@ -211,7 +211,7 @@ public:
         m_pFather = NULL;
     }
     static int WriteCSharpCode(const TChar *pPath);
-    static int GenerateCommonTypeMarshallerCSharpCode(TChar *pBuffer,const TChar *pszCommonType,TBOOL bBasicType);
+    static int GenerateCommonTypeMarshallerCSharpCode(TChar *pBuffer,const TChar *pszCommonType);
     static int GenerateCommonTypeUnMarshallerCSharpCode(TChar *pBuffer,const TChar *pszCommonType);
     virtual ~CBaseElement()
     {
