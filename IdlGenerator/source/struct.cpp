@@ -1165,7 +1165,7 @@ TInt32 CStruct::GenerateCSharpSkeleton(const char*pPath)
     WRITE_LINE("using System.Collections.Generic;");
     WRITE_LINE("using System;");
 
-    WRITE_LINE("public struct %s",m_szName.c_str());
+    WRITE_LINE("public class %s",m_szName.c_str());
     WRITE_LINE("{");
     int nEtchNr=1;
     for(int i=0;i<m_tChilds.size();++i)
@@ -1252,7 +1252,7 @@ TInt32 CStruct::GenerateCSharpSkeleton(const char*pPath)
                     char c = 'i'+j;
                     
                     const TChar *pszNr = pPar->m_pFullType->GetDimension(j)->c_str();
-                    if (('0'<pszNr[0])&&(pszNr[0]<'9'))
+                    if (('0'<=pszNr[0])&&(pszNr[0]<='9'))
                     {
                         WRITE_LINE_ETCH("for(int %c=0;%c<%s;++%c)",c,c,pPar->m_pFullType->GetDimension(j)->c_str(),c);
                     }
@@ -1264,7 +1264,7 @@ TInt32 CStruct::GenerateCSharpSkeleton(const char*pPath)
                     WRITE_LINE_ETCH("{");
                     ++nEtchNr;
                 }
-                WRITE_CODE_ETCH("%s[",pszType);
+                WRITE_CODE_ETCH("%s[",pPar->m_szName.c_str());
 
                 for (int j=0;j<nDimension;++j)
                 {
@@ -1296,7 +1296,7 @@ TInt32 CStruct::GenerateCSharpSkeleton(const char*pPath)
     WRITE_LINE_ETCH("public static int Unmarshall(byte[] pBuffers,int nBufferLen,int nUsed, out %s rValue)",m_szName.c_str());
     WRITE_LINE_ETCH("{");
     ++nEtchNr;
-    WRITE_LINE_ETCH("rValue = new %s()",m_szName.c_str());
+    WRITE_LINE_ETCH("rValue = new %s();",m_szName.c_str());
     WRITE_LINE_ETCH("int nLen=0;");
     for(int i=0;i<m_tChilds.size();++i)
     {
@@ -1312,8 +1312,8 @@ TInt32 CStruct::GenerateCSharpSkeleton(const char*pPath)
                 for (int j=0;j<nDimension;++j)
                 {
                     char c = 'i'+j;
-                    const TChar *pszNr = pPar->m_pFullType->GetDimension(0)->c_str();
-                    if (('0'<pszNr[0])&&(pszNr[0]<'9'))
+                    const TChar *pszNr = pPar->m_pFullType->GetDimension(j)->c_str();
+                    if (('0'<=pszNr[0])&&(pszNr[0]<='9'))
                     {
                         WRITE_LINE_ETCH("for(int %c=0;%c<%s;++%c)",c,c,pPar->m_pFullType->GetDimension(j)->c_str(),c);
                     }
@@ -1384,11 +1384,11 @@ TInt32 CStruct::GenerateCSharpSkeleton(const char*pPath)
         }
         //return
     }
-    WRITE_LINE_ETCH("return nUsed");
+    WRITE_LINE_ETCH("return nUsed;");
     --nEtchNr;
     WRITE_LINE_ETCH("}");
 
-    WRITE_LINE_ETCH("public static int GetLength(ref %s rValue)",m_szName.c_str());
+    WRITE_LINE_ETCH("public static int GetLength(%s rValue)",m_szName.c_str());
     WRITE_LINE_ETCH("{");
     ++nEtchNr;
 
@@ -1413,7 +1413,7 @@ TInt32 CStruct::GenerateCSharpSkeleton(const char*pPath)
                 }
                 else
                 {
-                    WRITE_CODE("%s.GetLength(ref rValue.%s[0",pPar->m_pFullType->GetCSharpBaseTypeCode()->c_str(),pPar->m_szName.c_str());
+                    WRITE_CODE("%s.GetLength(rValue.%s[0",pPar->m_pFullType->GetCSharpBaseTypeCode()->c_str(),pPar->m_szName.c_str());
                 }
                 for (int j=1;j<pPar->m_pFullType->GetDimension();++j)
                 {
@@ -1421,7 +1421,7 @@ TInt32 CStruct::GenerateCSharpSkeleton(const char*pPath)
                 }
 
                 const TChar *pszNr = pPar->m_pFullType->GetDimension(0)->c_str();
-                if (('0'<pszNr[0])&&(pszNr[0]<'9'))
+                if (('0'<=pszNr[0])&&(pszNr[0]<='9'))
                 {
                     WRITE_CODE("])*%s",pszNr);
                 }
@@ -1445,7 +1445,14 @@ TInt32 CStruct::GenerateCSharpSkeleton(const char*pPath)
             }
             else
             {
-                WRITE_CODE("GetLength(rValue.%s)",pPar->m_szName.c_str());
+                if (pCsType)
+                {
+                    WRITE_CODE("TypeMarshaller.GetLength(rValue.%s)",pPar->m_szName.c_str());
+                }
+                else
+                {
+                    WRITE_CODE("%s.GetLength(rValue.%s)",pPar->m_pFullType->GetCSharpBaseTypeCode()->c_str(),pPar->m_szName.c_str());
+                }
             }
         }
     }
@@ -1453,17 +1460,18 @@ TInt32 CStruct::GenerateCSharpSkeleton(const char*pPath)
     --nEtchNr;
     WRITE_LINE_ETCH("}");
 
-    WRITE_LINE_ETCH("public static int Marshall(byte[] pBuffers,int nBufferLen,int nUsed,ref %s rValue)",m_szName.c_str());
+    WRITE_LINE_ETCH("public static int Marshall(byte[] pBuffers,int nBufferLen,int nUsed, %s rValue)",m_szName.c_str());
     WRITE_LINE_ETCH("{");
     ++nEtchNr;
 
+    WRITE_LINE_ETCH("int nLen=0;");
+    WRITE_LINE_ETCH("int n;");
     for(int i=0;i<m_tChilds.size();++i)
     {
         //call
         CBaseElement *p = m_tChilds[i].m_pPt;
         if (raw_parameter_type == p->m_nElmentType)
         {
-            WRITE_LINE_ETCH("int nLen=0;");
             CParamerter *pPar = (CParamerter*)p;
             const string *pCsType =  GetCSharpType(pPar->m_pFullType->GetCSharpBaseTypeCode()->c_str());
             if (pPar->m_pFullType->GetDimension())
@@ -1473,7 +1481,7 @@ TInt32 CStruct::GenerateCSharpSkeleton(const char*pPath)
                 {
                     char c = 'i'+j;
                     const TChar *pszNr = pPar->m_pFullType->GetDimension(j)->c_str();
-                    if (('0'<pszNr[0])&&(pszNr[0]<'9'))
+                    if (('0'<=pszNr[0])&&(pszNr[0]<='9'))
                     {
                         WRITE_LINE_ETCH("for(int %c=0;%c<%s;++%c)",c,c,pPar->m_pFullType->GetDimension(j)->c_str(),c);
                     }
@@ -1487,11 +1495,11 @@ TInt32 CStruct::GenerateCSharpSkeleton(const char*pPath)
 
                 if (pCsType)
                 {
-                    WRITE_CODE_ETCH("nLen = TypeMarshaller.Marshall(pBuffers, nBufferLen, nUsed, rValue.%s[",pPar->m_szName.c_str());
+                    WRITE_CODE_ETCH("n = TypeMarshaller.Marshall(pBuffers, nBufferLen, nUsed, rValue.%s[",pPar->m_szName.c_str());
                 }
                 else
                 {
-                    WRITE_CODE_ETCH("nLen = %s.Marshall(pBuffers, nBufferLen, nUsed,ref rValue.%s[",pPar->m_pFullType->GetCSharpTypeCode()->c_str(),pPar->m_szName.c_str());
+                    WRITE_CODE_ETCH("n = %s.Marshall(pBuffers, nBufferLen, nUsed, rValue.%s[",pPar->m_pFullType->GetCSharpTypeCode()->c_str(),pPar->m_szName.c_str());
                 }
 
                 for (int j=0;j<nDimension;++j)
@@ -1509,13 +1517,14 @@ TInt32 CStruct::GenerateCSharpSkeleton(const char*pPath)
 
                 WRITE_LINE("]);")
 
-                WRITE_LINE_ETCH("if (nLen < MacrosAndDef.SUCCESS)");
+                WRITE_LINE_ETCH("if (n < MacrosAndDef.SUCCESS)");
                 WRITE_LINE_ETCH("{");
                 ++nEtchNr;
                 WRITE_LINE_ETCH("return MacrosAndDef.OUT_OF_MEM;");
                 --nEtchNr;
                 WRITE_LINE_ETCH("}");
-                WRITE_LINE_ETCH("nUsed += nLen;");
+                WRITE_LINE_ETCH("nLen += n;");
+                WRITE_LINE_ETCH("nUsed += n;");
 
                 for (int j=nDimension;j>0;--j)
                 {
@@ -1527,24 +1536,25 @@ TInt32 CStruct::GenerateCSharpSkeleton(const char*pPath)
             {
                 if (pCsType)
                 {
-                    WRITE_LINE_ETCH("nLen = TypeMarshaller.Marshall(pBuffers, nBufferLen, nUsed, rValue.%s);",pPar->m_szName.c_str());
+                    WRITE_LINE_ETCH("n = TypeMarshaller.Marshall(pBuffers, nBufferLen, nUsed, rValue.%s);",pPar->m_szName.c_str());
                 }
                 else
                 {
-                    WRITE_LINE_ETCH("nLen = %s.Marshall(pBuffers, nBufferLen, nUsed, ref rValue.%s);",pPar->m_pFullType->GetCSharpTypeCode()->c_str(),pPar->m_szName.c_str());
+                    WRITE_LINE_ETCH("n = %s.Marshall(pBuffers, nBufferLen, nUsed, rValue.%s);",pPar->m_pFullType->GetCSharpTypeCode()->c_str(),pPar->m_szName.c_str());
                 }
-                WRITE_LINE_ETCH("if (nLen < MacrosAndDef.SUCCESS)");
+                WRITE_LINE_ETCH("if (n < MacrosAndDef.SUCCESS)");
                 WRITE_LINE_ETCH("{");
                 ++nEtchNr;
                 WRITE_LINE_ETCH("return MacrosAndDef.OUT_OF_MEM;");
                 --nEtchNr;
                 WRITE_LINE_ETCH("}");
-                WRITE_LINE_ETCH("nUsed += nLen;");
+                WRITE_LINE_ETCH("nLen += n;");
+                WRITE_LINE_ETCH("nUsed += n;");
             }
         }
         //return
     }
-    WRITE_LINE_ETCH("return nUsed");
+    WRITE_LINE_ETCH("return nUsed;");
     --nEtchNr;
     WRITE_LINE_ETCH("}");
 

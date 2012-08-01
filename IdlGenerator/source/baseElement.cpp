@@ -353,10 +353,10 @@ int CBaseElement::GenerateCommonTypeMarshallerCSharpCode(TChar *pBuff,const TCha
     WRITE_LINE_ETCH("{");
     ++nEtchNr;
     const TChar *pNeedRef="";
-    if (!bBasicType)
-    {
-        pNeedRef = "ref ";
-    }
+//     if (!bBasicType)
+//     {
+//         pNeedRef = "ref ";
+//     }
     WRITE_LINE_ETCH("if ((nUsed + GetLength(%stValue)) > nBuferLength)",pNeedRef);
     WRITE_LINE_ETCH("{");
     ++nEtchNr;
