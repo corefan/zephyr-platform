@@ -180,7 +180,7 @@ int main(int argc, char* argv[])
             }
             if (!bSuccessfull)
             {
-                printf("Load DLL:%s failed!\n\r",tRead.m_tCfg.m_pOrbs[i].m_pServices->m_pszServiceDllName);
+                printf("Load DLL:%s failed!\n\r",tRead.m_tCfg.m_pOrbs[i].m_pServices->m_pszServiceDllName.c_str());
             }
         }
     }
@@ -199,7 +199,7 @@ int main(int argc, char* argv[])
                     printf("Init Service %s Failed!\n\r",tRead.m_tCfg.m_pOrbs[i].m_pServices[j].m_pszServiceDllName.c_str());
                     return nRet;
                 }
-                IfSkeleton *pSkeleton = pOrb[i].RegiterService(pService,pService->GetServiceId());
+                IfSkeleton *pSkeleton = pOrb[i].RegiterService(pService,pOrb[i].GetServiceId());
                 if (pSkeleton)
                 {
                     pService->SetSkeleton(pSkeleton);

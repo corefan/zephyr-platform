@@ -65,7 +65,7 @@ typedef unsigned long ulong;
 
 #ifdef WIN32
 
-#include "mysql.h"
+#include <mysql.h>
 
 #else
 

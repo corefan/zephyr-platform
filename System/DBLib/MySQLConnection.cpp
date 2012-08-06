@@ -17,7 +17,7 @@ namespace DBLib
 
 IMPLEMENT_CLASS_INFO(CMySQLConnection,IDBConnection);
 
-CMySQLConnection::CMySQLConnection(void)
+CMySQLConnection::CMySQLConnection(void) 
 {
 	m_MySQLHandle=NULL;
 	m_pDatabase=NULL;

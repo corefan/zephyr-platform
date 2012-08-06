@@ -25,7 +25,7 @@ class CAuthenticateService : public CService,
 {
 private:
     TplMap<CDBAuthenticateTrans,CDoid> m_tUsingMaps;
-    CPool<TplNode<CDBAuthenticateTrans,CDoid> > m_tTransPool;
+    CPool<TplNode<CDBAuthenticateTrans ,CDoid> > m_tTransPool;
 
     //再数据库验证完毕之后，放入这个队列，只有等全部的后台session创建完毕后，再把他删掉,.
     //std::list<CDBAuthenticateTrans*> m_tInitingSessionLists;
@@ -47,7 +47,7 @@ private:
 public:
     CAuthenticateService();
     ~CAuthenticateService();
-    virtual TInt32      OnInit();
+    virtual TInt32      OnInited();
     //结束是回调.
     virtual void      OnFinal();
     virtual TInt32  OnRoutine(TUInt32 nRunCnt);

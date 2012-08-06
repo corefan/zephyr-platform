@@ -74,6 +74,7 @@ public:
 
     virtual IfCommunicator *GetCommunicator();
 
+    TUInt16 GetServiceId();
 public:
     virtual TInt32 Begin(TInt32 threadId)
     {

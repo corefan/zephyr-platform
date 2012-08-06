@@ -93,6 +93,20 @@ void    COrb::UnRegisterObj(IfSkeleton *pIfSkel)
     m_tSkeletonPool.ReleaseMem(pSk);
 }
 
+
+TUInt16 COrb::GetServiceId()
+{
+    for (TInt16 i=m_nLocalServiceId;i<m_nLocalServiceIdEnd;++i)
+    {
+        if (NULL == m_ppServiceSkeleton[i-m_nLocalServiceId])
+        {
+            return i;
+        }
+    }
+    return 0xFF;
+}
+
+
 TInt32 COrb::Init(IfCommunicator *pIfCom,CDoid *pDoidBegin,TInt32 nSkeletonNr,IfLogger *pLogger)
 {
     m_pClock = pIfCom->GetClock();

@@ -4,6 +4,9 @@
 #include "../include/AuthenticateLogger.h"
 #include "../../Interface/include/IfAuthRespStub.h"
 
+
+#pragma  comment(lib,"libmysql.lib")
+
 namespace Zephyr
 {
 
@@ -124,11 +127,13 @@ TInt32 ReleaseService(CService* pService)
 }
 
 //在初始化的时候会被调.
-TInt32 CAuthenticateService::OnInit()
+TInt32 CAuthenticateService::OnInited()
 {
     //m_pDbMgr = GetMysqlWorkThreadMgr()
     CDBConfig tDBConfig; 
-    if (tDBConfig.ReadConfig("DBConfig.ini") < 0)
+    TChar szPathFile[128];
+    sprintf(szPathFile,"%d/DBConfig.ini",GetMyDoid()->m_virtualIp);
+    if (tDBConfig.ReadConfig(szPathFile) < 0)
     {
         return FAIL;
     }
