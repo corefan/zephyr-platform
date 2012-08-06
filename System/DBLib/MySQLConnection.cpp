@@ -2,11 +2,11 @@
 
 #ifdef WIN32
 
-#include "MySQL\include\mysql.h"
+#include "mysql.h"
 
 #else
 
-#include <mysql/mysql.h>
+#include <mysql.h>
 
 #endif
 #include "MySQLRecordSet.h"

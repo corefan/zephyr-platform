@@ -1,0 +1,1 @@
+Add U own mysql headerfile and lib path in the project settings
