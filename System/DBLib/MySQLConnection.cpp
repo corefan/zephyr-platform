@@ -68,7 +68,7 @@ int CMySQLConnection::Connect(LPCTSTR ConnectStr)
 		return DBERR_MYSQL_MYSQLINITFAIL;
 	//mysql_options(m_MySQLHandle,MYSQL_SET_CHARSET_NAME,"gb2312");
 	CSettingFile StrAnalyzer;
-	StrAnalyzer.Load(ConnectStr,';',0);
+	StrAnalyzer.Load(ConnectStr,',',0);
 	const char * Host=StrAnalyzer.GetString(NULL,"Server","");
 	const char * User=StrAnalyzer.GetString(NULL,"UID","");
 	const char * Password=StrAnalyzer.GetString(NULL,"PWD","");
@@ -85,8 +85,7 @@ int CMySQLConnection::Connect(LPCTSTR ConnectStr)
 	int Port=StrAnalyzer.GetInteger(NULL,"Port",3306);
 	unsigned int Flags=FetchConnectFlags(FlagsStr);
 
-	if(mysql_real_connect(m_MySQLHandle,Host,User,Password,DB,Port,UnixSocket,
-		Flags)==NULL)
+	if(mysql_real_connect(m_MySQLHandle,Host,User,Password,DB,Port,UnixSocket,Flags)==NULL)
 	{
 		ProcessErrorMsg("¡¨Ω” ß∞‹\r\n");
 		return DBERR_MYSQL_CONNECTFAIL;

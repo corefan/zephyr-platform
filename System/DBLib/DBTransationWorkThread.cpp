@@ -17,7 +17,6 @@ CDBTransationWorkThread::CDBTransationWorkThread(CDBTransationManager * pManager
 
 CDBTransationWorkThread::~CDBTransationWorkThread(void)
 {
-
 	Destory();
 }
 
@@ -57,9 +56,13 @@ bool CDBTransationWorkThread::Init(IDBConnection * pConnection,LPCTSTR ConnectSt
 bool CDBTransationWorkThread::AddTransaction(CDBTransaction * pDBTansaction)
 {
 	if(pDBTansaction)
+    {
 		return (m_TransQueue.PushBack(pDBTansaction));
+    }
 	else
+    {
 		return false;
+    }
 }
 
 CDBTransaction * CDBTransationWorkThread::PopFinishTransaction()
@@ -79,7 +82,7 @@ void CDBTransationWorkThread::SafeTerminate(int timeout)
     m_nRun = 0;
     unsigned int uTimeNow = time(0);
     CEasyTimer timer;
-    timer.SetTimeOut(uTimeNow);
+    timer.SetTimeOut(uTimeNow+5);
     while(0 == m_nRun)
     {
         SleepT(15);
@@ -98,7 +101,7 @@ int CDBTransationWorkThread::Start()
 {
     m_nRun = 1;
 #ifdef _WIN32
-    return _beginthread(CDBTransationWorkThread::Run,(512*1024),(void*)this);
+    _beginthread(CDBTransationWorkThread::Run,(512*1024),(void*)this);
 #else
 
 #endif

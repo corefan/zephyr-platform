@@ -58,12 +58,9 @@ bool CDBTransationManager::Init(IDatabase * pDatabase,LPCTSTR szConnectStr,IfLog
 			return false;
 		}
 		m_WorkThreads.push_back(pThread);
-
 	}
 
-
 	m_PerformanceCountTimer.SaveTime();
-
 	m_tLogger.WriteLog(0xff,"一共建立了%d个工作线程",ThreadCount);
 
 	return true;

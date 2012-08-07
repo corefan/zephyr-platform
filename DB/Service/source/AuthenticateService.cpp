@@ -142,7 +142,17 @@ TInt32 CAuthenticateService::OnInited()
 
 TInt32 CAuthenticateService::StartService(TChar *pszLoggerName,TChar *pszConnectStr,TInt32  nThreadCount,TInt32 nQueueSize,TUInt32 uFlag)
 {
-    TInt32 nLoggerIdx = m_pLoggerMgr->AddLogger(pszLoggerName,-1);
+    TChar szDBLoggerName[200];
+    if (NULL == pszLoggerName)
+    {
+        return NULL_POINTER;
+    }
+    if (0 == pszLoggerName[0])
+    {
+        pszConnectStr = "DBLogger.Log";
+    }
+    sprintf(szDBLoggerName,"DBLib_%s",pszLoggerName);
+    TInt32 nLoggerIdx = m_pLoggerMgr->AddLogger(szDBLoggerName,-1);
     if (nLoggerIdx < SUCCESS)
     {
         return nLoggerIdx;
@@ -165,6 +175,12 @@ TInt32 CAuthenticateService::StartService(TChar *pszLoggerName,TChar *pszConnect
         return nRet;
     }
     m_tUsingMaps.Init(&m_tTransPool);
+    nLoggerIdx =  m_pLoggerMgr->AddLogger(pszLoggerName,-1);
+    if (nLoggerIdx < SUCCESS)
+    {
+        return nLoggerIdx;
+    }
+    m_pLogger = m_pLoggerMgr->GetLogger(nLoggerIdx);
     //其實只能是40ms
     return m_pIfOrb->RegisterRun(GetSkeleton(),40);
 }
