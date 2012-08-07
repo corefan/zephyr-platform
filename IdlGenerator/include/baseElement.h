@@ -234,7 +234,7 @@ public:
     virtual TInt32 GenerateStub(const char *pPath);
     virtual TInt32 GenerateMethodId(const char *pPath);
 
-    virtual TInt32 GenerateCSharpCode(const char *pPath);
+    virtual TInt32 GenerateCSharpCode(const char *pPath,int nChoice);
 
     TInt32 IgnorType(char **ppElements,EnType *pTypes,int nProcess2,int nTotalEles,EnType eType);
     TInt32 IgnorTypes(char **ppElements,EnType *pTypes,int nProcess2,int nTotalEles,int nrOfType,EnType eType[]);

@@ -49,7 +49,7 @@ public:
     virtual TInt32 GenerateStub(const char *pPath);
     virtual TInt32 GenerateMethodId(const char *pPath);
 
-    virtual TInt32 GenerateCSharpCode(const char *pPath);
+    virtual TInt32 GenerateCSharpCode(const char *pPath,int nChoice);
 
     //void OnError(int nProcess2);
     EnState GetState(char *pAlphabets);

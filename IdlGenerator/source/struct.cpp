@@ -1126,14 +1126,21 @@ int CStruct::HandleAStatement(char **ppElements,EnType *pTypes,int &nProcess2,in
     }
 }
 
-TInt32 CStruct::GenerateCSharpCode(const char *pPath)
+TInt32 CStruct::GenerateCSharpCode(const char *pPath,int nChoice)
 {
-    int nRet = GenerateCSharpSkeleton(pPath);
-    if (nRet < SUCCESS)
+    int nRet=0;
+    if (nChoice & 0x01)
     {
-        return nRet;
+        nRet= GenerateCSharpSkeleton(pPath);
+        if (nRet < SUCCESS)
+        {
+            return nRet;
+        }
     }
-    nRet = GenerateCSharpStub(pPath);
+    if (nChoice & 0x02)
+    {
+        nRet = GenerateCSharpStub(pPath);
+    }
     return  nRet;
 }
 

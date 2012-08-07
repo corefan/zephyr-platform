@@ -142,14 +142,39 @@ TInt32 CHeaderFile::GeneratorIdl(const char *pFileName,const char *pPath)
     GenerateStub(pPath);
     GenerateSkeleton(pPath);
     GenerateMethodId(pPath);
-    printf("Do U wanna genearte csharp code?(Y/N)");
-    char cYOrN('n');;
-    std::cin>>cYOrN;
-    if (('Y' == cYOrN)||('y' == cYOrN))
+    printf("Do U wanna genearte csharp code?(R)eq/Res(P)/(B)oth");
+    char cChoice('n');;
+    std::cin>>cChoice;
+    //if (('Y' == cChoice)||('y' == cChoice)||('R' == cChoice)||('r' == cChoice)||('P' == cChoice)||('p' == cChoice))
     {
-        printf("Input Interface Nr:");
-        std::cin>>CBaseElement::sm_nInterfaceNr;
-        GenerateCSharpCode(pPath);
+        TInt32 nChoice=0;
+        switch (cChoice)
+        {
+        case 'r':
+        case 'R':
+            {
+                nChoice = 2;
+            }
+            break;
+        case 'p':
+        case 'P':
+            {
+                nChoice = 1;
+            }
+            break;
+        case 'b':
+        case 'B':
+            {
+                nChoice = 3;
+            }
+            break;
+        }
+        if (nChoice)
+        {
+            printf("Input Interface Nr:");
+            std::cin>>CBaseElement::sm_nInterfaceNr;
+            GenerateCSharpCode(pPath,nChoice);
+        }
     }
     return SUCCESS;
 }

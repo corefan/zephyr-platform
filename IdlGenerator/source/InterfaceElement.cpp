@@ -1393,7 +1393,7 @@ TInt32 CInterfaceElement::GetMethodIdStr(char *pBuff,int nLength)
     return nRet;
 }
 
-TInt32 CInterfaceElement::GenerateCSharpCode(const char *pPath)
+TInt32 CInterfaceElement::GenerateCSharpCode(const char *pPath,int nChoice)
 {
     std::string szFileName = pPath;
     int nPathLen = szFileName.size();
@@ -1466,13 +1466,19 @@ TInt32 CInterfaceElement::GenerateCSharpCode(const char *pPath)
     fclose (pFile);
     delete [] pBuff;
     pBuff = NULL;
-
-    int nRet = GenerateCSharpSkeleton(pPath);
-    if (nRet < SUCCESS)
+    int nRet=0;
+    if (nChoice & 0x01)
     {
-        return nRet;
+        nRet = GenerateCSharpSkeleton(pPath);
+        if (nRet < SUCCESS)
+        {
+            return nRet;
+        }
     }
-    nRet = GenerateCSharpStub(pPath);
+    if (nChoice & 0x02)
+    {
+        nRet = GenerateCSharpStub(pPath);
+    }
     return  nRet;
 }
 
