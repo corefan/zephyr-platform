@@ -7,6 +7,7 @@
 #else
 #include<sys/time.h>
 #endif
+#pragma  comment(lib,"Winmm.lib ")
 
 namespace Zephyr 
 {

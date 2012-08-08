@@ -19,7 +19,7 @@ public:
     CSession();
     virtual ~CSession();
     //在创建的时候调用
-    TInt32 Init(CService *pService)
+    void Init(CService *pService)
     {
         m_pService = pService;
     }

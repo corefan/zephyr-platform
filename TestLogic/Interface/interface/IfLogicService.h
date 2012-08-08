@@ -2,7 +2,7 @@
 #define __TEST_LOGIC_IF_LOGIC_SERVICE_H__
 
 #include "Public/include/TypeDef.h"
-
+#include "Public/include/Doid.h"
 namespace test_logic
 {
 

@@ -18,25 +18,23 @@ protected:
    
     TUInt32 m_nServiceId;
 
-
+    void *m_pLock;
 public:
     TUInt32 GetServiceId()
     {
         return m_nServiceId;
     }
-    CService()
-    {
-        m_pClock = NULL;
-        m_pIfOrb = NULL;
-        m_pIfComm = NULL;
-        m_nServiceId = 0;
-    }
+    CService();
+    void LockInterService();
+    void UnlockInterService();
     virtual ~CService();
     TInt32 Init(const CClock *pClock,IfCommunicator *pIfComm,IfOrb *pOrb,CDoid *pDoid);
     TInt32 InitTimer(TInt32 nTimerNr)
     {
         return m_tTimer.Init(nTimerNr);
     }
+
+    virtual TInt32  OnRoutine(TUInt32 nRunCnt);
 
     void UnRegisterSession(CSession *pSession);
 

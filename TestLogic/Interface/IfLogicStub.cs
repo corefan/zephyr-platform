@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using System;
-class IfLogicStub :IfLogic
+class IfLogicStub : IfLogic
 {
     int IfLogic.Test(ulong _uParm1,int _n2)
     {
@@ -21,7 +21,7 @@ class IfLogicStub :IfLogic
             return nLen;
         }
         nUsed += nLen;
-nLen = TypeMarshaller.Marshall(pMsg.m_pBuffers, nBufferLen, nUsed, _n2);
+        nLen = TypeMarshaller.Marshall(pMsg.m_pBuffers, nBufferLen, nUsed, _n2);
         if (nLen < MacrosAndDef.SUCCESS)
         {
             return nLen;

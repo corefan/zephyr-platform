@@ -23,6 +23,9 @@
 
 #define DECALRE_HANDLE_INTERFCE virtual TInt32  OnRecv(CMessageHeader *pMsg);
 
+#define REGISTER_INTERFACE_2_GW(CONNECTION_PLUGIN,IF_NAME) CONNECTION_PLUGIN.RegisterService(GetMyDoid(),IF_NAME##ServiceId,(IF_NAME##ServiceIdBegin),(IF_NAME##ServiceIdEnd),0);
+
+#define REGISTER_INTERFACE_2_GW_WITH_PRIORITY(CONNECTION_PLUGIN,IF_NAME,PRIORITY) CONNECTION_PLUGIN.RegisterService(GetMyDoid(),IF_NAME##ServiceId,(IF_NAME##ServiceIdBegin),(IF_NAME##ServiceIdEnd),PRIORITY);
 
 #define IMPLEMENT_START_HANDLE_INTERFACE(CLASS_NAME) TInt32  CLASS_NAME##::OnRecv(CMessageHeader *pMsg) \
     { \

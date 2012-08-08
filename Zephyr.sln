@@ -140,6 +140,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TestLogic", "TestLogic", "{
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Interface", "TestLogic\Interface\Interface.vcproj", "{E4819DAD-8694-4905-8EC8-EDA113E5D469}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestLogicService", "TestLogic\TestLogicService\TestLogicService.vcproj", "{3FDAA586-3377-4DB5-9BBA-B9F5CDDB325C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -258,6 +260,10 @@ Global
 		{E4819DAD-8694-4905-8EC8-EDA113E5D469}.Debug|Win32.Build.0 = Debug|Win32
 		{E4819DAD-8694-4905-8EC8-EDA113E5D469}.Release|Win32.ActiveCfg = Release|Win32
 		{E4819DAD-8694-4905-8EC8-EDA113E5D469}.Release|Win32.Build.0 = Release|Win32
+		{3FDAA586-3377-4DB5-9BBA-B9F5CDDB325C}.Debug|Win32.ActiveCfg = Debug|Win32
+		{3FDAA586-3377-4DB5-9BBA-B9F5CDDB325C}.Debug|Win32.Build.0 = Debug|Win32
+		{3FDAA586-3377-4DB5-9BBA-B9F5CDDB325C}.Release|Win32.ActiveCfg = Release|Win32
+		{3FDAA586-3377-4DB5-9BBA-B9F5CDDB325C}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -293,5 +299,6 @@ Global
 		{A137B32D-7173-4B1F-80D5-B7047A312C6A} = {06732574-246C-44D9-A146-250105BEA66A}
 		{E38FB79D-565C-45CD-98BC-F1F82BC55EF6} = {06732574-246C-44D9-A146-250105BEA66A}
 		{E4819DAD-8694-4905-8EC8-EDA113E5D469} = {750AD5EB-30A6-43B8-9B15-4E882D6D4DAE}
+		{3FDAA586-3377-4DB5-9BBA-B9F5CDDB325C} = {750AD5EB-30A6-43B8-9B15-4E882D6D4DAE}
 	EndGlobalSection
 EndGlobal

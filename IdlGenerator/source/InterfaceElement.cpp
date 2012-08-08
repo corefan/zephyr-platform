@@ -1052,20 +1052,33 @@ TInt32 CInterfaceElement::GenerateMethodIdFile(const char *pPath,int nInterfaceI
         n = sprintf(pBuff,"#ifndef %s\n#define %s\n#include \"../../include/ServiceIdDef.h\"\n\n#define ",(pBuff+10000),(pBuff+10000));
         nUsed += n;
         nLength -= n;
+       
         n = GetMethodIdStr(pBuff+nUsed,nLength);
         nUsed += n;
         nLength -= n;
+        
         n = sprintf(pBuff+nUsed," ((0x%08X) * 200) \n",nInterfaceId);
         nUsed += n;
         nLength -= n;
+        
+        WRITE_LINE("#define %sServiceId (%s_SERVICE_ID*1000)",m_szName.c_str(),CHeaderFile::sm_szServiceName.c_str())
+        WRITE_CODE("#define %sServiceIdBegin ",m_szName.c_str());
 
         int nMethodNr = 0;
         for (int i=0;i<m_tChilds.size();++i)
         {
+            
             CBaseElement *pBase = m_tChilds[i].m_pPt;
             if (raw_method_type == pBase->m_nElmentType)
             {
                 CMethod *pMethod = dynamic_cast<CMethod*>(pBase);
+                if (0 == i)
+                {
+                    n = pMethod->GetMethodIdStr(pBuff+nUsed,nLength);
+                    nUsed += n;
+                    nLength -= n;
+                    WRITE_LINE("");
+                }
                 n = sprintf(pBuff+nUsed,"#define ");
                 nUsed += n;
                 nLength -= n;
@@ -1089,11 +1102,11 @@ TInt32 CInterfaceElement::GenerateMethodIdFile(const char *pPath,int nInterfaceI
 		nUsed += n;
 		nLength -= n;
 
-		n = sprintf(pBuff+nUsed,"%s_INTERFACE_ID_END (",m_szName.c_str());
-		for (int i=0;i<n;++i)
-		{
-			pBuff[nUsed+i] = toupper(pBuff[nUsed+i]);
-		}
+		n = sprintf(pBuff+nUsed,"%sServiceIdEnd ((%s_SERVICE_ID*1000)+",m_szName.c_str(),CHeaderFile::sm_szServiceName.c_str());
+// 		for (int i=0;i<n;++i)
+// 		{
+// 			pBuff[nUsed+i] = toupper(pBuff[nUsed+i]);
+// 		}
 		nUsed += n;
 		nLength -= n;
 		n = sprintf(pBuff+nUsed,"");
@@ -1103,7 +1116,7 @@ TInt32 CInterfaceElement::GenerateMethodIdFile(const char *pPath,int nInterfaceI
         n = GetMethodIdStr(pBuff+nUsed,nLength);//sprintf(pBuff+nUsed,"#endif\n\n");
         nUsed += n;
         nLength -= n;
-		n = sprintf(pBuff+nUsed,"+(Ox%08X)\n",m_tChilds.size());
+		n = sprintf(pBuff+nUsed,"+(0x%08X))\n",m_tChilds.size());
 		nUsed += n;
 		nLength -= n;
         n = sprintf(pBuff+nUsed,"#endif\n\n");

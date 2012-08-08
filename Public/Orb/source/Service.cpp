@@ -1,7 +1,15 @@
 #include "../include/Service.h"
-
+#include "../../../System/include/Lock.h"
 namespace Zephyr
 {
+CService::CService()
+{
+    m_pClock = NULL;
+    m_pIfOrb = NULL;
+    m_pIfComm = NULL;
+    m_pLock = new CLock();
+    m_nServiceId = 0;
+}
 
 CService::~CService()
 {
@@ -9,6 +17,19 @@ CService::~CService()
     {
         m_pIfOrb->UnRegisterObj(m_pSkeleton);
     }
+    if (m_pLock)
+    {
+        DELETEP(m_pLock);
+    }
+}
+
+void CService::LockInterService()
+{
+    ((CLock*)m_pLock)->Lock();
+}
+void CService::UnlockInterService()
+{
+    ((CLock*)m_pLock)->Unlock();
 }
 
 //调用者判定pSession
@@ -41,6 +62,11 @@ void CService::UnRegisterSession(CSession *pSession)
     pSession->SetSkeleton(NULL);
     pSession->OnFinaled();
 }
+
+ TInt32  CService::OnRoutine(TUInt32 nRunCnt)
+ {
+    return m_tTimer.Run(m_pClock->GetPlatformTime());
+ }
 
 
 
