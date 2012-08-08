@@ -1602,7 +1602,7 @@ TInt32 CInterfaceElement::GenerateCSharpStub(const char*pPath)
     WRITE_LINE("using System;");
 
     int nEtchNr = 1;
-    WRITE_LINE("class %sStub :%s",m_szName.c_str(),m_szName.c_str());
+    WRITE_LINE("class %sStub : %s",m_szName.c_str(),m_szName.c_str());
     WRITE_LINE("{");
     
     for (int i=0;i<m_tChilds.size();++i)

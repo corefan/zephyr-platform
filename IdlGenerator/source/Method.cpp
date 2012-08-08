@@ -767,7 +767,7 @@ TInt32 CMethod::GenerateCSharpStubMethodCode(char *pBuff,const char *pIfName,int
             }
             else
             {
-                n = WriteEtch(pBuff+nUsed,nEtchNr);
+                WRITE_CODE_ETCH("");
             }
             if (pCsType)
             {

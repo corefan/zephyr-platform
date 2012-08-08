@@ -142,7 +142,7 @@ TInt32 CHeaderFile::GeneratorIdl(const char *pFileName,const char *pPath)
     GenerateStub(pPath);
     GenerateSkeleton(pPath);
     GenerateMethodId(pPath);
-    printf("Do U wanna genearte csharp code?(R)eq/Res(P)/(B)oth");
+    printf("Do U wanna genearte csharp code?(R)eq/Res(P)/(B)oth/(N)o: ");
     char cChoice('n');;
     std::cin>>cChoice;
     //if (('Y' == cChoice)||('y' == cChoice)||('R' == cChoice)||('r' == cChoice)||('P' == cChoice)||('p' == cChoice))
