@@ -9,8 +9,8 @@ namespace test_logic
 class IfLogicService
 {
 public:
-    virtual TInt32 ReqGetSession(TUInt64 uId,CDoid tGwDoid) = 0;
-    virtual TInt32 ReqReleaseSession(TUInt64 uId,CDoid tSess) = 0;
+    virtual TInt32 ReqGetSession(TUInt64 uId,CDoid tGwDoid,OctSeq<TUInt16> tData) = 0;
+    virtual TInt32 ReqReleaseSession(TUInt64 uId,CDoid tSess,OctSeq<TUInt16> tData) = 0;
 };
 
 }

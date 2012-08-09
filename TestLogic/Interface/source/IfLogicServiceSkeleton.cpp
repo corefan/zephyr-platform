@@ -9,8 +9,8 @@ TInt32 IfLogicServiceSkeleton::HandleMsg(CMessageHeader *pMsg)
     struct _MSGMAP_ENTRY { TUInt32 m_uMsgID; _PFMSG m_pHandlerFunc; };
     static _MSGMAP_ENTRY sMsgMapEntries[] = 
     {
-        {IFLOGICSERVICE_INTERFACE_ID, &IfLogicServiceSkeleton::HandleReqGetSession_TUInt64_CDoid},
-        {IFLOGICSERVICE_INTERFACE_ID, &IfLogicServiceSkeleton::HandleReqReleaseSession_TUInt64_CDoid},
+        {IFLOGICSERVICE_INTERFACE_ID, &IfLogicServiceSkeleton::HandleReqGetSession_TUInt64_CDoid_OctSeq_tpl_begin_TUInt16_tpl_end_},
+        {IFLOGICSERVICE_INTERFACE_ID, &IfLogicServiceSkeleton::HandleReqReleaseSession_TUInt64_CDoid_OctSeq_tpl_begin_TUInt16_tpl_end_},
     };
     TInt32 nBegin = 0;
     TInt32 nEnd = 2;
@@ -55,7 +55,7 @@ TInt32 IfLogicServiceSkeleton::HandleMsg(CMessageHeader *pMsg)
     }
     return (this->*pPfMsg)(pMsg);
 }; 
-TInt32 IfLogicServiceSkeleton::HandleReqGetSession_TUInt64_CDoid(CMessageHeader *pMsg)
+TInt32 IfLogicServiceSkeleton::HandleReqGetSession_TUInt64_CDoid_OctSeq_tpl_begin_TUInt16_tpl_end_(CMessageHeader *pMsg)
 {
     TInt32 nLen = pMsg->GetBodyLength();
     TUChar *pBuffer =pMsg->GetBody();
@@ -82,10 +82,21 @@ TInt32 IfLogicServiceSkeleton::HandleReqGetSession_TUInt64_CDoid(CMessageHeader 
     {
         return nRet;
     }
-    m_pImplementObj->ReqGetSession(_uId,_tGwDoid);
+    OctSeq<TUInt16> _tData;
+    nRet = Unmarshall(pBuffer,nLen,_tData);
+    if (nRet<SUCCESS)
+    {
+        pBuffer += nRet;
+        nLen -= nRet;
+    }
+    else
+    {
+        return nRet;
+    }
+    m_pImplementObj->ReqGetSession(_uId,_tGwDoid,_tData);
     return SUCCESS;
 }
-TInt32 IfLogicServiceSkeleton::HandleReqReleaseSession_TUInt64_CDoid(CMessageHeader *pMsg)
+TInt32 IfLogicServiceSkeleton::HandleReqReleaseSession_TUInt64_CDoid_OctSeq_tpl_begin_TUInt16_tpl_end_(CMessageHeader *pMsg)
 {
     TInt32 nLen = pMsg->GetBodyLength();
     TUChar *pBuffer =pMsg->GetBody();
@@ -112,7 +123,18 @@ TInt32 IfLogicServiceSkeleton::HandleReqReleaseSession_TUInt64_CDoid(CMessageHea
     {
         return nRet;
     }
-    m_pImplementObj->ReqReleaseSession(_uId,_tSess);
+    OctSeq<TUInt16> _tData;
+    nRet = Unmarshall(pBuffer,nLen,_tData);
+    if (nRet<SUCCESS)
+    {
+        pBuffer += nRet;
+        nLen -= nRet;
+    }
+    else
+    {
+        return nRet;
+    }
+    m_pImplementObj->ReqReleaseSession(_uId,_tSess,_tData);
     return SUCCESS;
 }
 }

@@ -6,7 +6,11 @@
 #include "../include/Method.h"
 #include "../include/Parameter.h"
 #include "../include/nameSpace.h"
-
+#pragma warning(push)
+#pragma warning(disable:4267)
+#pragma warning(disable:4018)
+#pragma warning(disable:4244)
+#pragma warning(disable:4100)
 namespace Zephyr
 {
 
@@ -467,7 +471,6 @@ TInt32 CStruct::GenerateStub(const char *pPath)
 TInt32 CStruct::GenerateMethodId(const char *pPath)
 {
     {
-        int nRet = 0;
         //stub Ãû×Ö
         std::string szFileName = pPath;
 
@@ -1596,3 +1599,5 @@ TInt32 CStruct::GenerateCSharpStub(const char*pPath)
 
 
 }
+
+#pragma warning(pop)

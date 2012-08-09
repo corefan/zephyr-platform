@@ -2,6 +2,11 @@
 #include "../include/SysMacros.h"
 #include <string.h>
 #include <assert.h>
+
+#pragma warning(push)
+#pragma warning(disable:4267)
+#pragma warning(disable:4018)
+
 namespace Zephyr
 {
 #ifdef _USE_LINK_2_MARSHALL
@@ -43,8 +48,7 @@ TInt32 Unmarshall(TUChar *pBuffer,TInt32 uBufferLen,TYPE &tType) \
  
  IMPL_UNMARSHALLERS(TBOOL) 
 #endif
-#pragma warning(push)
-#pragma warning(disable:4267)
+
 
 
 TInt32 Unmarshall(TUChar *pBuffer,TInt32 uBuffLen,TChar *&psz)

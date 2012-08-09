@@ -3,14 +3,13 @@
 #include "../include/struct.h"
 #pragma warning(push)
 #pragma warning(disable:4267)
-
+#pragma warning(disable:4100)
 namespace Zephyr
 {
 IMPLEMENT_STATIC_CLASS_POOL(CNamespace)
 
 int CNamespace::findAType(char **ppWords,EnType *pTypes,int nProcess2,int nTotalEles)
 {
-    int nUsed=0;
     enum EnPreType
     {
         en_no_pre_type   = 0,

@@ -18,8 +18,8 @@ public:
      {
          return ((IFLOGICSERVICE_INTERFACE_ID)==(pMsg->GetMethodId()));
      }
-    TInt32 HandleReqGetSession_TUInt64_CDoid(CMessageHeader *pMsg);
-    TInt32 HandleReqReleaseSession_TUInt64_CDoid(CMessageHeader *pMsg);
+    TInt32 HandleReqGetSession_TUInt64_CDoid_OctSeq_tpl_begin_TUInt16_tpl_end_(CMessageHeader *pMsg);
+    TInt32 HandleReqReleaseSession_TUInt64_CDoid_OctSeq_tpl_begin_TUInt16_tpl_end_(CMessageHeader *pMsg);
 };
 }
 #endif

@@ -24,10 +24,10 @@ TInt32  CGatewayParser::GetMinHeaderLength()
     //pNetData 只传给MaxHeaderLength的数据,应用层根据头信息，要返回给net此次需要上报的数据长度.
     //返回>0则表示成功，负数表示需要丢弃的字节数.
     //每次返回一条消息的长度，如果返回后，还有多余的数据，Net会多次调用
-TInt32  CGatewayParser::OnRecv(TUChar *pNetData,TInt32 dataLen)
+TInt32  CGatewayParser::OnRecv(TUChar *pNetData,TInt32 nDataLen)
 {
     TInt32 uMsgLength = *((TInt32*)pNetData);
-    if ((dataLen-sizeof(CMessageHeader::UnMsgInfo)) >= uMsgLength)
+    if ((nDataLen-(TInt32)sizeof(CMessageHeader::UnMsgInfo)) >= uMsgLength)
     {
         return uMsgLength + sizeof(CMessageHeader::UnMsgInfo);
     }

@@ -11,8 +11,9 @@
 #pragma warning(push)
 #pragma warning(disable:4996)
 #pragma warning(disable:4018)
-
+#pragma warning(disable:4100)
 #pragma warning(disable:4267)
+#pragma warning(disable:4244)
 namespace Zephyr
 {
 
@@ -654,7 +655,7 @@ TInt32 CInterfaceElement::GenerateSkeletonHeaderFile(const char *pPath)
                                           "    }\n"
                                           "    TInt32 HandleMsg(CMessageHeader *pMsg);\n"
                                           "    static TBOOL  IsMine(CMessageHeader *pMsg) //是否属于这个接口\n"
-                                          "     {\n"
+                                          "    {\n"
                                           "         return (("
                                           ,m_szName.c_str(),m_szName.c_str(),m_szName.c_str(),m_szName.c_str());
                                           
@@ -677,7 +678,7 @@ TInt32 CInterfaceElement::GenerateSkeletonHeaderFile(const char *pPath)
         }
         nUsed +=n;
         nLength -=n;
-        n = sprintf(pBuff+nUsed,")==(pMsg->GetMethodId()));\n     }\n");
+        n = sprintf(pBuff+nUsed,")==(pMsg->GetMethodId()));\n    }\n");
         if (n<SUCCESS)
         {
             printf("Out of Mem!\n");
@@ -1009,7 +1010,6 @@ TInt32 CInterfaceElement::GenerateMethodId(const char *pPath)
 
 TInt32 CInterfaceElement::GenerateMethodIdFile(const char *pPath,int nInterfaceId)
 {
-    int nRet = 0;
     //stub 名字
     std::string szFileName = pPath;
     
@@ -1452,7 +1452,6 @@ TInt32 CInterfaceElement::GenerateCSharpCode(const char *pPath,int nChoice)
     }
     WRITE_LINE("}\n");
 
-    int nEtchNr = 0;
     WRITE_LINE("enum %sMethodId",m_szName.c_str());
     WRITE_LINE("{");
 

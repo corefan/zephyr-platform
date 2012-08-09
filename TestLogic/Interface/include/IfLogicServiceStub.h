@@ -16,8 +16,8 @@ public:
         m_pOnwerObj = pSkeleton;
         m_tTarget = *pDoid;
     }
-    virtual TInt32 ReqGetSession(TUInt64 uId,CDoid tGwDoid);
-    virtual TInt32 ReqReleaseSession(TUInt64 uId,CDoid tSess);
+    virtual TInt32 ReqGetSession(TUInt64 uId,CDoid tGwDoid,OctSeq<TUInt16> tData);
+    virtual TInt32 ReqReleaseSession(TUInt64 uId,CDoid tSess,OctSeq<TUInt16> tData);
 };
 }
 #endif
