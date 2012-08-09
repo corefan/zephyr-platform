@@ -258,6 +258,12 @@ void CAuthenticateService::OnDbFinished(CDBAuthenticateTrans *pTrans)
 
 TInt32  CAuthenticateService::OnRoutine(TUInt32 nRunCnt)
 {
+    TInt32 uUsed = CService::OnRoutine(nRunCnt);
+    if (uUsed > nRunCnt)
+    {
+        return uUsed;
+    }
+    uUsed += m_pDbMgr->Update(nRunCnt);
     TInt32 nGap = m_pClock->GetTimeGap(m_nLastStaticTime);
     if (nGap > 60)
     {
@@ -265,7 +271,7 @@ TInt32  CAuthenticateService::OnRoutine(TUInt32 nRunCnt)
         LOG_RUN(en_statistic_db_trans_num,"Total Trans %llu, Total Return %llu, %u in last minutes.\n",m_nTotalReqTrans,m_nTotalRetTrans,m_nTotalReqTransIn1Min);
         m_nTotalReqTransIn1Min = 0;
     }
-    return SUCCESS;
+    return uUsed;
 }
 
 }
