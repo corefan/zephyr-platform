@@ -38,6 +38,7 @@
 
 #define SUCCESS 0
 
+
 #define FAIL -1
 
 #define NULL 0
@@ -116,7 +117,12 @@
 
 #define OUT_OF_MEM_BUFFER (-34)
 
+#define ALREADY_CREATE_SESSION (-35)
+
+#define SESSION_STATE_INCORRECT (-36)
+
 #define NR_OF_NET_WORKER (1)
+
 
 #define ABS(n)   (n>0 ? n : -n)
 

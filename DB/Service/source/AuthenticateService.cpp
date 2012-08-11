@@ -205,6 +205,10 @@ TInt32 CAuthenticateService::InitService(IfOrb *pIfOrb,IfTaskMgr *pIfTaskMgr,IfL
     m_pIfOrb = pIfOrb;
     m_pIfTaskMgr = pIfTaskMgr;
     m_pLoggerMgr = pLoggerMgr;
+    if (m_tTimer.Init(64) < SUCCESS)
+    {
+        return FAIL;
+    }
     return SUCCESS;
 }
 

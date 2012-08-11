@@ -35,14 +35,15 @@ template <class TYPE>
 class OctSeq
 {
 public:
-    TYPE m_nBodyLength;
     TUChar *m_pBuffer;
+    TYPE m_nBodyLength;
 public:
     OctSeq()
     {
         m_nBodyLength = 0;
         m_pBuffer = 0;
     }
+    
     static TInt32 CalFullLength(TInt32 nLength)
     {
         return sizeof(TYPE) + nLength;
@@ -70,9 +71,9 @@ template <class LENGHT_TYPE,class TAG_TYPE>
 class TLV
 {
 public:
+    TUChar      *m_pBuffer;
     LENGHT_TYPE m_nBodyLength;
     TAG_TYPE    m_nTag;
-    TUChar      *m_pBuffer;
 public:
     TLV()
     {

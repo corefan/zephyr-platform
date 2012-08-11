@@ -208,6 +208,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\include\IfLogicServicePlugin.h"
+				>
+			</File>
+			<File
 				RelativePath=".\include\IfLogicServiceRespMethodId.h"
 				>
 			</File>
