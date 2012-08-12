@@ -80,7 +80,7 @@ namespace Zephyr
  
       TInt32 Unmarshall(TUChar *pBuffer,TInt32 uBuffLen,TInt64& llInt64);
  
-      TInt32 Unmarshall(TUChar *pBuffer,TInt32 uBuffLen,TInt64& ullInt64);
+      TInt32 Unmarshall(TUChar *pBuffer,TInt32 uBuffLen,TUInt64& ullInt64);
  
       TInt32 Unmarshall(TUChar *pBuffer,TInt32 uBuffLen,TBOOL& bBool);
 #endif

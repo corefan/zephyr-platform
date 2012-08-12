@@ -25,11 +25,11 @@ namespace Zephyr
         } \
         return OUT_OF_MEM; \
     } \
-    TInt32 GetLength(TYPE c) \
+    inline TInt32 GetLength(TYPE c) \
     { \
     return sizeof(TYPE); \
     } \
-    TInt32 GetLength(TYPE *pC)\
+    inline TInt32 GetLength(TYPE *pC)\
     {\
         return sizeof(TYPE);\
     }
@@ -44,13 +44,13 @@ namespace Zephyr
         } 
         return OUT_OF_MEM; 
     } 
-    TInt32 GetLength(TChar c) 
+    inline TInt32 GetLength(TChar c) 
     { 
         return sizeof(TChar); 
     }
-    TInt32 GetLength(TChar *pC);
+    inline TInt32 GetLength(TChar *pC);
 
-    TInt32 GetLength(const TChar *pC);
+    inline TInt32 GetLength(const TChar *pC);
 
         //IMPL_MARSHALLERS(TInt8) 
 
@@ -80,11 +80,11 @@ namespace Zephyr
 // 
  TInt32 Marshall(TUChar *pBuffer,TInt32 uBuffLen,TUChar ucChar);
 // 
-// TInt32 GetLength(TUChar c);
+ TInt32 GetLength(TUChar c);
 // 
  TInt32 Marshall(TUChar *pBuffer,TInt32 uBuffLen,TChar ucChar);
 // 
-// TInt32 GetLength(TChar c);
+ TInt32 GetLength(TChar c);
 // // inline TInt32 Marshall(TUChar *pBuffer,TInt32 uBuffLen,TInt8 nInt8);
 // // inline TInt32 Unmarshall(TUChar *pBuffer,TInt32 uBuffLen,TInt8& nInt8);
 // // 
@@ -94,39 +94,39 @@ namespace Zephyr
 // 
  TInt32 Marshall(TUChar *pBuffer,TInt32 uBuffLen,TInt16 nInt16);
 // 
-// TInt32 GetLength(TInt16 c);
+ TInt32 GetLength(TInt16 c);
 // 
  TInt32 Marshall(TUChar *pBuffer,TInt32 uBuffLen,TUInt16 uInt16);
 // 
-// TInt32 GetLength(TUInt16 c);
+ TInt32 GetLength(TUInt16 c);
 // 
  TInt32 Marshall(TUChar *pBuffer,TInt32 uBuffLen,TInt32 nInt32);
 // 
-// TInt32 GetLength(TInt32 c);
+ TInt32 GetLength(TInt32 c);
 // 
  TInt32 Marshall(TUChar *pBuffer,TInt32 uBuffLen,TUInt32 uInt32);
 // 
-// TInt32 GetLength(TUInt32 c);
+ TInt32 GetLength(TUInt32 c);
 // 
  TInt32 Marshall(TUChar *pBuffer,TInt32 uBuffLen,TFloat fFloat);
 // 
-// TInt32 GetLength(TFloat c);
+ TInt32 GetLength(TFloat c);
 // 
  TInt32 Marshall(TUChar *pBuffer,TInt32 uBuffLen,TDouble dDouble);
 // 
-// TInt32 GetLength(TDouble c);
+ TInt32 GetLength(TDouble c);
 // 
  TInt32 Marshall(TUChar *pBuffer,TInt32 uBuffLen,TInt64 llInt64);
 // 
-// TInt32 GetLength(TInt64 c);
+ TInt32 GetLength(TInt64 c);
 // 
- TInt32 Marshall(TUChar *pBuffer,TInt32 uBuffLen,TInt64 ullInt64);
+ TInt32 Marshall(TUChar *pBuffer,TInt32 uBuffLen,TUInt64 ullInt64);
 // 
-// TInt32 GetLength(TInt64 c);
+ TInt32 GetLength(TUInt64 c);
 // 
 // //inline TInt32 Marshall(TUChar *pBuffer,TInt32 uBuffLen,TBOOL bBool); //为什么会和TInt32 Marshall(TUChar *pBuffer,TInt32 uBuffLen,CDoid *pDoid)冲突呢？！
 // 
-// TInt32 GetLength(TBOOL c);
+ TInt32 GetLength(TBOOL c);
 #endif
 
 

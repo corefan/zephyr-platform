@@ -27,8 +27,8 @@ typedef  int TInt32;
 typedef  unsigned int TUInt32;
 typedef float TFloat;
 typedef double TDouble;
-typedef long long TInt64;
-typedef unsigned long long TUInt64;
+typedef __int64 TInt64;
+typedef unsigned __int64 TUInt64;
 typedef bool TBOOL;
 
 template <class TYPE>
