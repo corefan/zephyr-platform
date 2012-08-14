@@ -1,5 +1,6 @@
 #include "DBLib.h"
-
+#include "MySQLDatabase.h"
+#include "MySQLConnection.h"
 
 namespace DBLib
 {

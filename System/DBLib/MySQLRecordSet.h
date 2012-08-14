@@ -1,7 +1,9 @@
 #ifndef __DB_LIB_MYSQL_RECORDSET_H__
 #define __DB_LIB_MYSQL_RECORDSET_H__
-
+#include "DBLib.h"
 #include "dbinterfaces.h"
+#include <vector>
+#include "DBValue.h"
 
 namespace DBLib
 {

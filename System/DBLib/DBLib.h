@@ -70,10 +70,10 @@ typedef unsigned long ulong;
 
 #endif
 
-
-#include "MySQLRecordSet.h"
-#include "MySQLConnection.h"
-#include "MySQLDatabase.h"
+// 
+// #include "MySQLRecordSet.h"
+// #include "MySQLConnection.h"
+// #include "MySQLDatabase.h"
 
 #include "DBTransaction.h"
 #include "DBTransationWorkThread.h"

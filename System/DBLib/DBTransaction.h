@@ -10,7 +10,6 @@ class CDBTransaction
 {
 protected:
 	bool		m_IsSucceed;
-	
 public:
 	CDBTransaction(void);
 	virtual ~CDBTransaction(void);

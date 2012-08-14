@@ -4,6 +4,8 @@
 #include "DBLib.h"
 #include "Public/Interface/Platform/include/IfLogger.h"
 #include "./DBInterfaces.h"
+#include "MySQLDatabase.h"
+#include "MySQLRecordSet.h"
 using namespace Zephyr;
 
 namespace DBLib
