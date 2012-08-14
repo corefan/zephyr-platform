@@ -44,19 +44,19 @@ public:
 	virtual IDBRecordSet * CreateRecordSet(int RecordSetType)=0;
 	virtual IDBParameterSet * CreateParameterSet(int RecordSetType)=0;
 
-	virtual int Connect(LPCTSTR ConnectStr)=0;
+	virtual int Connect(const char* ConnectStr)=0;
 	virtual int Disconnect()=0;
-	virtual int IsConnected()=0;
-	virtual int ExecuteSQL(LPCSTR SQLStr,int StrLen=0,IDBParameterSet * pParamSet=NULL)=0;	
+	virtual bool IsConnected()=0;
+	virtual int ExecuteSQL(const char*  SQLStr,int StrLen=0,IDBParameterSet * pParamSet=NULL)=0;	
 	virtual int GetResults(IDBRecordSet * pDBRecordset)=0;
 	virtual int NextResults(IDBRecordSet * pDBRecordset)=0;	
 	virtual int GetAffectedRowCount()=0;
-	virtual int EnableTransaction(BOOL IsEnable)=0;
+	virtual int EnableTransaction(bool IsEnable)=0;
 	virtual int Commit()=0;
 	virtual int RollBack()=0;	
 	virtual unsigned int GetLastDatabaseErrorCode()=0;
 	virtual const char* GetLastDatabaseErrorString()=0;
-	virtual int TranslateString(LPCTSTR szSource,int SrcLen,LPTSTR szTarget,int MaxLen)=0;
+	virtual int TranslateString(const char*  szSource,int SrcLen,char*  szTarget,int MaxLen)=0;
     virtual unsigned long long GetInsertId() = 0;
     virtual void SetLogger(IfLogger *pLogger) = 0;
 };
@@ -73,13 +73,13 @@ public:
 
 	virtual int GetRecordCount()=0;
 	virtual int GetColumnCount()=0;
-	virtual LPCTSTR GetColumnName(int Index)=0;
-	virtual int GetIndexByColumnName(LPCTSTR Name)=0;
+	virtual const char* GetColumnName(int Index)=0;
+	virtual int GetIndexByColumnName(const char* Name)=0;
 	virtual DB_COLUMN_INFO * GetColumnInfo(int Index)=0;
 
 
 	virtual CDBValue& GetField(int Index)=0;
-	virtual CDBValue& GetField(LPCTSTR Name)=0;
+	virtual CDBValue& GetField(const char*  Name)=0;
 	virtual int MoveFirst()=0;
 	virtual int MoveLast()=0;
 	virtual int MoveNext()=0;

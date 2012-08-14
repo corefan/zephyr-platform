@@ -29,9 +29,9 @@ public:
 	LPVOID GetBuffer() const;
 	LPVOID GetFreeBuffer() const;
 
-	BOOL PushFront(LPCVOID pData,UINT Size);
+	BOOL PushFront(void * pData,UINT Size);
 	BOOL PushConstFront(UINT Data,UINT Size);
-	BOOL PushBack(LPCVOID pData,UINT Size);
+	BOOL PushBack(void * pData,UINT Size);
 	BOOL PushConstBack(UINT Data,UINT Size);
 
 	BOOL PopFront(LPVOID pData,UINT Size);
@@ -77,7 +77,7 @@ inline LPVOID CEasyBuffer::GetFreeBuffer() const
 	return m_pBuffer+m_UsedSize;
 }
 
-inline BOOL CEasyBuffer::PushFront(LPCVOID pData,UINT Size)
+inline BOOL CEasyBuffer::PushFront(void * pData,UINT Size)
 {
 	if(m_UsedSize+Size<=m_BufferSize)
 	{
@@ -93,7 +93,7 @@ inline BOOL CEasyBuffer::PushConstFront(UINT Data,UINT Size)
 {
 	return PushFront(&Data,Size);
 }
-inline BOOL CEasyBuffer::PushBack(LPCVOID pData,UINT Size)
+inline BOOL CEasyBuffer::PushBack(void * pData,UINT Size)
 {
 	if(m_UsedSize+Size<=m_BufferSize)
 	{

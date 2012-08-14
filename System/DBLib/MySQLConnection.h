@@ -3,6 +3,7 @@
 
 #include "DBLib.h"
 #include "Public/Interface/Platform/include/IfLogger.h"
+#include "./DBInterfaces.h"
 using namespace Zephyr;
 
 namespace DBLib
@@ -36,14 +37,14 @@ public:
 	virtual IDBRecordSet * CreateRecordSet(int RecordSetType);
 	virtual IDBParameterSet * CreateParameterSet(int RecordSetType);
 
-	virtual int Connect(LPCTSTR ConnectStr);
+	virtual int Connect(const char*  ConnectStr);
 	virtual int Disconnect();
-	virtual BOOL IsConnected();
+	virtual bool IsConnected();
 	virtual int ExecuteSQL(const char* SQLStr,int StrLen=0,IDBParameterSet * pParamSet=NULL);		
 	virtual int GetResults(IDBRecordSet * pDBRecordset);
 	virtual int NextResults(IDBRecordSet * pDBRecordset);	
 	virtual int GetAffectedRowCount();
-	virtual int EnableTransaction(BOOL IsEnable);
+	virtual int EnableTransaction(bool IsEnable);
 	virtual int Commit();
 	virtual int RollBack();
 

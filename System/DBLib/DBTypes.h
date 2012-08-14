@@ -214,7 +214,7 @@ typedef struct  tagDB_GUID
 	unsigned char Data4[ 8 ];
 	tagDB_GUID()
 	{
-		ZeroMemory(this,sizeof(*this));
+		memset(this,0,sizeof(*this));
 	}
 } DB_GUID;
 
@@ -238,7 +238,7 @@ typedef struct tagDB_PARAM_INFO
 
 inline DB_DATE::DB_DATE()
 {
-	ZeroMemory(this,sizeof(*this));
+	memset(this,0,sizeof(*this));
 }
 inline DB_DATE::DB_DATE(const DB_DATE& Value)
 {
@@ -268,7 +268,7 @@ inline DB_DATE::DB_DATE(const DB_TIMESTAMP& Value)
 
 inline DB_TIME::DB_TIME()
 {
-	ZeroMemory(this,sizeof(*this));
+	memcpy(this,0,sizeof(*this));
 }
 inline DB_TIME::DB_TIME(const DB_TIME& Value)
 {
@@ -298,7 +298,7 @@ inline DB_TIME::DB_TIME(const DB_TIMESTAMP& Value)
 
 inline DB_TIMESTAMP::DB_TIMESTAMP()
 {
-	ZeroMemory(this,sizeof(*this));
+	memset(this,0,sizeof(*this));
 }
 inline DB_TIMESTAMP::DB_TIMESTAMP(const DB_TIMESTAMP& Value)
 {

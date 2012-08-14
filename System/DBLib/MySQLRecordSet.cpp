@@ -80,7 +80,7 @@ int CMySQLRecordSet::GetColumnCount()
 		return 0;
 }
 
-LPCTSTR CMySQLRecordSet::GetColumnName(int Index)
+const char* CMySQLRecordSet::GetColumnName(int Index)
 {
 	if(Index>=0&&Index<(int)m_pColumnInfos.size())
 	{
@@ -89,7 +89,7 @@ LPCTSTR CMySQLRecordSet::GetColumnName(int Index)
 	return NULL;
 }
 
-int CMySQLRecordSet::GetIndexByColumnName(LPCTSTR Name)
+int CMySQLRecordSet::GetIndexByColumnName(const char* Name)
 {
 	for(int i=0;i<(int)m_pColumnInfos.size();i++)
 	{
@@ -118,7 +118,7 @@ CDBValue& CMySQLRecordSet::GetField(int Index)
 	return m_EmptyValue;
 }
 
-CDBValue& CMySQLRecordSet::GetField(LPCTSTR Name)
+CDBValue& CMySQLRecordSet::GetField(const char* Name)
 {
 	int Index=GetIndexByColumnName(Name);
 	if(Index>=0)

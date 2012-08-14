@@ -34,7 +34,7 @@ void CDBTransationWorkThread::Destory()
 	SAFE_DELETE(m_pConnection);
 }
 
-bool CDBTransationWorkThread::Init(IDBConnection * pConnection,LPCTSTR ConnectStr,int QueueSize)
+bool CDBTransationWorkThread::Init(IDBConnection * pConnection,const char* ConnectStr,int QueueSize)
 {
 	if(pConnection==NULL)
 		return false;
@@ -157,7 +157,7 @@ BOOL CDBTransationWorkThread::OnRun()
 		{
 			m_pManager->GetLogger()->WriteLog(0xff,"连接已断开，重新连接");
 			m_pConnection->Disconnect();
-			m_pConnection->Connect((LPCTSTR)m_ConnectString);
+			m_pConnection->Connect((const char*)m_ConnectString);
             m_pConnection->EnableTransaction(true);
 		}
 		m_ConnectionTestTimer.SaveTime();

@@ -14,7 +14,7 @@ CDBFakeRecordSet::~CDBFakeRecordSet(void)
 	Destory();
 }
 
-int CDBFakeRecordSet::Init(LPCVOID pData,int DataSize)
+int CDBFakeRecordSet::Init(void *pData,int DataSize)
 {
 	Destory();
 	m_DataBuffer.Create(DataSize);
@@ -33,7 +33,7 @@ int CDBFakeRecordSet::GetRecordSetDataSize()
 	return m_DataBuffer.GetUsedSize();
 }
 
-LPCVOID CDBFakeRecordSet::GetRecordSetData()
+void* CDBFakeRecordSet::GetRecordSetData()
 {
 	return m_DataBuffer.GetBuffer();
 }
@@ -116,12 +116,12 @@ int CDBFakeRecordSet::GetColumnCount()
 	return 0;
 }
 
-LPCTSTR CDBFakeRecordSet::GetColumnName(int Index)
+const char*CDBFakeRecordSet::GetColumnName(int Index)
 {
 	return NULL;
 }
 
-int CDBFakeRecordSet::GetIndexByColumnName(LPCTSTR Name)
+int CDBFakeRecordSet::GetIndexByColumnName(const char* Name)
 {
 	return -1;
 }
@@ -137,7 +137,7 @@ CDBValue& CDBFakeRecordSet::GetField(int Index)
 	return m_EmptyValue;
 }
 
-CDBValue& CDBFakeRecordSet::GetField(LPCTSTR Name)
+CDBValue& CDBFakeRecordSet::GetField(const char* Name)
 {
 	return m_EmptyValue;
 }

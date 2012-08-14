@@ -60,7 +60,7 @@ IDBParameterSet * CMySQLConnection::CreateParameterSet(int RecordSetType)
 	return NULL;
 }
 
-int CMySQLConnection::Connect(LPCTSTR ConnectStr)
+int CMySQLConnection::Connect(const char* ConnectStr)
 {
 	Disconnect();
 	m_MySQLHandle=mysql_init(NULL);
@@ -109,10 +109,10 @@ int CMySQLConnection::Disconnect()
 	}
 	return DBERR_SUCCEED;
 }
-BOOL CMySQLConnection::IsConnected()
+bool CMySQLConnection::IsConnected()
 {
 	if(m_MySQLHandle==NULL)
-		return FALSE;
+		return False;
 	return mysql_ping(m_MySQLHandle)==0;
 }
 
@@ -181,7 +181,7 @@ int CMySQLConnection::GetAffectedRowCount()
 
 
 
-int CMySQLConnection::EnableTransaction(BOOL IsEnable)
+int CMySQLConnection::EnableTransaction(bool IsEnable)
 {
 	if(m_MySQLHandle==NULL)
 		return DBERR_MYSQL_WANTCONNECT;
@@ -220,7 +220,7 @@ UINT CMySQLConnection::GetLastDatabaseErrorCode()
 	return mysql_errno(m_MySQLHandle);
 }
 
-LPCTSTR CMySQLConnection::GetLastDatabaseErrorString()
+const char* CMySQLConnection::GetLastDatabaseErrorString()
 {
 	return mysql_error(m_MySQLHandle);
 }
@@ -234,7 +234,7 @@ unsigned __int64 CMySQLConnection::GetInsertId(void)
 {
     return (unsigned __int64)mysql_insert_id(m_MySQLHandle);
 }
-void CMySQLConnection::ProcessErrorMsg(LPCTSTR Msg)
+void CMySQLConnection::ProcessErrorMsg(const char* Msg)
 {
 	//PrintDBLog(0xff,"%s %s\r\n",Msg,mysql_error(m_MySQLHandle));
 #ifdef _DEBUG
@@ -414,7 +414,7 @@ unsigned int CMySQLConnection::FetchConnectFlags(const char* FlagsStr)
 	return Flags;
 }
 
-BOOL CMySQLConnection::MySQLValueToDBValue(int ValueType,void *pData,int DataSize,int DitigalSize,CDBValue& DBValue)
+int CMySQLConnection::MySQLValueToDBValue(int ValueType,void *pData,int DataSize,int DitigalSize,CDBValue& DBValue)
 {
 	switch(ValueType)
 	{

@@ -166,7 +166,7 @@ void CDBValue::Destory()
 	}
 }
 
-void CDBValue::SetValue(int ValueType,LPCVOID pData,int DataSize,int DitigalSize)
+void CDBValue::SetValue(int ValueType,const void * pData,int DataSize,int DitigalSize)
 {	
 	Destory();
 	m_ValueType=ValueType;

@@ -17,7 +17,7 @@ CDBStaticRecordSet::~CDBStaticRecordSet(void)
 }
 
 
-int CDBStaticRecordSet::Init(LPCVOID pData,int DataSize)
+int CDBStaticRecordSet::Init(void * pData,int DataSize)
 {
 	CEasyBuffer RecordBuffer;
 
@@ -86,7 +86,7 @@ int CDBStaticRecordSet::GetColumnCount()
 	return (int)m_pColumnInfos.size();
 }
 
-LPCTSTR CDBStaticRecordSet::GetColumnName(int Index)
+const char* CDBStaticRecordSet::GetColumnName(int Index)
 {
 	if(Index>=0&&Index<(int)m_pColumnInfos.size())
 	{
@@ -95,7 +95,7 @@ LPCTSTR CDBStaticRecordSet::GetColumnName(int Index)
 	return NULL;
 }
 
-int CDBStaticRecordSet::GetIndexByColumnName(LPCTSTR Name)
+int CDBStaticRecordSet::GetIndexByColumnName(const char* Name)
 {
 	for(int i=0;i<(int)m_pColumnInfos.size();i++)
 	{
@@ -128,7 +128,7 @@ CDBValue& CDBStaticRecordSet::GetField(int Index)
 	return m_EmptyValue;
 }
 
-CDBValue& CDBStaticRecordSet::GetField(LPCTSTR Name)
+CDBValue& CDBStaticRecordSet::GetField(const char* Name)
 {
 	if(m_CurRow>=0&&m_CurRow<(int)m_Records.size())
 	{	

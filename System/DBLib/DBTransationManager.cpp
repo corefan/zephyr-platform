@@ -35,7 +35,7 @@ void CDBTransationManager::Destory()
 	m_WorkThreads.clear();
 }
 
-bool CDBTransationManager::Init(IDatabase * pDatabase,LPCTSTR szConnectStr,IfLogger *pLogger,int ThreadCount,int QueueSize,UINT Flag)
+bool CDBTransationManager::Init(IDatabase * pDatabase,const char* szConnectStr,IfLogger *pLogger,int ThreadCount,int QueueSize,UINT Flag)
 {
 	if(pDatabase==NULL)
 		return false;

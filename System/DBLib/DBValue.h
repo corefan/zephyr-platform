@@ -45,7 +45,7 @@ public:
 
 
 
-	void SetValue(int ValueType,LPCVOID pData,int DataSize,int DitigalSize);
+	void SetValue(int ValueType,const void * pData,int DataSize,int DitigalSize);
 	void SetEmptyValue(int ValueType,int DataSize,int DitigalSize);
 
 	int GetType();

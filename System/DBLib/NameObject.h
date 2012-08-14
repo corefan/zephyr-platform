@@ -26,7 +26,7 @@ enum OBJECT_CLONE_PARAM
 
 struct CLASS_INFO
 {
-	LPCTSTR				ClassName;
+	const char*				ClassName;
 	CLASS_INFO *		pParentClassInfo;
 	OBJECT_CREATE_FN	pObjectCreateFn;
 	bool operator==(const CLASS_INFO& ClassInfo)
@@ -37,11 +37,11 @@ struct CLASS_INFO
 	{
 		return strcmp(ClassName,ClassInfo.ClassName)!=0;
 	}
-	bool operator==(LPCTSTR Name)
+	bool operator==(const char*  Name)
 	{
 		return strcmp(ClassName,Name)==0;
 	}
-	bool operator!=(LPCTSTR Name)
+	bool operator!=(const char* Name)
 	{
 		return strcmp(ClassName,Name)!=0;
 	}
@@ -53,7 +53,7 @@ struct CLASS_INFO
 			return pParentClassInfo->IsKindOf(ClassInfo);
 		return false;
 	}
-	bool IsKindOf(LPCTSTR Name)
+	bool IsKindOf(const char* Name)
 	{
 		if(*this==Name)
 			return true;
@@ -135,11 +135,11 @@ class CUSOFile;
 class CNameObject //: public CObject
 {
 protected:
-	UINT			m_UpBoundGarder;
-	UINT			m_ID;
-	volatile UINT	m_UseRef;
-	LPVOID			m_pParam;
-	TCHAR			m_Name[MAX_OBJECT_NAME];
+	unsigned int			m_UpBoundGarder;
+	unsigned int			m_ID;
+	volatile unsigned int	m_UseRef;
+	const void*			m_pParam;
+	char			m_Name[MAX_OBJECT_NAME];
 
 	static CLASS_INFO	m_CNameObjectClassInfo;
 	
@@ -155,7 +155,7 @@ public:
 	{
 		return GetClassInfo().IsKindOf(ClassInfo);
 	}
-	inline bool IsKindOf(LPCTSTR Name)
+	inline bool IsKindOf(const char*  Name)
 	{
 		return GetClassInfo().IsKindOf(Name);
 	}
@@ -163,7 +163,7 @@ public:
 	{
 		return GetClassInfo()==ClassInfo;
 	}
-	inline bool IsClass(LPCTSTR Name)
+	inline bool IsClass(const char* Name)
 	{
 		return GetClassInfo()==Name;
 	}
@@ -171,7 +171,7 @@ public:
 	{
 		return GetClassInfo().IsKindOfFast(ClassInfo);
 	}
-	inline LPCTSTR GetClassName()
+	inline const char*GetClassName()
 	{
 		return GetClassInfo().ClassName;
 	}
@@ -203,7 +203,7 @@ public:
 	{
 		m_UseRef--;
 	}
-	UINT GetUseRef()
+	unsigned int GetUseRef()
 	{
 		return m_UseRef;
 	}
@@ -214,29 +214,31 @@ public:
 			delete this;
 	}
 
-	void SetName(LPCTSTR Name)
+	void SetName(const char* Name)
 	{
-		strncpy_0(m_Name,MAX_OBJECT_NAME,Name,MAX_OBJECT_NAME);
+		strncpy(m_Name,Name,MAX_OBJECT_NAME);
 	}
 
-	LPCTSTR GetName()
+	const char*GetName()
 	{
 		return m_Name;
 	}
 
-	void SetID(UINT ID)
-	{m_ID=ID;}
+	void SetID(unsigned int ID)
+	{
+        m_ID=ID;
+    }
 
-	UINT GetID()
+	unsigned int GetID()
 	{return m_ID;}
 
 
-	void SetParam(LPVOID pParam)
+	void SetParam(const void* pParam)
 	{
 		m_pParam=pParam;
 	}
 
-	LPVOID GetParam()
+	const void* GetParam()
 	{
 		return m_pParam;
 	}	

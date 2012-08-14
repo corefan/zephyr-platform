@@ -1,9 +1,6 @@
 #ifndef __DB_LIB_DB_LIB_H__
 #define __DB_LIB_DB_LIB_H__
 
-typedef const char * LPCTSTR;
-typedef char * LPTSTR;
-
 
 
 

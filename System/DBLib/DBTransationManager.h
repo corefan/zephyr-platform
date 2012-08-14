@@ -6,7 +6,7 @@
 
 #include "Public/Interface/Platform/include/IfLogger.h"
 #include "System/include/Lock.h"
-
+#include "./DBInterfaces.h"
 using namespace Zephyr;
 
 namespace DBLib
@@ -80,7 +80,7 @@ public:
     }
 	void Destory();
 
-	bool Init(IDatabase * pDatabase,LPCTSTR szConnectStr,IfLogger *pLogger,int ThreadCount=DEFAULT_TRANS_THREAD,int QueueSize=DEFAULT_TRANS_QUEUE,UINT Flag=0);
+	bool Init(IDatabase * pDatabase,const char* szConnectStr,IfLogger *pLogger,int ThreadCount=DEFAULT_TRANS_THREAD,int QueueSize=DEFAULT_TRANS_QUEUE,UINT Flag=0);
 
 	void ModifyFlag(UINT Add,UINT Remove)
 	{
