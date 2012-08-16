@@ -57,7 +57,7 @@ public:
     //在初始化的时候会被调.
     
     
-    virtual TInt32 Authenticate(TLV<TUInt16,TUInt16> tAuthenticateData); 
+    virtual TInt32 Authenticate(TUInt32 uIp,TChar *pszName,TChar *pszPwd); 
     virtual TInt32 OnDisconneted(CDoid tMyDoid);
     TInt32 StartService(TChar *pszLoggerName,TChar *pszConnectStr,TInt32  nThreadCount,TInt32 QueueSize,TUInt32 Flag=0);
 

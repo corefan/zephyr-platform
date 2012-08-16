@@ -3,10 +3,10 @@
 #include "../include/IfAuthServiceMethodId.h"
 namespace Zephyr 
 {
-TInt32 IfAuthServiceStub::Authenticate(TLV<TUInt16,TUInt16> tAuthenticateData)
+TInt32 IfAuthServiceStub::Authenticate(TUInt32 _uIp,TChar* _pszName,TChar* _pszPwd)
 {
-    TInt32 nLen = sizeof(TLV<TUInt16,TUInt16>);
-    CMessageHeader *pMsg = m_pOnwerObj->PrepareMsg(nLen,(AUTHENTICATE_SERVICE_SERVICE_ID|IFAUTHSERVICE_INTERFACE_ID|AUTHENTICATE_TLV_TPL_BEGIN_TUINT16_AND_TUINT16_TPL_END__ID),&m_tTarget,1,false);
+    TInt32 nLen = GetLength(_uIp)+GetLength(_pszName)+GetLength(_pszPwd);
+    CMessageHeader *pMsg = m_pOnwerObj->PrepareMsg(nLen,(AUTHENTICATE_TUINT32_TCHAR_PT_TCHAR_PT_ID),&m_tTarget,1,false);
     if (NULL == pMsg)
     {
         return OUT_OF_MEM;
@@ -14,25 +14,35 @@ TInt32 IfAuthServiceStub::Authenticate(TLV<TUInt16,TUInt16> tAuthenticateData)
     TUInt32 nUsed=0;
     TInt32 nRet=0;
     TUChar *pBuffer = pMsg->GetBody();
-    nRet = Marshall(pBuffer+nUsed,nLen,tAuthenticateData);
+    nRet = Marshall(pBuffer+nUsed,nLen,_uIp);
     if (nRet < SUCCESS)
     {
         return nRet;
     }
     nUsed += nRet;
     nLen-=nRet;
+    nRet = Marshall(pBuffer+nUsed,nLen,_pszName);
     if (nRet < SUCCESS)
     {
         return nRet;
     }
+    nUsed += nRet;
+    nLen-=nRet;
+    nRet = Marshall(pBuffer+nUsed,nLen,_pszPwd);
+    if (nRet < SUCCESS)
+    {
+        return nRet;
+    }
+    nUsed += nRet;
+    nLen-=nRet;
     pMsg->ResetBodyLength(nUsed);
     return m_pOnwerObj->SendMsg(pMsg);
 }
 
-TInt32 IfAuthServiceStub::OnDisconneted(CDoid tMyDoid)
+TInt32 IfAuthServiceStub::OnDisconneted(CDoid _tMyDoid)
 {
-    TInt32 nLen = sizeof(CDoid);
-    CMessageHeader *pMsg = m_pOnwerObj->PrepareMsg(nLen,(AUTHENTICATE_SERVICE_SERVICE_ID|IFAUTHSERVICE_INTERFACE_ID|ONDISCONNETED_CDOID_ID),&m_tTarget,1,false);
+    TInt32 nLen = GetLength(_tMyDoid);
+    CMessageHeader *pMsg = m_pOnwerObj->PrepareMsg(nLen,(ONDISCONNETED_CDOID_ID),&m_tTarget,1,false);
     if (NULL == pMsg)
     {
         return OUT_OF_MEM;
@@ -40,17 +50,13 @@ TInt32 IfAuthServiceStub::OnDisconneted(CDoid tMyDoid)
     TUInt32 nUsed=0;
     TInt32 nRet=0;
     TUChar *pBuffer = pMsg->GetBody();
-    nRet = Marshall(pBuffer+nUsed,nLen,tMyDoid);
+    nRet = Marshall(pBuffer+nUsed,nLen,_tMyDoid);
     if (nRet < SUCCESS)
     {
         return nRet;
     }
     nUsed += nRet;
     nLen-=nRet;
-    if (nRet < SUCCESS)
-    {
-        return nRet;
-    }
     pMsg->ResetBodyLength(nUsed);
     return m_pOnwerObj->SendMsg(pMsg);
 }

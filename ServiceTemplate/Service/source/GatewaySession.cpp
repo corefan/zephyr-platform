@@ -3,6 +3,7 @@
 #include "../include/GatewayService.h"
 #include "../../Interface/include/IfConnectingRespStub.h"
 #include <time.h>
+#include "../../../DB/Interface/include/IfAuthServiceMethodId.h"
 #pragma warning(push)
 #pragma warning(disable:4244)
 
@@ -65,17 +66,11 @@ TInt32 CGatewaySession::OnRecv(TUChar *pMsg, TUInt32 msgLen)
 
 TBOOL  CGatewaySession::HandleClientMsg(CMessageHeader::UnMsgInfo *pMsgInfo)
 {
-    if (20 == pMsgInfo->m_methodId)
+    if (AUTHENTICATE_TUINT32_TCHAR_PT_TCHAR_PT_ID == pMsgInfo->m_methodId)
     {
         //回发一条消息。
-        TUChar szBufferRtn[12];
-        CMessageHeader::UnMsgInfo *pMsgInfo = (CMessageHeader::UnMsgInfo *)szBufferRtn;
-        pMsgInfo->m_uMsgLength = 4;
-        pMsgInfo->m_uMsgId = 20;
-        if(m_pIfConnection->SendMsg(szBufferRtn,12))
-        {
-            return True;
-        }
+        m_pIfConnection->GetConnectionInfo()->GetMyIp();
+        TUInt32 *pIp = (TUInt32 *)(void*)(pMsgInfo+1);
     }
     return False;
 }

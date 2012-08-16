@@ -495,14 +495,14 @@ TInt32 CMethod::GenerateSkeletonSourceCode(char *pszBuff,int nLength)
             if (raw_parameter_type == p->m_nElmentType)
             {
                 CParamerter *pPar = dynamic_cast<CParamerter *>(p);
-                //if (pPar->m_pFullType->IsStrPoint())
+                if (pPar->m_pFullType->IsStrPoint())
+                {
+                    nRet = sprintf(pszBuff+nUsed,"    %s *_%s;\n",pPar->m_pFullType->m_szRawNoPrefix.c_str(),pPar->m_szName.c_str());
+                }
+                else
                 {
                     nRet = sprintf(pszBuff+nUsed,"    %s _%s;\n",pPar->m_pFullType->m_szRawNoPrefix.c_str(),pPar->m_szName.c_str());
                 }
-//                 else
-//                 {
-//                     nRet = sprintf(pszBuff+nUsed,"    %s _%s;\n",pPar->m_pFullType->m_szRawNoPrefix.c_str(),pPar->m_szName.c_str());
-//                 }
                 nUsed += nRet;
                 nLength -= nRet;
                 nRet = sprintf(pszBuff+nUsed,"    nRet = Unmarshall(pBuffer,nLen,_%s);\n"

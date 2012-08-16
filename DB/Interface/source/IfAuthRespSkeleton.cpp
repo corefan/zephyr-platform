@@ -9,8 +9,8 @@ TInt32 IfAuthRespSkeleton::HandleMsg(CMessageHeader *pMsg)
     struct _MSGMAP_ENTRY { TUInt32 m_uMsgID; _PFMSG m_pHandlerFunc; };
     static _MSGMAP_ENTRY sMsgMapEntries[] = 
     {
-        {(AUTHENTICATE_SERVICE_SERVICE_ID|IFAUTHRESP_INTERFACE_ID|RESPAUTHENTICATE_TINT32_TLV_TPL_BEGIN_TUINT16_AND_TUINT16_TPL_END__ID), &IfAuthRespSkeleton::HandleRespAuthenticate_TInt32_TLV_tpl_begin_TUInt16_and_TUInt16_tpl_end_},
-        {(AUTHENTICATE_SERVICE_SERVICE_ID|IFAUTHRESP_INTERFACE_ID|CONFIRMDISCONNETED_CDOID_ID), &IfAuthRespSkeleton::HandleConfirmDisconneted_CDoid},
+        {IFAUTHRESP_INTERFACE_ID, &IfAuthRespSkeleton::HandleRespAuthenticate_TInt32},
+        {IFAUTHRESP_INTERFACE_ID, &IfAuthRespSkeleton::HandleConfirmDisconneted_CDoid},
     };
     TInt32 nBegin = 0;
     TInt32 nEnd = 2;
@@ -55,13 +55,13 @@ TInt32 IfAuthRespSkeleton::HandleMsg(CMessageHeader *pMsg)
     }
     return (this->*pPfMsg)(pMsg);
 }; 
-TInt32 IfAuthRespSkeleton::HandleRespAuthenticate_TInt32_TLV_tpl_begin_TUInt16_and_TUInt16_tpl_end_(CMessageHeader *pMsg)
+TInt32 IfAuthRespSkeleton::HandleRespAuthenticate_TInt32(CMessageHeader *pMsg)
 {
     TInt32 nLen = pMsg->GetBodyLength();
     TUChar *pBuffer =pMsg->GetBody();
     TInt32 nRet;
-    TInt32 nResult;
-    nRet = Unmarshall(pBuffer,nLen,nResult);
+    TInt32 _nResult;
+    nRet = Unmarshall(pBuffer,nLen,_nResult);
     if (nRet<SUCCESS)
     {
         pBuffer += nRet;
@@ -71,18 +71,7 @@ TInt32 IfAuthRespSkeleton::HandleRespAuthenticate_TInt32_TLV_tpl_begin_TUInt16_a
     {
         return nRet;
     }
-    TLV<TUInt16,TUInt16> tAuthorityData;
-    nRet = Unmarshall(pBuffer,nLen,tAuthorityData);
-    if (nRet<SUCCESS)
-    {
-        pBuffer += nRet;
-        nLen -= nRet;
-    }
-    else
-    {
-        return nRet;
-    }
-    m_pImplementObj->RespAuthenticate(nResult,tAuthorityData);
+    m_pImplementObj->RespAuthenticate(_nResult);
     return SUCCESS;
 }
 TInt32 IfAuthRespSkeleton::HandleConfirmDisconneted_CDoid(CMessageHeader *pMsg)
@@ -90,8 +79,8 @@ TInt32 IfAuthRespSkeleton::HandleConfirmDisconneted_CDoid(CMessageHeader *pMsg)
     TInt32 nLen = pMsg->GetBodyLength();
     TUChar *pBuffer =pMsg->GetBody();
     TInt32 nRet;
-    CDoid tMyDoid;
-    nRet = Unmarshall(pBuffer,nLen,tMyDoid);
+    CDoid _tMyDoid;
+    nRet = Unmarshall(pBuffer,nLen,_tMyDoid);
     if (nRet<SUCCESS)
     {
         pBuffer += nRet;
@@ -101,7 +90,7 @@ TInt32 IfAuthRespSkeleton::HandleConfirmDisconneted_CDoid(CMessageHeader *pMsg)
     {
         return nRet;
     }
-    m_pImplementObj->ConfirmDisconneted(tMyDoid);
+    m_pImplementObj->ConfirmDisconneted(_tMyDoid);
     return SUCCESS;
 }
 }

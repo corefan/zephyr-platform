@@ -196,7 +196,7 @@ TInt32 CGatewayService::OnInited()
         return nRet;
     }
     m_tServiceRoute.Init(&m_tRoutePool);
-    m_tServiceRoute.AddRoute(&tConfig.m_tASDoid,IFAUTHSERVICE_INTERFACE_ID,IFAUTHSERVICE_INTERFACE_ID,ONDISCONNETED_CDOID_ID+1,0);
+    m_tServiceRoute.AddRoute(&tConfig.m_tASDoid,IfAuthServiceServiceId,IfAuthServiceServiceIdBegin,IfAuthServiceServiceIdEnd+1,0);
     m_tSessionPool.InitPool(m_nMaxConnections);
     if (m_pListener)
     {

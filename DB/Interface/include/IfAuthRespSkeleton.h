@@ -15,10 +15,10 @@ public:
     }
     TInt32 HandleMsg(CMessageHeader *pMsg);
     static TBOOL  IsMine(CMessageHeader *pMsg) //是否属于这个接口
-     {
-         return ((IFAUTHRESP_INTERFACE_ID)&(pMsg->GetMethodId()));
-     }
-    TInt32 HandleRespAuthenticate_TInt32_TLV_tpl_begin_TUInt16_and_TUInt16_tpl_end_(CMessageHeader *pMsg);
+    {
+         return ((IFAUTHRESP_INTERFACE_ID)==(pMsg->GetMethodId()));
+    }
+    TInt32 HandleRespAuthenticate_TInt32(CMessageHeader *pMsg);
     TInt32 HandleConfirmDisconneted_CDoid(CMessageHeader *pMsg);
 };
 }

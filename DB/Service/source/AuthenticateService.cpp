@@ -46,7 +46,7 @@ CAuthenticateService::~CAuthenticateService()
     m_nPendingDBTrans = 0;
 }
 
-TInt32 CAuthenticateService::Authenticate(TLV<TUInt16,TUInt16> tAuthenticateData)
+TInt32 CAuthenticateService::Authenticate(TUInt32 uIp,TChar *pszName,TChar *pszPwd)
 {
     CDoid *pFrom = GetMyDoid();
     IfAuthResp *pResp;
@@ -57,12 +57,12 @@ TInt32 CAuthenticateService::Authenticate(TLV<TUInt16,TUInt16> tAuthenticateData
         CDBAuthenticateTrans *pDB = m_tUsingMaps.GetItemByKey(*pFrom);
         if (pDB)
         {
-            pResp->RespAuthenticate(-((TInt32)en_reading_db),tAuthenticateData);
+            pResp->RespAuthenticate(-((TInt32)en_reading_db));
             return SUCCESS;
         }
         if (m_nPendingDBTrans < m_nMaxTransNum)
         {
-            if (tAuthenticateData.GetBodyLength() == sizeof(CAuthenticateData))
+            //if (tAuthenticateData.GetBodyLength() == sizeof(CAuthenticateData))
             {
                 pDB = m_tUsingMaps.PrepareItem();
                 if (pDB) //分配内存成功
@@ -70,7 +70,13 @@ TInt32 CAuthenticateService::Authenticate(TLV<TUInt16,TUInt16> tAuthenticateData
                     ++m_nPendingDBTrans;
                     ++m_nTotalReqTrans;
                     ++m_nTotalReqTransIn1Min;
-                    pDB->Init((CAuthenticateData*)tAuthenticateData.GetBody(),this);
+                    CAuthenticateData tData;
+                    strncpy(tData.m_szName,pszName,MAX_ACCOUNT_NAME_LENGTH);
+                    strncpy(tData.m_szPwd,pszPwd,MAX_ACCOUNT_PWD_LENGTH);
+                    tData.m_szName[MAX_ACCOUNT_NAME_LENGTH-1] = 0;
+                    tData.m_szPwd[MAX_ACCOUNT_PWD_LENGTH-1] = 0;
+                    tData.m_uLoginIp = uIp;
+                    pDB->Init(&tData,this);
                     pDB->m_tSrcDoid = *pFrom;
                     IfTrasactionWorkThread *pThread = m_pDbMgr->GetThread();
                     if(pThread)
@@ -93,7 +99,7 @@ TInt32 CAuthenticateService::Authenticate(TLV<TUInt16,TUInt16> tAuthenticateData
         {
            
             //把原数据发回
-            pResp->RespAuthenticate(-((TInt32)en_system_is_too_busy),tAuthenticateData);
+            pResp->RespAuthenticate(-((TInt32)en_system_is_too_busy));
             //写日志
             LOG_RUN(en_system_is_too_busy,"System is to busy!");
         }
@@ -235,7 +241,7 @@ void CAuthenticateService::OnDbFinished(CDBAuthenticateTrans *pTrans)
             tAuthTLV.m_nBodyLength = sizeof(CAuthorityData);
             tAuthTLV.m_nTag = pTrans->m_nResult; //表示成功.其实没用
             tAuthTLV.m_pBuffer = (TUChar*)&pTrans->m_unAllData.m_tAuthorityData;
-            pResp->RespAuthenticate(-((TInt32)en_incorrect_data_length),tAuthTLV);
+            pResp->RespAuthenticate(-((TInt32)en_incorrect_data_length));
             //成功后，要为其创建后续的Session..
         }
         else
@@ -248,7 +254,7 @@ void CAuthenticateService::OnDbFinished(CDBAuthenticateTrans *pTrans)
             tAuthTLV.m_nBodyLength = sizeof(CAuthenticateData);
             tAuthTLV.m_nTag = 0; //表示元数据返回
             tAuthTLV.m_pBuffer = (TUChar*)&pTrans->m_unAllData.m_tAuthenticateData;
-            pResp->RespAuthenticate(-((TInt32)en_data_trans_failed),tAuthTLV);
+            pResp->RespAuthenticate(-((TInt32)en_data_trans_failed));
             TChar szDoid[64];
             pFrom->ToStr(szDoid);
             LOG_RUN(en_data_trans_failed,"DB Trans Failed for Doid:%s\n",szDoid);

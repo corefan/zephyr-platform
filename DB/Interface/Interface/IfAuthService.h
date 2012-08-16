@@ -9,7 +9,7 @@ namespace Zephyr
 class IfAuthService
 {
 public:
-    virtual TInt32 Authenticate(TLV<TUInt16,TUInt16> tAuthenticateData) = 0;
+    virtual TInt32 Authenticate(TUInt32 uIp,TChar *pszName,TChar *pszPwd) = 0;
     virtual TInt32 OnDisconneted(CDoid tMyDoid) = 0;
 };
 

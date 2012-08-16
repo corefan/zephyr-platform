@@ -69,13 +69,23 @@ TInt32 GetLength(const TChar *psz)
 
 TInt32 Marshall(TUChar *pBuffer,TInt32 uBuffLen,const TChar *psz)
 {
-    TInt32 n = strnlen(psz,uBuffLen);
-    if (n == uBuffLen)
+    if (NULL == psz)
     {
-        ((TChar*)psz)[n-1]=0;
+        psz = "";
+    }
+    if (uBuffLen < (sizeof(TInt32)+sizeof(TChar)))
+    {
+        return OUT_OF_MEM_BUFFER; 
+    }
+    uBuffLen -= (sizeof(TInt32)+sizeof(TChar));
+    TInt32 n = strnlen(psz,uBuffLen);
+    if (n+(sizeof(TInt32)+sizeof(TChar)) < uBuffLen)
+    {
+        return OUT_OF_MEM_BUFFER;
     }
     *((TInt32*)pBuffer) = n;
-    strcpy((char*)(pBuffer+sizeof(TInt32)),psz);
+    memcpy((char*)(pBuffer+sizeof(TInt32)),psz,(n));
+    pBuffer[n+(sizeof(TInt32)+sizeof(TChar))] = 0;//
     return n + (sizeof(TInt32)+sizeof(TChar));
 }
 #pragma warning(pop)

@@ -11,12 +11,12 @@ class IfAuthRespStub : public IfAuthResp
 public:
     IfSkeleton *m_pOnwerObj;
     CDoid  m_tTarget;
-    void Init(IfSkeleton *pSkeleton,CDoid *pDoid)
+    void Init(IfSkeleton *pSkeleton,const CDoid *pDoid)
     {
         m_pOnwerObj = pSkeleton;
         m_tTarget = *pDoid;
     }
-    virtual TInt32 RespAuthenticate(TInt32 nResult,TLV<TUInt16,TUInt16> tAuthorityData);
+    virtual TInt32 RespAuthenticate(TInt32 nResult);
     virtual TInt32 ConfirmDisconneted(CDoid tMyDoid);
 };
 }

@@ -1523,7 +1523,7 @@ TInt32 CInterfaceElement::GenerateCSharpSkeleton(const char*pPath)
     WRITE_LINE("using System.Collections.Generic;");
     WRITE_LINE("using System;");
 
-    WRITE_LINE("class %sSkeleton : CSkeleton\n{\n",m_szName.c_str());
+    WRITE_LINE("public class %sSkeleton : CSkeleton\n{\n",m_szName.c_str());
     int nEtchNr = 1;
     WRITE_LINE_ETCH("%s m_pImplementObj;",m_szName.c_str());
     WRITE_LINE_ETCH("public %sSkeleton(%s pIf)",m_szName.c_str(),m_szName.c_str());
@@ -1614,7 +1614,7 @@ TInt32 CInterfaceElement::GenerateCSharpStub(const char*pPath)
     WRITE_LINE("using System;");
 
     int nEtchNr = 1;
-    WRITE_LINE("class %sStub : %s",m_szName.c_str(),m_szName.c_str());
+    WRITE_LINE("public class %sStub : %s",m_szName.c_str(),m_szName.c_str());
     WRITE_LINE("{");
     
     for (int i=0;i<m_tChilds.size();++i)
