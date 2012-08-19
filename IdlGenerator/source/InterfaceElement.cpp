@@ -670,15 +670,9 @@ TInt32 CInterfaceElement::GenerateSkeletonHeaderFile(const char *pPath)
         nUsed +=n;
         nLength -= n;
 
-        n = GetMethodIdStr(pBuff+nUsed,nLength);
-        if (n<SUCCESS)
-        {
-            printf("Out of Mem!\n");
-            return n;
-        }
-        nUsed +=n;
-        nLength -=n;
-        n = sprintf(pBuff+nUsed,")==(pMsg->GetMethodId()));\n    }\n");
+        WRITE_CODE("%sServiceIdBegin",m_szName.c_str());
+        
+        n = sprintf(pBuff+nUsed,")==(pMsg->GetServiceInterfaceId()));\n    }\n");
         if (n<SUCCESS)
         {
             printf("Out of Mem!\n");
@@ -1432,7 +1426,7 @@ TInt32 CInterfaceElement::GenerateCSharpCode(const char *pPath,int nChoice)
     WRITE_LINE("using System.Collections;");
     WRITE_LINE("using System.Collections.Generic;");
     WRITE_LINE("using System;");
-    n = sprintf(pBuff+nUsed,"interface %s\n{\n",m_szName.c_str());
+    n = sprintf(pBuff+nUsed,"public interface %s\n{\n",m_szName.c_str());
     nUsed += n; 
     nLength -=n;
 
@@ -1452,7 +1446,7 @@ TInt32 CInterfaceElement::GenerateCSharpCode(const char *pPath,int nChoice)
     }
     WRITE_LINE("}\n");
 
-    WRITE_LINE("enum %sMethodId",m_szName.c_str());
+    WRITE_LINE("public enum %sMethodId",m_szName.c_str());
     WRITE_LINE("{");
 
     TUInt32 nMethodBegin = 200 * CBaseElement::sm_nInterfaceIdBegin + 1000 * sm_nInterfaceNr;
@@ -1463,7 +1457,15 @@ TInt32 CInterfaceElement::GenerateCSharpCode(const char *pPath,int nChoice)
         if (raw_method_type == p->m_nElmentType)
         {
             CMethod *pMethod = (CMethod*)p;
-            WRITE_LINE("    %s%sMethodId,",m_szName.c_str(),pMethod->m_szName.c_str());
+            WRITE_CODE("    %s%sMethodId",m_szName.c_str(),pMethod->m_szName.c_str());
+        }
+        if (0 == i)
+        {
+            WRITE_LINE(" = %sMethodIdBegin,",m_szName.c_str());
+        }
+        else
+        {
+            WRITE_LINE(",");
         }
     }
     WRITE_LINE("    %sMethodIdEnd,",m_szName.c_str());;

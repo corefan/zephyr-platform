@@ -132,7 +132,8 @@ public:
     //´ÓMessageId
     static TUInt32 GetServiceID(TUInt32 uMethodId)
     {
-        return (uMethodId/1000);
+        TUInt32 uRmn = uMethodId % 1000;
+        return (uMethodId-uRmn);
     }
 
 	inline TUInt32 GetBodyLength()
@@ -208,7 +209,12 @@ public:
     {
         return (m_msgInfo.m_methodId);
     }
-
+    inline TUInt32 GetServiceInterfaceId()
+    {
+        TUInt32 uId = m_msgInfo.m_methodId;
+        uId -= (uId%200);
+        return uId;
+    }
 	inline void SetTimeStamp(TUInt16 timeStamp)
 	{
 		m_msgInfo.m_timeStamp = timeStamp;

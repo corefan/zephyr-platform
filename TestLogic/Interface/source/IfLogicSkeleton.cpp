@@ -9,7 +9,7 @@ TInt32 IfLogicSkeleton::HandleMsg(CMessageHeader *pMsg)
     struct _MSGMAP_ENTRY { TUInt32 m_uMsgID; _PFMSG m_pHandlerFunc; };
     static _MSGMAP_ENTRY sMsgMapEntries[] = 
     {
-        {IFLOGIC_INTERFACE_ID, &IfLogicSkeleton::HandleTest_TUInt64_TInt32},
+        {TEST_TUINT64_TINT32_ID, &IfLogicSkeleton::HandleTest_TUInt64_TInt32},
     };
     TInt32 nBegin = 0;
     TInt32 nEnd = 1;

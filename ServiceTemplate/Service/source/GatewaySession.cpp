@@ -69,8 +69,8 @@ TBOOL  CGatewaySession::HandleClientMsg(CMessageHeader::UnMsgInfo *pMsgInfo)
     if (AUTHENTICATE_TUINT32_TCHAR_PT_TCHAR_PT_ID == pMsgInfo->m_methodId)
     {
         //回发一条消息。
-        m_pIfConnection->GetConnectionInfo()->GetMyIp();
         TUInt32 *pIp = (TUInt32 *)(void*)(pMsgInfo+1);
+        *pIp = m_pIfConnection->GetConnectionInfo()->GetMyIp();
     }
     return False;
 }

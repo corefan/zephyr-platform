@@ -1,14 +1,14 @@
 using System.Collections;
 using System.Collections.Generic;
 using System;
-interface IfLogic
+public interface IfLogic
 {
     int Test(ulong _uParm1,int _n2);
 }
 
-enum IfLogicMethodId
+public enum IfLogicMethodId
 {
-    IfLogicMethodIdBegin=3600,
-    IfLogicTestMethodId,
+    IfLogicMethodIdBegin=4600,
+    IfLogicTestMethodId = IfLogicMethodIdBegin,
     IfLogicMethodIdEnd,
 }

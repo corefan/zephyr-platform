@@ -9,12 +9,12 @@ TInt32 IfConnectingSkeleton::HandleMsg(CMessageHeader *pMsg)
     struct _MSGMAP_ENTRY { TUInt32 m_uMsgID; _PFMSG m_pHandlerFunc; };
     static _MSGMAP_ENTRY sMsgMapEntries[] = 
     {
-        {IFCONNECTING_INTERFACE_ID, &IfConnectingSkeleton::HandleRegisterService_CDoid_pt_TUInt32_TUInt32_TUInt32_TUInt32},
-        {IFCONNECTING_INTERFACE_ID, &IfConnectingSkeleton::HandleUnregisterService_TUInt32_TUInt32_TUInt32},
-        {IFCONNECTING_INTERFACE_ID, &IfConnectingSkeleton::HandleRegisterTeam_TUInt32},
-        {IFCONNECTING_INTERFACE_ID, &IfConnectingSkeleton::HandleDisconnect_TUInt32},
-        {IFCONNECTING_INTERFACE_ID, &IfConnectingSkeleton::HandleSetId_TUInt32},
-        {IFCONNECTING_INTERFACE_ID, &IfConnectingSkeleton::HandleCheckId_TUInt32},
+        {REGISTERSERVICE_CDOID_PT_TUINT32_TUINT32_TUINT32_TUINT32_ID, &IfConnectingSkeleton::HandleRegisterService_CDoid_pt_TUInt32_TUInt32_TUInt32_TUInt32},
+        {UNREGISTERSERVICE_TUINT32_TUINT32_TUINT32_ID, &IfConnectingSkeleton::HandleUnregisterService_TUInt32_TUInt32_TUInt32},
+        {REGISTERTEAM_TUINT32_ID, &IfConnectingSkeleton::HandleRegisterTeam_TUInt32},
+        {DISCONNECT_TUINT32_ID, &IfConnectingSkeleton::HandleDisconnect_TUInt32},
+        {SETID_TUINT32_ID, &IfConnectingSkeleton::HandleSetId_TUInt32},
+        {CHECKID_TUINT32_ID, &IfConnectingSkeleton::HandleCheckId_TUInt32},
     };
     TInt32 nBegin = 0;
     TInt32 nEnd = 6;

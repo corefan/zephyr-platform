@@ -48,7 +48,8 @@ IfSkeleton* COrb::RegisterObj(IfObj *pObjSkeleton,TInt16 nSrvId)
         if (pRtn)
         {
             pRtn->m_pListBelongsTo = NULL;
-            pRtn->m_tDoid.m_srvId = nSrvId;
+            pRtn->OnInit();
+            pRtn->RegisterObj(pObjSkeleton,nSrvId);
         }
         LOG_DEBUG(en_obj_registered,"Obj [%d,%d]",(TUInt32)nSrvId,(TUInt32)pRtn->m_tDoid.m_objId);
         return pRtn;

@@ -3,7 +3,7 @@
 #include "Public/include/TypeDef.h"
 #include "Public/include/Doid.h"
 #include "Public/Interface/Platform/include/IfSkeleton.h"
-#include "../Interface/ifgatewayresp.h"
+#include "../Interface/IfGatewayResp.h"
 namespace Zephyr 
 {
 class IfGatewayRespStub : public IfGatewayResp

@@ -3,7 +3,7 @@
 #include "Public/include/TypeDef.h"
 #include "Public/include/Doid.h"
 #include "Public/Interface/Platform/include/IfSkeleton.h"
-#include "../Interface/IfConnecting.h"
+#include "../Interface/ifconnecting.h"
 namespace Zephyr 
 {
 class IfConnectingStub : public IfConnecting

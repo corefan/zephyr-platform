@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using System;
-class IfLogicStub : IfLogic
+public class IfLogicStub : IfLogic
 {
     int IfLogic.Test(ulong _uParm1,int _n2)
     {

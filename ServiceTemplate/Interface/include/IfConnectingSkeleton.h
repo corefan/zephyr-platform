@@ -1,7 +1,7 @@
 #ifndef __IFCONNECTING_SKELETON_H__
 #define __IFCONNECTING_SKELETON_H__
 #include "Public/include/Message.h"
-#include "../Interface/IfConnecting.h"
+#include "../Interface/ifconnecting.h"
 #include "IfConnectingMethodId.h"
 namespace Zephyr 
 {
@@ -15,9 +15,9 @@ public:
     }
     TInt32 HandleMsg(CMessageHeader *pMsg);
     static TBOOL  IsMine(CMessageHeader *pMsg) //是否属于这个接口
-     {
-         return ((IFCONNECTING_INTERFACE_ID)==(pMsg->GetMethodId()));
-     }
+    {
+         return ((IfConnectingServiceIdBegin)==(pMsg->GetServiceInterfaceId()));
+    }
     TInt32 HandleRegisterService_CDoid_pt_TUInt32_TUInt32_TUInt32_TUInt32(CMessageHeader *pMsg);
     TInt32 HandleUnregisterService_TUInt32_TUInt32_TUInt32(CMessageHeader *pMsg);
     TInt32 HandleRegisterTeam_TUInt32(CMessageHeader *pMsg);

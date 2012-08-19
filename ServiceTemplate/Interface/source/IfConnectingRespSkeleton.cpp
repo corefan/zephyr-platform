@@ -9,9 +9,9 @@ TInt32 IfConnectingRespSkeleton::HandleMsg(CMessageHeader *pMsg)
     struct _MSGMAP_ENTRY { TUInt32 m_uMsgID; _PFMSG m_pHandlerFunc; };
     static _MSGMAP_ENTRY sMsgMapEntries[] = 
     {
-        {IFCONNECTINGRESP_INTERFACE_ID, &IfConnectingRespSkeleton::HandleRespRegisterService_CDoid_pt_TUInt32_TInt32},
-        {IFCONNECTINGRESP_INTERFACE_ID, &IfConnectingRespSkeleton::HandleConfirmUnregisterService_TUInt32},
-        {IFCONNECTINGRESP_INTERFACE_ID, &IfConnectingRespSkeleton::HandleOnDisconnect_TUInt32},
+        {RESPREGISTERSERVICE_CDOID_PT_TUINT32_TINT32_ID, &IfConnectingRespSkeleton::HandleRespRegisterService_CDoid_pt_TUInt32_TInt32},
+        {CONFIRMUNREGISTERSERVICE_TUINT32_ID, &IfConnectingRespSkeleton::HandleConfirmUnregisterService_TUInt32},
+        {ONDISCONNECT_TUINT32_ID, &IfConnectingRespSkeleton::HandleOnDisconnect_TUInt32},
     };
     TInt32 nBegin = 0;
     TInt32 nEnd = 3;
@@ -61,8 +61,8 @@ TInt32 IfConnectingRespSkeleton::HandleRespRegisterService_CDoid_pt_TUInt32_TInt
     TInt32 nLen = pMsg->GetBodyLength();
     TUChar *pBuffer =pMsg->GetBody();
     TInt32 nRet;
-    CDoid pDoid;
-    nRet = Unmarshall(pBuffer,nLen,pDoid);
+    CDoid _pDoid;
+    nRet = Unmarshall(pBuffer,nLen,_pDoid);
     if (nRet<SUCCESS)
     {
         pBuffer += nRet;
@@ -72,8 +72,8 @@ TInt32 IfConnectingRespSkeleton::HandleRespRegisterService_CDoid_pt_TUInt32_TInt
     {
         return nRet;
     }
-    TUInt32 uServiceId;
-    nRet = Unmarshall(pBuffer,nLen,uServiceId);
+    TUInt32 _uServiceId;
+    nRet = Unmarshall(pBuffer,nLen,_uServiceId);
     if (nRet<SUCCESS)
     {
         pBuffer += nRet;
@@ -83,8 +83,8 @@ TInt32 IfConnectingRespSkeleton::HandleRespRegisterService_CDoid_pt_TUInt32_TInt
     {
         return nRet;
     }
-    TInt32 nRslt;
-    nRet = Unmarshall(pBuffer,nLen,nRslt);
+    TInt32 _nRslt;
+    nRet = Unmarshall(pBuffer,nLen,_nRslt);
     if (nRet<SUCCESS)
     {
         pBuffer += nRet;
@@ -94,7 +94,7 @@ TInt32 IfConnectingRespSkeleton::HandleRespRegisterService_CDoid_pt_TUInt32_TInt
     {
         return nRet;
     }
-    m_pImplementObj->RespRegisterService(&pDoid,uServiceId,nRslt);
+    m_pImplementObj->RespRegisterService(&_pDoid,_uServiceId,_nRslt);
     return SUCCESS;
 }
 TInt32 IfConnectingRespSkeleton::HandleConfirmUnregisterService_TUInt32(CMessageHeader *pMsg)
@@ -102,8 +102,8 @@ TInt32 IfConnectingRespSkeleton::HandleConfirmUnregisterService_TUInt32(CMessage
     TInt32 nLen = pMsg->GetBodyLength();
     TUChar *pBuffer =pMsg->GetBody();
     TInt32 nRet;
-    TUInt32 uServiceId;
-    nRet = Unmarshall(pBuffer,nLen,uServiceId);
+    TUInt32 _uServiceId;
+    nRet = Unmarshall(pBuffer,nLen,_uServiceId);
     if (nRet<SUCCESS)
     {
         pBuffer += nRet;
@@ -113,7 +113,7 @@ TInt32 IfConnectingRespSkeleton::HandleConfirmUnregisterService_TUInt32(CMessage
     {
         return nRet;
     }
-    m_pImplementObj->ConfirmUnregisterService(uServiceId);
+    m_pImplementObj->ConfirmUnregisterService(_uServiceId);
     return SUCCESS;
 }
 TInt32 IfConnectingRespSkeleton::HandleOnDisconnect_TUInt32(CMessageHeader *pMsg)
@@ -121,8 +121,8 @@ TInt32 IfConnectingRespSkeleton::HandleOnDisconnect_TUInt32(CMessageHeader *pMsg
     TInt32 nLen = pMsg->GetBodyLength();
     TUChar *pBuffer =pMsg->GetBody();
     TInt32 nRet;
-    TUInt32 uReason;
-    nRet = Unmarshall(pBuffer,nLen,uReason);
+    TUInt32 _uReason;
+    nRet = Unmarshall(pBuffer,nLen,_uReason);
     if (nRet<SUCCESS)
     {
         pBuffer += nRet;
@@ -132,7 +132,7 @@ TInt32 IfConnectingRespSkeleton::HandleOnDisconnect_TUInt32(CMessageHeader *pMsg
     {
         return nRet;
     }
-    m_pImplementObj->OnDisconnect(uReason);
+    m_pImplementObj->OnDisconnect(_uReason);
     return SUCCESS;
 }
 }

@@ -168,7 +168,7 @@ TInt32 CMethod::GetMethodFunPtTxt(char *pszBuff,int nLength)
         int nUsed = 1;
         pszBuff[0] = '{';
         --nLength;
-        int n = pIf->GetMethodIdStr(pszBuff+nUsed,nLength);
+        int n = GetMethodIdStr(pszBuff+nUsed,nLength);
         if (n > SUCCESS)
         {
             nUsed += n;

@@ -2,6 +2,7 @@
 #define __IFAUTHRESP_METHOD_ID_H__
 #include "../../../ServiceTemplate/include/ServiceIdDef.h"
 
+
 #define IFAUTHRESP_INTERFACE_ID ((0x00000001) * 200) 
 #define IfAuthRespServiceId (AUTHENTICATE_SERVICE_SERVICE_ID*1000)
 #define IfAuthRespServiceIdBegin RESPAUTHENTICATE_TINT32_ID

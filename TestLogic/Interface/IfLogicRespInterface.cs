@@ -1,14 +1,14 @@
 using System.Collections;
 using System.Collections.Generic;
 using System;
-interface IfLogicResp
+public interface IfLogicResp
 {
     int RespTest(int _nRslt);
 }
 
-enum IfLogicRespMethodId
+public enum IfLogicRespMethodId
 {
-    IfLogicRespMethodIdBegin=3800,
-    IfLogicRespRespTestMethodId,
+    IfLogicRespMethodIdBegin=4800,
+    IfLogicRespRespTestMethodId = IfLogicRespMethodIdBegin,
     IfLogicRespMethodIdEnd,
 }

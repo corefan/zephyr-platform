@@ -9,8 +9,8 @@ TInt32 IfAuthRespSkeleton::HandleMsg(CMessageHeader *pMsg)
     struct _MSGMAP_ENTRY { TUInt32 m_uMsgID; _PFMSG m_pHandlerFunc; };
     static _MSGMAP_ENTRY sMsgMapEntries[] = 
     {
-        {IFAUTHRESP_INTERFACE_ID, &IfAuthRespSkeleton::HandleRespAuthenticate_TInt32},
-        {IFAUTHRESP_INTERFACE_ID, &IfAuthRespSkeleton::HandleConfirmDisconneted_CDoid},
+        {RESPAUTHENTICATE_TINT32_ID, &IfAuthRespSkeleton::HandleRespAuthenticate_TInt32},
+        {CONFIRMDISCONNETED_CDOID_ID, &IfAuthRespSkeleton::HandleConfirmDisconneted_CDoid},
     };
     TInt32 nBegin = 0;
     TInt32 nEnd = 2;

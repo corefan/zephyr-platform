@@ -9,8 +9,8 @@ TInt32 IfLogicServiceSkeleton::HandleMsg(CMessageHeader *pMsg)
     struct _MSGMAP_ENTRY { TUInt32 m_uMsgID; _PFMSG m_pHandlerFunc; };
     static _MSGMAP_ENTRY sMsgMapEntries[] = 
     {
-        {IFLOGICSERVICE_INTERFACE_ID, &IfLogicServiceSkeleton::HandleReqGetSession_TUInt64_CDoid_OctSeq_tpl_begin_TUInt16_tpl_end_},
-        {IFLOGICSERVICE_INTERFACE_ID, &IfLogicServiceSkeleton::HandleReqReleaseSession_TUInt64_CDoid_OctSeq_tpl_begin_TUInt16_tpl_end_},
+        {REQGETSESSION_TUINT64_CDOID_OCTSEQ_TPL_BEGIN_TUINT16_TPL_END__ID, &IfLogicServiceSkeleton::HandleReqGetSession_TUInt64_CDoid_OctSeq_tpl_begin_TUInt16_tpl_end_},
+        {REQRELEASESESSION_TUINT64_CDOID_OCTSEQ_TPL_BEGIN_TUINT16_TPL_END__ID, &IfLogicServiceSkeleton::HandleReqReleaseSession_TUInt64_CDoid_OctSeq_tpl_begin_TUInt16_tpl_end_},
     };
     TInt32 nBegin = 0;
     TInt32 nEnd = 2;

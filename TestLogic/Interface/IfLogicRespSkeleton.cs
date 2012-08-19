@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using System;
-class IfLogicRespSkeleton : CSkeleton
+public class IfLogicRespSkeleton : CSkeleton
 {
 
     IfLogicResp m_pImplementObj;

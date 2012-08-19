@@ -9,8 +9,8 @@ TInt32 IfGatewayRespSkeleton::HandleMsg(CMessageHeader *pMsg)
     struct _MSGMAP_ENTRY { TUInt32 m_uMsgID; _PFMSG m_pHandlerFunc; };
     static _MSGMAP_ENTRY sMsgMapEntries[] = 
     {
-        {IFGATEWAYRESP_INTERFACE_ID, &IfGatewayRespSkeleton::HandleConfirmRegisterService_TUInt32},
-        {IFGATEWAYRESP_INTERFACE_ID, &IfGatewayRespSkeleton::HandleConfirmUnRegisterService_TUInt32},
+        {CONFIRMREGISTERSERVICE_TUINT32_ID, &IfGatewayRespSkeleton::HandleConfirmRegisterService_TUInt32},
+        {CONFIRMUNREGISTERSERVICE_TUINT32_ID, &IfGatewayRespSkeleton::HandleConfirmUnRegisterService_TUInt32},
     };
     TInt32 nBegin = 0;
     TInt32 nEnd = 2;
@@ -60,8 +60,8 @@ TInt32 IfGatewayRespSkeleton::HandleConfirmRegisterService_TUInt32(CMessageHeade
     TInt32 nLen = pMsg->GetBodyLength();
     TUChar *pBuffer =pMsg->GetBody();
     TInt32 nRet;
-    TUInt32 uServiceId;
-    nRet = Unmarshall(pBuffer,nLen,uServiceId);
+    TUInt32 _uServiceId;
+    nRet = Unmarshall(pBuffer,nLen,_uServiceId);
     if (nRet<SUCCESS)
     {
         pBuffer += nRet;
@@ -71,7 +71,7 @@ TInt32 IfGatewayRespSkeleton::HandleConfirmRegisterService_TUInt32(CMessageHeade
     {
         return nRet;
     }
-    m_pImplementObj->ConfirmRegisterService(uServiceId);
+    m_pImplementObj->ConfirmRegisterService(_uServiceId);
     return SUCCESS;
 }
 TInt32 IfGatewayRespSkeleton::HandleConfirmUnRegisterService_TUInt32(CMessageHeader *pMsg)
@@ -79,8 +79,8 @@ TInt32 IfGatewayRespSkeleton::HandleConfirmUnRegisterService_TUInt32(CMessageHea
     TInt32 nLen = pMsg->GetBodyLength();
     TUChar *pBuffer =pMsg->GetBody();
     TInt32 nRet;
-    TUInt32 uServiceId;
-    nRet = Unmarshall(pBuffer,nLen,uServiceId);
+    TUInt32 _uServiceId;
+    nRet = Unmarshall(pBuffer,nLen,_uServiceId);
     if (nRet<SUCCESS)
     {
         pBuffer += nRet;
@@ -90,7 +90,7 @@ TInt32 IfGatewayRespSkeleton::HandleConfirmUnRegisterService_TUInt32(CMessageHea
     {
         return nRet;
     }
-    m_pImplementObj->ConfirmUnRegisterService(uServiceId);
+    m_pImplementObj->ConfirmUnRegisterService(_uServiceId);
     return SUCCESS;
 }
 }
