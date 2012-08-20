@@ -506,15 +506,12 @@ TInt32 CMethod::GenerateSkeletonSourceCode(char *pszBuff,int nLength)
                 nUsed += nRet;
                 nLength -= nRet;
                 nRet = sprintf(pszBuff+nUsed,"    nRet = Unmarshall(pBuffer,nLen,_%s);\n"
-                                             "    if (nRet<SUCCESS)\n"
-                                             "    {\n"
-                                             "        pBuffer += nRet;\n"
-                                             "        nLen -= nRet;\n"
-                                             "    }\n"
-                                             "    else\n"
+                    "    if (nRet<SUCCESS)\n"
                                              "    {\n"
                                              "        return nRet;\n"
                                              "    }\n"
+                                             "    pBuffer += nRet;\n"
+                                             "    nLen -= nRet;\n"
                                             ,pPar->m_szName.c_str());
                 nUsed += nRet;
                 nLength -= nRet;

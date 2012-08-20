@@ -68,7 +68,7 @@ TInt32 Unmarshall(TUChar *pBuffer,TInt32 uBuffLen,TChar *&psz)
     }
     pBuffer[n+sizeof(TInt32)] = 0; //force add '\0';
     psz = (TChar *)(pBuffer+sizeof(TInt32));
-    return (n + ((TUInt32)+sizeof(TChar)));
+    return (n + (sizeof(TUInt32)+sizeof(TChar)));
 }
 
 TInt32 Unmarshall(TUChar *pBuffer,TInt32 uBuffLen,const TChar *&psz)
@@ -88,7 +88,7 @@ TInt32 Unmarshall(TUChar *pBuffer,TInt32 uBuffLen,const TChar *&psz)
     }
     pBuffer[n+sizeof(TInt32)] = 0; //force add '\0';
     psz = (TChar *)(pBuffer+sizeof(TInt32));
-    return (n + ((TUInt32)+sizeof(TChar)));
+    return (n + (sizeof(TUInt32)+sizeof(TChar)));
 }
 
 

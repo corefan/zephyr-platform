@@ -63,24 +63,18 @@ TInt32 IfLogicSkeleton::HandleTest_TUInt64_TInt32(CMessageHeader *pMsg)
     nRet = Unmarshall(pBuffer,nLen,_uParm1);
     if (nRet<SUCCESS)
     {
-        pBuffer += nRet;
-        nLen -= nRet;
-    }
-    else
-    {
         return nRet;
     }
+    pBuffer += nRet;
+    nLen -= nRet;
     TInt32 _n2;
     nRet = Unmarshall(pBuffer,nLen,_n2);
     if (nRet<SUCCESS)
     {
-        pBuffer += nRet;
-        nLen -= nRet;
-    }
-    else
-    {
         return nRet;
     }
+    pBuffer += nRet;
+    nLen -= nRet;
     m_pImplementObj->Test(_uParm1,_n2);
     return SUCCESS;
 }

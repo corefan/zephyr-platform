@@ -2,8 +2,6 @@
 #define __IFAUTHSERVICE_METHOD_ID_H__
 #include "../../../ServiceTemplate/include/ServiceIdDef.h"
 
-
-
 #define IFAUTHSERVICE_INTERFACE_ID ((0x00000000) * 200) 
 #define IfAuthServiceServiceId (AUTHENTICATE_SERVICE_SERVICE_ID*1000)
 #define IfAuthServiceServiceIdBegin AUTHENTICATE_TUINT32_TCHAR_PT_TCHAR_PT_ID

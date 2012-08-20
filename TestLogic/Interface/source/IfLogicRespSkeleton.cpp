@@ -63,13 +63,10 @@ TInt32 IfLogicRespSkeleton::HandleRespTest_TInt32(CMessageHeader *pMsg)
     nRet = Unmarshall(pBuffer,nLen,_nRslt);
     if (nRet<SUCCESS)
     {
-        pBuffer += nRet;
-        nLen -= nRet;
-    }
-    else
-    {
         return nRet;
     }
+    pBuffer += nRet;
+    nLen -= nRet;
     m_pImplementObj->RespTest(_nRslt);
     return SUCCESS;
 }

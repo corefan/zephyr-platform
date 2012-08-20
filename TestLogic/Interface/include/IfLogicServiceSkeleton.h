@@ -1,7 +1,7 @@
 #ifndef __IFLOGICSERVICE_SKELETON_H__
 #define __IFLOGICSERVICE_SKELETON_H__
 #include "Public/include/Message.h"
-#include "../Interface/iflogicservice.h"
+#include "../Interface/IfLogicService.h"
 #include "IfLogicServiceMethodId.h"
 namespace test_logic 
 {

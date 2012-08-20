@@ -3,7 +3,7 @@
 #include "Public/include/TypeDef.h"
 #include "Public/include/Doid.h"
 #include "Public/Interface/Platform/include/IfSkeleton.h"
-#include "../Interface/IfAuthResp.h"
+#include "../Interface/ifauthresp.h"
 namespace Zephyr 
 {
 class IfAuthRespStub : public IfAuthResp

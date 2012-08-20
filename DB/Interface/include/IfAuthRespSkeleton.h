@@ -1,7 +1,7 @@
 #ifndef __IFAUTHRESP_SKELETON_H__
 #define __IFAUTHRESP_SKELETON_H__
 #include "Public/include/Message.h"
-#include "../Interface/IfAuthResp.h"
+#include "../Interface/ifauthresp.h"
 #include "IfAuthRespMethodId.h"
 namespace Zephyr 
 {

@@ -3,7 +3,7 @@
 #include "Public/include/TypeDef.h"
 #include "Public/include/Doid.h"
 #include "Public/Interface/Platform/include/IfSkeleton.h"
-#include "../Interface/iflogicservice.h"
+#include "../Interface/IfLogicService.h"
 namespace test_logic 
 {
 class IfLogicServiceStub : public IfLogicService

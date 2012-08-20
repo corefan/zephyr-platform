@@ -64,35 +64,26 @@ TInt32 IfAuthServiceSkeleton::HandleAuthenticate_TUInt32_TChar_pt_TChar_pt(CMess
     nRet = Unmarshall(pBuffer,nLen,_uIp);
     if (nRet<SUCCESS)
     {
-        pBuffer += nRet;
-        nLen -= nRet;
-    }
-    else
-    {
         return nRet;
     }
+    pBuffer += nRet;
+    nLen -= nRet;
     TChar *_pszName;
     nRet = Unmarshall(pBuffer,nLen,_pszName);
     if (nRet<SUCCESS)
     {
-        pBuffer += nRet;
-        nLen -= nRet;
-    }
-    else
-    {
         return nRet;
     }
+    pBuffer += nRet;
+    nLen -= nRet;
     TChar *_pszPwd;
     nRet = Unmarshall(pBuffer,nLen,_pszPwd);
     if (nRet<SUCCESS)
     {
-        pBuffer += nRet;
-        nLen -= nRet;
-    }
-    else
-    {
         return nRet;
     }
+    pBuffer += nRet;
+    nLen -= nRet;
     m_pImplementObj->Authenticate(_uIp,_pszName,_pszPwd);
     return SUCCESS;
 }
@@ -105,13 +96,10 @@ TInt32 IfAuthServiceSkeleton::HandleOnDisconneted_CDoid(CMessageHeader *pMsg)
     nRet = Unmarshall(pBuffer,nLen,_tMyDoid);
     if (nRet<SUCCESS)
     {
-        pBuffer += nRet;
-        nLen -= nRet;
-    }
-    else
-    {
         return nRet;
     }
+    pBuffer += nRet;
+    nLen -= nRet;
     m_pImplementObj->OnDisconneted(_tMyDoid);
     return SUCCESS;
 }

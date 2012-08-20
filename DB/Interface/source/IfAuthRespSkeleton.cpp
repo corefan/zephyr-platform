@@ -64,13 +64,10 @@ TInt32 IfAuthRespSkeleton::HandleRespAuthenticate_TInt32(CMessageHeader *pMsg)
     nRet = Unmarshall(pBuffer,nLen,_nResult);
     if (nRet<SUCCESS)
     {
-        pBuffer += nRet;
-        nLen -= nRet;
-    }
-    else
-    {
         return nRet;
     }
+    pBuffer += nRet;
+    nLen -= nRet;
     m_pImplementObj->RespAuthenticate(_nResult);
     return SUCCESS;
 }
@@ -83,13 +80,10 @@ TInt32 IfAuthRespSkeleton::HandleConfirmDisconneted_CDoid(CMessageHeader *pMsg)
     nRet = Unmarshall(pBuffer,nLen,_tMyDoid);
     if (nRet<SUCCESS)
     {
-        pBuffer += nRet;
-        nLen -= nRet;
-    }
-    else
-    {
         return nRet;
     }
+    pBuffer += nRet;
+    nLen -= nRet;
     m_pImplementObj->ConfirmDisconneted(_tMyDoid);
     return SUCCESS;
 }

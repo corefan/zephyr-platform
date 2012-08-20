@@ -1,7 +1,7 @@
 #ifndef __IFLOGIC_SKELETON_H__
 #define __IFLOGIC_SKELETON_H__
 #include "Public/include/Message.h"
-#include "../Interface/iflogic.h"
+#include "../Interface/IfLogic.h"
 #include "IfLogicMethodId.h"
 namespace test_logic 
 {

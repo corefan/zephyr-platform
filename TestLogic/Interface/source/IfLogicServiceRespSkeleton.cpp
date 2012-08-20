@@ -64,24 +64,18 @@ TInt32 IfLogicServiceRespSkeleton::HandleRespGetSession_TUInt64_CDoid(CMessageHe
     nRet = Unmarshall(pBuffer,nLen,_uId);
     if (nRet<SUCCESS)
     {
-        pBuffer += nRet;
-        nLen -= nRet;
-    }
-    else
-    {
         return nRet;
     }
+    pBuffer += nRet;
+    nLen -= nRet;
     CDoid _tGwDoid;
     nRet = Unmarshall(pBuffer,nLen,_tGwDoid);
     if (nRet<SUCCESS)
     {
-        pBuffer += nRet;
-        nLen -= nRet;
-    }
-    else
-    {
         return nRet;
     }
+    pBuffer += nRet;
+    nLen -= nRet;
     m_pImplementObj->RespGetSession(_uId,_tGwDoid);
     return SUCCESS;
 }
@@ -94,13 +88,10 @@ TInt32 IfLogicServiceRespSkeleton::HandleRespReleaseSession_TUInt64(CMessageHead
     nRet = Unmarshall(pBuffer,nLen,_uId);
     if (nRet<SUCCESS)
     {
-        pBuffer += nRet;
-        nLen -= nRet;
-    }
-    else
-    {
         return nRet;
     }
+    pBuffer += nRet;
+    nLen -= nRet;
     m_pImplementObj->RespReleaseSession(_uId);
     return SUCCESS;
 }

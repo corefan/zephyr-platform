@@ -64,35 +64,26 @@ TInt32 IfLogicServiceSkeleton::HandleReqGetSession_TUInt64_CDoid_OctSeq_tpl_begi
     nRet = Unmarshall(pBuffer,nLen,_uId);
     if (nRet<SUCCESS)
     {
-        pBuffer += nRet;
-        nLen -= nRet;
-    }
-    else
-    {
         return nRet;
     }
+    pBuffer += nRet;
+    nLen -= nRet;
     CDoid _tGwDoid;
     nRet = Unmarshall(pBuffer,nLen,_tGwDoid);
     if (nRet<SUCCESS)
     {
-        pBuffer += nRet;
-        nLen -= nRet;
-    }
-    else
-    {
         return nRet;
     }
+    pBuffer += nRet;
+    nLen -= nRet;
     OctSeq<TUInt16> _tData;
     nRet = Unmarshall(pBuffer,nLen,_tData);
     if (nRet<SUCCESS)
     {
-        pBuffer += nRet;
-        nLen -= nRet;
-    }
-    else
-    {
         return nRet;
     }
+    pBuffer += nRet;
+    nLen -= nRet;
     m_pImplementObj->ReqGetSession(_uId,_tGwDoid,_tData);
     return SUCCESS;
 }
@@ -105,35 +96,26 @@ TInt32 IfLogicServiceSkeleton::HandleReqReleaseSession_TUInt64_CDoid_OctSeq_tpl_
     nRet = Unmarshall(pBuffer,nLen,_uId);
     if (nRet<SUCCESS)
     {
-        pBuffer += nRet;
-        nLen -= nRet;
-    }
-    else
-    {
         return nRet;
     }
+    pBuffer += nRet;
+    nLen -= nRet;
     CDoid _tSess;
     nRet = Unmarshall(pBuffer,nLen,_tSess);
     if (nRet<SUCCESS)
     {
-        pBuffer += nRet;
-        nLen -= nRet;
-    }
-    else
-    {
         return nRet;
     }
+    pBuffer += nRet;
+    nLen -= nRet;
     OctSeq<TUInt16> _tData;
     nRet = Unmarshall(pBuffer,nLen,_tData);
     if (nRet<SUCCESS)
     {
-        pBuffer += nRet;
-        nLen -= nRet;
-    }
-    else
-    {
         return nRet;
     }
+    pBuffer += nRet;
+    nLen -= nRet;
     m_pImplementObj->ReqReleaseSession(_uId,_tSess,_tData);
     return SUCCESS;
 }
