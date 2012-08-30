@@ -588,18 +588,16 @@ int CBaseElement::Replace4CSharp(char *pBuff)
     nUsed = ReplaceStr(pBuff,"list<","list<",pszNew);
     nUsed = ReplaceStr(pBuff,"set<","list<",pszNew);
     nUsed = ReplaceStr(pBuff,"OctSeq<ushort>","OctSeqUS",pszNew);
-    nUsed = ReplaceStr(pBuff,"OctSeq<short>","OctSeqS",pszNew);
+    nUsed = ReplaceStr(pBuff,"OctSeq<short>","OctSeqUS",pszNew);
     nUsed = ReplaceStr(pBuff,"OctSeq<uint>","OctSeqUI",pszNew);
-    nUsed = ReplaceStr(pBuff,"OctSeq<int>","OctSeqI",pszNew);
-    nUsed = ReplaceStr(pBuff,"OctSeq<long>","OctSeqL",pszNew);
-    nUsed = ReplaceStr(pBuff,"OctSeq<long>","OctSeqUL",pszNew);
+    nUsed = ReplaceStr(pBuff,"OctSeq<int>","OctSeqUI",pszNew);
 
-    nUsed = ReplaceStr(pBuff,"TLV<ushort,ushort>","OctSeqUSUS",pszNew);
-    nUsed = ReplaceStr(pBuff,"TLV<short,short>","OctSeqSS",pszNew);
-    nUsed = ReplaceStr(pBuff,"TLV<int,int>","OctSeqII",pszNew);
-    nUsed = ReplaceStr(pBuff,"TLV<uint,uint>","OctSeqUIUI",pszNew);
-    nUsed = ReplaceStr(pBuff,"TLV<long,uint>","OctSeqLUI",pszNew);
-    nUsed = ReplaceStr(pBuff,"TLV<ulong,uint>","OctSeqULUI",pszNew);
+    nUsed = ReplaceStr(pBuff,"TLV<ushort,ushort>","TLVUSUS",pszNew);
+    nUsed = ReplaceStr(pBuff,"TLV<short,short>","TLVUSUS",pszNew);
+    nUsed = ReplaceStr(pBuff,"TLV<int,int>","TLVUIUI",pszNew);
+    nUsed = ReplaceStr(pBuff,"TLV<uint,uint>","TLVUIUI",pszNew);
+    nUsed = ReplaceStr(pBuff,"TLV<long,uint>","TLVULUI",pszNew);
+    nUsed = ReplaceStr(pBuff,"TLV<ulong,uint>","TLVULUI",pszNew);
     delete [] pszNew;
     return nUsed;
 }
