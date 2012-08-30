@@ -147,7 +147,10 @@ TInt32 Marshall(TUChar *pBuffer,TInt32 uBuffLen,OctSeq<TYPE> &tOctSeq)
         return OUT_OF_MEM;
     }
     *((TYPE*)pBuffer) = tOctSeq.m_nBodyLength;
-    memcpy((pBuffer+sizeof(TYPE)),tOctSeq.m_pBuffer,tOctSeq.m_nBodyLength);
+    if (tOctSeq.m_nBodyLength > 0)
+    {
+        memcpy((pBuffer+sizeof(TYPE)),tOctSeq.m_pBuffer,tOctSeq.m_nBodyLength);
+    }
     return nLength;
 }
 
@@ -170,7 +173,10 @@ TInt32 Marshall(TUChar *pBuffer,TInt32 uBuffLen,TLV<LENGTH_TYPE,TAG_TYPE> &tTLV)
     pBuffer += sizeof(LENGTH_TYPE);
     *((TAG_TYPE*)pBuffer) = tTLV.m_nTag;
     pBuffer += sizeof(TAG_TYPE);
-    memcpy(pBuffer,tTLV.m_pBuffer,tTLV.m_nBodyLength);
+    if (tTLV.m_nBodyLength > 0)
+    {
+        memcpy(pBuffer,tTLV.m_pBuffer,tTLV.m_nBodyLength);
+    }
     return nLength;
 }
 
