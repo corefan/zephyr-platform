@@ -587,7 +587,7 @@ TInt32 CMethod::GenerateCSharpInterfaceMethodCode(char *pBuff,int nLength)
         {
             CParamerter *pParm = (CParamerter*)p; 
             CParamerter *pPar = (CParamerter*)p;
-            const string *pCsType =  GetCSharpType(pPar->m_pFullType->GetCSharpBaseTypeCode()->c_str());
+            //const string *pCsType =  GetCSharpType(pPar->m_pFullType->GetCSharpBaseTypeCode()->c_str());
             if (j)
             {
                 n = sprintf(pBuff+nUsed,",");
@@ -595,11 +595,11 @@ TInt32 CMethod::GenerateCSharpInterfaceMethodCode(char *pBuff,int nLength)
                 nLength -= n;
             }
 
-            if (pCsType)
-            {
-                 n = sprintf(pBuff+nUsed,"%s _%s",pCsType->c_str(),pParm->m_szName.c_str());
-            }
-            else
+//             if (pCsType)
+//             {
+//                  n = sprintf(pBuff+nUsed,"%s _%s",pCsType->c_str(),pParm->m_szName.c_str());
+//             }
+//             else
             {
                  n = sprintf(pBuff+nUsed,"%s _%s",pParm->m_pFullType->GetCSharpTypeCode()->c_str(),pParm->m_szName.c_str());
             }
@@ -633,7 +633,7 @@ TInt32 CMethod::GenerateCSharpSkeletonMethodCode(char *pBuff,int nLength,int nEt
             const string *pCsType =  GetCSharpType(pPar->m_pFullType->GetCSharpBaseTypeCode()->c_str());
             if (pCsType)
             {
-                WRITE_LINE_ETCH("%s _%s;",pCsType->c_str(),pPar->m_szName.c_str());
+                WRITE_LINE_ETCH("%s _%s;",pPar->m_pFullType->GetCSharpTypeCode()->c_str(),pPar->m_szName.c_str());
                 WRITE_LINE_ETCH("nLen = TypeUnmarshaller.Unmarshall(pMsg.m_pBuffers, nBufferLen, nUsed, out _%s);",pPar->m_szName.c_str());
             }
             else
@@ -688,7 +688,7 @@ TInt32 CMethod::GenerateCSharpStubMethodCode(char *pBuff,const char *pIfName,int
         {
             CParamerter *pParm = (CParamerter*)p; 
             CParamerter *pPar = (CParamerter*)p;
-            const string *pCsType =  GetCSharpType(pPar->m_pFullType->GetCSharpBaseTypeCode()->c_str());
+            //const string *pCsType =  GetCSharpType(pPar->m_pFullType->GetCSharpBaseTypeCode()->c_str());
             if (j)
             {
                 n = sprintf(pBuff+nUsed,",");
@@ -696,11 +696,11 @@ TInt32 CMethod::GenerateCSharpStubMethodCode(char *pBuff,const char *pIfName,int
                 nLength -= n;
             }
 
-            if (pCsType)
-            {
-                n = sprintf(pBuff+nUsed,"%s _%s",pCsType->c_str(),pParm->m_szName.c_str());
-            }
-            else
+//             if (pCsType)
+//             {
+//                 n = sprintf(pBuff+nUsed,"%s _%s",pCsType->c_str(),pParm->m_szName.c_str());
+//             }
+//             else
             {
                 n = sprintf(pBuff+nUsed,"%s _%s",pParm->m_pFullType->GetCSharpTypeCode()->c_str(),pParm->m_szName.c_str());
             }

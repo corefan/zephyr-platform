@@ -608,6 +608,8 @@ int CBaseElement::Replace4CSharp(char *pBuff)
 #define ADD_TYPE_MAP(C_TYPE,CS_TYPE) AddCSharpType(#C_TYPE,#CS_TYPE); \
                                      AddCSharpType(#C_TYPE"*",#CS_TYPE); \
                                      AddCSharpType(#C_TYPE" *",#CS_TYPE);\
+                                     AddCSharpType(#CS_TYPE,#CS_TYPE);\
+
 
 void CBaseElement::InitTypeMap()
 {

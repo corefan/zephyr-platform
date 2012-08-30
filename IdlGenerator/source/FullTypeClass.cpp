@@ -152,7 +152,17 @@ TInt32 CFullTypeDef::Process(char **ppElements,EnType *pTypes,int nProcess2,int 
         m_szFull += ppElements[nProcess2];
         m_szRawTxt += ppElements[nProcess2];
         m_szRawNoPrefix += ppElements[nProcess2];
-        m_szCSharpCode += ppElements[nProcess2];
+
+        const string *pCsType =  GetCSharpType(ppElements[nProcess2]);
+        if (pCsType)
+        {
+            m_szCSharpCode += pCsType->c_str();
+        }
+        else
+        {
+            m_szCSharpCode += ppElements[nProcess2];
+        }
+
         ++nProcess2;
         //´¦ÀíÄ£°å
         if (smaller_mark_type == pTypes[nProcess2])
