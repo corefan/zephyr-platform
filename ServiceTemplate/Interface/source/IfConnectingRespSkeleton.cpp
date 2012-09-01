@@ -12,9 +12,10 @@ TInt32 IfConnectingRespSkeleton::HandleMsg(CMessageHeader *pMsg)
         {RESPREGISTERSERVICE_CDOID_PT_TUINT32_TINT32_ID, &IfConnectingRespSkeleton::HandleRespRegisterService_CDoid_pt_TUInt32_TInt32},
         {CONFIRMUNREGISTERSERVICE_TUINT32_ID, &IfConnectingRespSkeleton::HandleConfirmUnregisterService_TUInt32},
         {ONDISCONNECT_TUINT32_ID, &IfConnectingRespSkeleton::HandleOnDisconnect_TUInt32},
+        {SENDRSAPUBLICKEY_TUINT16_TUINT16_OCTSEQ_TPL_BEGIN_TUINT16_TPL_END__OCTSEQ_TPL_BEGIN_TUINT16_TPL_END__ID, &IfConnectingRespSkeleton::HandleSendRSAPublicKey_TUInt16_TUInt16_OctSeq_tpl_begin_TUInt16_tpl_end__OctSeq_tpl_begin_TUInt16_tpl_end_},
     };
     TInt32 nBegin = 0;
-    TInt32 nEnd = 3;
+    TInt32 nEnd = 4;
     TUInt32 nMethodId = pMsg->GetMethodId();
     _PFMSG pPfMsg = NULL;
     while(nBegin < nEnd)
@@ -65,35 +66,26 @@ TInt32 IfConnectingRespSkeleton::HandleRespRegisterService_CDoid_pt_TUInt32_TInt
     nRet = Unmarshall(pBuffer,nLen,_pDoid);
     if (nRet<SUCCESS)
     {
-        pBuffer += nRet;
-        nLen -= nRet;
-    }
-    else
-    {
         return nRet;
     }
+    pBuffer += nRet;
+    nLen -= nRet;
     TUInt32 _uServiceId;
     nRet = Unmarshall(pBuffer,nLen,_uServiceId);
     if (nRet<SUCCESS)
     {
-        pBuffer += nRet;
-        nLen -= nRet;
-    }
-    else
-    {
         return nRet;
     }
+    pBuffer += nRet;
+    nLen -= nRet;
     TInt32 _nRslt;
     nRet = Unmarshall(pBuffer,nLen,_nRslt);
     if (nRet<SUCCESS)
     {
-        pBuffer += nRet;
-        nLen -= nRet;
-    }
-    else
-    {
         return nRet;
     }
+    pBuffer += nRet;
+    nLen -= nRet;
     m_pImplementObj->RespRegisterService(&_pDoid,_uServiceId,_nRslt);
     return SUCCESS;
 }
@@ -106,13 +98,10 @@ TInt32 IfConnectingRespSkeleton::HandleConfirmUnregisterService_TUInt32(CMessage
     nRet = Unmarshall(pBuffer,nLen,_uServiceId);
     if (nRet<SUCCESS)
     {
-        pBuffer += nRet;
-        nLen -= nRet;
-    }
-    else
-    {
         return nRet;
     }
+    pBuffer += nRet;
+    nLen -= nRet;
     m_pImplementObj->ConfirmUnregisterService(_uServiceId);
     return SUCCESS;
 }
@@ -125,14 +114,51 @@ TInt32 IfConnectingRespSkeleton::HandleOnDisconnect_TUInt32(CMessageHeader *pMsg
     nRet = Unmarshall(pBuffer,nLen,_uReason);
     if (nRet<SUCCESS)
     {
-        pBuffer += nRet;
-        nLen -= nRet;
+        return nRet;
     }
-    else
+    pBuffer += nRet;
+    nLen -= nRet;
+    m_pImplementObj->OnDisconnect(_uReason);
+    return SUCCESS;
+}
+TInt32 IfConnectingRespSkeleton::HandleSendRSAPublicKey_TUInt16_TUInt16_OctSeq_tpl_begin_TUInt16_tpl_end__OctSeq_tpl_begin_TUInt16_tpl_end_(CMessageHeader *pMsg)
+{
+    TInt32 nLen = pMsg->GetBodyLength();
+    TUChar *pBuffer =pMsg->GetBody();
+    TInt32 nRet;
+    TUInt16 _uBits;
+    nRet = Unmarshall(pBuffer,nLen,_uBits);
+    if (nRet<SUCCESS)
     {
         return nRet;
     }
-    m_pImplementObj->OnDisconnect(_uReason);
+    pBuffer += nRet;
+    nLen -= nRet;
+    TUInt16 _isFermat4;
+    nRet = Unmarshall(pBuffer,nLen,_isFermat4);
+    if (nRet<SUCCESS)
+    {
+        return nRet;
+    }
+    pBuffer += nRet;
+    nLen -= nRet;
+    OctSeq<TUInt16> _e;
+    nRet = Unmarshall(pBuffer,nLen,_e);
+    if (nRet<SUCCESS)
+    {
+        return nRet;
+    }
+    pBuffer += nRet;
+    nLen -= nRet;
+    OctSeq<TUInt16> _n;
+    nRet = Unmarshall(pBuffer,nLen,_n);
+    if (nRet<SUCCESS)
+    {
+        return nRet;
+    }
+    pBuffer += nRet;
+    nLen -= nRet;
+    m_pImplementObj->SendRSAPublicKey(_uBits,_isFermat4,_e,_n);
     return SUCCESS;
 }
 }

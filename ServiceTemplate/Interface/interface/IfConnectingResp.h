@@ -6,6 +6,8 @@
 namespace Zephyr
 {
 
+
+
 class IfConnectingResp
 {
 public:
@@ -14,6 +16,8 @@ public:
     //×¢²á¹ã²¥
 
     virtual TInt32 OnDisconnect(TUInt32 uReason) = 0;
+
+    virtual TInt32 SendRSAPublicKey(TUInt16 uBits,TUInt16 isFermat4,OctSeq<TUInt16> e,OctSeq<TUInt16> n) = 0;
 };
 
 }

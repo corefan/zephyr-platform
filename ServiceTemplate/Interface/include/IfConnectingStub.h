@@ -3,7 +3,7 @@
 #include "Public/include/TypeDef.h"
 #include "Public/include/Doid.h"
 #include "Public/Interface/Platform/include/IfSkeleton.h"
-#include "../Interface/ifconnecting.h"
+#include "../Interface/IfConnecting.h"
 namespace Zephyr 
 {
 class IfConnectingStub : public IfConnecting
@@ -22,6 +22,7 @@ public:
     virtual TInt32 Disconnect(TUInt32 uReason);
     virtual TInt32 SetId(TUInt32 uId);
     virtual TInt32 CheckId(TUInt32 uId);
+    virtual TInt32 SendCryptedKey(OctSeq<TUInt16> tKey);
 };
 }
 #endif

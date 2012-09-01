@@ -22,6 +22,8 @@ namespace Zephyr
         virtual TInt32 Disconnect(TUInt32 uReason) = 0;
         virtual TInt32 SetId(TUInt32 uId) = 0;
         virtual TInt32 CheckId(TUInt32 uId) = 0;
+
+        virtual TInt32 SendCryptedKey(OctSeq<TUInt16> tKey) = 0;
     };
 }
 

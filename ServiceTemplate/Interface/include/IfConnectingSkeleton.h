@@ -1,7 +1,7 @@
 #ifndef __IFCONNECTING_SKELETON_H__
 #define __IFCONNECTING_SKELETON_H__
 #include "Public/include/Message.h"
-#include "../Interface/ifconnecting.h"
+#include "../Interface/IfConnecting.h"
 #include "IfConnectingMethodId.h"
 namespace Zephyr 
 {
@@ -24,6 +24,7 @@ public:
     TInt32 HandleDisconnect_TUInt32(CMessageHeader *pMsg);
     TInt32 HandleSetId_TUInt32(CMessageHeader *pMsg);
     TInt32 HandleCheckId_TUInt32(CMessageHeader *pMsg);
+    TInt32 HandleSendCryptedKey_OctSeq_tpl_begin_TUInt16_tpl_end_(CMessageHeader *pMsg);
 };
 }
 #endif

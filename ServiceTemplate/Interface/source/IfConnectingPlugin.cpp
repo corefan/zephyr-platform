@@ -74,6 +74,11 @@ TInt32 CIfConnectingPlugin::OnDisconnect(TUInt32 uReason)
     return SUCCESS;
 }
 
+TInt32 CIfConnectingPlugin::SendRSAPublicKey(TUInt16 uBits,TUInt16 isFermat4,OctSeq<TUInt16> e,OctSeq<TUInt16> n)
+{
+    return SUCCESS;
+}
+
 TInt32 CIfConnectingPlugin::OnScheduler(TUInt64 nTimeNow,void *pTimer,TInt32 nRepeatTimeRemains)
 {
     m_pTimer = NULL;
