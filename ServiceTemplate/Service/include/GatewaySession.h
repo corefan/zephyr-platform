@@ -90,6 +90,8 @@ public:
     
     virtual TInt32 SetId(TUInt32 uId);
     virtual TInt32 CheckId(TUInt32 uId);
+
+    virtual TInt32 SendCryptedKey(OctSeq<TUInt16> tKey);
     // π”√inline
     IfLogger *GetLogger();
     void DelayedDisconnect();

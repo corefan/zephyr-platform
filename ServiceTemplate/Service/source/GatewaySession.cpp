@@ -275,5 +275,11 @@ TInt32 CGatewaySession::SendMsg2Client(CMessageHeader *pMsg)
     }
     return OUT_OF_MEM_BUFFER;
 }
+
+TInt32 CGatewaySession::SendCryptedKey(OctSeq<TUInt16> tKey)
+{
+    return SUCCESS;
+}
+
 }
 #pragma warning(pop)

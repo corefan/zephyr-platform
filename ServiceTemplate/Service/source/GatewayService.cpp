@@ -5,6 +5,8 @@
 #include "Public/include/NetCenter.h"
 #include "../../../DB/Interface/include/IfAuthServiceMethodId.h"
 #include "../include/GatewayDefAndConst.h"
+#include "../CryptLib2/rsaref.h"
+#include "../CryptLib2/rsa.h"
 namespace Zephyr
 {
 
@@ -286,6 +288,40 @@ TInt32 CGatewayService::InitService(IfOrb* pOrb,IfTaskMgr *pIfTaskMgr,IfLoggerMa
     m_pOrb = pOrb;
     m_pClock = pOrb->GetClock();
     m_uLastRoutineTime = GetClock()->GetLocalTime();
+    R_RandomCreate(&m_tRandStruct);
+    R_RSA_PROTO_KEY  tProtoKey;
+    tProtoKey.bits = 1024;
+    tProtoKey.useFermat4 = 1;
+
+    memset(&m_tPublicKey,0,sizeof(m_tPublicKey));
+    memset(&m_tPrivateKey,0,sizeof(m_tPrivateKey));
+
+    int nRet = R_GeneratePEMKeys(&m_tPublicKey, &m_tPrivateKey,&tProtoKey,&m_tRandStruct);
+    char demostring[] = "Test string for RSA functions #1";
+    char encryptedString[MAX_RSA_MODULUS_LEN+2];
+    char decryptedString[256];
+    int status;
+    unsigned int encryptedLength, decryptedLength;
+
+    status = RSAPrivateEncrypt((unsigned char*)encryptedString, &encryptedLength,(unsigned char*) demostring,
+        strlen(demostring)+1, &m_tPrivateKey);
+    if (status)
+    {
+        printf("RSAPrivateEncrypt failed with %x\n", status);
+        return SUCCESS;
+    }
+    /* Decrypt with public key */
+    status = RSAPublicDecrypt((unsigned char*)decryptedString, &decryptedLength,(unsigned char*) encryptedString,
+        encryptedLength, &m_tPublicKey);
+    if (status)
+    {
+        printf("RSAPublicDecrypt failed with %x\n", status);
+        return SUCCESS;
+    }
+    /* Display decrypted string */
+    decryptedString[decryptedLength+1] = (char) "\0";
+    printf("Decrypted string: %s\n", decryptedString);
+
     return SUCCESS;
 }
 
