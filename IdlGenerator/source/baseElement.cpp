@@ -559,10 +559,10 @@ int CBaseElement::ReplaceStr(char *pBuffer,const TChar *pszOrig,const TChar *pNe
     {
         while(pFound)
         {
-            int nLen = (pFound - pBuffer+nOrigUsed);
+            int nLen = (pFound - (pBuffer+nOrigUsed));
             memcpy(pszNew+nUsed,pBuffer+nOrigUsed,nLen);
             nUsed += nLen;
-            nOrigUsed += nLen + nOrigLen;
+            nOrigUsed += (nLen + nOrigLen);
             memcpy(pszNew+nUsed,pNew,nNewLen+1);
             nUsed += nNewLen;
             pFound = strstr(pBuffer+nOrigUsed,pszOrig);
