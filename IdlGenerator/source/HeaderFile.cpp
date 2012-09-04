@@ -135,6 +135,7 @@ TInt32 CHeaderFile::GeneratorIdl(const char *pFileName,const char *pPath)
     std::cin>>sm_szServiceName;
     printf("\nInput Interface Id Start Num:");
     std::cin>>CBaseElement::sm_nInterfaceIdBegin;
+    int nOriginal = CBaseElement::sm_nInterfaceIdBegin;
     for (int i=0;i<sm_szServiceName.size();++i)
     {
         sm_szServiceName[i] = toupper(sm_szServiceName[i]);
@@ -172,6 +173,7 @@ TInt32 CHeaderFile::GeneratorIdl(const char *pFileName,const char *pPath)
         if (nChoice)
         {
             printf("Input Interface Nr:");
+            CBaseElement::sm_nInterfaceIdBegin = nOriginal;
             std::cin>>CBaseElement::sm_nInterfaceNr;
             GenerateCSharpCode(pPath,nChoice);
         }
