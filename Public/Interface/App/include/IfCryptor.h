@@ -19,7 +19,7 @@
 
 namespace Zephyr
 {
-
+//这个玩意确实没什么用，算了
 class IfCryptor
 {
 public:
