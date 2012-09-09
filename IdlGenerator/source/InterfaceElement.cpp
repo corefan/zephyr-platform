@@ -1055,7 +1055,7 @@ TInt32 CInterfaceElement::GenerateMethodIdFile(const char *pPath,int nInterfaceI
         nUsed += n;
         nLength -= n;
         
-        WRITE_LINE("#define %sServiceId (%s_SERVICE_ID*1000)",m_szName.c_str(),CHeaderFile::sm_szServiceName.c_str())
+        WRITE_LINE("#define %sServiceId (%sServiceIdBegin)",m_szName.c_str(),m_szName.c_str())
         WRITE_CODE("#define %sServiceIdBegin ",m_szName.c_str());
 
         int nMethodNr = 0;

@@ -132,7 +132,7 @@ public:
     //´ÓMessageId
     static TUInt32 GetServiceID(TUInt32 uMethodId)
     {
-        TUInt32 uRmn = uMethodId % 1000;
+        TUInt32 uRmn = uMethodId % 200;
         return (uMethodId-uRmn);
     }
 
