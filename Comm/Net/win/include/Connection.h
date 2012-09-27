@@ -88,7 +88,7 @@ private:
     volatile TUChar             m_connectionType;
 
     volatile TUInt32            m_nNetBlocked;
-
+// 
     TUInt32                     m_uLastNetAppBlocked;
     TUInt32                     m_uLastAppAppBlocked;
 

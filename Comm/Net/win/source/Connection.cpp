@@ -348,7 +348,7 @@ CConnection::CConnection()
     m_pIfCryptor = NULL;
     m_pEventQueues = NULL;
     m_socket = SOCKET_ERROR;
-    m_pTimer = &m_uLastNetAppBlocked; //先这么着吧~
+    m_pTimer = NULL; 
 }
 
 void CConnection::CloseConnection()
@@ -399,6 +399,13 @@ TInt32 CConnection::OnInit()
     m_netSeqNum = 0;
 
     m_appConfirmNum = 0;
+
+    m_uLastNetAppBlocked = 0;
+    m_uLastAppAppBlocked = 0;
+
+
+    m_uNetBlockedTime = 0;
+    m_uAppBlockedTime = 0;
     
     return SUCCESS;
 }
@@ -1001,7 +1008,7 @@ TInt32 CConnection::GetPendingDataLen()
 inline TInt32 CConnection::GetNetWaitTime()
 {
     TUInt32 uTimeNow = GetTimeNow();
-    if (m_uNetBlockedTime == uTimeNow)
+    if (m_uLastNetAppBlocked == uTimeNow)
     {
         ++m_uNetBlockedTime;
         if(m_uNetBlockedTime < 10)
@@ -1011,7 +1018,7 @@ inline TInt32 CConnection::GetNetWaitTime()
     }
     else
     {
-        m_uNetBlockedTime = uTimeNow;
+        m_uLastNetAppBlocked = uTimeNow;
         m_uNetBlockedTime = 0;
         return 30;
     }
@@ -1023,7 +1030,7 @@ inline TInt32 CConnection::GetNetWaitTime()
 inline TInt32 CConnection::GetAppWaitTime()
 {
     TUInt32 uTimeNow = GetTimeNow();
-    if (m_uAppBlockedTime == uTimeNow)
+    if (m_uLastAppAppBlocked == uTimeNow)
     {
         if(m_uAppBlockedTime < 10)
         {
@@ -1033,7 +1040,7 @@ inline TInt32 CConnection::GetAppWaitTime()
     }
     else
     {
-        m_uAppBlockedTime = uTimeNow;
+        m_uLastAppAppBlocked = uTimeNow;
         m_uAppBlockedTime = 0;
         return 20;
     }
