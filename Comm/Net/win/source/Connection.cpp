@@ -1010,9 +1010,9 @@ inline TInt32 CConnection::GetNetWaitTime()
     TUInt32 uTimeNow = GetTimeNow();
     if (m_uLastNetAppBlocked == uTimeNow)
     {
-        ++m_uNetBlockedTime;
         if(m_uNetBlockedTime < 10)
         {
+            ++m_uNetBlockedTime;
             return 15;
         }
     }
