@@ -283,4 +283,9 @@ void CleanList()\
     m_##LISTCLASS##List.m_pPrev = NULL;\
 }
 
+
+#define GET_CONTAINER(address, type, field) ((type *)( \
+    (char*)(address) - \
+    (unsigned long)(&((type *)0)->field)))
+
 #endif 

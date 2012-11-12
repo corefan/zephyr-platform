@@ -13,7 +13,9 @@
 #ifndef __ZEPHYR_TYPE_DEFINE_H__
 #define __ZEPHYR_TYPE_DEFINE_H__
 
+#include <map>
 
+#include <vector>
 
 namespace Zephyr
 {
@@ -48,7 +50,7 @@ public:
     {
         return sizeof(TYPE) + nLength;
     }
-    TInt32 GetFullLength()
+    TInt32 GetFullLength() const
     {
         return sizeof(TYPE) + m_nBodyLength;
     }
@@ -99,7 +101,7 @@ public:
     {
         return m_nTag;
     }
-    LENGHT_TYPE GetFullLength()
+    LENGHT_TYPE GetFullLength() const
     {
         return ((sizeof(LENGHT_TYPE)+sizeof(TAG_TYPE)) + m_nBodyLength); 
     }
@@ -161,7 +163,7 @@ public:
 
 
 using namespace Zephyr;
-
+using namespace std;
 
 
 

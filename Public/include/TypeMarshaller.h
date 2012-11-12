@@ -16,7 +16,7 @@ namespace Zephyr
 #ifndef _USE_LINK_2_MARSHALL
 
 #define DECLARE_MARSHALLERS(TYPE) \
-    inline TInt32 Marshall(TUChar *pBuffer,TInt32 uBufferLen,TYPE tType) \
+    inline TInt32 Marshall(TUChar *pBuffer,TInt32 uBufferLen,const TYPE tType) \
     { \
         if (uBufferLen >= sizeof( TYPE )) \
         { \
@@ -25,17 +25,17 @@ namespace Zephyr
         } \
         return OUT_OF_MEM; \
     } \
-    inline TInt32 GetLength(TYPE c) \
+    inline TInt32 GetLength(const TYPE c) \
     { \
     return sizeof(TYPE); \
     } \
-    inline TInt32 GetLength(TYPE *pC)\
+    inline TInt32 GetLength(const TYPE *pC)\
     {\
         return sizeof(TYPE);\
     }
 
 
-    inline TInt32 Marshall(TUChar *pBuffer,TInt32 uBufferLen,TChar tType) 
+    inline TInt32 Marshall(TUChar *pBuffer,TInt32 uBufferLen,const TChar tType) 
     { 
         if (uBufferLen >= sizeof( TChar )) 
         { 
@@ -44,7 +44,7 @@ namespace Zephyr
         } 
         return OUT_OF_MEM; 
     } 
-    inline TInt32 GetLength(TChar c) 
+    inline TInt32 GetLength(const TChar c) 
     { 
         return sizeof(TChar); 
     }
@@ -78,68 +78,68 @@ namespace Zephyr
 #else
 
 // 
- TInt32 Marshall(TUChar *pBuffer,TInt32 uBuffLen,TUChar ucChar);
+ TInt32 Marshall(TUChar *pBuffer,TInt32 uBuffLen,const TUChar ucChar);
 // 
- TInt32 GetLength(TUChar c);
+ TInt32 GetLength(const TUChar c);
 // 
- TInt32 Marshall(TUChar *pBuffer,TInt32 uBuffLen,TChar ucChar);
+ TInt32 Marshall(TUChar *pBuffer,TInt32 uBuffLen,const TChar ucChar);
 // 
- TInt32 GetLength(TChar c);
-// // inline TInt32 Marshall(TUChar *pBuffer,TInt32 uBuffLen,TInt8 nInt8);
-// // inline TInt32 Unmarshall(TUChar *pBuffer,TInt32 uBuffLen,TInt8& nInt8);
+ TInt32 GetLength(const TChar c);
+// // inline TInt32 Marshall(TUChar *pBuffer,TInt32 uBuffLen,const TInt8 nInt8);
+// // inline TInt32 Unmarshall(TUChar *pBuffer,TInt32 uBuffLen,const TInt8& nInt8);
 // // 
-// // inline TInt32 Marshall(TUChar *pBuffer,TInt32 uBuffLen,TUInt8 uInt8);
-// // inline TInt32 Unmarshall(TUChar *pBuffer,TInt32 uBuffLen,TUInt8& uInt8);
+// // inline TInt32 Marshall(TUChar *pBuffer,TInt32 uBuffLen,const TUInt8 uInt8);
+// // inline TInt32 Unmarshall(TUChar *pBuffer,TInt32 uBuffLen,const TUInt8& uInt8);
 // 
 // 
- TInt32 Marshall(TUChar *pBuffer,TInt32 uBuffLen,TInt16 nInt16);
+ TInt32 Marshall(TUChar *pBuffer,TInt32 uBuffLen,const TInt16 nInt16);
 // 
- TInt32 GetLength(TInt16 c);
+ TInt32 GetLength(const TInt16 c);
 // 
- TInt32 Marshall(TUChar *pBuffer,TInt32 uBuffLen,TUInt16 uInt16);
+ TInt32 Marshall(TUChar *pBuffer,TInt32 uBuffLen,const TUInt16 uInt16);
 // 
- TInt32 GetLength(TUInt16 c);
+ TInt32 GetLength(const TUInt16 c);
 // 
- TInt32 Marshall(TUChar *pBuffer,TInt32 uBuffLen,TInt32 nInt32);
+ TInt32 Marshall(TUChar *pBuffer,TInt32 uBuffLen,const TInt32 nInt32);
 // 
- TInt32 GetLength(TInt32 c);
+ TInt32 GetLength(const TInt32 c);
 // 
- TInt32 Marshall(TUChar *pBuffer,TInt32 uBuffLen,TUInt32 uInt32);
+ TInt32 Marshall(TUChar *pBuffer,TInt32 uBuffLen,const TUInt32 uInt32);
 // 
- TInt32 GetLength(TUInt32 c);
+ TInt32 GetLength(const TUInt32 c);
 // 
- TInt32 Marshall(TUChar *pBuffer,TInt32 uBuffLen,TFloat fFloat);
+ TInt32 Marshall(TUChar *pBuffer,TInt32 uBuffLen,const TFloat fFloat);
 // 
- TInt32 GetLength(TFloat c);
+ TInt32 GetLength(const TFloat c);
 // 
- TInt32 Marshall(TUChar *pBuffer,TInt32 uBuffLen,TDouble dDouble);
+ TInt32 Marshall(TUChar *pBuffer,TInt32 uBuffLen,const TDouble dDouble);
 // 
- TInt32 GetLength(TDouble c);
+ TInt32 GetLength(const TDouble c);
 // 
- TInt32 Marshall(TUChar *pBuffer,TInt32 uBuffLen,TInt64 llInt64);
+ TInt32 Marshall(TUChar *pBuffer,TInt32 uBuffLen,const TInt64 llInt64);
 // 
- TInt32 GetLength(TInt64 c);
+ TInt32 GetLength(const TInt64 c);
 // 
- TInt32 Marshall(TUChar *pBuffer,TInt32 uBuffLen,TUInt64 ullInt64);
+ TInt32 Marshall(TUChar *pBuffer,TInt32 uBuffLen,const TUInt64 ullInt64);
 // 
- TInt32 GetLength(TUInt64 c);
+ TInt32 GetLength(const TUInt64 c);
 // 
-// //inline TInt32 Marshall(TUChar *pBuffer,TInt32 uBuffLen,TBOOL bBool); //为什么会和TInt32 Marshall(TUChar *pBuffer,TInt32 uBuffLen,CDoid *pDoid)冲突呢？！
+// //inline TInt32 Marshall(TUChar *pBuffer,TInt32 uBuffLen,const TBOOL bBool); //为什么会和TInt32 Marshall(TUChar *pBuffer,TInt32 uBuffLen,CDoid *pDoid)冲突呢？！
 // 
- TInt32 GetLength(TBOOL c);
+ TInt32 GetLength(const TBOOL c);
 #endif
 
 
 TInt32 Marshall(TUChar *pBuffer,TInt32 uBuffLen,const TChar *psz);
 
 template<class TYPE>
-TInt32 GetLength(OctSeq<TYPE> &tOctSeq)
+TInt32 GetLength(const OctSeq<TYPE> &tOctSeq)
 {
     return tOctSeq.GetFullLength();
 }
 
 template<class TYPE>
-TInt32 Marshall(TUChar *pBuffer,TInt32 uBuffLen,OctSeq<TYPE> &tOctSeq)
+TInt32 Marshall(TUChar *pBuffer,TInt32 uBuffLen,const OctSeq<TYPE> &tOctSeq)
 {
     TInt32 nLength = tOctSeq.GetFullLength();
     if (nLength > uBuffLen)
@@ -155,14 +155,14 @@ TInt32 Marshall(TUChar *pBuffer,TInt32 uBuffLen,OctSeq<TYPE> &tOctSeq)
 }
 
 template<class LENGTH_TYPE,class TAG_TYPE>
-TInt32 GetLength(TLV<LENGTH_TYPE,TAG_TYPE> &tTLV)
+TInt32 GetLength(const TLV<LENGTH_TYPE,TAG_TYPE> &tTLV)
 {
     return tTLV.GetFullLength();
 }
 
 
 template<class LENGTH_TYPE,class TAG_TYPE>
-TInt32 Marshall(TUChar *pBuffer,TInt32 uBuffLen,TLV<LENGTH_TYPE,TAG_TYPE> &tTLV)
+TInt32 Marshall(TUChar *pBuffer,TInt32 uBuffLen,const TLV<LENGTH_TYPE,TAG_TYPE> &tTLV)
 {
     TInt32 nLength = tTLV.GetFullLength();
     if (nLength > uBuffLen)
@@ -185,7 +185,7 @@ TInt32 Marshall(TUChar *pBuffer,TInt32 uBuffLen,TLV<LENGTH_TYPE,TAG_TYPE> &tTLV)
 
 
 template<class TYPE>
-TInt32 GetLength(vector<TYPE> &tVector)
+TInt32 GetLength(const vector<TYPE> &tVector)
 {
     TInt32 nLen = tVector.size();
     if (nLen)
@@ -204,7 +204,7 @@ TInt32 GetLength(vector<TYPE> &tVector)
 }
 
 template<class TYPE>
-TInt32 Marshall(TUChar *pBuffer,TInt32 uBuffLen,vector<TYPE> &tVector)
+TInt32 Marshall(TUChar *pBuffer,TInt32 uBuffLen,const vector<TYPE> &tVector)
 {
     TInt32 nLen = tVector.size();
     *((TInt32*)pBuffer) = nLen;
@@ -229,14 +229,14 @@ TInt32 Marshall(TUChar *pBuffer,TInt32 uBuffLen,vector<TYPE> &tVector)
 }
 
 template<class TYPE>
-TInt32 GetLength(list<TYPE> &tList)
+TInt32 GetLength(const list<TYPE> &tList)
 {
     TInt32 nLen = tList.size();
     if (nLen)
     {
         TInt32 nNeed = sizeof(TInt32);
-        list<TYPE>::iterator it = tList.begin();
-        list<TYPE>::iterator iEnd = tList.end();
+        list<TYPE>::const_iterator it = tList.begin();
+        list<TYPE>::const_iterator iEnd = tList.end();
         while(it != iEnd)
         {
             nNeed += GetLength(*it);
@@ -250,15 +250,15 @@ TInt32 GetLength(list<TYPE> &tList)
 }
 
 template<class TYPE>
-TInt32 Marshall(TUChar *pBuffer,TInt32 uBuffLen,list<TYPE> &tList)
+TInt32 Marshall(TUChar *pBuffer,TInt32 uBuffLen,const list<TYPE> &tList)
 {
     TInt32 nLen = tList.size();
     *((TInt32*)pBuffer) = nLen;
     if (nLen)
     {
         TInt32 nUsed = sizeof(TInt32);
-        list<TYPE>::iterator it = tList.begin();
-        list<TYPE>::iterator iEnd = tList.end();
+        list<TYPE>::const_iterator it = tList.begin();
+        list<TYPE>::const_iterator iEnd = tList.end();
         while(it != iEnd)
         {
             TInt32 nRet = GetLength(*it);
@@ -277,14 +277,14 @@ TInt32 Marshall(TUChar *pBuffer,TInt32 uBuffLen,list<TYPE> &tList)
 }
 
 template<class TYPE>
-TInt32 GetLength(set<TYPE> &tSet)
+TInt32 GetLength(const set<TYPE> &tSet)
 {
     TInt32 nLen = tSet.size();
     if (nLen)
     {
         TInt32 nNeed = sizeof(TInt32);
-        set<TYPE>::iterator it = tSet.begin();
-        set<TYPE>::iterator iEnd = tSet.end();
+        set<TYPE>::const_iterator it = tSet.begin();
+        set<TYPE>::const_iterator iEnd = tSet.end();
         while(it != iEnd)
         {
             nNeed += GetLength(*it);
@@ -298,15 +298,15 @@ TInt32 GetLength(set<TYPE> &tSet)
 }
 
 template<class TYPE>
-TInt32 Marshall(TUChar *pBuffer,TInt32 uBuffLen,set<TYPE> &tSet)
+TInt32 Marshall(TUChar *pBuffer,TInt32 uBuffLen,const set<TYPE> &tSet)
 {
     TInt32 nLen = tSet.size();
     *((TInt32*)pBuffer) = nLen;
     if (nLen)
     {
         TInt32 nUsed = sizeof(TInt32);
-        set<TYPE>::iterator it = tSet.begin();
-        set<TYPE>::iterator iEnd = tSet.end();
+        set<TYPE>::const_iterator it = tSet.begin();
+        set<TYPE>::const_iterator iEnd = tSet.end();
         while(it != iEnd)
         {
             TInt32 nRet = GetLength(*it);
@@ -325,17 +325,17 @@ TInt32 Marshall(TUChar *pBuffer,TInt32 uBuffLen,set<TYPE> &tSet)
 }
 
 template<class CKEY,class TYPE>
-TInt32 GetLength(map<CKEY,TYPE> &tMap)
+TInt32 GetLength(const map<CKEY,TYPE> &tMap)
 {
     TInt32 nLen = tMap.size();
     if (nLen)
     {
         TInt32 nNeed = sizeof(TInt32);
-        map<CKEY,TYPE>::iterator it = tMap.begin();
-        map<CKEY,TYPE>::iterator iEnd = tMap.end();
+        map<CKEY,TYPE>::const_iterator it = tMap.begin();
+        map<CKEY,TYPE>::const_iterator iEnd = tMap.end();
         while(it != iEnd)
         {
-            nNeed += GetLength(it->first)
+            nNeed += GetLength(it->first);
             nNeed += GetLength(it->second);
         }
         return nNeed;
@@ -347,15 +347,15 @@ TInt32 GetLength(map<CKEY,TYPE> &tMap)
 }
 
 template<class CKEY,class TYPE>
-TInt32 Marshall(TUChar *pBuffer,TInt32 uBuffLen,map<CKEY,TYPE> &tMap)
+TInt32 Marshall(TUChar *pBuffer,TInt32 uBuffLen,const map<CKEY,TYPE> &tMap)
 {
     TInt32 nLen = tMap.size();
     *((TInt32*)pBuffer) = nLen;
     if (nLen)
     {
         TInt32 nUsed = sizeof(TInt32);
-        map<CKEY,TYPE>::iterator it = tMap.begin();
-        map<CKEY,TYPE>::iterator iEnd = tMap.end();
+        map<CKEY,TYPE>::const_iterator it = tMap.begin();
+        map<CKEY,TYPE>::const_iterator iEnd = tMap.end();
         while(it != iEnd)
         {
             TInt32 nRet = GetLength(it->first);
