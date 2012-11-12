@@ -794,18 +794,23 @@ TInt32 CInterfaceElement::GenerateSkeletonSourceFile(const char *pPath)
         //         n = sprintf(pBuff+nUsed,"public:\n",m_szName.c_str(),m_szName.c_str());
         //         nUsed += n;
         //         nLength -= n;
+        CBaseElement *pFather = m_pFather;
+        while (pFather)
+        {
+            for (int i=0;i<pFather->m_tChilds.size();++i)
+            {
+                CBaseElement *pBase = pFather->m_tChilds[i].m_pPt;
+                if (raw_struct_type == pBase->m_nElmentType)
+                {
+                    n = sprintf(pBuff+nUsed,"#include \"../include/%sUnmarshaller.h\"\n",pBase->m_szName.c_str());
+                    nUsed += n;
+                    nLength -= n;
+                }
+            }
+            pFather = pFather->m_pFather;
+        }
         if (m_pFather)
         {
-			for (int i=0;i<m_pFather->m_tChilds.size();++i)
-			{
-				CBaseElement *pBase = m_pFather->m_tChilds[i].m_pPt;
-				if (raw_struct_type == pBase->m_nElmentType)
-				{
-					n = sprintf(pBuff+nUsed,"#include \"../include/%sMarshaller.h\"\n",pBase->m_szName.c_str());
-					nUsed += n;
-					nLength -= n;
-				}
-			}
             if (raw_namespace_type == m_pFather->m_nElmentType)
             {
                 CNamespace *pNS = dynamic_cast<CNamespace *>(m_pFather);
@@ -1299,11 +1304,12 @@ TInt32 CInterfaceElement::GenerateStubSourceFile(const char *pPath)
 //         n = sprintf(pBuff+nUsed,"public:\n",m_szName.c_str(),m_szName.c_str());
 //         nUsed += n;
 //         nLength -= n;
-        if (m_pFather)
+        CBaseElement *pFather = m_pFather;
+        while (pFather)
         {
-			for (int i=0;i<m_pFather->m_tChilds.size();++i)
+			for (int i=0;i<pFather->m_tChilds.size();++i)
 			{
-				CBaseElement *pBase = m_pFather->m_tChilds[i].m_pPt;
+				CBaseElement *pBase = pFather->m_tChilds[i].m_pPt;
 				if (raw_struct_type == pBase->m_nElmentType)
 				{
 					n = sprintf(pBuff+nUsed,"#include \"../include/%sMarshaller.h\"\n",pBase->m_szName.c_str());
@@ -1311,6 +1317,10 @@ TInt32 CInterfaceElement::GenerateStubSourceFile(const char *pPath)
 					nLength -= n;
 				}
 			}
+            pFather = pFather->m_pFather;
+        }
+        if (m_pFather)
+        {
             if (raw_namespace_type == m_pFather->m_nElmentType)
             {
                 CNamespace *pNS = dynamic_cast<CNamespace *>(m_pFather);

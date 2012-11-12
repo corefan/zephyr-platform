@@ -398,6 +398,7 @@ TInt32 CNamespace::GenerateSkeleton(const char *pPath)
         case raw_interface_type:
         case raw_namespace_type:
         case raw_method_type:
+        case raw_struct_type:
             {
                 int nRet = p->GenerateSkeleton(pPath);
                 if (nRet < SUCCESS)
@@ -427,6 +428,7 @@ TInt32 CNamespace::GenerateStub(const char *pPath)
         case raw_interface_type:
         case raw_namespace_type:
         case raw_method_type:
+        case raw_struct_type:
             {
                 int nRet = p->GenerateStub(pPath);
                 if (nRet < SUCCESS)

@@ -495,22 +495,33 @@ TInt32 CStruct::GenerateMethodId(const char *pPath)
             return OUT_OF_MEM;
         }
         int n = 0;
+        char szMacro[128];
+        n = sprintf(szMacro,"__%s_GET_LENGTH_H__",m_szName.c_str());
+
+        for (int i=0;i<n;++i)
+        {
+            szMacro[i] = toupper(szMacro[i]);
+        }
+
+        n = sprintf(pBuff,"#ifndef %s\n#define %s\n",(szMacro),szMacro);
+        nUsed += n;
+        nLength -= n;
+
+        WRITE_LINE("#include \"Public/include/Typedef.h\"");
+        WRITE_LINE("#include \"../Interface/%s\"",CHeaderFile::m_pFileName);
         if (raw_namespace_type == m_pFather->m_nElmentType)
         {
             CNamespace *pNS = dynamic_cast<CNamespace *>(m_pFather);
             if (pNS)
             {
-                n = pNS->GenerateUsingNamespaceCode(pBuff,nLength,0);
+                n = pNS->GenerateUsingNamespaceCode(pBuff+nUsed,nLength,0);
                 nUsed += n;
                 nLength -= n;
             }
         }
-        WRITE_LINE("TInt32 GetLength(%s &rValue);",m_szName.c_str());
-        WRITE_LINE("inline TInt32 GetLength(%s *pT);",m_szName.c_str());
-        WRITE_LINE("{");
-        WRITE_LINE("    return GetLength(*pT);");
-        WRITE_LINE("}");
-
+        WRITE_LINE("TInt32 GetLength(const %s &_rValue);",m_szName.c_str());
+        WRITE_LINE("TInt32 GetLength(const %s *_pT);",m_szName.c_str());
+        WRITE_LINE("#endif");
 
         fwrite(pBuff,1,nUsed,pFile);
         //sprintf_s()
@@ -542,17 +553,24 @@ TInt32 CStruct::GenerateMethodId(const char *pPath)
             return OUT_OF_MEM;
         }
         int n = 0;
+     
+        WRITE_LINE("#include \"../include/%sGetLength.h\"",m_szName.c_str());
+        WRITE_LINE("#include \"Public/include/TypeMarshaller.h\"");
         if (raw_namespace_type == m_pFather->m_nElmentType)
         {
             CNamespace *pNS = dynamic_cast<CNamespace *>(m_pFather);
             if (pNS)
             {
-                n = pNS->GenerateUsingNamespaceCode(pBuff,nLength,0);
+                n = pNS->GenerateUsingNamespaceCode(pBuff+nUsed,nLength,0);
                 nUsed += n;
                 nLength -= n;
             }
         }
-        WRITE_LINE("TInt32 GetLength(%s &rValue)",m_szName.c_str());
+        WRITE_LINE("TInt32 GetLength(const %s *_pT)",m_szName.c_str());
+        WRITE_LINE("{");
+        WRITE_LINE("    return GetLength(*_pT);");
+        WRITE_LINE("}");
+        WRITE_LINE("TInt32 GetLength(const %s &_rValue)",m_szName.c_str());
         WRITE_LINE("{");
         if (0 == m_tChilds.size())
         {
@@ -574,7 +592,7 @@ TInt32 CStruct::GenerateMethodId(const char *pPath)
                     {
                         if (0 == i)
                         {
-                            n = sprintf(pBuff+nUsed, "GetLength(rValue.%s",pParm->m_szName.c_str());
+                            n = sprintf(pBuff+nUsed, "GetLength(_rValue.%s",pParm->m_szName.c_str());
                             nLength -= n;
                             nUsed += n;
                             if (pParm->m_pFullType->GetDimension() > 0)
@@ -604,7 +622,7 @@ TInt32 CStruct::GenerateMethodId(const char *pPath)
                         }
                         else
                         {
-                            n = sprintf(pBuff+nUsed, "+GetLength(rValue.%s",pParm->m_szName.c_str());
+                            n = sprintf(pBuff+nUsed, "+GetLength(_rValue.%s",pParm->m_szName.c_str());
                             nLength -= n;
                             nUsed += n;
                             if (pParm->m_pFullType->GetDimension() > 0)
@@ -674,25 +692,34 @@ TInt32 CStruct::GenerateStubHeaderFile(const char *pPath) //生成Marshaller.h
         return OUT_OF_MEM;
     }
     int n = 0;
+
+    char szMacro[128];
+    n = sprintf(szMacro,"__%s_MARSHALLER_H__",m_szName.c_str());
+
+    for (int i=0;i<n;++i)
+    {
+        szMacro[i] = toupper(szMacro[i]);
+    }
+
+    n = sprintf(pBuff,"#ifndef %s\n#define %s\n",(szMacro),szMacro);
+    nUsed += n;
+    nLength -= n;
     WRITE_LINE("#include \"Public/include/Typedef.h\"");
     WRITE_LINE("#include \"%sGetLength.h\"",m_szName.c_str());
-    WRITE_LINE("#include \"%s\"",CHeaderFile::m_pFileName,m_szName.c_str());
+    WRITE_LINE("#include \"../Interface/%s\"",CHeaderFile::m_pFileName);
     if (raw_namespace_type == m_pFather->m_nElmentType)
     {
         CNamespace *pNS = dynamic_cast<CNamespace *>(m_pFather);
         if (pNS)
         {
-            int n = pNS->GenerateUsingNamespaceCode(pBuff,nLength,0);
+            int n = pNS->GenerateUsingNamespaceCode(pBuff+nUsed,nLength,0);
             nUsed += n;
             nLength -= n;
         }
     }
-    WRITE_LINE("TInt32 Marshall(TUChar *pBuff,TInt32 nLength,%s &_rValue);",m_szName.c_str());
-    WRITE_LINE("inline TInt32 Marshall(TUChar *pBuff,TInt32 nLength,%s *pT);",m_szName.c_str());
-    WRITE_LINE("{");
-    WRITE_LINE("    return Marshall(pBuff,nLength,*pT);");
-    WRITE_LINE("}");
-
+    WRITE_LINE("TInt32 Marshall(TUChar *_pBuff,TInt32 _nLength,const %s &_rValue);",m_szName.c_str());
+    WRITE_LINE("TInt32 Marshall(TUChar *_pBuff,TInt32 _nLength,const %s *_pT);",m_szName.c_str());
+    WRITE_LINE("#endif");
     fwrite(pBuff,1,nUsed,pFile);
     //sprintf_s()
     fclose (pFile);
@@ -743,7 +770,11 @@ TInt32 CStruct::GenerateStubSourceFile(const char *pPath) //生成Marshaller.cpp
             }
         }
     }
-    WRITE_LINE("TInt32 Marshall(TUChar *pBuff,TInt32 nLength,%s &_rValue)",m_szName.c_str());
+    WRITE_LINE("TInt32 Marshall(TUChar *_pBuff,TInt32 _nLength,const %s *_pT)",m_szName.c_str());
+    WRITE_LINE("{");
+    WRITE_LINE("    return Marshall(_pBuff,_nLength,*_pT);");
+    WRITE_LINE("}");
+    WRITE_LINE("TInt32 Marshall(TUChar *_pBuff,TInt32 _nLength,const %s &_rValue)",m_szName.c_str());
     WRITE_LINE("{");
     WRITE_LINE("    TInt32 nUsed=0;");
     WRITE_LINE("    TInt32 n = 0;");
@@ -774,7 +805,7 @@ TInt32 CStruct::GenerateStubSourceFile(const char *pPath) //生成Marshaller.cpp
                     n = WriteEtch(pBuff+nUsed,nDimension);
                     nUsed += n;
                     nLength -= n;
-                    WRITE_CODE("    n = Marshall(pBuff+nUsed,nLength,rValue.%s",pParm->m_szName.c_str());
+                    WRITE_CODE("    n = Marshall(_pBuff+nUsed,_nLength,_rValue.%s",pParm->m_szName.c_str());
                     for (int j=0;j<nDimension;++j)
                     {
                         char c = 'i'+j;
@@ -804,7 +835,7 @@ TInt32 CStruct::GenerateStubSourceFile(const char *pPath) //生成Marshaller.cpp
                     n = WriteEtch(pBuff+nUsed,nDimension);
                     nUsed += n;
                     nLength -= n;
-                    WRITE_LINE("    nLength-=n;");
+                    WRITE_LINE("    _nLength-=n;");
                     for (int j=nDimension;j>0;--j)
                     {
                         n = WriteEtch(pBuff+nUsed,j);
@@ -815,13 +846,13 @@ TInt32 CStruct::GenerateStubSourceFile(const char *pPath) //生成Marshaller.cpp
                 }
                 else
                 {
-                    WRITE_LINE("    n = Marshall(pBuff+nUsed,nLength,rValue.%s);\n",pParm->m_szName.c_str());
+                    WRITE_LINE("    n = Marshall(_pBuff+nUsed,_nLength,_rValue.%s);\n",pParm->m_szName.c_str());
                     WRITE_LINE("    if (n < SUCCESS)");
                     WRITE_LINE("    {");
                     WRITE_LINE("      return n;");
                     WRITE_LINE("    }");
                     WRITE_LINE("    nUsed += n;");
-                    WRITE_LINE("    nLength-=n;");
+                    WRITE_LINE("    _nLength-=n;");
                 }
             }
         }
@@ -860,25 +891,33 @@ TInt32 CStruct::GenerateSkeletonHeaderFile(const char *pPath) //生成UnMarshaller
         return OUT_OF_MEM;
     }
     int n = 0;
+    char szMacro[128];
+    n = sprintf(szMacro,"__%s_UNMARSHALLER_H__",m_szName.c_str());
+
+    for (int i=0;i<n;++i)
+    {
+        szMacro[i] = toupper(szMacro[i]);
+    }
+
+    n = sprintf(pBuff,"#ifndef %s\n#define %s\n",(szMacro),szMacro);
+    nUsed += n;
+    nLength -= n;
     WRITE_LINE("#include \"Public/include/Typedef.h\"");
     WRITE_LINE("#include \"%sGetLength.h\"",m_szName.c_str());
-    WRITE_LINE("#include \"%s\"",CHeaderFile::m_pFileName,m_szName.c_str());
+    WRITE_LINE("#include \"../Interface/%s\"",CHeaderFile::m_pFileName,m_szName.c_str());
     if (raw_namespace_type == m_pFather->m_nElmentType)
     {
         CNamespace *pNS = dynamic_cast<CNamespace *>(m_pFather);
         if (pNS)
         {
-            int n = pNS->GenerateUsingNamespaceCode(pBuff,nLength,0);
+            int n = pNS->GenerateUsingNamespaceCode(pBuff+nUsed,nLength,0);
             nUsed += n;
             nLength -= n;
         }
     }
-    WRITE_LINE("TInt32 Unmarshall(TUChar *pBuff,TInt32 nLength,%s &_rValue);",m_szName.c_str());
-    WRITE_LINE("inline TInt32 Unmarshall(TUChar *pBuff,TInt32 nLength,%s *&pT);",m_szName.c_str());
-    WRITE_LINE("{");
-    WRITE_LINE("    return Unmarshall(*pT);");
-    WRITE_LINE("}");
-
+    WRITE_LINE("TInt32 Unmarshall(TUChar *_pBuff,TInt32 _nLength,%s &_rValue);",m_szName.c_str());
+    WRITE_LINE("TInt32 Unmarshall(TUChar *_pBuff,TInt32 _nLength,%s *&_pT);",m_szName.c_str());
+    WRITE_LINE("#endif");
     fwrite(pBuff,1,nUsed,pFile);
     //sprintf_s()
     fclose (pFile);
@@ -910,7 +949,7 @@ TInt32 CStruct::GenerateSkeletonSourceFile(const char *pPath) //生成UnMarshaller
     }
     int nUsed = 0;
     int n = 0;
-    WRITE_LINE("#include \"Public/include/TypeMarshaller.h\"",m_szName.c_str());
+    WRITE_LINE("#include \"Public/include/TypeUnmarshaller.h\"",m_szName.c_str());
     WRITE_LINE("#include \"../include/%sUnmarshaller.h\"",m_szName.c_str());
     WRITE_LINE("#include \"../include/%sGetLength.h\"",m_szName.c_str());
     if (m_pFather)
@@ -927,9 +966,12 @@ TInt32 CStruct::GenerateSkeletonSourceFile(const char *pPath) //生成UnMarshaller
         }
     }
 
+    WRITE_LINE("inline TInt32 Unmarshall(TUChar *_pBuff,TInt32 _nLength,%s *&_pT)",m_szName.c_str());
+    WRITE_LINE("{");
+    WRITE_LINE("    return Unmarshall(_pBuff,_nLength,*_pT);");
+    WRITE_LINE("}");
 
-
-    WRITE_LINE("TInt32 UnMarshall(TUChar *pBuff,TInt32 nLength,%s &_rValue)",m_szName.c_str());
+    WRITE_LINE("TInt32 UnMarshall(TUChar *_pBuff,TInt32 _nLength,%s &_rValue)",m_szName.c_str());
     WRITE_LINE("{");
     WRITE_LINE("    TInt32 nUsed=0;");
     WRITE_LINE("    TInt32 n = 0;");
@@ -962,7 +1004,7 @@ TInt32 CStruct::GenerateSkeletonSourceFile(const char *pPath) //生成UnMarshaller
                     n = WriteEtch(pBuff+nUsed,nDimension);
                     nUsed += n;
                     nLength -= n;
-                    WRITE_CODE("    n = Unmarshall(pBuff+nUsed,nLength,rValue.%s",pParm->m_szName.c_str());
+                    WRITE_CODE("    n = Unmarshall(_pBuff+nUsed,_nLength,_rValue.%s",pParm->m_szName.c_str());
                     for (int j=0;j<nDimension;++j)
                     {
                         char c = 'i'+j;
@@ -992,7 +1034,7 @@ TInt32 CStruct::GenerateSkeletonSourceFile(const char *pPath) //生成UnMarshaller
                     n = WriteEtch(pBuff+nUsed,nDimension);
                     nUsed += n;
                     nLength -= n;
-                    WRITE_LINE("    nLength-=n;");
+                    WRITE_LINE("    _nLength-=n;");
                     for (int j=nDimension;j>0;--j)
                     {
                         n = WriteEtch(pBuff+nUsed,j);
@@ -1003,13 +1045,13 @@ TInt32 CStruct::GenerateSkeletonSourceFile(const char *pPath) //生成UnMarshaller
                 }
                 else
                 {
-                    WRITE_LINE("    n = Unmarshall(pBuff+nUsed,nLength,_rValue.%s);",pParm->m_szName.c_str());
+                    WRITE_LINE("    n = Unmarshall(_pBuff+nUsed,_nLength,_rValue.%s);",pParm->m_szName.c_str());
                     WRITE_LINE("    if (n < SUCCESS)");
                     WRITE_LINE("    {");
                     WRITE_LINE("      return n;");
                     WRITE_LINE("    }");
                     WRITE_LINE("    nUsed += n;");
-                    WRITE_LINE("    nLength-=n;");
+                    WRITE_LINE("    _nLength-=n;");
                 }
             }
         }

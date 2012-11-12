@@ -305,6 +305,16 @@ TInt32 CHeaderFile::Process(char **ppElements,EnType *pTypes,int nProcess2,int n
                     }
                 }
                 break;
+            case key_using:
+                {
+                    ++nNr; //namespace
+                    while(ppElements[nNr] && (';'!=ppElements[nNr][0]))
+                    {
+                        ++nNr;
+                    }
+                    ++nNr;
+                }
+                break;
             }
         }
         else
