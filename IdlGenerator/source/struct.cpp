@@ -971,7 +971,7 @@ TInt32 CStruct::GenerateSkeletonSourceFile(const char *pPath) //Éú³ÉUnMarshaller
     WRITE_LINE("    return Unmarshall(_pBuff,_nLength,*_pT);");
     WRITE_LINE("}");
 
-    WRITE_LINE("TInt32 UnMarshall(TUChar *_pBuff,TInt32 _nLength,%s &_rValue)",m_szName.c_str());
+    WRITE_LINE("TInt32 Unmarshall(TUChar *_pBuff,TInt32 _nLength,%s &_rValue)",m_szName.c_str());
     WRITE_LINE("{");
     WRITE_LINE("    TInt32 nUsed=0;");
     WRITE_LINE("    TInt32 n = 0;");
