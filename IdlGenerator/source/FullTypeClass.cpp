@@ -43,6 +43,11 @@ void CFullTypeDef::AddPrefix(EnPrefix enPrefix)
 
 string *CFullTypeDef::GetCSharpTypeCode()
 {
+    if (IsStrPoint())
+    {
+        static string szStr("string");
+        return &szStr;
+    }
     return &m_szCSharpCode;
 }
 
