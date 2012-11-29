@@ -53,33 +53,21 @@ namespace Zephyr
 #pragma warning(push)
 #pragma warning(disable:4267)
 
+// 
+// TInt32 GetLength(TChar *psz)
+// {
+//     TInt32 n = strlen(psz);
+//     return (n+(sizeof(TInt32)+sizeof(TChar)));
+// }
 
-TInt32 GetLength(TChar *psz)
-{
-    TInt32 n = strlen(psz);
-    return (n+(sizeof(TInt32)+sizeof(TChar)));
-}
-
-
-TInt32 GetLength(const TChar *psz)
-{
-     TInt32 n = strlen(psz);
-     return (n+(sizeof(TInt32)+sizeof(TChar)));
-}
-
-TInt32 Marshall(TUChar *pBuffer,TInt32 uBuffLen,const TChar *psz)
+TInt32 Marshall(TUChar *pBuffer,TInt32 uBuffLen,TChar *psz)
 {
     if (NULL == psz)
     {
         psz = "";
     }
-    if (uBuffLen < (sizeof(TInt32)+sizeof(TChar)))
-    {
-        return OUT_OF_MEM_BUFFER; 
-    }
-    uBuffLen -= (sizeof(TInt32)+sizeof(TChar));
     TInt32 n = strnlen(psz,uBuffLen);
-    if (n+(sizeof(TInt32)+sizeof(TChar)) < uBuffLen)
+    if (n+(sizeof(TInt32)+sizeof(TChar)) > uBuffLen)
     {
         return OUT_OF_MEM_BUFFER;
     }
@@ -88,6 +76,60 @@ TInt32 Marshall(TUChar *pBuffer,TInt32 uBuffLen,const TChar *psz)
     pBuffer[n+(sizeof(TInt32)+sizeof(TChar))] = 0;//
     return n + (sizeof(TInt32)+sizeof(TChar));
 }
+
+TInt32 Marshall(TUChar *pBuffer,TInt32 uBuffLen,const TChar *psz)
+{
+    if (NULL == psz)
+    {
+        psz = "";
+    }
+    TInt32 n = strnlen(psz,uBuffLen);
+    if (n+(sizeof(TInt32)+sizeof(TChar)) > uBuffLen)
+    {
+        return OUT_OF_MEM_BUFFER;
+    }
+    *((TInt32*)pBuffer) = n;
+    memcpy((char*)(pBuffer+sizeof(TInt32)),psz,(n));
+    pBuffer[n+(sizeof(TInt32)+sizeof(TChar))] = 0;//
+    return n + (sizeof(TInt32)+sizeof(TChar));
+}
+
+TInt32 Marshall(TUChar *pBuffer,TInt32 uBuffLen,string &psz)
+{
+    //     if (uBuffLen < (sizeof(TInt32)+sizeof(TChar)))
+    //     {
+    //         return OUT_OF_MEM_BUFFER; 
+    //     }
+    //     uBuffLen -= (sizeof(TInt32)+sizeof(TChar));
+    TInt32 n = psz.length();
+    if (n+(sizeof(TInt32)+sizeof(TChar)) > uBuffLen)
+    {
+        return OUT_OF_MEM_BUFFER;
+    }
+    *((TInt32*)pBuffer) = n;
+    memcpy((char*)(pBuffer+sizeof(TInt32)),psz.c_str(),(n));
+    pBuffer[n+(sizeof(TInt32)+sizeof(TChar))] = 0;//
+    return n + (sizeof(TInt32)+sizeof(TChar));
+}
+
+TInt32 Marshall(TUChar *pBuffer,TInt32 uBuffLen,const string &psz)
+{
+    //     if (uBuffLen < (sizeof(TInt32)+sizeof(TChar)))
+    //     {
+    //         return OUT_OF_MEM_BUFFER; 
+    //     }
+    //     uBuffLen -= (sizeof(TInt32)+sizeof(TChar));
+    TInt32 n = psz.length();
+    if (n+(sizeof(TInt32)+sizeof(TChar)) > uBuffLen)
+    {
+        return OUT_OF_MEM_BUFFER;
+    }
+    *((TInt32*)pBuffer) = n;
+    memcpy((char*)(pBuffer+sizeof(TInt32)),psz.c_str(),(n));
+    pBuffer[n+(sizeof(TInt32)+sizeof(TChar))] = 0;//
+    return n + (sizeof(TInt32)+sizeof(TChar));
+}
+
 #pragma warning(pop)
 
 }

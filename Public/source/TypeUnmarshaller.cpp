@@ -49,7 +49,25 @@ TInt32 Unmarshall(TUChar *pBuffer,TInt32 uBufferLen,TYPE &tType) \
  IMPL_UNMARSHALLERS(TBOOL) 
 #endif
 
-
+TInt32 Unmarshall(TUChar *pBuffer,TInt32 uBuffLen,string &psz)
+ {
+     if (uBuffLen < (sizeof(TUInt32)+sizeof(TChar)))
+     {
+         return OUT_OF_RANGE;
+     }
+     TInt32 n = *((TInt32*)pBuffer);
+     uBuffLen -= sizeof(TInt32);
+     if (uBuffLen < (n+sizeof(TChar))) //must larger than it.!
+     {
+#ifdef _DEBUG
+         assert(0);
+#endif
+         return OUT_OF_RANGE;
+     }
+     pBuffer[n+sizeof(TInt32)] = 0; //force add '\0';
+     psz = (TChar *)(pBuffer+sizeof(TInt32));
+     return (n + (sizeof(TUInt32)+sizeof(TChar)));
+ }
 
 TInt32 Unmarshall(TUChar *pBuffer,TInt32 uBuffLen,TChar *&psz)
 {
