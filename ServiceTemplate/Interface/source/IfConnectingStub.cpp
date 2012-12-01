@@ -177,10 +177,10 @@ TInt32 IfConnectingStub::CheckId(TUInt32 _uId)
     return m_pOnwerObj->SendMsg(pMsg);
 }
 
-TInt32 IfConnectingStub::SendCryptedKey(OctSeq<TUInt16> _tKey)
+TInt32 IfConnectingStub::SendCryptedKey(OctSeq<TUInt32> _tKey,TUInt32 _uPadding)
 {
-    TInt32 nLen = GetLength(_tKey);
-    CMessageHeader *pMsg = m_pOnwerObj->PrepareMsg(nLen,(SENDCRYPTEDKEY_OCTSEQ_TPL_BEGIN_TUINT16_TPL_END__ID),&m_tTarget,1,false);
+    TInt32 nLen = GetLength(_tKey)+GetLength(_uPadding);
+    CMessageHeader *pMsg = m_pOnwerObj->PrepareMsg(nLen,(SENDCRYPTEDKEY_OCTSEQ_TPL_BEGIN_TUINT32_TPL_END__TUINT32_ID),&m_tTarget,1,false);
     if (NULL == pMsg)
     {
         return OUT_OF_MEM;
@@ -189,6 +189,13 @@ TInt32 IfConnectingStub::SendCryptedKey(OctSeq<TUInt16> _tKey)
     TInt32 nRet=0;
     TUChar *pBuffer = pMsg->GetBody();
     nRet = Marshall(pBuffer+nUsed,nLen,_tKey);
+    if (nRet < SUCCESS)
+    {
+        return nRet;
+    }
+    nUsed += nRet;
+    nLen-=nRet;
+    nRet = Marshall(pBuffer+nUsed,nLen,_uPadding);
     if (nRet < SUCCESS)
     {
         return nRet;

@@ -1,9 +1,9 @@
 #ifndef __IFAUTHSERVICE_SKELETON_H__
 #define __IFAUTHSERVICE_SKELETON_H__
 #include "Public/include/Message.h"
-#include "../Interface/ifauthService.h"
+#include "../Interface/IfAuthService.h"
 #include "IfAuthServiceMethodId.h"
-namespace Zephyr 
+namespace erp_platform 
 {
 class IfAuthServiceSkeleton 
 {
@@ -19,6 +19,7 @@ public:
          return ((IfAuthServiceServiceIdBegin)==(pMsg->GetServiceInterfaceId()));
     }
     TInt32 HandleAuthenticate_TUInt32_TChar_pt_TChar_pt(CMessageHeader *pMsg);
+    TInt32 HandleChangePwd_TChar_pt_TChar_pt_TChar_pt(CMessageHeader *pMsg);
     TInt32 HandleOnDisconneted_CDoid(CMessageHeader *pMsg);
 };
 }

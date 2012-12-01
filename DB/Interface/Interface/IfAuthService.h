@@ -3,17 +3,16 @@
 
 #include "Public/include/TypeDef.h"
 
-namespace Zephyr
+namespace erp_platform
 {
 
 class IfAuthService
 {
 public:
-    virtual TInt32 Authenticate(TUInt32 uIp,TChar *pszName,TChar *pszPwd) = 0;
+    virtual TInt32 Authenticate(TUInt32 uDyncNr,TChar *pszName,TChar *pszPwd) = 0;
+    virtual TInt32 ChangePwd(TChar *pszName,TChar *pszOldPwd,TChar *pNewPwd) = 0;
     virtual TInt32 OnDisconneted(CDoid tMyDoid) = 0;
 };
-
-
 
 }
 

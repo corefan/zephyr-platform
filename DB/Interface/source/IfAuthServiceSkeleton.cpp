@@ -1,7 +1,7 @@
 #include "../include/IfAuthServiceSkeleton.h"
 #include "Public/include/TypeUnmarshaller.h"
 #include "../include/IfAuthServiceMethodId.h"
-namespace Zephyr 
+namespace erp_platform 
 {
 TInt32 IfAuthServiceSkeleton::HandleMsg(CMessageHeader *pMsg)
 {
@@ -10,10 +10,11 @@ TInt32 IfAuthServiceSkeleton::HandleMsg(CMessageHeader *pMsg)
     static _MSGMAP_ENTRY sMsgMapEntries[] = 
     {
         {AUTHENTICATE_TUINT32_TCHAR_PT_TCHAR_PT_ID, &IfAuthServiceSkeleton::HandleAuthenticate_TUInt32_TChar_pt_TChar_pt},
+        {CHANGEPWD_TCHAR_PT_TCHAR_PT_TCHAR_PT_ID, &IfAuthServiceSkeleton::HandleChangePwd_TChar_pt_TChar_pt_TChar_pt},
         {ONDISCONNETED_CDOID_ID, &IfAuthServiceSkeleton::HandleOnDisconneted_CDoid},
     };
     TInt32 nBegin = 0;
-    TInt32 nEnd = 2;
+    TInt32 nEnd = 3;
     TUInt32 nMethodId = pMsg->GetMethodId();
     _PFMSG pPfMsg = NULL;
     while(nBegin < nEnd)
@@ -60,8 +61,8 @@ TInt32 IfAuthServiceSkeleton::HandleAuthenticate_TUInt32_TChar_pt_TChar_pt(CMess
     TInt32 nLen = pMsg->GetBodyLength();
     TUChar *pBuffer =pMsg->GetBody();
     TInt32 nRet;
-    TUInt32 _uIp;
-    nRet = Unmarshall(pBuffer,nLen,_uIp);
+    TUInt32 _uDyncNr;
+    nRet = Unmarshall(pBuffer,nLen,_uDyncNr);
     if (nRet<SUCCESS)
     {
         return nRet;
@@ -84,7 +85,39 @@ TInt32 IfAuthServiceSkeleton::HandleAuthenticate_TUInt32_TChar_pt_TChar_pt(CMess
     }
     pBuffer += nRet;
     nLen -= nRet;
-    m_pImplementObj->Authenticate(_uIp,_pszName,_pszPwd);
+    m_pImplementObj->Authenticate(_uDyncNr,_pszName,_pszPwd);
+    return SUCCESS;
+}
+TInt32 IfAuthServiceSkeleton::HandleChangePwd_TChar_pt_TChar_pt_TChar_pt(CMessageHeader *pMsg)
+{
+    TInt32 nLen = pMsg->GetBodyLength();
+    TUChar *pBuffer =pMsg->GetBody();
+    TInt32 nRet;
+    TChar *_pszName;
+    nRet = Unmarshall(pBuffer,nLen,_pszName);
+    if (nRet<SUCCESS)
+    {
+        return nRet;
+    }
+    pBuffer += nRet;
+    nLen -= nRet;
+    TChar *_pszOldPwd;
+    nRet = Unmarshall(pBuffer,nLen,_pszOldPwd);
+    if (nRet<SUCCESS)
+    {
+        return nRet;
+    }
+    pBuffer += nRet;
+    nLen -= nRet;
+    TChar *_pNewPwd;
+    nRet = Unmarshall(pBuffer,nLen,_pNewPwd);
+    if (nRet<SUCCESS)
+    {
+        return nRet;
+    }
+    pBuffer += nRet;
+    nLen -= nRet;
+    m_pImplementObj->ChangePwd(_pszName,_pszOldPwd,_pNewPwd);
     return SUCCESS;
 }
 TInt32 IfAuthServiceSkeleton::HandleOnDisconneted_CDoid(CMessageHeader *pMsg)

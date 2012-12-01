@@ -7,7 +7,7 @@
 
 #pragma  comment(lib,"libmysql.lib")
 
-namespace Zephyr
+namespace erp_platform
 {
 
 IMPLEMENT_START_HANDLE_INTERFACE(CAuthenticateService)
@@ -48,16 +48,25 @@ CAuthenticateService::~CAuthenticateService()
 
 TInt32 CAuthenticateService::Authenticate(TUInt32 uIp,TChar *pszName,TChar *pszPwd)
 {
-    CDoid *pFrom = GetMyDoid();
+    CDoid *pFrom = GetCallerDoid();
     IfAuthResp *pResp;
     GET_REMOTE_STUB_PT(pResp,IfAuthResp,pFrom);
+    ++m_nRecvTimes;
+    printf("Got %d times: name:%s,pwd:%s\n",m_nRecvTimes,pszName,pszPwd);
     if (pFrom)
     {
+        set<CDoid>::iterator it = m_tAuthoredDoid.find(*pFrom);
+        if (it != m_tAuthoredDoid.end())
+        {
+            //尝试重复登录！
+            pResp->RespAuthenticate(-((TInt32)en_reading_db),0);
+            return SUCCESS;
+        }
         //之前已经在请求登陆了，不必
         CDBAuthenticateTrans *pDB = m_tUsingMaps.GetItemByKey(*pFrom);
         if (pDB)
         {
-            pResp->RespAuthenticate(-((TInt32)en_reading_db));
+            pResp->RespAuthenticate(-((TInt32)en_reading_db),0);
             return SUCCESS;
         }
         if (m_nPendingDBTrans < m_nMaxTransNum)
@@ -99,7 +108,7 @@ TInt32 CAuthenticateService::Authenticate(TUInt32 uIp,TChar *pszName,TChar *pszP
         {
            
             //把原数据发回
-            pResp->RespAuthenticate(-((TInt32)en_system_is_too_busy));
+            pResp->RespAuthenticate(-((TInt32)en_system_is_too_busy),0);
             //写日志
             LOG_RUN(en_system_is_too_busy,"System is to busy!");
         }
@@ -143,6 +152,7 @@ TInt32 CAuthenticateService::OnInited()
     {
         return FAIL;
     }
+    m_nRecvTimes = 0;
     return StartService(tDBConfig.m_szLoggerName,tDBConfig.m_szConnectStr,tDBConfig.m_nThreadCount,tDBConfig.m_nQueueSize,tDBConfig.m_nFlag);
 }
 
@@ -241,7 +251,9 @@ void CAuthenticateService::OnDbFinished(CDBAuthenticateTrans *pTrans)
             tAuthTLV.m_nBodyLength = sizeof(CAuthorityData);
             tAuthTLV.m_nTag = pTrans->m_nResult; //表示成功.其实没用
             tAuthTLV.m_pBuffer = (TUChar*)&pTrans->m_unAllData.m_tAuthorityData;
-            pResp->RespAuthenticate(-((TInt32)en_incorrect_data_length));
+
+
+            //pResp->RespAuthenticate(-((TInt32)en_incorrect_data_length));
             //成功后，要为其创建后续的Session..
         }
         else
@@ -254,7 +266,7 @@ void CAuthenticateService::OnDbFinished(CDBAuthenticateTrans *pTrans)
             tAuthTLV.m_nBodyLength = sizeof(CAuthenticateData);
             tAuthTLV.m_nTag = 0; //表示元数据返回
             tAuthTLV.m_pBuffer = (TUChar*)&pTrans->m_unAllData.m_tAuthenticateData;
-            pResp->RespAuthenticate(-((TInt32)en_data_trans_failed));
+            //pResp->RespAuthenticate(-((TInt32)en_data_trans_failed));
             TChar szDoid[64];
             pFrom->ToStr(szDoid);
             LOG_RUN(en_data_trans_failed,"DB Trans Failed for Doid:%s\n",szDoid);

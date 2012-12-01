@@ -7,7 +7,7 @@
 #include "AuthenticateData.h"
 using namespace DBLib;
 
-namespace Zephyr
+namespace erp_platform
 {
 
 class CAuthenticateService;

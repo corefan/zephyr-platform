@@ -1,7 +1,7 @@
 #include "../include/IfAuthRespSkeleton.h"
 #include "Public/include/TypeUnmarshaller.h"
 #include "../include/IfAuthRespMethodId.h"
-namespace Zephyr 
+namespace erp_platform 
 {
 TInt32 IfAuthRespSkeleton::HandleMsg(CMessageHeader *pMsg)
 {
@@ -9,7 +9,7 @@ TInt32 IfAuthRespSkeleton::HandleMsg(CMessageHeader *pMsg)
     struct _MSGMAP_ENTRY { TUInt32 m_uMsgID; _PFMSG m_pHandlerFunc; };
     static _MSGMAP_ENTRY sMsgMapEntries[] = 
     {
-        {RESPAUTHENTICATE_TINT32_ID, &IfAuthRespSkeleton::HandleRespAuthenticate_TInt32},
+        {RESPAUTHENTICATE_TINT32_TUINT64_ID, &IfAuthRespSkeleton::HandleRespAuthenticate_TInt32_TUInt64},
         {CONFIRMDISCONNETED_CDOID_ID, &IfAuthRespSkeleton::HandleConfirmDisconneted_CDoid},
     };
     TInt32 nBegin = 0;
@@ -55,7 +55,7 @@ TInt32 IfAuthRespSkeleton::HandleMsg(CMessageHeader *pMsg)
     }
     return (this->*pPfMsg)(pMsg);
 }; 
-TInt32 IfAuthRespSkeleton::HandleRespAuthenticate_TInt32(CMessageHeader *pMsg)
+TInt32 IfAuthRespSkeleton::HandleRespAuthenticate_TInt32_TUInt64(CMessageHeader *pMsg)
 {
     TInt32 nLen = pMsg->GetBodyLength();
     TUChar *pBuffer =pMsg->GetBody();
@@ -68,7 +68,15 @@ TInt32 IfAuthRespSkeleton::HandleRespAuthenticate_TInt32(CMessageHeader *pMsg)
     }
     pBuffer += nRet;
     nLen -= nRet;
-    m_pImplementObj->RespAuthenticate(_nResult);
+    TUInt64 _uId;
+    nRet = Unmarshall(pBuffer,nLen,_uId);
+    if (nRet<SUCCESS)
+    {
+        return nRet;
+    }
+    pBuffer += nRet;
+    nLen -= nRet;
+    m_pImplementObj->RespAuthenticate(_nResult,_uId);
     return SUCCESS;
 }
 TInt32 IfAuthRespSkeleton::HandleConfirmDisconneted_CDoid(CMessageHeader *pMsg)

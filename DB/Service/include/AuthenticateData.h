@@ -3,7 +3,7 @@
 
 #include "Public/include/TypeDef.h"
 
-namespace Zephyr
+namespace erp_platform
 {
 
 #define MAX_ACCOUNT_NAME_LENGTH 32

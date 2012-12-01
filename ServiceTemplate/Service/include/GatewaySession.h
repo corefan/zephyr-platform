@@ -12,6 +12,7 @@
 #include "Public/tpl/include/TplMultiMap.h"
 #include "GatewayLogger.h"
 #include "RouteMap.h"
+#include "../../Interface/interface/IfConnectingResp.h"
 namespace Zephyr
 {
 
@@ -91,7 +92,7 @@ public:
     virtual TInt32 SetId(TUInt32 uId);
     virtual TInt32 CheckId(TUInt32 uId);
 
-    virtual TInt32 SendCryptedKey(OctSeq<TUInt16> tKey);
+    virtual TInt32 SendCryptedKey(OctSeq<TUInt32> tKey,TUInt32 uPadding);
     //使用inline
     IfLogger *GetLogger();
     void DelayedDisconnect();
@@ -99,7 +100,7 @@ private:
     void   SendHeartBeat();
     void   OnNetIO();
     //GW处理客户端请求，返回值是这个消息是否被使用
-    TBOOL  HandleClientMsg(CMessageHeader::UnMsgInfo *pMsgInfo);
+    TInt32  HandleClientMsg(CMessageHeader::UnMsgInfo *pMsgInfo);
     TInt32 SendMsg2Client(CMessageHeader *pMsg);
 };
 

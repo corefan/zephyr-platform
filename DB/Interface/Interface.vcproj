@@ -84,7 +84,7 @@
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="4"
-			CharacterSet="1"
+			CharacterSet="2"
 			WholeProgramOptimization="1"
 			>
 			<Tool
@@ -165,6 +165,34 @@
 				RelativePath=".\source\IfAuthServiceStub.cpp"
 				>
 			</File>
+			<File
+				RelativePath=".\source\IfUsersessionRespSkeleton.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\source\IfUsersessionRespStub.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\source\IfUserSessionSkeleton.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\source\IfUserSessionStub.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\source\TJobInfosGetLength.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\source\TJobInfosMarshaller.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\source\TJobInfosUnmarshaller.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="include"
@@ -196,7 +224,43 @@
 				>
 			</File>
 			<File
+				RelativePath=".\include\IfUserSessionMethodId.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\IfUsersessionRespMethodId.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\IfUsersessionRespSkeleton.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\IfUsersessionRespStub.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\IfUserSessionSkeleton.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\IfUserSessionStub.h"
+				>
+			</File>
+			<File
 				RelativePath="..\include\ServiceIdDef.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\TJobInfosGetLength.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\tjobinfosmarshaller.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\tjobinfosunmarshaller.h"
 				>
 			</File>
 		</Filter>
@@ -209,6 +273,18 @@
 			</File>
 			<File
 				RelativePath=".\Interface\IfAuthService.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Interface\IfUserSession.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Interface\IfUserSessionResp.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Interface\JobInfo.h"
 				>
 			</File>
 		</Filter>

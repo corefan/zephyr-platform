@@ -12,7 +12,7 @@ TInt32 IfConnectingRespSkeleton::HandleMsg(CMessageHeader *pMsg)
         {RESPREGISTERSERVICE_CDOID_PT_TUINT32_TINT32_ID, &IfConnectingRespSkeleton::HandleRespRegisterService_CDoid_pt_TUInt32_TInt32},
         {CONFIRMUNREGISTERSERVICE_TUINT32_ID, &IfConnectingRespSkeleton::HandleConfirmUnregisterService_TUInt32},
         {ONDISCONNECT_TUINT32_ID, &IfConnectingRespSkeleton::HandleOnDisconnect_TUInt32},
-        {SENDRSAPUBLICKEY_TUINT16_TUINT16_OCTSEQ_TPL_BEGIN_TUINT16_TPL_END__OCTSEQ_TPL_BEGIN_TUINT16_TPL_END__ID, &IfConnectingRespSkeleton::HandleSendRSAPublicKey_TUInt16_TUInt16_OctSeq_tpl_begin_TUInt16_tpl_end__OctSeq_tpl_begin_TUInt16_tpl_end_},
+        {SENDRSAPUBLICKEY_TUINT16_TUINT16_OCTSEQ_TPL_BEGIN_TUINT16_TPL_END__OCTSEQ_TPL_BEGIN_TUINT16_TPL_END__TUINT32_ID, &IfConnectingRespSkeleton::HandleSendRSAPublicKey_TUInt16_TUInt16_OctSeq_tpl_begin_TUInt16_tpl_end__OctSeq_tpl_begin_TUInt16_tpl_end__TUInt32},
     };
     TInt32 nBegin = 0;
     TInt32 nEnd = 4;
@@ -121,7 +121,7 @@ TInt32 IfConnectingRespSkeleton::HandleOnDisconnect_TUInt32(CMessageHeader *pMsg
     m_pImplementObj->OnDisconnect(_uReason);
     return SUCCESS;
 }
-TInt32 IfConnectingRespSkeleton::HandleSendRSAPublicKey_TUInt16_TUInt16_OctSeq_tpl_begin_TUInt16_tpl_end__OctSeq_tpl_begin_TUInt16_tpl_end_(CMessageHeader *pMsg)
+TInt32 IfConnectingRespSkeleton::HandleSendRSAPublicKey_TUInt16_TUInt16_OctSeq_tpl_begin_TUInt16_tpl_end__OctSeq_tpl_begin_TUInt16_tpl_end__TUInt32(CMessageHeader *pMsg)
 {
     TInt32 nLen = pMsg->GetBodyLength();
     TUChar *pBuffer =pMsg->GetBody();
@@ -158,7 +158,15 @@ TInt32 IfConnectingRespSkeleton::HandleSendRSAPublicKey_TUInt16_TUInt16_OctSeq_t
     }
     pBuffer += nRet;
     nLen -= nRet;
-    m_pImplementObj->SendRSAPublicKey(_uBits,_isFermat4,_e,_n);
+    TUInt32 _uDyncNr;
+    nRet = Unmarshall(pBuffer,nLen,_uDyncNr);
+    if (nRet<SUCCESS)
+    {
+        return nRet;
+    }
+    pBuffer += nRet;
+    nLen -= nRet;
+    m_pImplementObj->SendRSAPublicKey(_uBits,_isFermat4,_e,_n,_uDyncNr);
     return SUCCESS;
 }
 }

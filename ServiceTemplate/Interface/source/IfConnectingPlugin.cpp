@@ -74,7 +74,7 @@ TInt32 CIfConnectingPlugin::OnDisconnect(TUInt32 uReason)
     return SUCCESS;
 }
 
-TInt32 CIfConnectingPlugin::SendRSAPublicKey(TUInt16 uBits,TUInt16 isFermat4,OctSeq<TUInt16> e,OctSeq<TUInt16> n)
+TInt32 CIfConnectingPlugin::SendRSAPublicKey(TUInt16 uBits,TUInt16 isFermat4,OctSeq<TUInt16> e,OctSeq<TUInt16> n,TUInt32 uDyncNr)
 {
     return SUCCESS;
 }

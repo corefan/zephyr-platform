@@ -22,7 +22,6 @@ namespace Zephyr
 class IfCryptorFactory
 {
 public:
-    virtual ~IfCryptorFactory() = 0;
     //根据CConPair来创建一个加密器，注意，这个方法是由应用层的线程来调用的，即在IfNet::Run中被回调
     virtual IfCryptor *GetCryptor(CConPair *pPair,TUInt32 connectionIdx) = 0;
     //释放IfCryptor

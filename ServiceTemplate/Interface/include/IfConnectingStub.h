@@ -22,7 +22,7 @@ public:
     virtual TInt32 Disconnect(TUInt32 uReason);
     virtual TInt32 SetId(TUInt32 uId);
     virtual TInt32 CheckId(TUInt32 uId);
-    virtual TInt32 SendCryptedKey(OctSeq<TUInt16> tKey);
+    virtual TInt32 SendCryptedKey(OctSeq<TUInt32> tKey,TUInt32 uPadding);
 };
 }
 #endif

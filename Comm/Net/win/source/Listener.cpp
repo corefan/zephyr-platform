@@ -19,7 +19,6 @@ CListener::~CListener()
     {
         closesocket(m_listeningSocket);
     }
-    
 }
 TInt32 CListener::Init(HANDLE completionPort,TUInt32 myIp,TUInt16 listeningPort,TUInt16 maxAcceptNr,IfListenerCallBack *pListenerCallBack,ItemClassPool<CConnection> *pConnectionPool,IfParserFactory *pParserFactory,IfCryptorFactory *pCryptorFactory)
 {
@@ -33,7 +32,6 @@ TInt32 CListener::Init(HANDLE completionPort,TUInt32 myIp,TUInt16 listeningPort,
     if (SOCKET_ERROR == m_listeningSocket)
     {
         int errCode = GetLastError();
-
         return -errCode;
     }
 

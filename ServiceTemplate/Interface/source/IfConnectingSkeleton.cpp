@@ -15,7 +15,7 @@ TInt32 IfConnectingSkeleton::HandleMsg(CMessageHeader *pMsg)
         {DISCONNECT_TUINT32_ID, &IfConnectingSkeleton::HandleDisconnect_TUInt32},
         {SETID_TUINT32_ID, &IfConnectingSkeleton::HandleSetId_TUInt32},
         {CHECKID_TUINT32_ID, &IfConnectingSkeleton::HandleCheckId_TUInt32},
-        {SENDCRYPTEDKEY_OCTSEQ_TPL_BEGIN_TUINT16_TPL_END__ID, &IfConnectingSkeleton::HandleSendCryptedKey_OctSeq_tpl_begin_TUInt16_tpl_end_},
+        {SENDCRYPTEDKEY_OCTSEQ_TPL_BEGIN_TUINT32_TPL_END__TUINT32_ID, &IfConnectingSkeleton::HandleSendCryptedKey_OctSeq_tpl_begin_TUInt32_tpl_end__TUInt32},
     };
     TInt32 nBegin = 0;
     TInt32 nEnd = 7;
@@ -204,12 +204,12 @@ TInt32 IfConnectingSkeleton::HandleCheckId_TUInt32(CMessageHeader *pMsg)
     m_pImplementObj->CheckId(_uId);
     return SUCCESS;
 }
-TInt32 IfConnectingSkeleton::HandleSendCryptedKey_OctSeq_tpl_begin_TUInt16_tpl_end_(CMessageHeader *pMsg)
+TInt32 IfConnectingSkeleton::HandleSendCryptedKey_OctSeq_tpl_begin_TUInt32_tpl_end__TUInt32(CMessageHeader *pMsg)
 {
     TInt32 nLen = pMsg->GetBodyLength();
     TUChar *pBuffer =pMsg->GetBody();
     TInt32 nRet;
-    OctSeq<TUInt16> _tKey;
+    OctSeq<TUInt32> _tKey;
     nRet = Unmarshall(pBuffer,nLen,_tKey);
     if (nRet<SUCCESS)
     {
@@ -217,7 +217,15 @@ TInt32 IfConnectingSkeleton::HandleSendCryptedKey_OctSeq_tpl_begin_TUInt16_tpl_e
     }
     pBuffer += nRet;
     nLen -= nRet;
-    m_pImplementObj->SendCryptedKey(_tKey);
+    TUInt32 _uPadding;
+    nRet = Unmarshall(pBuffer,nLen,_uPadding);
+    if (nRet<SUCCESS)
+    {
+        return nRet;
+    }
+    pBuffer += nRet;
+    nLen -= nRet;
+    m_pImplementObj->SendCryptedKey(_tKey,_uPadding);
     return SUCCESS;
 }
 }

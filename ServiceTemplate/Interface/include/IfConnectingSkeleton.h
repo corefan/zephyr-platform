@@ -24,7 +24,7 @@ public:
     TInt32 HandleDisconnect_TUInt32(CMessageHeader *pMsg);
     TInt32 HandleSetId_TUInt32(CMessageHeader *pMsg);
     TInt32 HandleCheckId_TUInt32(CMessageHeader *pMsg);
-    TInt32 HandleSendCryptedKey_OctSeq_tpl_begin_TUInt16_tpl_end_(CMessageHeader *pMsg);
+    TInt32 HandleSendCryptedKey_OctSeq_tpl_begin_TUInt32_tpl_end__TUInt32(CMessageHeader *pMsg);
 };
 }
 #endif

@@ -3,8 +3,8 @@
 #include "Public/include/TypeDef.h"
 #include "Public/include/Doid.h"
 #include "Public/Interface/Platform/include/IfSkeleton.h"
-#include "../Interface/ifauthresp.h"
-namespace Zephyr 
+#include "../Interface/IfAuthResp.h"
+namespace erp_platform 
 {
 class IfAuthRespStub : public IfAuthResp
 {
@@ -16,7 +16,7 @@ public:
         m_pOnwerObj = pSkeleton;
         m_tTarget = *pDoid;
     }
-    virtual TInt32 RespAuthenticate(TInt32 nResult);
+    virtual TInt32 RespAuthenticate(TInt32 nResult,TUInt64 uId);
     virtual TInt32 ConfirmDisconneted(CDoid tMyDoid);
 };
 }

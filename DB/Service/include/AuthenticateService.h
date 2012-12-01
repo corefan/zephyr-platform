@@ -13,9 +13,11 @@
 #include "System/DBLib/IfDBLib.h"
 #include "DBAuthenticateTrans.h"
 #include "Public/tpl/include/tplmap.h"
-
-
-namespace Zephyr
+#include "./ASSession.h"
+#include <set>
+#include <map>
+#include <list>
+namespace erp_platform
 {
 
 using namespace DBLib;
@@ -29,7 +31,7 @@ private:
 
     //再数据库验证完毕之后，放入这个队列，只有等全部的后台session创建完毕后，再把他删掉,.
     //std::list<CDBAuthenticateTrans*> m_tInitingSessionLists;
-    
+    TInt32 m_nRecvTimes;
     //TplMap<>
     IfTrascationWorkThreadMgr  *m_pDbMgr;
     IfOrb *m_pIfOrb;
@@ -44,6 +46,11 @@ private:
     TUInt32         m_nLastStaticTime;
     //统计信息,1分钟统计一次
     TUInt32         m_nTotalReqTransIn1Min;
+    set<CDoid>      m_tAuthoredDoid;
+    map<TUInt32,CASSession*> m_tAccountsInUsing;
+
+    list<TJobInfos>  m_tJobLists;
+    vector<TJobInfos*> m_tJobs;
 public:
     CAuthenticateService();
     ~CAuthenticateService();
@@ -56,7 +63,10 @@ public:
     DECALRE_HANDLE_INTERFCE;
     //在初始化的时候会被调.
     
-    
+    virtual TInt32 ChangePwd(TChar *pszName,TChar *pszOldPwd,TChar *pNewPwd)
+    {
+        return SUCCESS;
+    }
     virtual TInt32 Authenticate(TUInt32 uIp,TChar *pszName,TChar *pszPwd); 
     virtual TInt32 OnDisconneted(CDoid tMyDoid);
     TInt32 StartService(TChar *pszLoggerName,TChar *pszConnectStr,TInt32  nThreadCount,TInt32 QueueSize,TUInt32 Flag=0);

@@ -23,7 +23,7 @@ namespace Zephyr
         virtual TInt32 SetId(TUInt32 uId) = 0;
         virtual TInt32 CheckId(TUInt32 uId) = 0;
 
-        virtual TInt32 SendCryptedKey(OctSeq<TUInt16> tKey) = 0;
+        virtual TInt32 SendCryptedKey(OctSeq<TUInt32> tKey,TUInt32 uPadding) = 0;
     };
 }
 

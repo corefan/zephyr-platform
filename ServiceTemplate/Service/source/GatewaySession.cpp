@@ -4,6 +4,10 @@
 #include "../../Interface/include/IfConnectingRespStub.h"
 #include <time.h>
 #include "../../../DB/Interface/include/IfAuthServiceMethodId.h"
+#include "../../Interface/include/IfConnectingRespSkeleton.h"
+#include "../CryptLib2/rsa.h"
+#include "../include/GatewayParser.h"
+
 #pragma warning(push)
 #pragma warning(disable:4244)
 
@@ -42,7 +46,7 @@ TInt32 CGatewaySession::OnRecv(TUChar *pMsg, TUInt32 msgLen)
     TUInt32 uMsgId = pMsgInfo->m_methodId;
     if (pMsgInfo->m_msgBodyLength + sizeof(CMessageHeader::UnMsgInfo) == msgLen) //这个是肯定的
     {
-        if (HandleClientMsg(pMsgInfo))
+        if (HandleClientMsg(pMsgInfo)>=SUCCESS)
         {
             return msgLen;
         }
@@ -64,23 +68,23 @@ TInt32 CGatewaySession::OnRecv(TUChar *pMsg, TUInt32 msgLen)
     return msgLen;
 }
 
-TBOOL  CGatewaySession::HandleClientMsg(CMessageHeader::UnMsgInfo *pMsgInfo)
+TInt32  CGatewaySession::HandleClientMsg(CMessageHeader::UnMsgInfo *pMsgInfo)
 {
-    if (AUTHENTICATE_TUINT32_TCHAR_PT_TCHAR_PT_ID == pMsgInfo->m_methodId)
-    {
-        //回发一条消息。
-        TUInt32 *pIp = (TUInt32 *)(void*)(pMsgInfo+1);
-        *pIp = m_pIfConnection->GetConnectionInfo()->GetMyIp();
-    }
-    return False;
+    CMessageHeader *pMsg = GET_CONTAINER(pMsgInfo,CMessageHeader,m_msgInfo);
+    IMPLEMENT_HANDLE_INTERFACE(IfConnecting);
+    return CAN_NOT_HANDLE_THIS_MSG;
 }
 
 //redirct 2 client;
 TInt32 CGatewaySession::OnRecvUnacceptableMsg(CMessageHeader *pMsg)
 {
     OnNetIO();
+    CClientSkeleton *pClientSkeleton = m_pService->GetSkeleton();
+    pClientSkeleton->Reset(m_pIfConnection);
+    pClientSkeleton->SendMsg(pMsg);
     return SUCCESS;
 }
+
     //virtual TInt32 OnRecvIn2Piece(TUChar *pMsg, TUInt32 msgLen,TUChar *pMsg2,TUInt32 msgLen2) = 0;
     //网络层会自动从factory生成parser和crypter,请应用层对这连个东西进行设置
     //应用层应该明确知道IfParser 和 IfCryptor的实现类，并在OnConnected的时候对其进行设置.
@@ -93,6 +97,16 @@ TInt32 CGatewaySession::OnConnected(IfConnection *pIfConnection,IfParser *pParse
     m_pParser = pParser;
     m_pCryptor = pCryptor;
     CConPair *pConn = pIfConnection->GetConnectionInfo();
+    CClientSkeleton *pSkeleton = m_pService->GetSkeleton();
+    pSkeleton->Reset(m_pIfConnection);
+    IfConnectingRespStub tClientStub;
+    tClientStub.Init(pSkeleton,pSkeleton->GetMyDoid());
+    OctSeq<TUInt16> e,n;
+    e.m_nBodyLength = 3;
+    e.m_pBuffer = &m_pService->GetPublicKey()->exponent[MAX_RSA_MODULUS_LEN-3];
+    n.m_nBodyLength = MAX_RSA_MODULUS_LEN;
+    n.m_pBuffer = m_pService->GetPublicKey()->modulus;
+    tClientStub.SendRSAPublicKey(1024,1,e,n,0);
     OnConnected(pConn->GetMyIp(),pConn->GetMyPort());
     return SUCCESS;
 }
@@ -276,8 +290,26 @@ TInt32 CGatewaySession::SendMsg2Client(CMessageHeader *pMsg)
     return OUT_OF_MEM_BUFFER;
 }
 
-TInt32 CGatewaySession::SendCryptedKey(OctSeq<TUInt16> tKey)
+TInt32 CGatewaySession::SendCryptedKey(OctSeq<TUInt32> tKey,TUInt32 uPadding)
 {
+    if (128 == tKey.m_nBodyLength)
+    {
+        //解码
+        TUChar szOrinal[256];
+        unsigned int decryptedLength=0;
+
+        int status = RSAPrivateDecrypt(szOrinal, &decryptedLength,
+            tKey.m_pBuffer, tKey.m_nBodyLength, m_pService->GetPrivateKey());
+        if (0 < status)
+        {
+            printf("Decrypt failed!");
+        }
+        if (64 == decryptedLength)
+        {
+            CGatewayParser *pParser = (CGatewayParser*)m_pParser;
+            pParser->SetKey((TUInt16*)szOrinal);
+        }
+    }
     return SUCCESS;
 }
 

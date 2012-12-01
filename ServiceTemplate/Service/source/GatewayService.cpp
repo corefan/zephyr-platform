@@ -168,7 +168,8 @@ TInt32 CGatewayService::OnInited()
         return nRet;
     }
     //然后生成Net
-    m_pNet = CreateNet(m_pTaskMgr,&m_tParserFactory,NULL,tConfig.m_uMaxConnections,
+    m_tParserFactory.InitFarctory(tConfig.m_uMaxConnections);
+    m_pNet = CreateNet(m_pTaskMgr,&m_tParserFactory,&m_tParserFactory,tConfig.m_uMaxConnections,
                         (tConfig.m_uOutPutCacheInKBs*1024),(tConfig.m_uInputCacheInKBs*1024));
     if (!m_pNet)
     {
@@ -200,11 +201,30 @@ TInt32 CGatewayService::OnInited()
     m_tServiceRoute.Init(&m_tRoutePool);
     m_tServiceRoute.AddRoute(&tConfig.m_tASDoid,IfAuthServiceServiceId,IfAuthServiceServiceIdBegin,IfAuthServiceServiceIdEnd+1,0);
     m_tSessionPool.InitPool(m_nMaxConnections);
-    if (m_pListener)
+    if (NULL == m_pListener)
     {
-        return SUCCESS;
+        return FAIL;
     }
-    return FAIL;
+    R_RANDOM_STRUCT randomStruct;
+    R_RSA_PROTO_KEY protoKey;
+    int status;
+    /* Initialise random structure ready for keygen */
+    R_RandomCreate(&randomStruct);
+    /* Initialise prototype key structure */
+    protoKey.bits=1024;
+    protoKey.useFermat4 = 1;
+    /* Generate keys */
+    status = R_GeneratePEMKeys(&m_tPublicKey, &m_tPrivateKey, &protoKey, &randomStruct);
+    if (status)
+    {
+        printf("R_GeneratePEMKeys failed with %d\n", status);
+        return FAIL;
+    }
+    if (m_tClientSkeleton.InitMem((tConfig.m_uOutPutCacheInKBs*1024)) < SUCCESS)
+    {
+        return FAIL;
+    }
+    return SUCCESS;
     //
 }
     //结束是回调.

@@ -16,6 +16,7 @@
 #include "GatewayLogger.h"
 #include "RouteMap.h"
 #include "../CryptLib2/rsaref.h"
+#include "ClientSkeleton.h"
 namespace Zephyr
 {
 class CGatewayService : public CService,
@@ -50,6 +51,7 @@ private:
 
     CGatewayParserFactory                      m_tParserFactory;
     TUInt32                                    m_uLastRoutineTime;
+    CClientSkeleton                            m_tClientSkeleton;
 public:
     CGatewayService();
     virtual IfConnectionCallBack *OnNewConnection(CConPair *pPair);
@@ -62,6 +64,19 @@ public:
     }
     DECALRE_HANDLE_INTERFCE;
 
+    R_RSA_PUBLIC_KEY *GetPublicKey()
+    {
+        return &m_tPublicKey;
+    }
+    R_RSA_PRIVATE_KEY *GetPrivateKey()
+    {
+        return &m_tPrivateKey;
+    }
+
+    CClientSkeleton *GetSkeleton()
+    {
+        return &m_tClientSkeleton;
+    }
     TInt32 InitService(IfOrb* pOrb,IfTaskMgr *pIfTaskMgr,IfLoggerManager *pIfLoggerMgr);
     //同步消息.
     virtual TInt32 Syn2Map(TUInt32 uFrom,TLV<TUInt8,TUInt16>& tTLV);

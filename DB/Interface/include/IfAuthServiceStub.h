@@ -3,8 +3,8 @@
 #include "Public/include/TypeDef.h"
 #include "Public/include/Doid.h"
 #include "Public/Interface/Platform/include/IfSkeleton.h"
-#include "../Interface/ifauthService.h"
-namespace Zephyr 
+#include "../Interface/IfAuthService.h"
+namespace erp_platform 
 {
 class IfAuthServiceStub : public IfAuthService
 {
@@ -16,7 +16,8 @@ public:
         m_pOnwerObj = pSkeleton;
         m_tTarget = *pDoid;
     }
-    virtual TInt32 Authenticate(TUInt32 uIp,TChar* pszName,TChar* pszPwd);
+    virtual TInt32 Authenticate(TUInt32 uDyncNr,TChar* pszName,TChar* pszPwd);
+    virtual TInt32 ChangePwd(TChar* pszName,TChar* pszOldPwd,TChar* pNewPwd);
     virtual TInt32 OnDisconneted(CDoid tMyDoid);
 };
 }
