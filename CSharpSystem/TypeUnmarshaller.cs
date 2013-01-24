@@ -128,7 +128,7 @@ public class TypeUnmarshaller
     static public int Unmarshall(byte[] pBuffers, int nBuferLength, int nUsed, out string tValue)
     {
         tValue = string.Empty;
-        if (nUsed + sizeof(int)+sizeof(char)>nBuferLength)
+        if (nUsed + sizeof(int)+sizeof(byte)>nBuferLength)
         {
             return MacrosAndDef.NOT_ENOUGH_BUFFER;
         }
@@ -138,7 +138,7 @@ public class TypeUnmarshaller
         {
             return nLen;
         }
-        int nNeed = nStrLen + sizeof(char)+sizeof(int);
+        int nNeed = nStrLen + sizeof(byte)+sizeof(int);
         if ((nNeed + nUsed) > nBuferLength)
         {
             return MacrosAndDef.NOT_ENOUGH_BUFFER;
