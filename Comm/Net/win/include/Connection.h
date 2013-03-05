@@ -175,11 +175,7 @@ public:
     
     TBOOL IsConnected()
     {
-        if (connection_is_using == m_connectionState)
-        {
-            return True;
-        }
-        return False;
+        return (connection_is_using == m_connectionState);
     }
     TBOOL IsActived()
     {
@@ -254,7 +250,6 @@ public:
     //连接中断，由网络层线程调用
     void OnNetDisconnected();
     
-    
     TBOOL CheckReadHeader(CIocpOverlappedDataHeader *pHeader)
     {
         if (pHeader == &m_readDataHeader)
@@ -295,6 +290,11 @@ public:
     TInt32 OnSent(CIocpOverlappedDataHeader *pWriteDataHeader,TUInt32 ioSize);
     CIocpOverlappedDataHeader *GetWritingData();
 	CIocpOverlappedDataHeader *PrepareToRead();
+
+    TBOOL IsAllIcopDHFree()
+    {
+        return (m_readDataHeader.IsFree()&&m_writeDataHeader.IsFree());
+    }
 	
 	//由网络层调用
 	//如果返回-1,则表示连接中断,，始终保持有一个Read CIocpOverlappedDataHeader在完成队列中,

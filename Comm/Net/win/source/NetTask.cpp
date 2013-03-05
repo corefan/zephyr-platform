@@ -165,6 +165,7 @@ TInt32 CNetTask::Run(const TInt32 threadId,const TInt32 runCnt)
 						    if (pConnection == pHeader->m_pConnection)
 						    {
 						        pConnection->CloseConnection();
+                                pHeader->FreeHeader();
 						        pConnection->OnNetDisconnected();
 						    }
 						    else
@@ -289,7 +290,9 @@ TInt32 CNetTask::ProcessIOMessage(CIocpOverlappedDataHeader *pHeader,TUInt32 ioS
             }
             else
             {
-                //pHeader->FreeHeader();
+                pHeader->FreeHeader();
+                pHeader->m_pConnection->CloseConnection();
+                pHeader->m_pConnection->OnNetDisconnected();
             }
         }
         break;
@@ -301,7 +304,9 @@ TInt32 CNetTask::ProcessIOMessage(CIocpOverlappedDataHeader *pHeader,TUInt32 ioS
             }
             else
             {
-                //pHeader=>FreeHeader();
+                pHeader->FreeHeader();
+                pHeader->m_pConnection->CloseConnection();
+                pHeader->m_pConnection->OnNetDisconnected();
             }
         }
         break;
@@ -313,7 +318,9 @@ TInt32 CNetTask::ProcessIOMessage(CIocpOverlappedDataHeader *pHeader,TUInt32 ioS
             }
             else
             {
-            
+                pHeader->FreeHeader();
+                pHeader->m_pConnection->CloseConnection();
+                pHeader->m_pConnection->OnNetDisconnected();
             }
         }
         default:

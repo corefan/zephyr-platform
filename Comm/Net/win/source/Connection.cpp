@@ -573,7 +573,10 @@ TInt32 CConnection::AppRoutine(TUChar *pBuff,TUInt32 buffLen)
                     if (needLen < dataLen)
                     {
                         m_inPipe.ReadData(pBuff,dataLen);
-                        m_pAppCallBack->OnRecv(pBuff,dataLen);
+                        if (m_pAppCallBack)
+                        {
+                            m_pAppCallBack->OnRecv(pBuff,dataLen);
+                        }
                         sendLen += dataLen;
                     }
                     else

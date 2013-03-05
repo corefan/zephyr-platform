@@ -46,21 +46,13 @@ public:
         m_seqNum    = seq;
         ZeroMemory(&m_ol, sizeof(OVERLAPPED));
     }
-	bool InUsing()
+	TBOOL InUsing()
     {
-        if (m_operation != overlapped_not_in_using)
-        {
-            return true;
-        }
-        return false;
+        return (m_operation != overlapped_not_in_using);
     }
     bool IsFree()
     {
-        if (m_operation == overlapped_not_in_using)
-        {
-            return true;
-        }
-        return false;
+        return (m_operation == overlapped_not_in_using);
     }
     void SetBuff(TChar *pChar,TUInt32 len)
     {

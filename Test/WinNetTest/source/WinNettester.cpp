@@ -50,15 +50,15 @@ TInt32 CWinNetTester::Init(const char *pMyIp,const char *pRemoteIp,unsigned shor
             int ret = m_pNet->Connect(pRemoteIp,pMyIp,remotePort,0,pConnection);
             if (SUCCESS > ret)
             {
-                m_pNet->Run(128);
                 Sleep(15);
+                m_pNet->Run(128);
             }
             else
             {
                 tryAgain = false;
             }
         }
-        if (39 == (i %40))
+        if (0==(i %20))
         {
             Sleep(15);
             m_pNet->Run(128);
